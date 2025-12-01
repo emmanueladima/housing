@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Developer Mode: Auto-login for testing
     const isDevMode = import.meta.env.VITE_DEV_MODE === 'true';
-    
+
     if (isDevMode) {
       console.log('🔧 Dev Mode: Attempting auto-login...');
       authService.login({
@@ -30,16 +30,18 @@ export const AuthProvider = ({ children }) => {
           setUser(data.user);
           setIsAuthenticated(true);
           console.log('✅ Dev Mode: Auto-login successful');
-          setLoading(false);
         })
         .catch((error) => {
           console.log('⚠️ Dev Mode: Auto-login failed, checking stored credentials...');
           // Fallback to normal auth flow
           checkStoredAuth();
+        })
+        .finally(() => {
+          setLoading(false);
         });
       return;
     }
-    
+
     // Normal auth flow
     checkStoredAuth();
   }, []);
@@ -51,7 +53,7 @@ export const AuthProvider = ({ children }) => {
     if (storedUser && token) {
       setUser(storedUser);
       setIsAuthenticated(true);
-      
+
       // Fetch fresh user data
       authService.getCurrentUser()
         .then((freshUser) => {
@@ -63,7 +65,7 @@ export const AuthProvider = ({ children }) => {
           logout();
         });
     }
-    
+
     setLoading(false);
   };
 
