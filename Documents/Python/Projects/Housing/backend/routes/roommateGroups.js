@@ -22,6 +22,8 @@ router.get('/', async (req, res) => {
 // POST create new roommate group
 router.post('/', protect, async (req, res) => {
   try {
+    console.log('Creating group with body:', req.body);
+    console.log('User:', req.user.id);
     const { name, description, budget, location, vibe, lookingFor, moveInDate } = req.body;
 
     const group = await RoommateGroup.create({
@@ -39,10 +41,11 @@ router.post('/', protect, async (req, res) => {
     await group.populate('members', 'firstName lastName email');
     await group.populate('admin', 'firstName lastName');
 
+    console.log('Group created successfully:', group._id);
     res.status(201).json(group);
   } catch (error) {
     console.error('Error creating group:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

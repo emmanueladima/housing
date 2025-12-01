@@ -149,11 +149,11 @@ const Profile = () => {
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Sleep Schedule</label>
-                    <p className="font-medium">{lifestyleProfile.sleepSchedule.bedtime} - {lifestyleProfile.sleepSchedule.wakeup}</p>
+                    <p className="font-medium">{lifestyleProfile.sleepTime} - {lifestyleProfile.wakeTime}</p>
                   </div>
                   <div>
                     <label className="text-sm text-gray-600">Budget Range</label>
-                    <p className="font-medium">${lifestyleProfile.budget.min} - ${lifestyleProfile.budget.max}</p>
+                    <p className="font-medium">${lifestyleProfile.budgetMin} - ${lifestyleProfile.budgetMax}</p>
                   </div>
                   {lifestyleProfile.vibes && lifestyleProfile.vibes.length > 0 && (
                     <div className="col-span-2">

@@ -16,8 +16,10 @@ const MapboxMap = ({
     const markers = useRef({});
 
     useEffect(() => {
+        console.log('Initializing Mapbox Map...');
+        console.log('Token exists:', !!MAPBOX_TOKEN);
         if (!MAPBOX_TOKEN) {
-            console.error('Mapbox token is missing');
+            console.error('Mapbox token is missing! Please check your .env file.');
             return;
         }
 
@@ -55,9 +57,10 @@ const MapboxMap = ({
         markers.current = {};
 
         listings.forEach(listing => {
-            if (!listing.location?.coordinates?.lat || !listing.location?.coordinates?.lng) return;
+            const coordinates = listing.location?.coordinates || listing.coordinates;
+            if (!coordinates?.lat || !coordinates?.lng) return;
 
-            const { lat, lng } = listing.location.coordinates;
+            const { lat, lng } = coordinates;
             const isSelected = selectedListing?._id === listing._id;
 
             // Create a DOM element for the marker

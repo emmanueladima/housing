@@ -12,9 +12,8 @@ import RoommateToolkit from './pages/RoommateToolkit';
 import Profile from './pages/Profile';
 import Messages from './pages/Messages';
 import Applications from './pages/Applications';
-import CreateListing from './pages/CreateListing';
+import CreateListingWizard from './pages/CreateListingWizard';
 import Subleases from './pages/Subleases';
-
 
 import LandlordDashboard from './pages/LandlordDashboard';
 import Notifications from './pages/Notifications';
@@ -37,7 +36,7 @@ function App() {
             path="/listings/create"
             element={
               <ProtectedRoute>
-                <CreateListing />
+                <CreateListingWizard />
               </ProtectedRoute>
             }
           />
