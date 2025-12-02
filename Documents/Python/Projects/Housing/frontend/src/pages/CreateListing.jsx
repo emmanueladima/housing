@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiUpload, FiX, FiHome, FiDollarSign, FiMapPin, FiCalendar } from 'react-icons/fi';
 import listingService from '../services/listingService';
 import { useAuth } from '../contexts/AuthContext';
+import AddressAutocomplete from '../components/shared/AddressAutocomplete';
 
 const CreateListing = () => {
     const navigate = useNavigate();
@@ -219,13 +220,19 @@ const CreateListing = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                                    <input
-                                        type="text"
-                                        name="address"
+                                    <AddressAutocomplete
                                         value={formData.address}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                                        required
+                                        onChange={(val) => setFormData(prev => ({ ...prev, address: val }))}
+                                        onSelect={(data) => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                address: data.street,
+                                                city: data.city,
+                                                state: data.state,
+                                                zipCode: data.zipCode,
+                                                coordinates: data.coordinates
+                                            }));
+                                        }}
                                     />
                                 </div>
                                 <div>

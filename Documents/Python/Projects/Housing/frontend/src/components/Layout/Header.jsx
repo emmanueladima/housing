@@ -98,12 +98,6 @@ const Header = () => {
               >
                 Toolkit
               </Link>
-              <Link
-                to="/subleases"
-                className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
-              >
-                Subleases
-              </Link>
             </nav>
 
             {/* Desktop Auth/User Menu */}
@@ -247,13 +241,6 @@ const Header = () => {
                 onClick={() => setShowMobileMenu(false)}
               >
                 Toolkit
-              </Link>
-              <Link
-                to="/subleases"
-                className="block text-orange-600 hover:text-orange-700 font-medium"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                Subleases
               </Link>
 
               {isAuthenticated ? (

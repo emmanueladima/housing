@@ -242,7 +242,6 @@ const CreateListingWizard = () => {
                                     value={addressQuery || formData.address}
                                     onChange={(e) => {
                                         setAddressQuery(e.target.value);
-                                        handleChange({ target: { name: 'address', value: e.target.value } });
                                     }}
                                     placeholder="Start typing address..."
                                     className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"

@@ -13,7 +13,6 @@ import Profile from './pages/Profile';
 import Messages from './pages/Messages';
 import Applications from './pages/Applications';
 import CreateListingWizard from './pages/CreateListingWizard';
-import Subleases from './pages/Subleases';
 
 import LandlordDashboard from './pages/LandlordDashboard';
 import Notifications from './pages/Notifications';
@@ -40,7 +39,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/subleases" element={<Subleases />} />
           <Route path="/safety" element={<Safety />} />
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
 

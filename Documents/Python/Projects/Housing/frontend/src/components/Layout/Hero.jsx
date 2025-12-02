@@ -29,7 +29,7 @@ const Hero = () => {
                 Student Housing Platform
               </span>
             </div>
-            
+
             {/* Main Headline */}
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-white mb-8 leading-[1.1] tracking-tight">
               Find Your
@@ -38,7 +38,7 @@ const Hero = () => {
                 Perfect Place
               </span>
             </h1>
-            
+
             <p className="text-xl text-white/90 mb-12 max-w-2xl leading-relaxed">
               Verified listings, AI roommate matching, and secure messaging — all in one place.
             </p>
@@ -70,23 +70,17 @@ const Hero = () => {
 
             {/* Simple Links */}
             <div className="flex flex-wrap gap-6 text-white/70 text-sm">
-              <button 
+              <button
                 onClick={() => navigate('/listings')}
                 className="hover:text-white transition-colors"
               >
                 Browse Listings →
               </button>
-              <button 
+              <button
                 onClick={() => navigate('/roommates')}
                 className="hover:text-white transition-colors"
               >
                 Find Roommates →
-              </button>
-              <button 
-                onClick={() => navigate('/subleases')}
-                className="hover:text-white transition-colors"
-              >
-                Subleases →
               </button>
             </div>
           </div>
