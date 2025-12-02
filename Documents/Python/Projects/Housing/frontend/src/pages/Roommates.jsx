@@ -6,6 +6,7 @@ import GroupCard from '../components/Roommates/GroupCard';
 import RoommateCard from '../components/Roommates/RoommateCard';
 import GroupCreationWizard from '../components/Roommates/GroupCreationWizard';
 import GroupDetailsModal from '../components/Roommates/GroupDetailsModal';
+import RoommateDetailsModal from '../components/Roommates/RoommateDetailsModal';
 
 const Roommates = () => {
     const [activeTab, setActiveTab] = useState('solo'); // 'groups' or 'solo'
@@ -14,8 +15,10 @@ const Roommates = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedGroup, setSelectedGroup] = useState(null);
+    const [selectedRoommate, setSelectedRoommate] = useState(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [showGroupDetailsModal, setShowGroupDetailsModal] = useState(false);
+    const [showRoommateDetailsModal, setShowRoommateDetailsModal] = useState(false);
     const [sortBy, setSortBy] = useState('match'); // 'match', 'budget', 'newest'
 
     useEffect(() => {
@@ -62,9 +65,34 @@ const Roommates = () => {
         }
     };
 
-    const handleViewDetails = (group) => {
+    const handleViewGroupDetails = (group) => {
         setSelectedGroup(group);
-        setShowDetailsModal(true);
+        setShowGroupDetailsModal(true);
+    };
+
+    const handleViewRoommateDetails = (roommate) => {
+        // Transform profile data to match modal expectations if needed
+        const formattedRoommate = {
+            firstName: roommate.user?.firstName,
+            lastName: roommate.user?.lastName,
+            photo: roommate.user?.avatar,
+            major: roommate.user?.major || 'Student',
+            year: roommate.user?.graduationYear ? `Class of ${roommate.user.graduationYear}` : 'Student',
+            budget: { min: roommate.budgetMin, max: roommate.budgetMax },
+            tags: roommate.vibeTags,
+            compatibility: 85, // Mock score
+            bio: roommate.bio,
+            moveIn: roommate.lookingFor?.moveInDate ? new Date(roommate.lookingFor.moveInDate).toLocaleDateString() : 'Flexible',
+            habits: {
+                cleanliness: roommate.cleanliness >= 4 ? 'Clean' : 'Average',
+                sleep: roommate.sleepTime > "23:00" ? 'Night Owl' : 'Early Bird',
+                noise: roommate.noiseLevel <= 2 ? 'Quiet' : 'Moderate'
+            },
+            matchReasons: ['Budget', 'Vibe']
+        };
+
+        setSelectedRoommate(formattedRoommate);
+        setShowRoommateDetailsModal(true);
     };
 
     const handleRequestJoin = (group) => {
@@ -220,7 +248,7 @@ const Roommates = () => {
                                         <GroupCard
                                             key={group._id}
                                             group={group}
-                                            onViewDetails={handleViewDetails}
+                                            onViewDetails={handleViewGroupDetails}
                                             onRequestJoin={handleRequestJoin}
                                         />
                                     ))}
@@ -260,7 +288,7 @@ const Roommates = () => {
                                             }}
                                             onMessage={() => alert('Message sent!')}
                                             onFavorite={() => alert('Saved!')}
-                                            onClick={() => alert('View Profile')}
+                                            onClick={() => handleViewRoommateDetails(profile)}
                                         />
                                     ))}
                                 </div>
@@ -277,10 +305,17 @@ const Roommates = () => {
                 onCreate={handleCreateGroup}
             />
             <GroupDetailsModal
-                isOpen={showDetailsModal}
-                onClose={() => setShowDetailsModal(false)}
+                isOpen={showGroupDetailsModal}
+                onClose={() => setShowGroupDetailsModal(false)}
                 group={selectedGroup}
                 onJoin={() => handleRequestJoin(selectedGroup)}
+            />
+            <RoommateDetailsModal
+                isOpen={showRoommateDetailsModal}
+                onClose={() => setShowRoommateDetailsModal(false)}
+                roommate={selectedRoommate}
+                onMessage={() => alert('Message sent!')}
+                onFavorite={() => alert('Saved!')}
             />
         </div>
     );

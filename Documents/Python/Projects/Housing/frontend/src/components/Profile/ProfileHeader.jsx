@@ -1,14 +1,16 @@
 import React from 'react';
 import { FiEdit, FiEye, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 
-const ProfileHeader = ({ user, completionPercentage = 0, onEdit, onPreview }) => {
+const ProfileHeader = ({ user, completionPercentage = 0, onEdit, onPreview, layout = 'horizontal' }) => {
     const getInitials = (first, last) => {
         return `${first?.charAt(0) || ''}${last?.charAt(0) || ''}`.toUpperCase();
     };
 
+    const isVertical = layout === 'vertical';
+
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+            <div className={`flex flex-col ${!isVertical ? 'md:flex-row' : ''} items-start ${!isVertical ? 'md:items-center' : ''} gap-6`}>
                 {/* Avatar */}
                 <div className="relative">
                     <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white text-3xl font-bold shadow-md">

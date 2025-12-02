@@ -5,6 +5,7 @@ import LifestyleProfileEditor from '../components/Profile/LifestyleProfileEditor
 import WeeklyScheduleEditor from '../components/Profile/WeeklyScheduleEditor';
 import lifestyleProfileService from '../services/lifestyleProfileService';
 import ProfileHeader from '../components/Profile/ProfileHeader';
+import DashboardStats from '../components/Profile/DashboardStats';
 import PersonalInfoCard from '../components/Profile/PersonalInfoCard';
 import LifestyleCard from '../components/Profile/LifestyleCard';
 import ScheduleCard from '../components/Profile/ScheduleCard';
@@ -77,56 +78,65 @@ const Profile = () => {
 
   if (!user) return null;
 
+
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
 
-        <ProfileHeader
-          user={user}
-          completionPercentage={calculateCompletion()}
-          onEdit={() => setShowEditor(true)}
-          onPreview={() => { }} // Placeholder for now
-        />
+        {/* Dashboard Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-black text-gray-900">Welcome back, {user.firstName}!</h1>
+          <p className="text-gray-500 mt-1">Here's what's happening with your housing search.</p>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: Personal Info */}
-          <div className="lg:col-span-1 space-y-6">
+        {/* Quick Stats */}
+        <DashboardStats />
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Left Column: Profile & Personal Info (4 cols) */}
+          <div className="lg:col-span-4 space-y-6">
+            <ProfileHeader
+              user={user}
+              completionPercentage={calculateCompletion()}
+              onEdit={() => setShowEditor(true)}
+              onPreview={() => { }}
+              layout="vertical"
+            />
             <PersonalInfoCard
               user={user}
-              onEdit={() => { }} // Placeholder for user edit
+              onEdit={() => { }}
             />
-
-            {/* Account Status Card could go here or be merged into Personal Info */}
           </div>
 
-          {/* Right Column: Lifestyle & Schedule */}
-          <div className="lg:col-span-2 space-y-6">
-            {flags.roommateCompatibility && (
-              <>
-                <LifestyleCard
-                  profile={lifestyleProfile}
-                  onEdit={() => setShowEditor(true)}
-                />
-
-                {flags.lifeRhythmCalendar && (
-                  <ScheduleCard
-                    schedule={lifestyleProfile?.weeklySchedule}
-                    onEdit={() => setShowScheduleEditor(true)}
-                  />
-                )}
-              </>
-            )}
+          {/* Right Column: Lifestyle & Schedule (8 cols) */}
+          <div className="lg:col-span-8 space-y-6">
+            <LifestyleCard
+              profile={lifestyleProfile}
+              onEdit={() => setShowEditor(true)}
+            />
+            <ScheduleCard
+              schedule={lifestyleProfile?.weeklySchedule}
+              onEdit={() => setShowScheduleEditor(true)}
+            />
           </div>
         </div>
 
-        {/* Modals */}
+        {/* Editors */}
         {showEditor && (
           <LifestyleProfileEditor
-            onClose={() => setShowEditor(false)}
-            onSaved={(profile) => {
-              setLifestyleProfile(profile);
-              setShowEditor(false);
+            profile={lifestyleProfile}
+            onSave={async (updatedData) => {
+              try {
+                const savedProfile = await lifestyleProfileService.saveMyProfile(updatedData);
+                setLifestyleProfile(savedProfile);
+                setShowEditor(false);
+              } catch (error) {
+                console.error('Failed to save profile:', error);
+                alert('Failed to save profile');
+              }
             }}
+            onCancel={() => setShowEditor(false)}
           />
         )}
 
@@ -134,7 +144,7 @@ const Profile = () => {
           <WeeklyScheduleEditor
             initialSchedule={lifestyleProfile?.weeklySchedule || []}
             onSave={handleScheduleSave}
-            onClose={() => setShowScheduleEditor(false)}
+            onCancel={() => setShowScheduleEditor(false)}
           />
         )}
       </div>
