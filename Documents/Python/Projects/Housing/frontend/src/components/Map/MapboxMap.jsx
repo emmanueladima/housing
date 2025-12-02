@@ -66,18 +66,22 @@ const MapboxMap = ({
             // Create a DOM element for the marker
             const el = document.createElement('div');
             el.className = 'marker';
-            el.style.width = '24px';
-            el.style.height = '24px';
             el.style.cursor = 'pointer';
+
+            // Calculate pill width based on rent digits
+            const rentStr = `$${listing.rent || listing.price}`;
+            const pillWidth = Math.max(50, rentStr.length * 10);
 
             el.innerHTML = `
         <div style="
-          background-color: ${isSelected ? '#dc2626' : '#f97316'};
-          padding: 6px 10px;
+          background: ${isSelected
+                    ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'
+                    : 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'};
+          padding: 4px 10px;
           border-radius: 16px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+          box-shadow: 0 2px 8px ${isSelected ? 'rgba(220, 38, 38, 0.3)' : 'rgba(249, 115, 22, 0.3)'};
           font-weight: bold;
-          font-size: 13px;
+          font-size: 12px;
           color: white;
           border: 2px solid white;
           white-space: nowrap;
@@ -85,10 +89,25 @@ const MapboxMap = ({
           display: flex;
           align-items: center;
           justify-content: center;
+          min-width: ${pillWidth}px;
+          transition: all 0.2s ease;
         ">
-          $${listing.rent || listing.price}
+          ${rentStr}
         </div>
       `;
+
+            // Add hover effect
+            el.addEventListener('mouseenter', () => {
+                const div = el.querySelector('div');
+                div.style.transform = 'translate(-50%, -50%) scale(1.1)';
+                div.style.boxShadow = `0 6px 16px ${isSelected ? 'rgba(220, 38, 38, 0.5)' : 'rgba(249, 115, 22, 0.5)'}`;
+            });
+
+            el.addEventListener('mouseleave', () => {
+                const div = el.querySelector('div');
+                div.style.transform = 'translate(-50%, -50%) scale(1)';
+                div.style.boxShadow = `0 4px 12px ${isSelected ? 'rgba(220, 38, 38, 0.4)' : 'rgba(249, 115, 22, 0.4)'}`;
+            });
 
             const marker = new mapboxgl.Marker(el)
                 .setLngLat([lng, lat])

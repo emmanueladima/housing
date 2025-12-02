@@ -31,7 +31,7 @@ const Roommates = () => {
                 setGroups(data);
             } else {
                 const { data } = await api.get('/lifestyle-profiles/all');
-                setSoloRoommates(data);
+                setSoloRoommates(data.profiles);
             }
         } catch (err) {
             console.error(`Error fetching ${activeTab}:`, err);

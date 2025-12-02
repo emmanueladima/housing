@@ -15,6 +15,7 @@ import ScheduleOverlap from '../components/Listings/ScheduleOverlap';
 import ConflictChips from '../components/Listings/ConflictChips';
 import CompatibilityScore from '../components/Listings/CompatibilityScore';
 import ChecklistDrawer from '../components/Listings/ChecklistDrawer';
+import MiniMap from '../components/Map/MiniMap';
 
 const ListingDetailPage = () => {
   const { id } = useParams();
@@ -277,6 +278,18 @@ const ListingDetailPage = () => {
                 </div>
               </div>
             </div>
+
+            {/* Location & Map */}
+            {listing.coordinates?.lat && listing.coordinates?.lng && (
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h2 className="text-2xl font-bold mb-4">Location</h2>
+                <MiniMap
+                  coordinates={listing.coordinates}
+                  rent={listing.rent}
+                  address={`${listing.address}, ${listing.city}, ${listing.state}`}
+                />
+              </div>
+            )}
 
             {/* Utilities */}
             {listing.utilities && (
