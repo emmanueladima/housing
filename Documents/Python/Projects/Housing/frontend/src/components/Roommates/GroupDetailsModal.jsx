@@ -1,4 +1,4 @@
-import { FiX, FiUsers, FiDollarSign, FiMapPin, FiCheckCircle } from 'react-icons/fi';
+import { FiX, FiUsers, FiDollarSign, FiMapPin, FiCheckCircle, FiMoreHorizontal, FiShield, FiSun, FiMoon, FiVolume2, FiHeart } from 'react-icons/fi';
 
 const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
     if (!isOpen || !group) return null;
@@ -12,6 +12,17 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
 
     const isDraft = !group.description || group.members?.length < 2;
 
+    // Helper to generate natural language match reasons
+    const getMatchSentences = () => {
+        const sentences = [];
+        if (group.budget?.max < 1000) sentences.push("This group fits within your budget.");
+        if (group.vibe?.includes('Studious')) sentences.push("You share a preference for a quiet study environment.");
+        if (group.location === 'Near Campus') sentences.push("The location matches your preference.");
+        return sentences.length > 0 ? sentences : ["This group has a compatible lifestyle."];
+    };
+
+    const matchSentences = getMatchSentences();
+
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
             <div
@@ -19,23 +30,34 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header Image & Info */}
-                <div className="relative h-48 bg-orange-500">
-                    <button
-                        onClick={onClose}
-                        className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-md"
-                    >
-                        <FiX size={24} />
-                    </button>
+                <div className="relative h-48 bg-orange-500 shrink-0">
+                    <div className="absolute top-4 right-4 flex gap-2">
+                        <button
+                            className="p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-md"
+                        >
+                            <FiMoreHorizontal size={24} />
+                        </button>
+                        <button
+                            onClick={onClose}
+                            className="p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-md"
+                        >
+                            <FiX size={24} />
+                        </button>
+                    </div>
 
-                    <div className="absolute -bottom-10 left-8 flex items-end w-full pr-12">
+                    <div className="absolute -bottom-10 left-6 md:left-8 flex items-end w-full pr-12">
                         <div className="flex-1 text-white mb-12">
                             <div className="flex items-center gap-3 mb-1">
-                                <h2 className="text-4xl font-black tracking-tight">{group.name}</h2>
+                                <h2 className="text-3xl md:text-4xl font-black tracking-tight">{group.name}</h2>
                                 {isDraft && (
                                     <span className="px-2 py-1 bg-white/20 text-white text-xs font-bold rounded-md uppercase tracking-wide backdrop-blur-md">
                                         Draft
                                     </span>
                                 )}
+                                <div className="flex items-center gap-1 px-2 py-0.5 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold border border-white/30" title="Verified Group">
+                                    <FiShield className="text-white" />
+                                    <span className="hidden sm:inline">Verified</span>
+                                </div>
                             </div>
                             <div className="flex items-center gap-2 text-white/90 font-bold text-lg">
                                 <FiMapPin /> {group.location}
@@ -45,23 +67,44 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                 </div>
 
                 {/* Content */}
-                <div className="pt-8 px-8 pb-8 overflow-y-auto">
+                <div className="pt-8 px-6 md:px-8 pb-8 overflow-y-auto flex-1">
+                    {/* Actions & Compatibility */}
+                    <div className="flex flex-col-reverse md:flex-row md:items-center justify-between gap-4 mb-8">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full border border-green-100 w-fit">
+                            <span className="font-black text-xl">88%</span>
+                            <span className="text-sm font-bold uppercase tracking-wide">Match Score</span>
+                        </div>
+                        <div className="flex gap-3 w-full md:w-auto">
+                            <button
+                                className="flex-1 md:flex-none py-3 px-4 rounded-xl border-2 border-gray-100 text-gray-500 font-bold hover:border-red-100 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                            >
+                                <FiHeart size={20} /> <span className="md:hidden">Save</span>
+                            </button>
+                            <button
+                                onClick={() => { onJoin(); onClose(); }}
+                                className="flex-[3] md:flex-none px-8 py-3 rounded-xl bg-black text-white font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                            >
+                                <FiCheckCircle size={20} /> Request to Join
+                            </button>
+                        </div>
+                    </div>
+
                     {/* Key Stats */}
-                    <div className="grid grid-cols-3 gap-4 mb-8 -mt-16 relative z-10">
-                        <div className="p-4 bg-white rounded-2xl shadow-lg text-center border border-gray-100 hover:scale-105 transition-transform">
+                    <div className="grid grid-cols-3 gap-4 mb-8">
+                        <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100 text-center hover:scale-105 transition-transform">
                             <p className="text-xs text-orange-600 font-bold uppercase mb-1">Budget</p>
                             <p className="text-xl font-black text-gray-900">${group.budget?.max || group.budget}</p>
                             <p className="text-xs text-gray-500">per person</p>
                         </div>
-                        <div className="p-4 bg-white rounded-2xl shadow-lg text-center border border-gray-100 hover:scale-105 transition-transform">
+                        <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-center hover:scale-105 transition-transform">
                             <p className="text-xs text-blue-600 font-bold uppercase mb-1">Looking For</p>
                             <p className="text-xl font-black text-gray-900">{group.lookingFor}</p>
                             <p className="text-xs text-gray-500">more members</p>
                         </div>
-                        <div className="p-4 bg-white rounded-2xl shadow-lg text-center border border-gray-100 hover:scale-105 transition-transform">
-                            <p className="text-xs text-green-600 font-bold uppercase mb-1">Compatibility</p>
-                            <p className="text-xl font-black text-gray-900">88%</p>
-                            <p className="text-xs text-gray-500">match with you</p>
+                        <div className="p-4 bg-purple-50 rounded-2xl border border-purple-100 text-center hover:scale-105 transition-transform">
+                            <p className="text-xs text-purple-600 font-bold uppercase mb-1">Active</p>
+                            <p className="text-xl font-black text-gray-900">2h</p>
+                            <p className="text-xs text-gray-500">ago</p>
                         </div>
                     </div>
 
@@ -77,12 +120,6 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                                 <span className="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-sm font-bold border border-orange-100 shadow-sm">
                                     {group.vibe || 'Chill'}
                                 </span>
-                            )}
-                            {!group.vibe && (
-                                <>
-                                    <span className="px-4 py-2 bg-purple-50 text-purple-700 rounded-xl text-sm font-bold border border-purple-100 shadow-sm">Night Owls</span>
-                                    <span className="px-4 py-2 bg-green-50 text-green-700 rounded-xl text-sm font-bold border border-green-100 shadow-sm">Clean</span>
-                                </>
                             )}
                         </div>
                     </section>
@@ -116,27 +153,48 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                     </section>
 
                     {/* Group Values & Lifestyle */}
-                    <section className="mb-8">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">House Rules & Lifestyle</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                <p className="text-xs text-gray-500 font-bold uppercase mb-1">Cleanliness</p>
-                                <p className="font-bold text-gray-900">High</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <section>
+                            <h3 className="text-lg font-bold text-gray-900 mb-4">House Rules & Lifestyle</h3>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-white rounded-lg text-teal-500 shadow-sm"><FiCheckCircle /></div>
+                                        <span className="font-medium text-gray-700">Cleanliness</span>
+                                    </div>
+                                    <span className="font-bold text-gray-900">High</span>
+                                </div>
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-white rounded-lg text-blue-500 shadow-sm"><FiUsers /></div>
+                                        <span className="font-medium text-gray-700">Guests</span>
+                                    </div>
+                                    <span className="font-bold text-gray-900">Occasional</span>
+                                </div>
+                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-white rounded-lg text-purple-500 shadow-sm"><FiVolume2 /></div>
+                                        <span className="font-medium text-gray-700">Noise</span>
+                                    </div>
+                                    <span className="font-bold text-gray-900">Quiet</span>
+                                </div>
                             </div>
-                            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                <p className="text-xs text-gray-500 font-bold uppercase mb-1">Guests</p>
-                                <p className="font-bold text-gray-900">Occasional</p>
-                            </div>
-                            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                <p className="text-xs text-gray-500 font-bold uppercase mb-1">Pets</p>
-                                <p className="font-bold text-gray-900">No Pets</p>
-                            </div>
-                            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                <p className="text-xs text-gray-500 font-bold uppercase mb-1">Smoking</p>
-                                <p className="font-bold text-gray-900">No Smoking</p>
-                            </div>
-                        </div>
-                    </section>
+                        </section>
+
+                        <section className="bg-green-50/50 p-5 rounded-2xl border border-green-100 h-fit">
+                            <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                <span className="text-xl">✨</span> Why we match
+                            </h3>
+                            <ul className="space-y-2">
+                                {matchSentences.map((sentence, i) => (
+                                    <li key={i} className="flex items-start gap-2 text-gray-700 font-medium text-sm">
+                                        <FiCheckCircle className="mt-0.5 text-green-600 shrink-0" />
+                                        <span>{sentence}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    </div>
 
                     {/* Description */}
                     <section className="mb-8">
@@ -145,19 +203,6 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                             {group.description || "We are a group of focused students who value a quiet study environment but also enjoy movie nights on weekends. We keep the common areas clean and respect each other's privacy."}
                         </p>
                     </section>
-                </div>
-
-                {/* Footer */}
-                <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-                    <button onClick={onClose} className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-200 transition-colors">
-                        Close
-                    </button>
-                    <button
-                        onClick={() => { onJoin(); onClose(); }}
-                        className="px-8 py-3 rounded-xl bg-black text-white font-bold hover:bg-gray-800 transition-colors shadow-lg flex items-center gap-2"
-                    >
-                        <FiCheckCircle /> Request to Join
-                    </button>
                 </div>
             </div>
         </div>

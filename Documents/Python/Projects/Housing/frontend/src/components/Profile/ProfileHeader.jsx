@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiEdit, FiEye, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import { FiEdit, FiEye, FiCheckCircle, FiAlertCircle, FiShield } from 'react-icons/fi';
 
 const ProfileHeader = ({ user, completionPercentage = 0, onEdit, onPreview, layout = 'horizontal' }) => {
     const getInitials = (first, last) => {
@@ -31,9 +31,17 @@ const ProfileHeader = ({ user, completionPercentage = 0, onEdit, onPreview, layo
                 <div className="flex-1 w-full">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">
-                                {user.firstName} {user.lastName}
-                            </h1>
+                            <div className="flex items-center gap-2">
+                                <h1 className="text-2xl font-bold text-gray-900">
+                                    {user.firstName} {user.lastName}
+                                </h1>
+                                {user.isVerified && (
+                                    <div className="flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 rounded-full text-xs font-bold border border-green-100" title="Verified Student">
+                                        <FiShield size={12} />
+                                        <span>Verified Student</span>
+                                    </div>
+                                )}
+                            </div>
                             <p className="text-gray-600">{user.school}</p>
                         </div>
                         <div className="flex gap-3">
@@ -57,11 +65,7 @@ const ProfileHeader = ({ user, completionPercentage = 0, onEdit, onPreview, layo
                         <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium capitalize border border-blue-100">
                             {user.userType?.replace('-', ' ') || 'User'}
                         </span>
-                        {user.isVerified ? (
-                            <span className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium flex items-center gap-1">
-                                <FiCheckCircle size={14} /> Verified
-                            </span>
-                        ) : (
+                        {!user.isVerified && (
                             <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-sm font-medium flex items-center gap-1">
                                 <FiAlertCircle size={14} /> Unverified
                             </span>

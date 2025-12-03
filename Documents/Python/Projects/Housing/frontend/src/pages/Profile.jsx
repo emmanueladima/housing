@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useFeatureFlags } from '../contexts/FeatureFlagContext';
-import LifestyleProfileEditor from '../components/Profile/LifestyleProfileEditor';
+import ProfileCreationWizard from '../components/Profile/ProfileCreationWizard';
 import WeeklyScheduleEditor from '../components/Profile/WeeklyScheduleEditor';
 import lifestyleProfileService from '../services/lifestyleProfileService';
 import ProfileHeader from '../components/Profile/ProfileHeader';
@@ -124,19 +124,12 @@ const Profile = () => {
 
         {/* Editors */}
         {showEditor && (
-          <LifestyleProfileEditor
-            profile={lifestyleProfile}
-            onSave={async (updatedData) => {
-              try {
-                const savedProfile = await lifestyleProfileService.saveMyProfile(updatedData);
-                setLifestyleProfile(savedProfile);
-                setShowEditor(false);
-              } catch (error) {
-                console.error('Failed to save profile:', error);
-                alert('Failed to save profile');
-              }
+          <ProfileCreationWizard
+            onSaved={(savedProfile) => {
+              setLifestyleProfile(savedProfile);
+              setShowEditor(false);
             }}
-            onCancel={() => setShowEditor(false)}
+            onClose={() => setShowEditor(false)}
           />
         )}
 
@@ -144,7 +137,7 @@ const Profile = () => {
           <WeeklyScheduleEditor
             initialSchedule={lifestyleProfile?.weeklySchedule || []}
             onSave={handleScheduleSave}
-            onCancel={() => setShowScheduleEditor(false)}
+            onClose={() => setShowScheduleEditor(false)}
           />
         )}
       </div>

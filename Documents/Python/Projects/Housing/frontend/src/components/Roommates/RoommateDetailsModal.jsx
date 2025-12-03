@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiX, FiMessageCircle, FiHeart, FiMapPin, FiCheckCircle, FiSun, FiMoon, FiVolume2 } from 'react-icons/fi';
+import { FiX, FiMessageCircle, FiHeart, FiMapPin, FiCheckCircle, FiSun, FiMoon, FiVolume2, FiMoreHorizontal, FiShield } from 'react-icons/fi';
 
 const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite }) => {
     if (!isOpen || !roommate) return null;
@@ -24,6 +24,18 @@ const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite
         matchReasons = ['Cleanliness', 'Sleep Schedule', 'Budget']
     } = roommate;
 
+    // Helper to generate natural language match reasons
+    const getMatchSentences = () => {
+        const sentences = [];
+        if (compatibility > 80) sentences.push("You both have very high compatibility scores.");
+        if (habits.cleanliness === 'High') sentences.push("You both prefer a tidy living space.");
+        if (habits.sleep === 'Early Bird') sentences.push("Your sleep schedules align perfectly.");
+        if (budget.max < 1000) sentences.push("You have similar budget constraints.");
+        return sentences.length > 0 ? sentences : ["You have complementary lifestyles."];
+    };
+
+    const matchSentences = getMatchSentences();
+
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
             <div
@@ -31,123 +43,135 @@ const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header Image & Info */}
-                <div className="relative h-48 bg-orange-500">
-                    <button
-                        onClick={onClose}
-                        className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-md"
-                    >
-                        <FiX size={24} />
-                    </button>
+                <div className="relative h-48 bg-orange-500 shrink-0">
+                    <div className="absolute top-4 right-4 flex gap-2">
+                        <button
+                            className="p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-md"
+                        >
+                            <FiMoreHorizontal size={24} />
+                        </button>
+                        <button
+                            onClick={onClose}
+                            className="p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-md"
+                        >
+                            <FiX size={24} />
+                        </button>
+                    </div>
 
-                    <div className="absolute -bottom-12 left-8 flex items-end">
+                    <div className="absolute -bottom-12 left-6 md:left-8 flex items-end">
                         <div className="relative">
                             <img
                                 src={photo}
                                 alt={`${firstName} ${lastName}`}
-                                className="w-32 h-32 rounded-3xl border-4 border-white shadow-lg object-cover"
+                                className="w-28 h-28 md:w-32 md:h-32 rounded-3xl border-4 border-white shadow-lg object-cover"
                             />
                             <div className="absolute bottom-2 right-2 bg-green-500 w-4 h-4 rounded-full border-2 border-white"></div>
                         </div>
                         <div className="mb-14 ml-4 text-white">
-                            <h2 className="text-3xl font-black">{firstName} {lastName}</h2>
-                            <p className="text-white/90 font-medium">{major} • {year}</p>
+                            <div className="flex items-center gap-2">
+                                <h2 className="text-2xl md:text-3xl font-black">{firstName} {lastName}</h2>
+                                <div className="flex items-center gap-1 px-2 py-0.5 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold border border-white/30" title="Student Email Verified">
+                                    <FiShield className="text-white" />
+                                    <span className="hidden sm:inline">Verified Student</span>
+                                </div>
+                            </div>
+                            <p className="text-white/90 font-medium text-sm md:text-base">{major} • {year}</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Content */}
-                <div className="pt-16 px-8 pb-8 overflow-y-auto">
-                    {/* Compatibility Badge */}
-                    <div className="flex items-center justify-between mb-8">
-                        <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full border border-green-100">
+                <div className="pt-16 px-6 md:px-8 pb-8 overflow-y-auto flex-1">
+                    {/* Actions & Compatibility */}
+                    <div className="flex flex-col-reverse md:flex-row md:items-center justify-between gap-4 mb-8">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full border border-green-100 w-fit">
                             <span className="font-black text-xl">{compatibility}%</span>
                             <span className="text-sm font-bold uppercase tracking-wide">Match Score</span>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-3 w-full md:w-auto">
                             <button
                                 onClick={onFavorite}
-                                className="p-3 rounded-full bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                className="flex-1 md:flex-none py-3 px-4 rounded-xl border-2 border-gray-100 text-gray-500 font-bold hover:border-red-100 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center gap-2"
                             >
-                                <FiHeart size={24} />
+                                <FiHeart size={20} /> <span className="md:hidden">Save</span>
                             </button>
                             <button
                                 onClick={onMessage}
-                                className="px-6 py-3 rounded-xl bg-black text-white font-bold hover:bg-gray-800 transition-colors shadow-lg flex items-center gap-2"
+                                className="flex-[3] md:flex-none px-8 py-3 rounded-xl bg-black text-white font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
                             >
-                                <FiMessageCircle /> Message
+                                <FiMessageCircle size={20} /> Message
                             </button>
                         </div>
                     </div>
 
                     {/* Bio */}
                     <section className="mb-8">
-                        <h3 className="text-lg font-bold text-gray-900 mb-3">About Me</h3>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">About Me</h3>
                         <p className="text-gray-600 leading-relaxed text-lg">"{bio}"</p>
                     </section>
 
-                    {/* Key Stats */}
-                    <div className="grid grid-cols-3 gap-4 mb-8">
-                        <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100 text-center hover:scale-105 transition-transform">
-                            <p className="text-xs text-orange-600 font-bold uppercase mb-1">Budget</p>
-                            <p className="text-xl font-black text-gray-900">${budget.min}-${budget.max}</p>
-                        </div>
-                        <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-center hover:scale-105 transition-transform">
-                            <p className="text-xs text-blue-600 font-bold uppercase mb-1">Move In</p>
-                            <p className="text-xl font-black text-gray-900">{moveIn}</p>
-                        </div>
-                        <div className="p-4 bg-purple-50 rounded-2xl border border-purple-100 text-center hover:scale-105 transition-transform">
-                            <p className="text-xs text-purple-600 font-bold uppercase mb-1">Looking For</p>
-                            <p className="text-xl font-black text-gray-900">Room</p>
-                        </div>
-                    </div>
-
-                    {/* Habits & Vibe */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                        <section>
-                            <h3 className="text-lg font-bold text-gray-900 mb-4">Habits</h3>
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white rounded-lg text-orange-500 shadow-sm"><FiSun /></div>
-                                        <span className="font-medium text-gray-700">Sleep Schedule</span>
-                                    </div>
-                                    <span className="font-bold text-gray-900">{habits.sleep}</span>
+                    {/* Habits - Pill Cards */}
+                    <section className="mb-8">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">Lifestyle & Habits</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {/* Sleep */}
+                            <div className="flex items-center gap-3 p-3 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-900">
+                                <div className="p-2 bg-white rounded-xl text-indigo-500 shadow-sm">
+                                    {habits.sleep === 'Night Owl' ? <FiMoon /> : <FiSun />}
                                 </div>
-                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white rounded-lg text-blue-500 shadow-sm"><FiVolume2 /></div>
-                                        <span className="font-medium text-gray-700">Noise Level</span>
-                                    </div>
-                                    <span className="font-bold text-gray-900">{habits.noise}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white rounded-lg text-green-500 shadow-sm"><span className="text-lg">✨</span></div>
-                                        <span className="font-medium text-gray-700">Cleanliness</span>
-                                    </div>
-                                    <span className="font-bold text-gray-900">{habits.cleanliness}</span>
+                                <div>
+                                    <p className="text-xs font-bold uppercase opacity-60">Sleep</p>
+                                    <p className="font-bold">{habits.sleep}</p>
                                 </div>
                             </div>
-                        </section>
+                            {/* Noise */}
+                            <div className="flex items-center gap-3 p-3 rounded-2xl bg-pink-50 border border-pink-100 text-pink-900">
+                                <div className="p-2 bg-white rounded-xl text-pink-500 shadow-sm">
+                                    <FiVolume2 />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold uppercase opacity-60">Noise</p>
+                                    <p className="font-bold">{habits.noise}</p>
+                                </div>
+                            </div>
+                            {/* Cleanliness */}
+                            <div className="flex items-center gap-3 p-3 rounded-2xl bg-teal-50 border border-teal-100 text-teal-900">
+                                <div className="p-2 bg-white rounded-xl text-teal-500 shadow-sm">
+                                    <FiCheckCircle />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold uppercase opacity-60">Cleanliness</p>
+                                    <p className="font-bold">{habits.cleanliness}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
+                    {/* Vibe & Match Reasons */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <section>
-                            <h3 className="text-lg font-bold text-gray-900 mb-4">Vibe & Interests</h3>
+                            <h3 className="text-lg font-bold text-gray-900 mb-3">Interests</h3>
                             <div className="flex flex-wrap gap-2">
                                 {tags.map((tag, i) => (
-                                    <span key={i} className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 shadow-sm">
+                                    <span key={i} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold text-gray-700 transition-colors cursor-default">
                                         {tag}
                                     </span>
                                 ))}
                             </div>
+                        </section>
 
-                            <h3 className="text-lg font-bold text-gray-900 mt-6 mb-3">Why we match</h3>
-                            <div className="space-y-2">
-                                {matchReasons.map((reason, i) => (
-                                    <div key={i} className="flex items-center gap-2 text-green-700 font-medium">
-                                        <FiCheckCircle className="fill-green-100" /> {reason}
-                                    </div>
+                        <section className="bg-green-50/50 p-5 rounded-2xl border border-green-100">
+                            <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                <span className="text-xl">✨</span> Why we match
+                            </h3>
+                            <ul className="space-y-2">
+                                {matchSentences.map((sentence, i) => (
+                                    <li key={i} className="flex items-start gap-2 text-gray-700 font-medium text-sm">
+                                        <FiCheckCircle className="mt-0.5 text-green-600 shrink-0" />
+                                        <span>{sentence}</span>
+                                    </li>
                                 ))}
-                            </div>
+                            </ul>
                         </section>
                     </div>
                 </div>
