@@ -1,4 +1,4 @@
-# EdYOU - Student Housing Platform
+# collegio - Student Housing Platform
 
 A comprehensive Zillow-inspired college student housing web application with roommate matching, sublease support, real-time messaging, and 11 advanced features for enhanced user experience.
 
@@ -108,8 +108,8 @@ npm install
 ```env
 PORT=5000
 NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/edyou-housing
-JWT_SECRET=your_super_secret_jwt_key_change_in_production_edyou_2024
+MONGODB_URI=mongodb://localhost:27017/collegio-housing
+JWT_SECRET=your_super_secret_jwt_key_change_in_production_collegio_2024
 JWT_EXPIRE=30d
 DEV_MODE=true
 EMAIL_HOST=smtp.gmail.com
@@ -358,7 +358,7 @@ MIT License - Feel free to use this project for educational purposes.
 For questions or support:
 - Check the troubleshooting section
 - Review API documentation
-- Contact: support@edyou.com (placeholder)
+- Contact: support@collegio.com (placeholder)
 
 ---
 

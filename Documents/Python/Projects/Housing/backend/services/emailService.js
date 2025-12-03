@@ -8,7 +8,7 @@ import nodemailer from 'nodemailer';
 class EmailService {
   constructor() {
     this.isDev = process.env.DEV_MODE === 'true';
-    
+
     if (!this.isDev) {
       // Create reusable transporter for production
       this.transporter = nodemailer.createTransport({
@@ -28,7 +28,7 @@ class EmailService {
    */
   async sendEmail({ to, subject, html, text }) {
     const mailOptions = {
-      from: `EdYOU Housing <${process.env.EMAIL_USER}>`,
+      from: `collegio Housing <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html,
@@ -64,7 +64,7 @@ class EmailService {
    */
   async sendVerificationEmail(user, token) {
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${token}`;
-    
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -81,11 +81,11 @@ class EmailService {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🏠 Welcome to EdYOU!</h1>
+            <h1>🏠 Welcome to collegio!</h1>
           </div>
           <div class="content">
             <h2>Hi ${user.firstName}!</h2>
-            <p>Thanks for signing up for EdYOU, the student housing platform that makes finding your perfect place easy.</p>
+            <p>Thanks for signing up for collegio, the student housing platform that makes finding your perfect place easy.</p>
             <p>Please verify your email address by clicking the button below:</p>
             <p style="text-align: center; margin: 30px 0;">
               <a href="${verificationUrl}" class="button">Verify Email Address</a>
@@ -95,8 +95,8 @@ class EmailService {
             <p>This link will expire in 24 hours.</p>
           </div>
           <div class="footer">
-            <p>If you didn't create an account with EdYOU, please ignore this email.</p>
-            <p>&copy; 2024 EdYOU. All rights reserved.</p>
+            <p>If you didn't create an account with collegio, please ignore this email.</p>
+            <p>&copy; 2024 collegio. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -104,21 +104,21 @@ class EmailService {
     `;
 
     const text = `
-      Welcome to EdYOU!
+      Welcome to collegio!
       
       Hi ${user.firstName}!
       
-      Thanks for signing up for EdYOU. Please verify your email address by visiting:
+      Thanks for signing up for collegio. Please verify your email address by visiting:
       ${verificationUrl}
       
       This link will expire in 24 hours.
       
-      If you didn't create an account with EdYOU, please ignore this email.
+      If you didn't create an account with collegio, please ignore this email.
     `;
 
     return await this.sendEmail({
       to: user.email,
-      subject: 'Verify Your EdYOU Account',
+      subject: 'Verify Your collegio Account',
       html,
       text,
     });
@@ -158,7 +158,7 @@ class EmailService {
    */
   async sendApplicationUpdate(applicant, listing, status) {
     const statusText = status === 'approved' ? 'Approved ✅' : 'Reviewed';
-    
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -211,7 +211,7 @@ class EmailService {
       to: user.email,
       subject: `${matchCount} New Roommate ${matchCount === 1 ? 'Match' : 'Matches'}!`,
       html,
-      text: `You have ${matchCount} new roommate matches! Visit EdYOU to see them.`,
+      text: `You have ${matchCount} new roommate matches! Visit collegio to see them.`,
     });
   }
 
@@ -232,7 +232,7 @@ class EmailService {
       <html>
       <body style="font-family: Arial, sans-serif;">
         <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2>📬 Your Weekly EdYOU Digest</h2>
+          <h2>📬 Your Weekly collegio Digest</h2>
           <p>Hi ${user.firstName},</p>
           <p>Here are ${newListings.length} new listings matching your saved searches:</p>
           <ul>${listingItems}</ul>
@@ -250,7 +250,7 @@ class EmailService {
       to: user.email,
       subject: `${newListings.length} New Listings Match Your Search`,
       html,
-      text: `${newListings.length} new listings match your saved searches. Visit EdYOU to view them.`,
+      text: `${newListings.length} new listings match your saved searches. Visit collegio to view them.`,
     });
   }
 }

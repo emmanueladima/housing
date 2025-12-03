@@ -2,7 +2,7 @@
 function App() {
   return (
     <div style={{ padding: '40px', backgroundColor: '#f97316', minHeight: '100vh', color: 'white' }}>
-      <h1 style={{ fontSize: '48px', fontWeight: 'bold' }}>EdYOU is Working! 🎉</h1>
+      <h1 style={{ fontSize: '48px', fontWeight: 'bold' }}>collegio is Working! 🎉</h1>
       <p style={{ fontSize: '24px', marginTop: '20px' }}>
         If you see this, React is rendering correctly.
       </p>

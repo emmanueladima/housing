@@ -24,14 +24,14 @@ const seedComprehensiveData = async () => {
         return;
       }
     }
-    
+
     // Check if users exist, if not create them
     let landlord1 = await User.findOne({ email: 'sarah.landlord@oregonstate.edu' });
     let student1 = await User.findOne({ email: 'alex.chen@oregonstate.edu' });
     let student2 = await User.findOne({ email: 'jordan.miller@oregonstate.edu' });
-    
+
     const users = [];
-    
+
     if (!landlord1) {
       landlord1 = await User.create({
         firstName: 'Sarah',
@@ -52,7 +52,7 @@ const seedComprehensiveData = async () => {
       });
       users.push(landlord1);
     }
-    
+
     if (!student1) {
       student1 = await User.create({
         firstName: 'Alex',
@@ -71,7 +71,7 @@ const seedComprehensiveData = async () => {
       });
       users.push(student1);
     }
-    
+
     if (!student2) {
       student2 = await User.create({
         firstName: 'Jordan',
@@ -91,7 +91,7 @@ const seedComprehensiveData = async () => {
       });
       users.push(student2);
     }
-    
+
     // Create or update lifestyle profiles
     await LifestyleProfile.findOneAndUpdate(
       { user: student1._id },
@@ -669,7 +669,7 @@ const seedComprehensiveData = async () => {
 
 // Run if called directly
 if (process.argv[1].includes('seedComprehensiveData.js')) {
-  mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/edyou-housing')
+  mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/collegio-housing')
     .then(async () => {
       console.log('📦 Connected to MongoDB');
       await seedComprehensiveData();

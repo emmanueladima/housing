@@ -1,7 +1,7 @@
 {
-  "name": "edyou-backend",
+  "name": "collegio-backend",
   "version": "1.0.0",
-  "description": "Backend for EdYOU - College Student Housing Platform",
+  "description": "Backend for collegio - College Student Housing Platform",
   "type": "module",
   "main": "server.js",
   "scripts": {

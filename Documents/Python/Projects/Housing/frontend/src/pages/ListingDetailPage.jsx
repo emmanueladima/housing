@@ -58,7 +58,7 @@ const ListingDetailPage = () => {
       try {
         await navigator.share({
           title: listing.title,
-          text: `Check out this listing on EdYOU`,
+          text: `Check out this listing on collegio`,
           url: window.location.href,
         });
       } catch (err) {

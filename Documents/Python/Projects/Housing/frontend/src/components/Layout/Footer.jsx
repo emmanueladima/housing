@@ -12,7 +12,7 @@ const Footer = () => {
           <div className="col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <FiHome className="text-primary-600" size={28} />
-              <span className="text-2xl font-bold text-white">EdYOU</span>
+              <span className="text-2xl font-bold text-white">collegio</span>
             </div>
             <p className="text-sm">
               Making student housing search easy and connecting students with their perfect roommates.
@@ -112,7 +112,7 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center">
-          <p>&copy; {currentYear} EdYOU. All rights reserved.</p>
+          <p>&copy; {currentYear} collegio. All rights reserved.</p>
           <p className="mt-2">
             Made with ❤️ for college students
           </p>

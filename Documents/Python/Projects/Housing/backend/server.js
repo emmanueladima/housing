@@ -108,7 +108,7 @@ import uploadRoutes from './routes/uploads.js';
 // API Routes
 app.get('/', (req, res) => {
   res.json({
-    message: '🏠 Welcome to EdYOU API',
+    message: '🏠 Welcome to collegio API',
     version: '1.0.0',
     status: 'Server is running',
     endpoints: {

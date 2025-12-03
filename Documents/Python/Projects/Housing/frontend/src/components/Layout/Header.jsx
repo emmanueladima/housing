@@ -70,7 +70,7 @@ const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
               <FiHome className="text-orange-600" size={28} />
-              <span className="text-2xl font-bold text-orange-600">EdYOU</span>
+              <span className="text-2xl font-bold text-orange-600">collegio</span>
               {isDevMode && (
                 <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-yellow-400 text-gray-900 rounded">
                   DEV
@@ -297,7 +297,7 @@ const Header = () => {
       </header>
 
       {/* Auth Modals */}
-      <Modal isOpen={showLogin} onClose={() => setShowLogin(false)} title="Log In to EdYOU">
+      <Modal isOpen={showLogin} onClose={() => setShowLogin(false)} title="Log In to collegio">
         <Login
           onSuccess={() => setShowLogin(false)}
           onSwitchToSignUp={() => {
@@ -307,7 +307,7 @@ const Header = () => {
         />
       </Modal>
 
-      <Modal isOpen={showSignUp} onClose={() => setShowSignUp(false)} title="Join EdYOU">
+      <Modal isOpen={showSignUp} onClose={() => setShowSignUp(false)} title="Join collegio">
         <SignUp
           onSuccess={() => setShowSignUp(false)}
           onSwitchToLogin={() => {

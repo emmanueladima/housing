@@ -140,7 +140,7 @@ const generateRandomSchedule = () => {
 
 // Run if called directly
 if (process.argv[1].includes('seedRoommates.js')) {
-    mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/edyou-housing')
+    mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/collegio-housing')
         .then(async () => {
             console.log('📦 Connected to MongoDB');
             await seedRoommates();

@@ -5,12 +5,12 @@ dotenv.config();
 
 const dropIndex = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/edyou-housing');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/collegio-housing');
     console.log('Connected to MongoDB');
-    
+
     const db = mongoose.connection.db;
     const collection = db.collection('listings');
-    
+
     // Drop the problematic index
     try {
       await collection.dropIndex('coordinates_2dsphere');
@@ -18,7 +18,7 @@ const dropIndex = async () => {
     } catch (error) {
       console.log('Index may not exist:', error.message);
     }
-    
+
     console.log('✅ Complete');
     process.exit(0);
   } catch (error) {

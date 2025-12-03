@@ -1,6 +1,6 @@
-# 🎯 EdYOU Advanced Features Guide
+# 🎯 collegio Advanced Features Guide
 
-This document describes the 11 advanced features added to the EdYOU housing platform, including how to enable/disable them, testing scenarios, and accessibility considerations.
+This document describes the 11 advanced features added to the collegio housing platform, including how to enable/disable them, testing scenarios, and accessibility considerations.
 
 ## 📋 Feature Overview
 
@@ -560,7 +560,7 @@ Potential improvements for each feature:
 
 **Last Updated**: November 2025  
 **Platform Version**: 2.0.0  
-**Documentation by**: EdYOU Development Team
+**Documentation by**: collegio Development Team
 
 
 
