@@ -69,7 +69,7 @@ const Header = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
-              <img src="/assets/logo.png" alt="collegio" className="h-12 w-auto" />
+              <span className="text-3xl font-bold text-orange-600" style={{ fontFamily: 'Archivo Black, sans-serif' }}>collegio</span>
               {isDevMode && (
                 <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-yellow-400 text-gray-900 rounded">
                   DEV
