@@ -70,12 +70,14 @@ const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
               <span
-                className="text-3xl font-bold text-orange-600"
+                className="text-3xl text-orange-600"
                 style={{
-                  fontFamily: "'Archivo Black', sans-serif",
+                  fontFamily: "'Poppins', sans-serif",
+                  fontWeight: 900,
                   WebkitFontSmoothing: 'antialiased',
                   MozOsxFontSmoothing: 'grayscale',
-                  textRendering: 'optimizeLegibility'
+                  textRendering: 'optimizeLegibility',
+                  letterSpacing: '-0.02em'
                 }}
               >
                 collegio
