@@ -69,7 +69,17 @@ const Header = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
-              <span className="text-3xl font-bold text-orange-600" style={{ fontFamily: 'Archivo Black, sans-serif' }}>collegio</span>
+              <span
+                className="text-3xl font-bold text-orange-600"
+                style={{
+                  fontFamily: "'Archivo Black', sans-serif",
+                  WebkitFontSmoothing: 'antialiased',
+                  MozOsxFontSmoothing: 'grayscale',
+                  textRendering: 'optimizeLegibility'
+                }}
+              >
+                collegio
+              </span>
               {isDevMode && (
                 <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-yellow-400 text-gray-900 rounded">
                   DEV
