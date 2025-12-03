@@ -12,7 +12,7 @@ const Footer = () => {
           <div className="col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <FiHome className="text-primary-600" size={28} />
-              <span className="text-2xl font-bold text-white">collegio</span>
+              <span className="text-2xl font-bold text-white" style={{ fontFamily: 'Archivo Black, sans-serif' }}>collegio</span>
             </div>
             <p className="text-sm">
               Making student housing search easy and connecting students with their perfect roommates.
