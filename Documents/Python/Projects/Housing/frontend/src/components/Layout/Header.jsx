@@ -72,7 +72,7 @@ const Header = () => {
               <span
                 className="text-3xl text-orange-600"
                 style={{
-                  fontFamily: "'Poppins', sans-serif",
+                  fontFamily: "'Archivo Black', sans-serif",
                   fontWeight: 900,
                   WebkitFontSmoothing: 'antialiased',
                   MozOsxFontSmoothing: 'grayscale',
