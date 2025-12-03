@@ -100,6 +100,24 @@ const listingService = {
     const response = await api.get('/listings/my/listings');
     return response.data.listings;
   },
+  // Get similar listings
+  async getSimilarListings(currentListing) {
+    if (!currentListing) return [];
+
+    // Create filters based on current listing
+    const filters = {
+      city: currentListing.city,
+      // Price range +/- 20%
+      priceMin: Math.floor(currentListing.rent * 0.8),
+      priceMax: Math.ceil(currentListing.rent * 1.2),
+      // Exclude current listing (will need to filter client-side or add exclude param if supported)
+      limit: 4
+    };
+
+    const response = await this.getListings(filters);
+    // Filter out the current listing
+    return response.listings.filter(l => l._id !== currentListing._id).slice(0, 3);
+  },
 };
 
 export default listingService;

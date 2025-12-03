@@ -17,7 +17,7 @@ const Listings = () => {
   const { isEnabled } = useFeatureFlags();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'newest');
   const [selectedListing, setSelectedListing] = useState(null);
   const [showCommuteLayer, setShowCommuteLayer] = useState(false);
@@ -209,9 +209,9 @@ const Listings = () => {
   return (
     <div className="h-screen flex flex-col bg-white">
       {/* Main Content: Map + Listings */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Map Section - Left Side (70%) */}
-        <div className="flex-1 relative">
+      <div className="flex-1 relative overflow-hidden">
+        {/* Map Section - Full Screen Background */}
+        <div className="absolute inset-0 z-0">
           <MapboxMap
             listings={listings}
             selectedListing={selectedListing}
@@ -219,65 +219,103 @@ const Listings = () => {
           />
         </div>
 
-        {/* Listings Section - Right Side (Fixed Width 800px for 2 columns) */}
-        <div className="w-[800px] flex-shrink-0 overflow-y-auto bg-gray-50 border-l border-gray-200 relative">
-          {/* Horizontal Filter Bar - Sticky at top of sidebar */}
-          <HorizontalFilterBar
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onMoreFiltersClick={() => setShowAdvancedFilters(true)}
-            activeFilterCount={activeFilters.length}
-          />
+        {/* Listings Section - Floating Panel */}
+        <div
+          className={`absolute transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-10 bg-white shadow-2xl border border-gray-200 overflow-hidden ${showFilters
+              ? 'top-4 bottom-4 right-4 w-[800px] rounded-2xl flex flex-col'
+              : 'top-6 right-6 w-[200px] h-[56px] rounded-full flex items-center justify-center'
+            }`}
+        >
+          {/* Collapse/Expand Toggle */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`focus:outline-none transition-all duration-300 ${showFilters
+                ? 'absolute top-4 right-4 z-50 bg-white shadow-md rounded-full p-2 hover:bg-gray-50'
+                : 'w-full h-full flex items-center justify-center gap-2 font-bold text-gray-900 hover:bg-gray-50'
+              }`}
+            title={showFilters ? "Hide listings" : "Show listings"}
+          >
+            {showFilters ? (
+              <FiChevronDown className="rotate-180" size={20} />
+            ) : (
+              <>
+                <span>Explore homes</span>
+                <FiChevronDown size={20} />
+              </>
+            )}
+          </button>
 
-          <div className="p-3">
-            {/* Results Count and Sort */}
-            <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
-              <p className="text-sm text-gray-700 font-semibold">
-                {loading ? 'Loading...' : `${listings.length} homes`}
-              </p>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-orange-500 bg-white"
-              >
-                <option value="newest">Newest</option>
-                <option value="price-low">Price: Low-High</option>
-                <option value="price-high">Price: High-Low</option>
-                <option value="popular">Popular</option>
-                <option value="distance">Distance</option>
-              </select>
+          {/* Panel Content (Hidden when collapsed) */}
+          <div className={`flex flex-col h-full ${!showFilters ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            {/* Header & Filters */}
+            <div className="bg-white border-b border-gray-100 p-4 pl-16 z-20">
+              <h1 className="text-xl font-black text-gray-900 mb-3">Explore homes</h1>
+              <HorizontalFilterBar
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onMoreFiltersClick={() => setShowAdvancedFilters(true)}
+                activeFilterCount={activeFilters.length}
+              />
             </div>
 
-            {/* Loading State */}
-            {loading && (
-              <div className="flex items-center justify-center py-20">
-                <LoadingSpinner size="lg" />
+            {/* Scrollable Listings List */}
+            <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+              {/* Results Count and Sort */}
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-gray-700 font-semibold">
+                  {loading ? 'Loading...' : `${listings.length} homes`}
+                </p>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:border-orange-500 bg-white shadow-sm"
+                >
+                  <option value="newest">Newest</option>
+                  <option value="price-low">Price: Low-High</option>
+                  <option value="price-high">Price: High-Low</option>
+                  <option value="popular">Popular</option>
+                  <option value="distance">Distance</option>
+                </select>
               </div>
-            )}
 
-            {/* Listings - 2 Column Grid */}
-            {!loading && listings.length > 0 && (
-              <div className="grid grid-cols-2 gap-3">
-                {listings.map((listing) => (
-                  <div
-                    key={listing._id}
-                    id={`listing-${listing._id}`}
-                    onMouseEnter={() => handleCardHover(listing)}
-                    onMouseLeave={() => setSelectedListing(null)}
+              {/* Loading State */}
+              {loading && (
+                <div className="flex items-center justify-center py-20">
+                  <LoadingSpinner size="lg" />
+                </div>
+              )}
+
+              {/* Listings - 2 Column Grid */}
+              {!loading && listings.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {listings.map((listing) => (
+                    <div
+                      key={listing._id}
+                      id={`listing-${listing._id}`}
+                      onMouseEnter={() => handleCardHover(listing)}
+                      onMouseLeave={() => setSelectedListing(null)}
+                      className="transition-transform duration-200 hover:scale-[1.02]"
+                    >
+                      <CompactListingCard listing={listing} />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Empty State */}
+              {!loading && listings.length === 0 && (
+                <div className="text-center py-20">
+                  <p className="text-gray-500 text-base">No listings found</p>
+                  <p className="text-gray-400 text-sm mt-2">Try adjusting your filters</p>
+                  <button
+                    onClick={handleClearFilters}
+                    className="mt-4 text-orange-600 font-medium text-sm hover:underline"
                   >
-                    <CompactListingCard listing={listing} />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Empty State */}
-            {!loading && listings.length === 0 && (
-              <div className="text-center py-20">
-                <p className="text-gray-500 text-base">No listings found</p>
-                <p className="text-gray-400 text-sm mt-2">Try adjusting your filters</p>
-              </div>
-            )}
+                    Clear all filters
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

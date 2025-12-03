@@ -4,6 +4,7 @@ import ConversationList from '../components/Messages/ConversationList';
 import ChatWindow from '../components/Messages/ChatWindow';
 import { useAuth } from '../contexts/AuthContext';
 import { ThreadProvider, useThreads } from '../contexts/ThreadContext';
+import messageService from '../services/messageService';
 
 const MessagesContent = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -12,12 +13,36 @@ const MessagesContent = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get conversation ID from URL params
-    const threadId = searchParams.get('thread'); // Changed from 'conversation' to 'thread'
-    if (threadId && threadId !== activeThreadId) {
-      setActiveThreadId(threadId);
-    }
-  }, [searchParams, setActiveThreadId]);
+    const initThread = async () => {
+      // Check for 'user' param to start new conversation
+      const targetUserId = searchParams.get('user');
+      if (targetUserId) {
+        try {
+          // Create or find thread with this user
+          const thread = await messageService.createThread({
+            type: 'dm',
+            participantIds: [targetUserId]
+          });
+
+          if (thread && thread._id) {
+            setActiveThreadId(thread._id);
+            // Update URL to remove user param and add thread param
+            setSearchParams({ thread: thread._id });
+          }
+        } catch (error) {
+          console.error('Error initializing thread:', error);
+        }
+      }
+
+      // Get conversation ID from URL params
+      const threadId = searchParams.get('thread');
+      if (threadId && threadId !== activeThreadId) {
+        setActiveThreadId(threadId);
+      }
+    };
+
+    initThread();
+  }, [searchParams, setActiveThreadId, setSearchParams]);
 
   useEffect(() => {
     // Sync active thread to URL

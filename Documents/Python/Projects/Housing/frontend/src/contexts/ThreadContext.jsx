@@ -215,6 +215,28 @@ export const ThreadProvider = ({ children }) => {
             sendTyping(false);
 
             const response = await messageService.sendMessage(activeThreadId, content, attachments);
+
+            // Optimistically update or update with response
+            const newMessage = response.message;
+            setMessages(prev => [...prev, newMessage]);
+
+            // Update threads list to move this thread to top
+            setThreads(prev => {
+                const threadIndex = prev.findIndex(t => t._id === activeThreadId);
+                if (threadIndex > -1) {
+                    const updatedThread = {
+                        ...prev[threadIndex],
+                        lastMessage: newMessage,
+                        lastMessageAt: newMessage.createdAt,
+                        unreadCount: 0
+                    };
+                    const newThreads = [...prev];
+                    newThreads.splice(threadIndex, 1);
+                    return [updatedThread, ...newThreads];
+                }
+                return prev;
+            });
+
             return response.message;
         } catch (error) {
             console.error('Error sending message:', error);

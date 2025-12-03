@@ -93,7 +93,7 @@ const ChatWindow = ({ onBack }) => {
   }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
   const formatTimestamp = (timestamp) => {
@@ -253,7 +253,16 @@ const ChatWindow = ({ onBack }) => {
         ) : (
           <div className="space-y-4">
             {messages.map((message, index) => {
-              const isOwnMessage = message.sender._id === user?._id;
+              // Fix: Handle cases where sender is populated object or just ID string
+              const senderId = message.sender?._id || message.sender;
+              const currentUserId = user?._id;
+
+              // Debug logging
+              console.log('Message:', index, 'Sender:', senderId, 'User:', currentUserId, 'Match:', senderId?.toString() === currentUserId?.toString());
+
+              // Robust check for own message
+              const isOwnMessage = (senderId && currentUserId) && (senderId.toString() === currentUserId.toString());
+
               const showTimestamp = index === 0 ||
                 new Date(messages[index].createdAt).getTime() - new Date(messages[index - 1].createdAt).getTime() > 300000; // 5 minutes
 

@@ -11,11 +11,10 @@ import Button from '../components/shared/Button';
 import { formatPrice } from '../utils/priceFormatter';
 import { useAuth } from '../contexts/AuthContext';
 import { useFeatureFlags } from '../contexts/FeatureFlagContext';
-import ScheduleOverlap from '../components/Listings/ScheduleOverlap';
-import ConflictChips from '../components/Listings/ConflictChips';
-import CompatibilityScore from '../components/Listings/CompatibilityScore';
+
 import ChecklistDrawer from '../components/Listings/ChecklistDrawer';
 import MiniMap from '../components/Map/MiniMap';
+import ListingCard from '../components/Listings/ListingCard';
 
 const ListingDetailPage = () => {
   const { id } = useParams();
@@ -23,6 +22,7 @@ const ListingDetailPage = () => {
   const { isAuthenticated, user } = useAuth();
   const { flags } = useFeatureFlags();
   const [listing, setListing] = useState(null);
+  const [similarListings, setSimilarListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -34,6 +34,10 @@ const ListingDetailPage = () => {
         const data = await listingService.getListing(id);
         setListing(data);
         setIsFavorite(user?.favorites?.includes(id) || false);
+
+        // Fetch similar listings
+        const similar = await listingService.getSimilarListings(data);
+        setSimilarListings(similar);
       } catch (error) {
         console.error('Error fetching listing:', error);
       } finally {
@@ -75,7 +79,7 @@ const ListingDetailPage = () => {
       alert('Please log in to contact the landlord');
       return;
     }
-    navigate(`/messages/${listing.landlord._id}`);
+    navigate(`/messages?user=${listing.landlord._id}`);
   };
 
   if (loading) {
@@ -291,74 +295,7 @@ const ListingDetailPage = () => {
               </div>
             )}
 
-            {/* Utilities */}
-            {listing.utilities && (
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h2 className="text-2xl font-bold mb-4">Utilities</h2>
-                <div className="space-y-3">
-                  {listing.utilities.included && listing.utilities.included.length > 0 && (
-                    <div>
-                      <h3 className="font-semibold text-green-600 mb-2">Included</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {listing.utilities.included.map((utility, index) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1 bg-green-50 text-green-700 rounded-lg text-sm"
-                          >
-                            {utility}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {listing.utilities.tenantPays && listing.utilities.tenantPays.length > 0 && (
-                    <div>
-                      <h3 className="font-semibold text-orange-600 mb-2">Tenant Pays</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {listing.utilities.tenantPays.map((utility, index) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1 bg-orange-50 text-orange-700 rounded-lg text-sm"
-                          >
-                            {utility}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
 
-            {/* Roommate Compatibility */}
-            {flags.roommateCompatibility && listing.landlord && isAuthenticated && (
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h2 className="text-2xl font-bold mb-4">Roommate Match</h2>
-                <CompatibilityScore
-                  hostUserId={listing.landlord._id}
-                  listingId={listing._id}
-                />
-              </div>
-            )}
-
-            {/* Schedule Overlap */}
-            {flags.lifeRhythmCalendar && listing.landlord && isAuthenticated && (
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h2 className="text-2xl font-bold mb-4">Schedule Compatibility</h2>
-                <ScheduleOverlap hostUserId={listing.landlord._id} />
-              </div>
-            )}
-
-            {/* Conflict Preview */}
-            {flags.conflictPreview && listing.landlord && isAuthenticated && (
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h2 className="text-2xl font-bold mb-4">Potential Conflicts</h2>
-                <ConflictChips
-                  hostUserId={listing.landlord._id}
-                  listingId={listing._id}
-                />
-              </div>
-            )}
           </div>
 
           {/* Sidebar */}
@@ -467,7 +404,15 @@ const ListingDetailPage = () => {
         {/* Similar Listings Section */}
         <div className="mt-12">
           <h2 className="text-3xl font-black mb-6">Similar Listings</h2>
-          <p className="text-gray-600">Coming soon...</p>
+          {similarListings.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {similarListings.map(similar => (
+                <ListingCard key={similar._id} listing={similar} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600">No similar listings found nearby.</p>
+          )}
         </div>
       </div>
 
