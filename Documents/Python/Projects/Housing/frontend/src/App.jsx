@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Layout/Header';
 import Footer from './components/Layout/Footer';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
@@ -22,10 +22,13 @@ import VerifyEmail from './pages/VerifyEmail';
 import NotFound from './pages/NotFound';
 
 function App() {
+  const location = useLocation();
+  const isTransparentPage = location.pathname === '/' || location.pathname === '/listings';
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow">
+      <main className={`flex-grow ${!isTransparentPage ? 'pt-24' : ''}`}>
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} />

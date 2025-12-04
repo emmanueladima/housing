@@ -78,14 +78,15 @@ const MapboxMap = ({
             el.innerHTML = `
         <div style="
           background: ${isSelected
-                    ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'
-                    : 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'};
+                    ? '#ffffff'
+                    : 'linear-gradient(135deg, #DB4A2B 0%, #B0361C 100%)'};
           padding: 4px 10px;
           border-radius: 16px;
-          box-shadow: 0 2px 8px ${isSelected ? 'rgba(220, 38, 38, 0.3)' : 'rgba(249, 115, 22, 0.3)'};
+          border: ${isSelected ? '2px solid #DB4A2B' : 'none'};
+          box-shadow: 0 2px 8px ${isSelected ? 'rgba(0, 0, 0, 0.2)' : 'rgba(219, 74, 43, 0.3)'};
           font-weight: bold;
           font-size: 12px;
-          color: white;
+          color: ${isSelected ? '#DB4A2B' : 'white'};
           border: 2px solid white;
           white-space: nowrap;
           transform: translate(-50%, -50%);
@@ -103,13 +104,13 @@ const MapboxMap = ({
             el.addEventListener('mouseenter', () => {
                 const div = el.querySelector('div');
                 div.style.transform = 'translate(-50%, -50%) scale(1.1)';
-                div.style.boxShadow = `0 6px 16px ${isSelected ? 'rgba(220, 38, 38, 0.5)' : 'rgba(249, 115, 22, 0.5)'}`;
+                div.style.boxShadow = `0 6px 16px ${isSelected ? 'rgba(0, 0, 0, 0.3)' : 'rgba(219, 74, 43, 0.5)'}`;
             });
 
             el.addEventListener('mouseleave', () => {
                 const div = el.querySelector('div');
                 div.style.transform = 'translate(-50%, -50%) scale(1)';
-                div.style.boxShadow = `0 4px 12px ${isSelected ? 'rgba(220, 38, 38, 0.4)' : 'rgba(249, 115, 22, 0.4)'}`;
+                div.style.boxShadow = `0 4px 12px ${isSelected ? 'rgba(0, 0, 0, 0.2)' : 'rgba(219, 74, 43, 0.4)'}`;
             });
 
             const marker = new mapboxgl.Marker(el)
@@ -158,7 +159,7 @@ const MapboxMap = ({
                 });
 
                 // Add user location marker
-                new mapboxgl.Marker({ color: '#f97316' })
+                new mapboxgl.Marker({ color: '#DB4A2B' })
                     .setLngLat([longitude, latitude])
                     .addTo(map.current);
             },
