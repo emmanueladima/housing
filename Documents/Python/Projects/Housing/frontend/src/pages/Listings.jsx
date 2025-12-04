@@ -208,9 +208,9 @@ const Listings = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-white">
+    <div className="h-screen flex flex-col">
       {/* Main Content: Map + Listings */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative">
         {/* Map Section - Full Screen Background */}
         <div className="absolute inset-0 z-0">
           <MapboxMap
@@ -222,8 +222,8 @@ const Listings = () => {
 
         {/* Listings Section - Floating Panel */}
         <div
-          className={`absolute transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-10 bg-white shadow-2xl border border-gray-200 overflow-hidden origin-top-right ${showFilters
-            ? 'top-4 right-4 w-[800px] h-[calc(100%-2rem)] rounded-3xl flex flex-col'
+          className={`absolute transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-10 bg-white shadow-2xl border border-gray-200 overflow-clip origin-top-right ${showFilters
+            ? 'top-4 right-4 w-[800px] h-[calc(100vh-6rem)] rounded-3xl flex flex-col'
             : 'top-4 right-4 w-[200px] h-[56px] rounded-full'
             }`}
         >
@@ -254,7 +254,7 @@ const Listings = () => {
             </div>
 
             {/* Scrollable Listings List */}
-            <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-4 bg-gray-50 rounded-b-3xl">
               {/* Results Count and Sort */}
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-gray-700 font-semibold">

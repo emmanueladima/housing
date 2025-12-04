@@ -83,21 +83,16 @@ export const ThreadProvider = ({ children }) => {
 
             setLoadingMessages(true);
             try {
-                // Get thread details if not already in list or needs full details
-                let thread = threads.find(t => t._id === activeThreadId);
-                if (!thread || !thread.participants) {
-                    const data = await messageService.getThread(activeThreadId);
-                    thread = data.thread;
-                    // Merge participants from response if needed
-                }
-                setActiveThread(thread);
+                // Get thread details from API
+                const data = await messageService.getThread(activeThreadId);
+                setActiveThread(data.thread);
 
                 // Get messages
                 const msgData = await messageService.getMessages(activeThreadId);
                 setMessages(msgData.messages);
 
                 // Mark as read
-                if (thread.unreadCount > 0) {
+                if (data.thread.unreadCount > 0) {
                     await messageService.markThreadRead(activeThreadId);
                     // Update local state
                     setThreads(prev => prev.map(t =>
@@ -113,7 +108,7 @@ export const ThreadProvider = ({ children }) => {
         };
 
         loadActiveThread();
-    }, [activeThreadId, threads, fetchUnreadCount]);
+    }, [activeThreadId, fetchUnreadCount]);
 
     const [typingUsers, setTypingUsers] = useState({});
 

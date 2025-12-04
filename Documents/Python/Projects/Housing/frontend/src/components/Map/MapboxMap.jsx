@@ -48,21 +48,8 @@ const MapboxMap = ({
 
     }, []);
 
-    // Fly to selected listing
-    useEffect(() => {
-        if (!map.current || !selectedListing) return;
-
-        const coordinates = selectedListing.location?.coordinates || selectedListing.coordinates;
-        if (coordinates?.lat && coordinates?.lng) {
-            map.current.flyTo({
-                center: [coordinates.lng, coordinates.lat],
-                zoom: 15,
-                essential: true,
-                speed: 1.2,
-                curve: 1.42
-            });
-        }
-    }, [selectedListing]);
+    // Highlight selected listing marker (no zoom)
+    // The marker highlighting is handled by the marker update effect below
 
     // Update markers when listings change
     useEffect(() => {
@@ -146,17 +133,8 @@ const MapboxMap = ({
         });
     }, [listings, selectedListing, onMarkerClick]);
 
-    // Recenter when selectedListing changes
-    useEffect(() => {
-        if (!map.current || !selectedListing?.location?.coordinates) return;
-
-        const { lat, lng } = selectedListing.location.coordinates;
-        map.current.flyTo({
-            center: [lng, lat],
-            zoom: 14,
-            essential: true
-        });
-    }, [selectedListing]);
+    // Removed: Map no longer zooms when hovering over listings
+    // Instead, markers are highlighted via color change in the marker update effect
 
     // Custom Map Controls
     const handleZoomIn = () => {

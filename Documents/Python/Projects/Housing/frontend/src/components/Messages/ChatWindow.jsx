@@ -255,13 +255,13 @@ const ChatWindow = ({ onBack }) => {
             {messages.map((message, index) => {
               // Fix: Handle cases where sender is populated object or just ID string
               const senderId = message.sender?._id || message.sender;
-              const currentUserId = user?._id;
+              const currentUserId = user?._id || user?.id;
 
-              // Debug logging
-              console.log('Message:', index, 'Sender:', senderId, 'User:', currentUserId, 'Match:', senderId?.toString() === currentUserId?.toString());
-
-              // Robust check for own message
-              const isOwnMessage = (senderId && currentUserId) && (senderId.toString() === currentUserId.toString());
+              // Robust check for own message - compare both _id and id fields
+              const isOwnMessage = (senderId && currentUserId) && (
+                senderId.toString() === currentUserId.toString() ||
+                senderId === currentUserId
+              );
 
               const showTimestamp = index === 0 ||
                 new Date(messages[index].createdAt).getTime() - new Date(messages[index - 1].createdAt).getTime() > 300000; // 5 minutes
@@ -318,7 +318,7 @@ const ChatWindow = ({ onBack }) => {
                       {isOwnMessage && index === messages.length - 1 && activeThread?.participants && (
                         <div className="flex justify-end mt-1 gap-1">
                           {activeThread.participants
-                            .filter(p => p.user._id !== user._id && new Date(p.lastReadAt) >= new Date(message.createdAt))
+                            .filter(p => p?.user?._id && p.user._id !== user._id && p.lastReadAt && new Date(p.lastReadAt) >= new Date(message.createdAt))
                             .map(p => (
                               <div key={p.user._id} className="relative group/tooltip">
                                 <div className="w-4 h-4 rounded-full bg-gray-300 overflow-hidden border border-white">
@@ -326,7 +326,7 @@ const ChatWindow = ({ onBack }) => {
                                     <img src={p.user.avatarUrl} alt={p.user.firstName} className="w-full h-full object-cover" />
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-orange-100 text-[8px] font-bold text-orange-600">
-                                      {p.user.firstName[0]}
+                                      {p.user.firstName?.[0] || '?'}
                                     </div>
                                   )}
                                 </div>

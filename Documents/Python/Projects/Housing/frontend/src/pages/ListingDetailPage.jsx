@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   FiMapPin, FiHeart, FiSquare, FiHome, FiCalendar, FiDollarSign,
-  FiCheck, FiX, FiMail, FiPhone, FiArrowLeft, FiShare2, FiMoreHorizontal, FiFlag, FiUser
+  FiCheck, FiX, FiMail, FiPhone, FiArrowLeft, FiShare2, FiMoreHorizontal, FiFlag, FiUser,
+  FiChevronLeft, FiChevronRight
 } from 'react-icons/fi';
 import listingService from '../services/listingService';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -188,7 +189,7 @@ const ListingDetailPage = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Image Gallery */}
             <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-              <div className="relative h-96 bg-gray-100">
+              <div className="relative h-96 bg-gray-100 group">
                 <img
                   src={primaryImage}
                   alt={listing.title}
@@ -197,6 +198,24 @@ const ListingDetailPage = () => {
                     e.target.src = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800';
                   }}
                 />
+
+                {/* Navigation Arrows */}
+                {listing.images && listing.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setSelectedImage(selectedImage === 0 ? listing.images.length - 1 : selectedImage - 1)}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 rounded-full shadow-lg hover:bg-white text-gray-800 transition-all hover:scale-110 z-10"
+                    >
+                      <FiChevronLeft size={24} />
+                    </button>
+                    <button
+                      onClick={() => setSelectedImage(selectedImage === listing.images.length - 1 ? 0 : selectedImage + 1)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/90 rounded-full shadow-lg hover:bg-white text-gray-800 transition-all hover:scale-110 z-10"
+                    >
+                      <FiChevronRight size={24} />
+                    </button>
+                  </>
+                )}
               </div>
               {listing.images && listing.images.length > 1 && (
                 <div className="grid grid-cols-5 gap-2 p-4">
@@ -267,7 +286,9 @@ const ListingDetailPage = () => {
 
             {/* Description */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
-              {/* Badges moved here */}
+              <h2 className="text-2xl font-bold mb-4">Description</h2>
+
+              {/* Badges moved below heading */}
               {listing.badges && listing.badges.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-4">
                   {listing.badges.map((badge, index) => (
@@ -277,7 +298,7 @@ const ListingDetailPage = () => {
                   ))}
                 </div>
               )}
-              <h2 className="text-2xl font-bold mb-4">Description</h2>
+
               <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
                 {listing.description}
               </p>
