@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   FiMapPin, FiHeart, FiSquare, FiHome, FiCalendar, FiDollarSign,
-  FiCheck, FiX, FiMail, FiPhone, FiArrowLeft, FiShare2
+  FiCheck, FiX, FiMail, FiPhone, FiArrowLeft, FiShare2, FiMoreHorizontal, FiFlag, FiUser
 } from 'react-icons/fi';
 import listingService from '../services/listingService';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -27,6 +27,7 @@ const ListingDetailPage = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -53,8 +54,12 @@ const ListingDetailPage = () => {
       alert('Please log in to save favorites');
       return;
     }
-    // TODO: Implement favorite API call
-    setIsFavorite(!isFavorite);
+    try {
+      await listingService.toggleFavorite(id);
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
   };
 
   const handleShare = async () => {
@@ -80,6 +85,15 @@ const ListingDetailPage = () => {
       return;
     }
     navigate(`/messages?user=${listing.landlord._id}`);
+  };
+
+  const handleReport = () => {
+    // Placeholder for report functionality
+    const reason = prompt("Please provide a reason for reporting this listing:");
+    if (reason) {
+      alert("Thank you for your report. We will review this listing.");
+      setShowMoreMenu(false);
+    }
   };
 
   if (loading) {
@@ -119,21 +133,50 @@ const ListingDetailPage = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={handleShare}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                aria-label="Share listing"
+                className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-gray-100 transition-colors font-medium text-gray-700"
               >
-                <FiShare2 size={20} />
+                <FiShare2 size={18} />
+                Share
               </button>
               <button
                 onClick={handleFavoriteToggle}
-                className={`p-2 rounded-full transition-colors ${isFavorite
-                  ? 'bg-orange-100 text-orange-600'
-                  : 'hover:bg-gray-100'
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors font-medium ${isFavorite
+                  ? 'bg-orange-50 text-orange-600'
+                  : 'hover:bg-gray-100 text-gray-700'
                   }`}
-                aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
               >
-                <FiHeart className={isFavorite ? 'fill-current' : ''} size={20} />
+                <FiHeart className={isFavorite ? 'fill-current' : ''} size={18} />
+                {isFavorite ? 'Saved' : 'Save'}
               </button>
+
+              <div className="relative">
+                <button
+                  onClick={() => setShowMoreMenu(!showMoreMenu)}
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-700"
+                >
+                  <FiMoreHorizontal size={24} />
+                </button>
+                {showMoreMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
+                    <button
+                      onClick={handleReport}
+                      className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
+                    >
+                      <FiFlag size={16} />
+                      Report Listing
+                    </button>
+                    {listing.landlord && (
+                      <button
+                        onClick={() => navigate(`/profile/${listing.landlord._id}`)}
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"
+                      >
+                        <FiUser size={16} />
+                        View Landlord
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -154,15 +197,6 @@ const ListingDetailPage = () => {
                     e.target.src = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800';
                   }}
                 />
-                {listing.badges && listing.badges.length > 0 && (
-                  <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                    {listing.badges.map((badge, index) => (
-                      <Badge key={index} variant="primary" className="bg-orange-600 text-white shadow-lg">
-                        {badge}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
               </div>
               {listing.images && listing.images.length > 1 && (
                 <div className="grid grid-cols-5 gap-2 p-4">
@@ -233,6 +267,16 @@ const ListingDetailPage = () => {
 
             {/* Description */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
+              {/* Badges moved here */}
+              {listing.badges && listing.badges.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {listing.badges.map((badge, index) => (
+                    <span key={index} className="inline-block px-3 py-1 bg-[#FFF5E6] text-gray-900 text-sm font-bold rounded-full shadow-sm">
+                      {badge.toLowerCase()}
+                    </span>
+                  ))}
+                </div>
+              )}
               <h2 className="text-2xl font-bold mb-4">Description</h2>
               <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
                 {listing.description}

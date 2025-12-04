@@ -222,6 +222,39 @@ export const getListing = async (req, res) => {
 };
 
 /**
+ * @desc    Get favorite listings
+ * @route   GET /api/listings/favorites
+ * @access  Private
+ */
+export const getFavoriteListings = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    const favorites = await Listing.find({
+      _id: { $in: user.favorites }
+    }).populate('landlord', 'firstName lastName isVerifiedLandlord');
+
+    res.json({
+      success: true,
+      count: favorites.length,
+      listings: favorites,
+    });
+  } catch (error) {
+    console.error('Error fetching favorite listings:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error fetching favorite listings',
+    });
+  }
+};
+
+/**
  * @desc    Create new listing
  * @route   POST /api/listings
  * @access  Private (Landlord)

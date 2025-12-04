@@ -2,6 +2,7 @@ import express from 'express';
 import { body } from 'express-validator';
 import {
   getListings,
+  getFavoriteListings,
   getListing,
   createListing,
   updateListing,
@@ -33,10 +34,15 @@ const listingValidation = [
 
 // Public routes
 router.get('/', getListings);
+
+// Protected routes (must come before /:id to avoid conflicts)
+router.get('/my/listings', protect, getMyListings);
+router.get('/favorites', protect, getFavoriteListings);
+
+// Dynamic ID route (must come after specific routes)
 router.get('/:id', getListing);
 
-// Protected routes
-router.get('/my/listings', protect, getMyListings);
+// Other protected routes
 router.post('/', protect, uploadListingImages, listingValidation, createListing);
 router.put('/:id', protect, uploadListingImages, updateListing);
 router.delete('/:id', protect, deleteListing);

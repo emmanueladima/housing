@@ -10,6 +10,7 @@ import { calculateCommuteData } from '../utils/commuteCalculator';
 import { FiChevronDown, FiX, FiFilter, FiSliders } from 'react-icons/fi';
 import AdvancedFilterModal from '../components/Listings/AdvancedFilterModal';
 import HorizontalFilterBar from '../components/Listings/HorizontalFilterBar';
+import SortDropdown from '../components/Listings/SortDropdown';
 
 const Listings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -221,17 +222,17 @@ const Listings = () => {
 
         {/* Listings Section - Floating Panel */}
         <div
-          className={`absolute transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-10 bg-white shadow-2xl border border-gray-200 overflow-hidden ${showFilters
-              ? 'top-4 bottom-4 right-4 w-[800px] rounded-2xl flex flex-col'
-              : 'top-6 right-6 w-[200px] h-[56px] rounded-full flex items-center justify-center'
+          className={`absolute transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-10 bg-white shadow-2xl border border-gray-200 overflow-hidden origin-top-right ${showFilters
+            ? 'top-4 right-4 w-[800px] h-[calc(100%-2rem)] rounded-3xl flex flex-col'
+            : 'top-4 right-4 w-[200px] h-[56px] rounded-full'
             }`}
         >
           {/* Collapse/Expand Toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`focus:outline-none transition-all duration-300 ${showFilters
-                ? 'absolute top-4 right-4 z-50 bg-white shadow-md rounded-full p-2 hover:bg-gray-50'
-                : 'w-full h-full flex items-center justify-center gap-2 font-bold text-gray-900 hover:bg-gray-50'
+            className={`focus:outline-none transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex items-center justify-center z-50 ${showFilters
+              ? 'absolute top-4 right-4 w-10 h-10 bg-white shadow-md rounded-full hover:bg-gray-50'
+              : 'absolute inset-0 w-full h-full gap-2 font-bold text-gray-900 hover:bg-gray-50'
               }`}
             title={showFilters ? "Hide listings" : "Show listings"}
           >
@@ -246,16 +247,10 @@ const Listings = () => {
           </button>
 
           {/* Panel Content (Hidden when collapsed) */}
-          <div className={`flex flex-col h-full ${!showFilters ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <div className={`flex flex-col h-full transition-opacity duration-200 ${showFilters ? 'delay-300 opacity-100' : 'delay-0 opacity-0 pointer-events-none'}`}>
             {/* Header & Filters */}
-            <div className="bg-white border-b border-gray-100 p-4 pl-16 z-20">
+            <div className="bg-white p-4 pl-16 z-20">
               <h1 className="text-xl font-black text-gray-900 mb-3">Explore homes</h1>
-              <HorizontalFilterBar
-                filters={filters}
-                onFilterChange={handleFilterChange}
-                onMoreFiltersClick={() => setShowAdvancedFilters(true)}
-                activeFilterCount={activeFilters.length}
-              />
             </div>
 
             {/* Scrollable Listings List */}
@@ -265,17 +260,26 @@ const Listings = () => {
                 <p className="text-sm text-gray-700 font-semibold">
                   {loading ? 'Loading...' : `${listings.length} homes`}
                 </p>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:border-orange-500 bg-white shadow-sm"
-                >
-                  <option value="newest">Newest</option>
-                  <option value="price-low">Price: Low-High</option>
-                  <option value="price-high">Price: High-Low</option>
-                  <option value="popular">Popular</option>
-                  <option value="distance">Distance</option>
-                </select>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setShowAdvancedFilters(true)}
+                    className="px-4 py-2 border border-gray-300 rounded-full hover:border-black transition-colors font-medium text-sm flex items-center gap-2 bg-white"
+                  >
+                    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="presentation" focusable="false" style={{ display: 'block', fill: 'none', height: '16px', width: '16px', stroke: 'currentcolor', strokeWidth: 3, overflow: 'visible' }}>
+                      <path fill="none" d="M7 16H3m26 0H15M29 6h-4m-8 0H3m26 20h-4M7 16a4 4 0 1 0 8 0 4 4 0 0 0-8 0zM17 6a4 4 0 1 0 8 0 4 4 0 0 0-8 0zm0 20a4 4 0 1 0 8 0 4 4 0 0 0-8 0zm0 0H3"></path>
+                    </svg>
+                    Filters
+                    {activeFilters.length > 0 && (
+                      <span className="bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ml-1">
+                        {activeFilters.length}
+                      </span>
+                    )}
+                  </button>
+                  <SortDropdown
+                    value={sortBy}
+                    onChange={setSortBy}
+                  />
+                </div>
               </div>
 
               {/* Loading State */}

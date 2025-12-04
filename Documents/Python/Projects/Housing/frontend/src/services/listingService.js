@@ -100,6 +100,12 @@ const listingService = {
     const response = await api.get('/listings/my/listings');
     return response.data.listings;
   },
+
+  // Get saved/favorite listings
+  async getSavedListings() {
+    const response = await api.get('/listings/favorites');
+    return response.data.listings;
+  },
   // Get similar listings
   async getSimilarListings(currentListing) {
     if (!currentListing) return [];

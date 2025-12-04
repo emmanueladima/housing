@@ -67,28 +67,28 @@ const CompactListingCard = ({ listing }) => {
                     }}
                 />
 
-                {/* Navigation Arrows (Visible on Hover) */}
+                {/* Navigation Arrows (Always Visible) */}
                 {images.length > 1 && (
                     <>
                         <button
                             onClick={handlePrevImage}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/90 rounded-full shadow-md opacity-0 group-hover/image:opacity-100 transition-opacity hover:bg-white text-gray-800"
+                            className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-white rounded-full shadow-md hover:bg-gray-50 text-gray-800 transition-transform hover:scale-110 z-10"
                         >
                             <FiChevronLeft size={16} />
                         </button>
                         <button
                             onClick={handleNextImage}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/90 rounded-full shadow-md opacity-0 group-hover/image:opacity-100 transition-opacity hover:bg-white text-gray-800"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-white rounded-full shadow-md hover:bg-gray-50 text-gray-800 transition-transform hover:scale-110 z-10"
                         >
                             <FiChevronRight size={16} />
                         </button>
 
                         {/* Dots Indicator */}
-                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover/image:opacity-100 transition-opacity">
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
                             {images.slice(0, 5).map((_, idx) => (
                                 <div
                                     key={idx}
-                                    className={`w-1.5 h-1.5 rounded-full shadow-sm ${idx === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
+                                    className={`w-1.5 h-1.5 rounded-full shadow-sm transition-colors ${idx === currentImageIndex ? 'bg-white' : 'bg-white/60'}`}
                                 />
                             ))}
                         </div>
@@ -102,7 +102,7 @@ const CompactListingCard = ({ listing }) => {
                     className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all ${isFavorite
                         ? 'bg-orange-600 text-white'
                         : 'bg-white text-gray-900 hover:bg-gray-100'
-                        } shadow-md`}
+                        } shadow-md z-10`}
                     aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                 >
                     <FiHeart
@@ -113,10 +113,12 @@ const CompactListingCard = ({ listing }) => {
 
                 {/* Badges */}
                 {listing.badges && listing.badges.length > 0 && (
-                    <div className="absolute top-3 left-3">
-                        <span className="inline-block px-2 py-1 bg-orange-600 text-white text-xs font-bold rounded shadow-sm">
-                            {listing.badges[0].toUpperCase()}
-                        </span>
+                    <div className="absolute top-3 left-3 flex flex-wrap gap-1 z-10">
+                        {listing.badges.map((badge, index) => (
+                            <span key={index} className="inline-block px-2 py-1 bg-[#FFF5E6] text-gray-900 text-xs font-bold rounded-full shadow-sm">
+                                {badge.toLowerCase()}
+                            </span>
+                        ))}
                     </div>
                 )}
             </div>
