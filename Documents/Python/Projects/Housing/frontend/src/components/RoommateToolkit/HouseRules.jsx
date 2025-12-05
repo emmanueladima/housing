@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
 import { FiBookOpen, FiPlus, FiVolume2, FiUsers, FiTrash2, FiHome } from 'react-icons/fi';
 
-const HouseRules = () => {
-    // Mock Data
-    const [rules, setRules] = useState([
-        { id: 1, category: 'Quiet Hours', text: 'No loud music after 10 PM on weekdays.' },
-        { id: 2, category: 'Guests', text: 'Overnight guests limited to 2 nights per week.' },
-        { id: 3, category: 'Cleaning', text: 'Dishes must be washed within 24 hours.' },
-        { id: 4, category: 'Shared Items', text: 'Ask before borrowing personal items.' },
-    ]);
+const HouseRules = ({ rules = [], onAddRule }) => {
+    // Use props instead of mock data
 
     const categories = [
         { name: 'Quiet Hours', icon: FiVolume2, color: 'blue' },
@@ -18,7 +12,8 @@ const HouseRules = () => {
     ];
 
     const deleteRule = (id) => {
-        setRules(rules.filter(r => r.id !== id));
+        // TODO: Implement delete API
+        console.log('Delete rule', id);
     };
 
     return (

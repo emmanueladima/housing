@@ -79,14 +79,14 @@ const MapboxMap = ({
         <div style="
           background: ${isSelected
                     ? '#ffffff'
-                    : 'linear-gradient(135deg, #DB4A2B 0%, #B0361C 100%)'};
+                    : 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)'};
           padding: 4px 10px;
           border-radius: 16px;
-          border: ${isSelected ? '2px solid #DB4A2B' : 'none'};
-          box-shadow: 0 2px 8px ${isSelected ? 'rgba(0, 0, 0, 0.2)' : 'rgba(219, 74, 43, 0.3)'};
+          border: ${isSelected ? '2px solid #ea580c' : 'none'};
+          box-shadow: 0 2px 8px ${isSelected ? 'rgba(0, 0, 0, 0.2)' : 'rgba(234, 88, 12, 0.3)'};
           font-weight: bold;
           font-size: 12px;
-          color: ${isSelected ? '#DB4A2B' : 'white'};
+          color: ${isSelected ? '#ea580c' : 'white'};
           border: 2px solid white;
           white-space: nowrap;
           transform: translate(-50%, -50%);
@@ -104,13 +104,13 @@ const MapboxMap = ({
             el.addEventListener('mouseenter', () => {
                 const div = el.querySelector('div');
                 div.style.transform = 'translate(-50%, -50%) scale(1.1)';
-                div.style.boxShadow = `0 6px 16px ${isSelected ? 'rgba(0, 0, 0, 0.3)' : 'rgba(219, 74, 43, 0.5)'}`;
+                div.style.boxShadow = `0 6px 16px ${isSelected ? 'rgba(0, 0, 0, 0.3)' : 'rgba(234, 88, 12, 0.5)'}`;
             });
 
             el.addEventListener('mouseleave', () => {
                 const div = el.querySelector('div');
                 div.style.transform = 'translate(-50%, -50%) scale(1)';
-                div.style.boxShadow = `0 4px 12px ${isSelected ? 'rgba(0, 0, 0, 0.2)' : 'rgba(219, 74, 43, 0.4)'}`;
+                div.style.boxShadow = `0 4px 12px ${isSelected ? 'rgba(0, 0, 0, 0.2)' : 'rgba(234, 88, 12, 0.4)'}`;
             });
 
             const marker = new mapboxgl.Marker(el)
@@ -159,7 +159,7 @@ const MapboxMap = ({
                 });
 
                 // Add user location marker
-                new mapboxgl.Marker({ color: '#DB4A2B' })
+                new mapboxgl.Marker({ color: '#ea580c' })
                     .setLngLat([longitude, latitude])
                     .addTo(map.current);
             },
@@ -174,7 +174,7 @@ const MapboxMap = ({
             <div ref={mapContainer} className="h-full w-full" />
 
             {/* Custom Controls - Left Side */}
-            <div className="absolute left-4 top-4 flex flex-col gap-2 z-10">
+            <div className="absolute left-4 top-24 flex flex-col gap-2 z-10">
                 <button
                     onClick={handleZoomIn}
                     className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-colors focus:outline-none"

@@ -15,8 +15,10 @@ import Applications from './pages/Applications';
 import CreateListingWizard from './pages/CreateListingWizard';
 
 import LandlordDashboard from './pages/LandlordDashboard';
+import GroupDashboard from './pages/GroupDashboard';
 import Notifications from './pages/Notifications';
 import SavedSearches from './pages/SavedSearches';
+import SavedPage from './pages/SavedPage';
 import Safety from './pages/Safety';
 import VerifyEmail from './pages/VerifyEmail';
 import NotFound from './pages/NotFound';
@@ -111,10 +113,26 @@ function App() {
             }
           />
           <Route
+            path="/saved"
+            element={
+              <ProtectedRoute>
+                <SavedPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/landlord/dashboard"
             element={
               <ProtectedRoute>
                 <LandlordDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/group-dashboard"
+            element={
+              <ProtectedRoute>
+                <GroupDashboard />
               </ProtectedRoute>
             }
           />
@@ -124,7 +142,7 @@ function App() {
         </Routes>
       </main>
       <Footer />
-    </div>
+    </div >
   );
 }
 

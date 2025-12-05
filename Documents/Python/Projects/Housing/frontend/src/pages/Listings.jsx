@@ -192,11 +192,7 @@ const Listings = () => {
 
   const handleMarkerClick = (listing) => {
     setSelectedListing(listing);
-    // Scroll to the listing card on mobile
-    const element = document.getElementById(`listing-${listing._id}`);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    navigate(`/listings/${listing._id}`);
   };
 
   const handleCardHover = (listing) => {

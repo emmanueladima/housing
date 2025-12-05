@@ -12,22 +12,35 @@ export default {
       },
       colors: {
         primary: {
-          50: '#fff7ed',
+          50: '#E4E2DD', // User requested beige
           100: '#ffedd5',
           200: '#fed7aa',
           300: '#fdba74',
           400: '#fb923c',
           500: '#f97316',
-          600: '#ea580c',
+          600: '#DB4A2B', // User requested orange
           700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
+        },
+        // Override default orange to apply changes globally
+        orange: {
+          50: '#E4E2DD', // User requested beige
+          100: '#F5EBE0', // Slightly darker beige/warm gray
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#E85D3F', // Lighter version of DB4A2B
+          600: '#DB4A2B', // User requested orange
+          700: '#B0361C', // Darker version for hover
           800: '#9a3412',
           900: '#7c2d12',
         },
         accent: {
           orange: {
             light: '#fed7aa',
-            DEFAULT: '#f97316',
-            dark: '#c2410c',
+            DEFAULT: '#DB4A2B', // Updated to new orange
+            dark: '#B0361C',
           },
           red: {
             light: '#fecaca',
@@ -68,13 +81,13 @@ export default {
           '50%': { transform: 'translateY(-20px)' },
         },
         blob: {
-          '0%, 100%': { 
+          '0%, 100%': {
             transform: 'translate(0px, 0px) scale(1)',
           },
-          '33%': { 
+          '33%': {
             transform: 'translate(30px, -50px) scale(1.1)',
           },
-          '66%': { 
+          '66%': {
             transform: 'translate(-20px, 20px) scale(0.9)',
           },
         },

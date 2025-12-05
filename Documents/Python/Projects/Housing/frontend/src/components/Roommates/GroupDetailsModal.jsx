@@ -1,18 +1,12 @@
-import { FiX, FiUsers, FiDollarSign, FiMapPin, FiCheckCircle, FiMoreHorizontal, FiShield, FiSun, FiMoon, FiVolume2, FiHeart } from 'react-icons/fi';
+import React from 'react';
+import { FiX, FiUsers, FiDollarSign, FiMapPin, FiCheckCircle, FiMoreHorizontal, FiShield, FiVolume2, FiHeart, FiUserPlus, FiStar } from 'react-icons/fi';
 
 const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
     if (!isOpen || !group) return null;
 
-    // Mock data for new features
-    const activityStats = {
-        lastActive: '2 hours ago',
-        listingsReviewed: 12,
-        newMembers: 1
-    };
-
     const isDraft = !group.description || group.members?.length < 2;
+    const compatibility = 88;
 
-    // Helper to generate natural language match reasons
     const getMatchSentences = () => {
         const sentences = [];
         if (group.budget?.max < 1000) sentences.push("This group fits within your budget.");
@@ -29,95 +23,124 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                 className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200"
                 onClick={e => e.stopPropagation()}
             >
-                {/* Header Image & Info */}
-                <div className="relative h-48 bg-orange-500 shrink-0">
-                    <div className="absolute top-4 right-4 flex gap-2">
-                        <button
-                            className="p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-md"
-                        >
-                            <FiMoreHorizontal size={24} />
+                {/* Header - Clean gray background */}
+                <div className="relative bg-gray-100 shrink-0 pt-6 pb-16 px-6 md:px-8">
+                    {/* Top Actions */}
+                    <div className="absolute top-4 right-4 flex gap-2 z-10">
+                        <button className="p-2.5 bg-white hover:bg-gray-50 text-gray-500 rounded-xl transition-all shadow-sm border border-gray-200">
+                            <FiMoreHorizontal size={18} />
                         </button>
                         <button
                             onClick={onClose}
-                            className="p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors backdrop-blur-md"
+                            className="p-2.5 bg-white hover:bg-gray-50 text-gray-500 rounded-xl transition-all shadow-sm border border-gray-200"
                         >
-                            <FiX size={24} />
+                            <FiX size={18} />
                         </button>
                     </div>
 
-                    <div className="absolute -bottom-10 left-6 md:left-8 flex items-end w-full pr-12">
-                        <div className="flex-1 text-white mb-12">
-                            <div className="flex items-center gap-3 mb-1">
-                                <h2 className="text-3xl md:text-4xl font-black tracking-tight">{group.name}</h2>
-                                {isDraft && (
-                                    <span className="px-2 py-1 bg-white/20 text-white text-xs font-bold rounded-md uppercase tracking-wide backdrop-blur-md">
-                                        Draft
-                                    </span>
-                                )}
-                                <div className="flex items-center gap-1 px-2 py-0.5 bg-white/20 backdrop-blur-md rounded-full text-xs font-bold border border-white/30" title="Verified Group">
-                                    <FiShield className="text-white" />
-                                    <span className="hidden sm:inline">Verified</span>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-2 text-white/90 font-bold text-lg">
-                                <FiMapPin /> {group.location}
+                    {/* Group Info in Header */}
+                    <div className="mt-4">
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                            <h2 className="text-2xl font-black text-gray-900">{group.name}</h2>
+                            {isDraft && (
+                                <span className="px-2.5 py-1 bg-yellow-100 text-yellow-700 text-xs font-bold rounded-full uppercase tracking-wide">
+                                    Draft
+                                </span>
+                            )}
+                            <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-bold border border-blue-100">
+                                <FiShield size={10} />
+                                <span>Verified</span>
                             </div>
                         </div>
+                        <div className="flex items-center gap-2 text-gray-500 font-medium">
+                            <FiMapPin size={14} />
+                            <span>{group.location || 'Downtown Area'}</span>
+                        </div>
+                    </div>
+
+                    {/* Member Avatars */}
+                    <div className="absolute -bottom-8 left-6 md:left-8 z-20 flex -space-x-3">
+                        {[...Array(Math.min((group.members?.length || 2), 4))].map((_, i) => (
+                            <div
+                                key={i}
+                                className="w-14 h-14 rounded-xl bg-gray-200 border-4 border-white shadow-lg flex items-center justify-center overflow-hidden"
+                            >
+                                {group.members?.[i]?.photo || group.members?.[i]?.avatar ? (
+                                    <img src={group.members[i].photo || group.members[i].avatar} alt="Member" className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-gray-600 font-bold text-lg">
+                                        {group.members?.[i]?.firstName?.charAt(0) || String.fromCharCode(65 + i)}
+                                    </span>
+                                )}
+                            </div>
+                        ))}
                     </div>
                 </div>
 
                 {/* Content */}
-                <div className="pt-8 px-6 md:px-8 pb-8 overflow-y-auto flex-1">
-                    {/* Actions & Compatibility */}
-                    <div className="flex flex-col-reverse md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div className="pt-12 px-6 md:px-8 pb-8 overflow-y-auto flex-1 bg-white">
+                    {/* Actions & Match Score */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                        {/* Match Score */}
                         <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full border border-green-100 w-fit">
-                            <span className="font-black text-xl">88%</span>
-                            <span className="text-sm font-bold uppercase tracking-wide">Match Score</span>
+                            <FiStar className="fill-current" size={16} />
+                            <span className="font-black text-lg">{compatibility}%</span>
+                            <span className="text-sm font-bold">Match</span>
                         </div>
+
+                        {/* Action Buttons */}
                         <div className="flex gap-3 w-full md:w-auto">
-                            <button
-                                className="flex-1 md:flex-none py-3 px-4 rounded-xl border-2 border-gray-100 text-gray-500 font-bold hover:border-red-100 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center gap-2"
-                            >
-                                <FiHeart size={20} /> <span className="md:hidden">Save</span>
+                            <button className="p-3.5 rounded-2xl border-2 border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all">
+                                <FiHeart size={22} />
                             </button>
                             <button
                                 onClick={() => { onJoin(); onClose(); }}
-                                className="flex-[3] md:flex-none px-8 py-3 rounded-xl bg-black text-white font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                                className="flex-1 md:flex-none px-8 py-3.5 rounded-2xl bg-gray-900 text-white font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
                             >
-                                <FiCheckCircle size={20} /> Request to Join
+                                <FiUserPlus size={18} />
+                                Request to Join
                             </button>
                         </div>
                     </div>
 
                     {/* Key Stats */}
                     <div className="grid grid-cols-3 gap-4 mb-8">
-                        <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100 text-center hover:scale-105 transition-transform">
-                            <p className="text-xs text-orange-600 font-bold uppercase mb-1">Budget</p>
-                            <p className="text-xl font-black text-gray-900">${group.budget?.max || group.budget}</p>
-                            <p className="text-xs text-gray-500">per person</p>
+                        <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-center">
+                            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl w-fit mx-auto mb-2">
+                                <FiDollarSign size={18} />
+                            </div>
+                            <p className="text-xs text-gray-500 font-bold uppercase mb-1">Budget</p>
+                            <p className="text-xl font-bold text-gray-900">${group.budget?.max || group.budget}</p>
+                            <p className="text-xs text-gray-400">per person</p>
                         </div>
-                        <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-center hover:scale-105 transition-transform">
-                            <p className="text-xs text-blue-600 font-bold uppercase mb-1">Looking For</p>
-                            <p className="text-xl font-black text-gray-900">{group.lookingFor}</p>
-                            <p className="text-xs text-gray-500">more members</p>
+                        <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-center">
+                            <div className="p-2 bg-blue-100 text-blue-600 rounded-xl w-fit mx-auto mb-2">
+                                <FiUsers size={18} />
+                            </div>
+                            <p className="text-xs text-gray-500 font-bold uppercase mb-1">Looking For</p>
+                            <p className="text-xl font-bold text-gray-900">{group.lookingFor || '1'}</p>
+                            <p className="text-xs text-gray-400">more members</p>
                         </div>
-                        <div className="p-4 bg-purple-50 rounded-2xl border border-purple-100 text-center hover:scale-105 transition-transform">
-                            <p className="text-xs text-purple-600 font-bold uppercase mb-1">Active</p>
-                            <p className="text-xl font-black text-gray-900">2h</p>
-                            <p className="text-xs text-gray-500">ago</p>
+                        <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-center">
+                            <div className="p-2 bg-purple-100 text-purple-600 rounded-xl w-fit mx-auto mb-2">
+                                <FiVolume2 size={18} />
+                            </div>
+                            <p className="text-xs text-gray-500 font-bold uppercase mb-1">Active</p>
+                            <p className="text-xl font-bold text-gray-900">2h</p>
+                            <p className="text-xs text-gray-400">ago</p>
                         </div>
                     </div>
 
-                    {/* Group Personality Snapshot */}
-                    <section className="mb-8">
-                        <h3 className="text-lg font-bold text-gray-900 mb-3">Group Vibe</h3>
+                    {/* Group Vibe */}
+                    <section className="mb-8 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">Group Vibe</h3>
                         <div className="flex flex-wrap gap-2">
                             {Array.isArray(group.vibe) ? group.vibe.map((v, i) => (
-                                <span key={i} className="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-sm font-bold border border-orange-100 shadow-sm">
+                                <span key={i} className="px-4 py-2 bg-white rounded-xl text-sm font-medium text-gray-700 border border-gray-200">
                                     {v}
                                 </span>
                             )) : (
-                                <span className="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-sm font-bold border border-orange-100 shadow-sm">
+                                <span className="px-4 py-2 bg-white rounded-xl text-sm font-medium text-gray-700 border border-gray-200">
                                     {group.vibe || 'Chill'}
                                 </span>
                             )}
@@ -125,84 +148,55 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                     </section>
 
                     {/* Members */}
-                    <section className="mb-8">
+                    <section className="mb-8 p-5 bg-gray-50 rounded-2xl border border-gray-100">
                         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            <FiUsers className="text-orange-500" /> Current Members
+                            <FiUsers className="text-gray-500" /> Current Members
                         </h3>
                         <div className="space-y-3">
-                            {group.members && group.members.map((member, i) => (
-                                <div key={i} className="flex items-center gap-4 p-4 rounded-2xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50/30 transition-all bg-white shadow-sm">
-                                    <img src={member.photo} alt="Member" className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md" />
-                                    <div>
-                                        <p className="font-bold text-gray-900">Member {i + 1}</p>
-                                        <p className="text-xs text-gray-500">Computer Science • Junior</p>
+                            {group.members && group.members.length > 0 ? group.members.map((member, i) => (
+                                <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-white border border-gray-100">
+                                    <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center overflow-hidden">
+                                        {member.photo || member.avatar ? (
+                                            <img src={member.photo || member.avatar} alt="Member" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-gray-600 font-bold">{member.firstName?.charAt(0) || '?'}</span>
+                                        )}
                                     </div>
-                                    <div className="ml-auto flex gap-1">
-                                        {['Gaming', 'Hiking'].map((interest, idx) => (
-                                            <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-[10px] font-bold uppercase tracking-wide">
-                                                {interest}
-                                            </span>
-                                        ))}
+                                    <div>
+                                        <p className="font-semibold text-gray-900">{member.firstName} {member.lastName?.charAt(0)}.</p>
+                                        <p className="text-xs text-gray-500">{member.major || 'Student'}</p>
                                     </div>
                                 </div>
-                            ))}
-                            {(!group.members || group.members.length === 0) && (
+                            )) : (
                                 <p className="text-gray-500 italic">No members yet. Be the first!</p>
                             )}
                         </div>
                     </section>
 
-                    {/* Group Values & Lifestyle */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                        <section>
-                            <h3 className="text-lg font-bold text-gray-900 mb-4">House Rules & Lifestyle</h3>
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white rounded-lg text-teal-500 shadow-sm"><FiCheckCircle /></div>
-                                        <span className="font-medium text-gray-700">Cleanliness</span>
+                    {/* Why We Match */}
+                    <section className="p-5 bg-green-50/50 rounded-2xl border border-green-100">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <span className="text-xl">✨</span> Why we match
+                        </h3>
+                        <ul className="space-y-3">
+                            {matchSentences.map((sentence, i) => (
+                                <li key={i} className="flex items-start gap-3 text-gray-700">
+                                    <div className="mt-0.5 p-1 bg-green-500 rounded-full shrink-0">
+                                        <FiCheckCircle className="text-white w-3 h-3" />
                                     </div>
-                                    <span className="font-bold text-gray-900">High</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white rounded-lg text-blue-500 shadow-sm"><FiUsers /></div>
-                                        <span className="font-medium text-gray-700">Guests</span>
-                                    </div>
-                                    <span className="font-bold text-gray-900">Occasional</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white rounded-lg text-purple-500 shadow-sm"><FiVolume2 /></div>
-                                        <span className="font-medium text-gray-700">Noise</span>
-                                    </div>
-                                    <span className="font-bold text-gray-900">Quiet</span>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section className="bg-green-50/50 p-5 rounded-2xl border border-green-100 h-fit">
-                            <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                                <span className="text-xl">✨</span> Why we match
-                            </h3>
-                            <ul className="space-y-2">
-                                {matchSentences.map((sentence, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-gray-700 font-medium text-sm">
-                                        <FiCheckCircle className="mt-0.5 text-green-600 shrink-0" />
-                                        <span>{sentence}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </section>
-                    </div>
+                                    <span className="font-medium">{sentence}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
 
                     {/* Description */}
-                    <section className="mb-8">
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">About the Group</h3>
-                        <p className="text-gray-600 leading-relaxed text-lg">
-                            {group.description || "We are a group of focused students who value a quiet study environment but also enjoy movie nights on weekends. We keep the common areas clean and respect each other's privacy."}
-                        </p>
-                    </section>
+                    {group.description && (
+                        <section className="mt-6 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                            <h3 className="text-lg font-bold text-gray-900 mb-3">About the Group</h3>
+                            <p className="text-gray-600 leading-relaxed">{group.description}</p>
+                        </section>
+                    )}
                 </div>
             </div>
         </div>

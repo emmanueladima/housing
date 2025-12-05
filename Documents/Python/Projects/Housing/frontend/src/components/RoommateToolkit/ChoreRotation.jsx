@@ -1,19 +1,13 @@
 import React, { useState } from 'react';
 import { FiCheckCircle, FiCircle, FiPlus, FiClock, FiUser } from 'react-icons/fi';
 
-const ChoreRotation = ({ members = [] }) => {
-    // Mock Data
-    const [chores, setChores] = useState([
-        { id: 1, title: 'Take out trash', assignedTo: members[0] || { firstName: 'You' }, frequency: 'Weekly', dueDate: '2023-11-15', completed: false },
-        { id: 2, title: 'Clean kitchen', assignedTo: members[1] || { firstName: 'Sarah' }, frequency: 'Daily', dueDate: '2023-11-14', completed: true },
-        { id: 3, title: 'Vacuum living room', assignedTo: members[0] || { firstName: 'You' }, frequency: 'Weekly', dueDate: '2023-11-18', completed: false },
-        { id: 4, title: 'Clean bathroom', assignedTo: members[2] || { firstName: 'Mike' }, frequency: 'Weekly', dueDate: '2023-11-19', completed: false },
-    ]);
+const ChoreRotation = ({ members = [], chores = [], onAddChore }) => {
+    // Use props instead of mock data
+    // Note: chores are passed from parent now
 
     const toggleChore = (id) => {
-        setChores(chores.map(chore =>
-            chore.id === id ? { ...chore, completed: !chore.completed } : chore
-        ));
+        // TODO: Implement toggle API
+        console.log('Toggle chore', id);
     };
 
     const completedCount = chores.filter(c => c.completed).length;
@@ -65,8 +59,8 @@ const ChoreRotation = ({ members = [] }) => {
                                     <button
                                         onClick={() => toggleChore(chore.id)}
                                         className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${chore.completed
-                                                ? 'bg-green-500 border-green-500 text-white'
-                                                : 'border-gray-300 text-transparent hover:border-orange-500'
+                                            ? 'bg-green-500 border-green-500 text-white'
+                                            : 'border-gray-300 text-transparent hover:border-orange-500'
                                             }`}
                                     >
                                         <FiCheckCircle size={16} />
@@ -77,7 +71,7 @@ const ChoreRotation = ({ members = [] }) => {
                                         </h3>
                                         <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
                                             <span className="flex items-center gap-1">
-                                                <FiUser size={12} /> {chore.assignedTo.firstName}
+                                                <FiUser size={12} /> {chore.assignedTo?.firstName || 'Unassigned'}
                                             </span>
                                             <span className="flex items-center gap-1">
                                                 <FiClock size={12} /> {chore.frequency}

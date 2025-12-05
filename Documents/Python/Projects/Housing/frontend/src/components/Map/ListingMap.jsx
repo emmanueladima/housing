@@ -13,7 +13,7 @@ L.Icon.Default.mergeOptions({
 });
 
 // Custom marker icons for different states
-const createCustomIcon = (color = '#f97316') => {
+const createCustomIcon = (color = '#DB4A2B') => {
   return L.divIcon({
     className: 'custom-marker',
     html: `
@@ -42,19 +42,19 @@ const createCustomIcon = (color = '#f97316') => {
 // Component to recenter map when listings change
 const RecenterMap = ({ center }) => {
   const map = useMap();
-  
+
   useEffect(() => {
     if (center) {
       map.setView([center.lat, center.lng], map.getZoom());
     }
   }, [center, map]);
-  
+
   return null;
 };
 
-const ListingMap = ({ 
-  listings = [], 
-  selectedListing, 
+const ListingMap = ({
+  listings = [],
+  selectedListing,
   onMarkerClick,
   showCampusOverlay = false,
   commuteLayer = false,
@@ -68,7 +68,7 @@ const ListingMap = ({
   );
 
   // Determine map center
-  const mapCenter = selectedListing?.location?.coordinates?.lat 
+  const mapCenter = selectedListing?.location?.coordinates?.lat
     ? [selectedListing.location.coordinates.lat, selectedListing.location.coordinates.lng]
     : [OSU_CENTER.lat, OSU_CENTER.lng];
 
@@ -85,14 +85,14 @@ const ListingMap = ({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        
+
         {/* Campus overlay polygon */}
         {showCampusOverlay && (
           <Polygon
             positions={OSU_CAMPUS_POLYGON}
             pathOptions={{
-              color: '#f97316',
-              fillColor: '#f97316',
+              color: '#DB4A2B',
+              fillColor: '#DB4A2B',
               fillOpacity: 0.1,
               weight: 2,
             }}
@@ -102,13 +102,13 @@ const ListingMap = ({
         {/* Listing markers */}
         {validListings.map((listing) => {
           const { lat, lng } = listing.location.coordinates;
-          
+
           // Determine marker color based on commute layer
-          let markerColor = '#f97316'; // Default orange
+          let markerColor = '#DB4A2B'; // Default orange
           if (commuteLayer && commuteData[listing._id]) {
             markerColor = commuteData[listing._id].color;
           }
-          
+
           const isSelected = selectedListing?._id === listing._id;
           if (isSelected) {
             markerColor = '#dc2626'; // Red for selected

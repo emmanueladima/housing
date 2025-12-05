@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import authService from '../services/authService';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
-import Button from '../components/shared/Button';
-import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import ModernBackground from '../components/shared/ModernBackground';
+import { FiCheckCircle, FiXCircle, FiHome, FiRefreshCw } from 'react-icons/fi';
 
 const VerifyEmail = () => {
   const { token } = useParams();
@@ -18,8 +18,7 @@ const VerifyEmail = () => {
         await authService.verifyEmail(token);
         setSuccess(true);
         setLoading(false);
-        
-        // Redirect to login after 3 seconds
+
         setTimeout(() => {
           navigate('/');
         }, 3000);
@@ -38,70 +37,85 @@ const VerifyEmail = () => {
   }, [token, navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
-        {loading && (
-          <div className="text-center">
-            <LoadingSpinner size="lg" />
-            <p className="mt-4 text-gray-600">Verifying your email...</p>
-          </div>
-        )}
+    <div className="min-h-screen bg-white">
+      {/* Hero Section with Orange Gradient & Orbs */}
+      <div className="relative overflow-hidden min-h-screen flex items-center">
+        <ModernBackground />
 
-        {!loading && success && (
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <FiCheckCircle className="text-green-600" size={32} />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Email Verified!
-            </h1>
-            <p className="text-gray-600 mb-6">
-              Your email has been successfully verified. You can now log in to your account.
-            </p>
-            <Button
-              variant="primary"
-              onClick={() => navigate('/')}
-              className="w-full"
-            >
-              Go to Home
-            </Button>
-          </div>
-        )}
+        <div className="relative z-10 w-full">
+          <div className="max-w-md mx-auto px-6">
+            <div className="bg-white rounded-3xl shadow-2xl p-8 text-center">
+              {loading && (
+                <>
+                  <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div className="animate-spin">
+                      <FiRefreshCw className="text-orange-600" size={32} />
+                    </div>
+                  </div>
+                  <h1 className="text-2xl font-black text-gray-900 mb-2">
+                    Verifying Email
+                  </h1>
+                  <p className="text-gray-600">
+                    Please wait while we verify your email address...
+                  </p>
+                </>
+              )}
 
-        {!loading && error && (
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-              <FiXCircle className="text-red-600" size={32} />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Verification Failed
-            </h1>
-            <p className="text-gray-600 mb-6">
-              {error}
-            </p>
-            <div className="space-y-3">
-              <Button
-                variant="primary"
-                onClick={() => navigate('/')}
-                className="w-full"
-              >
-                Go to Home
-              </Button>
-              <Link
-                to="/"
-                className="block text-orange-600 hover:text-orange-700 font-medium"
-              >
-                Try signing up again
-              </Link>
+              {!loading && success && (
+                <>
+                  <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <FiCheckCircle className="text-green-600" size={36} />
+                  </div>
+                  <h1 className="text-2xl font-black text-gray-900 mb-2">
+                    Email Verified!
+                  </h1>
+                  <p className="text-gray-600 mb-8">
+                    Your email has been successfully verified. You can now log in to your account.
+                  </p>
+                  <button
+                    onClick={() => navigate('/')}
+                    className="w-full px-6 py-3 bg-orange-600 text-white rounded-full font-bold hover:bg-orange-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                  >
+                    <FiHome size={18} />
+                    Go to Home
+                  </button>
+                </>
+              )}
+
+              {!loading && error && (
+                <>
+                  <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <FiXCircle className="text-red-600" size={36} />
+                  </div>
+                  <h1 className="text-2xl font-black text-gray-900 mb-2">
+                    Verification Failed
+                  </h1>
+                  <p className="text-gray-600 mb-8">
+                    {error}
+                  </p>
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => navigate('/')}
+                      className="w-full px-6 py-3 bg-orange-600 text-white rounded-full font-bold hover:bg-orange-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                    >
+                      <FiHome size={18} />
+                      Go to Home
+                    </button>
+                    <Link
+                      to="/"
+                      className="block text-orange-600 hover:text-orange-700 font-bold py-2"
+                    >
+                      Try signing up again
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
 };
 
 export default VerifyEmail;
-
-
-

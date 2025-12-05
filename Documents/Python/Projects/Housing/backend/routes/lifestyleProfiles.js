@@ -6,6 +6,8 @@ import {
   getAllProfiles,
   getMatches,
   getProfile,
+  toggleSavedProfile,
+  getSavedProfiles,
 } from '../controllers/lifestyleProfileController.js';
 
 const router = express.Router();
@@ -21,6 +23,8 @@ router.post('/me', createOrUpdateProfile); // Support POST for creation/updates
 // Discovery & Matching
 router.get('/all', getAllProfiles);
 router.get('/matches', getMatches);
+router.post('/save/:id', toggleSavedProfile);
+router.get('/saved', getSavedProfiles);
 router.get('/:id', getProfile);
 
 export default router;

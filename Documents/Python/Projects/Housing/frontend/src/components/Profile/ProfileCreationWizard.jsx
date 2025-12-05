@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiX, FiUser, FiSun, FiMoon, FiVolume2, FiCheckCircle, FiSmile, FiArrowRight, FiArrowLeft, FiCheck } from 'react-icons/fi';
+import { FiX, FiUser, FiSun, FiMoon, FiVolume2, FiCheckCircle, FiSmile, FiArrowRight, FiArrowLeft, FiCheck, FiHeart, FiThermometer, FiBook, FiUsers } from 'react-icons/fi';
 import lifestyleProfileService from '../../services/lifestyleProfileService';
 
 const ProfileCreationWizard = ({ onClose, onSaved }) => {
@@ -25,7 +25,22 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
         hasPets: false,
         petAllergies: false,
         smoking: false,
-        drinking: false
+        drinking: false,
+        // New compatibility fields
+        socialLevel: 5,
+        studyHabits: 'home',
+        temperaturePreference: 'neutral',
+        sharedSpaces: {
+            kitchen: true,
+            bathroom: true,
+            livingRoom: true
+        },
+        workSchedule: 'hybrid',
+        quietHoursImportance: 5,
+        partyFrequency: 2,
+        overnightGuests: 'sometimes',
+        petTolerance: 'some',
+        musicPreference: 'headphones'
     });
 
     useEffect(() => {
@@ -40,7 +55,8 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
                     ...prev,
                     ...profile,
                     sleepSchedule: { ...prev.sleepSchedule, ...profile.sleepSchedule },
-                    budget: { ...prev.budget, ...profile.budget }
+                    budget: { ...prev.budget, ...profile.budget },
+                    sharedSpaces: { ...prev.sharedSpaces, ...profile.sharedSpaces }
                 }));
             }
         } catch (error) {
@@ -57,7 +73,7 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
                 ...prev,
                 [parent]: {
                     ...prev[parent],
-                    [child]: type === 'number' ? parseFloat(value) : value
+                    [child]: type === 'checkbox' ? checked : (type === 'number' ? parseFloat(value) : value)
                 }
             }));
         } else {
@@ -79,7 +95,7 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
     };
 
     const handleNext = () => {
-        if (step < 5) setStep(step + 1);
+        if (step < 6) setStep(step + 1);
         else handleSubmit();
     };
 
@@ -103,220 +119,330 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
 
     const VIBES_OPTIONS = ['Chill', 'Social', 'Studious', 'Party', 'Quiet', 'Artsy', 'Outdoorsy', 'Night Owl', 'Early Bird', 'Fitness', 'Gamer', 'Foodie'];
 
+    const steps = [
+        { num: 1, label: 'Basics', icon: FiUser, color: 'orange' },
+        { num: 2, label: 'Habits', icon: FiMoon, color: 'blue' },
+        { num: 3, label: 'Social', icon: FiUsers, color: 'pink' },
+        { num: 4, label: 'Living', icon: FiThermometer, color: 'emerald' },
+        { num: 5, label: 'Vibe', icon: FiSmile, color: 'purple' },
+        { num: 6, label: 'Review', icon: FiCheck, color: 'teal' },
+    ];
+
     const renderStepContent = () => {
         switch (step) {
             case 1: // Basics
                 return (
-                    <div className="text-center w-full max-w-4xl mx-auto">
-                        <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6 text-orange-500">
-                            <FiUser size={32} />
-                        </div>
-                        <h2 className="text-2xl font-black text-gray-900 mb-2">The Basics</h2>
-                        <p className="text-gray-500 mb-8">Tell us a bit about yourself.</p>
-
-                        <div className="text-left space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-900 mb-1">Age</label>
-                                    <input
-                                        type="number"
-                                        name="age"
-                                        value={formData.age}
-                                        onChange={handleChange}
-                                        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none transition-all"
-                                        placeholder="e.g. 21"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-900 mb-1">Gender</label>
-                                    <select
-                                        name="gender"
-                                        value={formData.gender}
-                                        onChange={handleChange}
-                                        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none bg-white transition-all"
-                                    >
-                                        <option value="">Select...</option>
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
-                                        <option value="non-binary">Non-binary</option>
-                                        <option value="other">Other</option>
-                                    </select>
-                                </div>
-                            </div>
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-1">Bio</label>
-                                <textarea
-                                    name="bio"
-                                    value={formData.bio}
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Age</label>
+                                <input
+                                    type="number"
+                                    name="age"
+                                    value={formData.age}
                                     onChange={handleChange}
-                                    rows="4"
-                                    placeholder="I'm a junior studying CS. I love hiking and coffee..."
-                                    className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none resize-none transition-all"
+                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all"
+                                    placeholder="e.g. 21"
                                 />
                             </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Gender</label>
+                                <select
+                                    name="gender"
+                                    value={formData.gender}
+                                    onChange={handleChange}
+                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all"
+                                >
+                                    <option value="">Select...</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="non-binary">Non-binary</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Bio</label>
+                            <textarea
+                                name="bio"
+                                value={formData.bio}
+                                onChange={handleChange}
+                                rows="4"
+                                placeholder="I'm a junior studying CS. I love hiking and coffee..."
+                                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none resize-none transition-all"
+                            />
                         </div>
                     </div>
                 );
             case 2: // Habits
                 return (
-                    <div className="text-center w-full max-w-4xl mx-auto">
-                        <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-500">
-                            <FiMoon size={32} />
-                        </div>
-                        <h2 className="text-2xl font-black text-gray-900 mb-2">Living Habits</h2>
-                        <p className="text-gray-500 mb-8">How do you like to live?</p>
-
-                        <div className="text-left space-y-8">
-                            <div>
-                                <div className="flex justify-between mb-2">
-                                    <label className="text-sm font-bold text-gray-900">Cleanliness</label>
-                                    <span className="text-sm font-bold text-orange-600">{formData.cleanliness}/10</span>
-                                </div>
-                                <input
-                                    type="range"
-                                    name="cleanliness"
-                                    min="1"
-                                    max="10"
-                                    value={formData.cleanliness}
-                                    onChange={handleChange}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                                />
-                                <div className="flex justify-between text-xs font-bold text-gray-400 mt-1">
-                                    <span>Relaxed</span>
-                                    <span>Spotless</span>
-                                </div>
+                    <div className="space-y-8">
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <label className="text-sm font-bold text-gray-700">Cleanliness</label>
+                                <span className="text-sm font-bold text-orange-600">{formData.cleanliness}/10</span>
                             </div>
-
-                            <div>
-                                <div className="flex justify-between mb-2">
-                                    <label className="text-sm font-bold text-gray-900">Noise Level</label>
-                                    <span className="text-sm font-bold text-orange-600">{formData.noiseLevel}/10</span>
-                                </div>
-                                <input
-                                    type="range"
-                                    name="noiseLevel"
-                                    min="1"
-                                    max="10"
-                                    value={formData.noiseLevel}
-                                    onChange={handleChange}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                                />
-                                <div className="flex justify-between text-xs font-bold text-gray-400 mt-1">
-                                    <span>Quiet Library</span>
-                                    <span>Concert Hall</span>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-900 mb-1">Bedtime</label>
-                                    <select
-                                        name="sleepSchedule.bedtime"
-                                        value={formData.sleepSchedule.bedtime}
-                                        onChange={handleChange}
-                                        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none bg-white"
-                                    >
-                                        {Array.from({ length: 24 }, (_, i) => (
-                                            <option key={i} value={i}>{i}:00</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-900 mb-1">Wake Up</label>
-                                    <select
-                                        name="sleepSchedule.wakeup"
-                                        value={formData.sleepSchedule.wakeup}
-                                        onChange={handleChange}
-                                        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none bg-white"
-                                    >
-                                        {Array.from({ length: 24 }, (_, i) => (
-                                            <option key={i} value={i}>{i}:00</option>
-                                        ))}
-                                    </select>
-                                </div>
+                            <input
+                                type="range"
+                                name="cleanliness"
+                                min="1"
+                                max="10"
+                                value={formData.cleanliness}
+                                onChange={handleChange}
+                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                            />
+                            <div className="flex justify-between text-xs font-medium text-gray-400 mt-1">
+                                <span>Relaxed</span>
+                                <span>Spotless</span>
                             </div>
                         </div>
-                    </div>
-                );
-            case 3: // Preferences
-                return (
-                    <div className="text-center w-full max-w-4xl mx-auto">
-                        <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
-                            <FiCheckCircle size={32} />
-                        </div>
-                        <h2 className="text-2xl font-black text-gray-900 mb-2">House Rules</h2>
-                        <p className="text-gray-500 mb-8">Set some boundaries.</p>
 
-                        <div className="text-left space-y-4">
-                            <div className="p-6 border border-gray-200 rounded-xl hover:border-orange-200 transition-colors">
-                                <label className="flex items-center justify-between cursor-pointer">
-                                    <span className="font-bold text-gray-900">Smoking Allowed?</span>
-                                    <input
-                                        type="checkbox"
-                                        name="smoking"
-                                        checked={formData.smoking}
-                                        onChange={handleChange}
-                                        className="h-6 w-6 text-orange-600 focus:ring-orange-500 border-gray-300 rounded transition-all"
-                                    />
-                                </label>
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <label className="text-sm font-bold text-gray-700">Noise Tolerance</label>
+                                <span className="text-sm font-bold text-orange-600">{formData.noiseLevel}/10</span>
                             </div>
-                            <div className="p-6 border border-gray-200 rounded-xl hover:border-orange-200 transition-colors">
-                                <label className="flex items-center justify-between cursor-pointer">
-                                    <span className="font-bold text-gray-900">Drinking Allowed?</span>
-                                    <input
-                                        type="checkbox"
-                                        name="drinking"
-                                        checked={formData.drinking}
-                                        onChange={handleChange}
-                                        className="h-6 w-6 text-orange-600 focus:ring-orange-500 border-gray-300 rounded transition-all"
-                                    />
-                                </label>
+                            <input
+                                type="range"
+                                name="noiseLevel"
+                                min="1"
+                                max="10"
+                                value={formData.noiseLevel}
+                                onChange={handleChange}
+                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                            />
+                            <div className="flex justify-between text-xs font-medium text-gray-400 mt-1">
+                                <span>Library Quiet</span>
+                                <span>Concert Hall</span>
                             </div>
-                            <div className="p-6 border border-gray-200 rounded-xl hover:border-orange-200 transition-colors">
-                                <label className="flex items-center justify-between cursor-pointer">
-                                    <span className="font-bold text-gray-900">Have Pets?</span>
-                                    <input
-                                        type="checkbox"
-                                        name="hasPets"
-                                        checked={formData.hasPets}
-                                        onChange={handleChange}
-                                        className="h-6 w-6 text-orange-600 focus:ring-orange-500 border-gray-300 rounded transition-all"
-                                    />
-                                </label>
-                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-900 mb-1">Guest Frequency</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Bedtime</label>
                                 <select
-                                    name="guestFrequency"
-                                    value={formData.guestFrequency}
+                                    name="sleepSchedule.bedtime"
+                                    value={formData.sleepSchedule.bedtime}
                                     onChange={handleChange}
-                                    className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none bg-white"
+                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
                                 >
-                                    <option value={1}>Rarely</option>
-                                    <option value={2}>Occasionally</option>
-                                    <option value={3}>Often</option>
-                                    <option value={4}>Anytime</option>
+                                    {Array.from({ length: 24 }, (_, i) => (
+                                        <option key={i} value={i}>{i}:00</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Wake Up</label>
+                                <select
+                                    name="sleepSchedule.wakeup"
+                                    value={formData.sleepSchedule.wakeup}
+                                    onChange={handleChange}
+                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
+                                >
+                                    {Array.from({ length: 24 }, (_, i) => (
+                                        <option key={i} value={i}>{i}:00</option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
                     </div>
                 );
-            case 4: // Vibe
+            case 3: // Social & Compatibility - NEW STEP
                 return (
-                    <div className="text-center w-full max-w-4xl mx-auto">
-                        <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6 text-purple-500">
-                            <FiSmile size={32} />
+                    <div className="space-y-6">
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <label className="text-sm font-bold text-gray-700">Social Energy</label>
+                                <span className="text-sm font-bold text-orange-600">{formData.socialLevel}/10</span>
+                            </div>
+                            <input
+                                type="range"
+                                name="socialLevel"
+                                min="1"
+                                max="10"
+                                value={formData.socialLevel}
+                                onChange={handleChange}
+                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                            />
+                            <div className="flex justify-between text-xs font-medium text-gray-400 mt-1">
+                                <span>Introvert</span>
+                                <span>Extrovert</span>
+                            </div>
                         </div>
-                        <h2 className="text-2xl font-black text-gray-900 mb-2">Your Vibe</h2>
-                        <p className="text-gray-500 mb-8">Pick tags that describe you.</p>
 
-                        <div className="flex flex-wrap justify-center gap-3">
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-3">Party Frequency</label>
+                            <div className="grid grid-cols-4 gap-2">
+                                {[
+                                    { value: 1, label: 'Never' },
+                                    { value: 2, label: 'Rarely' },
+                                    { value: 3, label: 'Monthly' },
+                                    { value: 4, label: 'Weekly' }
+                                ].map(opt => (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, partyFrequency: opt.value })}
+                                        className={`p-3 rounded-xl text-sm font-bold transition-all ${formData.partyFrequency === opt.value
+                                                ? 'bg-orange-500 text-white'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-3">Overnight Guests</label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {[
+                                    { value: 'never', label: 'Never' },
+                                    { value: 'sometimes', label: 'Sometimes' },
+                                    { value: 'often', label: 'Often' }
+                                ].map(opt => (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, overnightGuests: opt.value })}
+                                        className={`p-3 rounded-xl text-sm font-bold transition-all ${formData.overnightGuests === opt.value
+                                                ? 'bg-orange-500 text-white'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <label className="text-sm font-bold text-gray-700">Quiet Hours Importance</label>
+                                <span className="text-sm font-bold text-orange-600">{formData.quietHoursImportance}/10</span>
+                            </div>
+                            <input
+                                type="range"
+                                name="quietHoursImportance"
+                                min="1"
+                                max="10"
+                                value={formData.quietHoursImportance}
+                                onChange={handleChange}
+                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                            />
+                        </div>
+                    </div>
+                );
+            case 4: // Living Preferences - NEW STEP
+                return (
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-3">Temperature Preference</label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {[
+                                    { value: 'cold', label: '❄️ Cold' },
+                                    { value: 'neutral', label: '🌡️ Moderate' },
+                                    { value: 'warm', label: '🔥 Warm' }
+                                ].map(opt => (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, temperaturePreference: opt.value })}
+                                        className={`p-4 rounded-xl text-sm font-bold transition-all ${formData.temperaturePreference === opt.value
+                                                ? 'bg-orange-500 text-white'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-3">Study Habits</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                {[
+                                    { value: 'home', label: '🏠 Study at Home' },
+                                    { value: 'library', label: '📚 Library' },
+                                    { value: 'cafe', label: '☕ Cafes' },
+                                    { value: 'mixed', label: '🔄 Mix of Both' }
+                                ].map(opt => (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, studyHabits: opt.value })}
+                                        className={`p-4 rounded-xl text-sm font-bold transition-all ${formData.studyHabits === opt.value
+                                                ? 'bg-orange-500 text-white'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-3">Pet Tolerance</label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {[
+                                    { value: 'none', label: 'No Pets' },
+                                    { value: 'some', label: 'Some Pets OK' },
+                                    { value: 'all', label: 'Love Pets!' }
+                                ].map(opt => (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, petTolerance: opt.value })}
+                                        className={`p-3 rounded-xl text-sm font-bold transition-all ${formData.petTolerance === opt.value
+                                                ? 'bg-orange-500 text-white'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-3">Music at Home</label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {[
+                                    { value: 'headphones', label: 'Headphones' },
+                                    { value: 'low', label: 'Low Volume' },
+                                    { value: 'speaker', label: 'Speaker OK' }
+                                ].map(opt => (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, musicPreference: opt.value })}
+                                        className={`p-3 rounded-xl text-sm font-bold transition-all ${formData.musicPreference === opt.value
+                                                ? 'bg-orange-500 text-white'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                );
+            case 5: // Vibe
+                return (
+                    <div className="space-y-6">
+                        <p className="text-gray-500 text-sm">Pick tags that describe you (select multiple)</p>
+                        <div className="flex flex-wrap gap-3">
                             {VIBES_OPTIONS.map(vibe => (
                                 <button
                                     key={vibe}
+                                    type="button"
                                     onClick={() => handleArrayToggle('vibes', vibe)}
-                                    className={`px-6 py-3 rounded-full font-bold text-sm transition-all transform hover:scale-105 ${formData.vibes?.includes(vibe)
-                                        ? 'bg-black text-white shadow-lg'
+                                    className={`px-5 py-3 rounded-full font-bold text-sm transition-all ${formData.vibes?.includes(vibe)
+                                        ? 'bg-gray-900 text-white shadow-lg'
                                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                         }`}
                                 >
@@ -324,43 +450,86 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
                                 </button>
                             ))}
                         </div>
+
+                        <div className="border-t border-gray-100 pt-6 mt-6">
+                            <p className="text-sm font-bold text-gray-700 mb-4">House Rules</p>
+                            <div className="space-y-3">
+                                <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${formData.smoking ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                                    <span className="font-medium text-gray-900">Smoking Allowed</span>
+                                    <input
+                                        type="checkbox"
+                                        name="smoking"
+                                        checked={formData.smoking}
+                                        onChange={handleChange}
+                                        className="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                                    />
+                                </label>
+                                <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${formData.drinking ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                                    <span className="font-medium text-gray-900">Drinking Allowed</span>
+                                    <input
+                                        type="checkbox"
+                                        name="drinking"
+                                        checked={formData.drinking}
+                                        onChange={handleChange}
+                                        className="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                                    />
+                                </label>
+                                <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${formData.hasPets ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                                    <span className="font-medium text-gray-900">I Have Pets</span>
+                                    <input
+                                        type="checkbox"
+                                        name="hasPets"
+                                        checked={formData.hasPets}
+                                        onChange={handleChange}
+                                        className="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                                    />
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 );
-            case 5: // Review
+            case 6: // Review
                 return (
-                    <div className="text-center w-full max-w-4xl mx-auto">
-                        <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-6 text-teal-500">
-                            <FiCheck size={32} />
-                        </div>
-                        <h2 className="text-2xl font-black text-gray-900 mb-2">Ready to Save?</h2>
-                        <p className="text-gray-500 mb-8">Review your profile details.</p>
-
-                        <div className="bg-gray-50 rounded-2xl p-6 text-left space-y-4 border border-gray-100">
+                    <div className="space-y-6">
+                        <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <span className="text-xs font-bold text-gray-500 uppercase">Age/Gender</span>
-                                    <p className="font-bold text-gray-900">{formData.age} • {formData.gender}</p>
+                                    <p className="font-bold text-gray-900">{formData.age} • {formData.gender || 'Not set'}</p>
                                 </div>
                                 <div>
                                     <span className="text-xs font-bold text-gray-500 uppercase">Sleep</span>
                                     <p className="font-bold text-gray-900">{formData.sleepSchedule.bedtime}:00 - {formData.sleepSchedule.wakeup}:00</p>
                                 </div>
                             </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <span className="text-xs font-bold text-gray-500 uppercase">Social Level</span>
+                                    <p className="font-bold text-gray-900">{formData.socialLevel}/10</p>
+                                </div>
+                                <div>
+                                    <span className="text-xs font-bold text-gray-500 uppercase">Temperature</span>
+                                    <p className="font-bold text-gray-900 capitalize">{formData.temperaturePreference}</p>
+                                </div>
+                            </div>
                             <div>
                                 <span className="text-xs font-bold text-gray-500 uppercase">Bio</span>
-                                <p className="text-gray-700 italic">"{formData.bio}"</p>
+                                <p className="text-gray-700 italic">"{formData.bio || 'No bio yet'}"</p>
                             </div>
                             <div>
                                 <span className="text-xs font-bold text-gray-500 uppercase">Vibe</span>
                                 <div className="flex flex-wrap gap-2 mt-1">
                                     {formData.vibes?.map(v => (
-                                        <span key={v} className="px-2 py-1 bg-white border border-gray-200 rounded-md text-xs font-bold text-gray-600">
+                                        <span key={v} className="px-2 py-1 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600">
                                             {v}
                                         </span>
                                     ))}
                                 </div>
                             </div>
                         </div>
+                        <p className="text-center text-gray-500 text-sm">
+                            Your answers help us find compatible roommates for you!
+                        </p>
                     </div>
                 );
             default:
@@ -371,38 +540,59 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
             <div
-                className="bg-white rounded-3xl w-full max-w-5xl min-h-[700px] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden"
+                className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="p-8 border-b border-gray-100">
-                    <div className="flex justify-between items-center mb-6">
-                        <h1 className="text-2xl font-black text-gray-900">Edit Profile</h1>
+                <div className="p-6 border-b border-gray-100 shrink-0">
+                    <div className="flex justify-between items-center mb-4">
+                        <h1 className="text-xl font-black text-gray-900">Edit Profile</h1>
                         <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors">
                             <FiX size={24} />
                         </button>
                     </div>
-                    {/* Progress Bar */}
-                    <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden mb-2">
-                        <div
-                            className="bg-orange-500 h-full transition-all duration-500 ease-out"
-                            style={{ width: `${(step / 5) * 100}%` }}
-                        />
+                    {/* Step Progress */}
+                    <div className="flex justify-between items-center">
+                        {steps.map((s, i) => (
+                            <div key={s.num} className="flex items-center">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all ${step > s.num
+                                        ? 'bg-green-500 text-white'
+                                        : step === s.num
+                                            ? 'bg-orange-500 text-white'
+                                            : 'bg-gray-100 text-gray-400'
+                                    }`}>
+                                    {step > s.num ? <FiCheck size={14} /> : s.num}
+                                </div>
+                                {i < steps.length - 1 && (
+                                    <div className={`w-6 md:w-10 h-0.5 mx-1 ${step > s.num ? 'bg-green-500' : 'bg-gray-200'}`} />
+                                )}
+                            </div>
+                        ))}
                     </div>
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Step {step} of 5</p>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 p-8 flex flex-col justify-center overflow-y-auto">
+                <div className="flex-1 p-6 overflow-y-auto">
+                    <div className="mb-6">
+                        <h2 className="text-2xl font-black text-gray-900 mb-1">{steps[step - 1].label}</h2>
+                        <p className="text-gray-500 text-sm">
+                            {step === 1 && "Tell us about yourself"}
+                            {step === 2 && "Your daily habits"}
+                            {step === 3 && "Your social preferences"}
+                            {step === 4 && "Living environment preferences"}
+                            {step === 5 && "Your vibe and house rules"}
+                            {step === 6 && "Review your profile"}
+                        </p>
+                    </div>
                     {renderStepContent()}
                 </div>
 
                 {/* Footer */}
-                <div className="p-8 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-between items-center shrink-0">
                     <button
                         onClick={handleBack}
                         disabled={step === 1}
-                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-gray-600 transition-colors ${step === 1 ? 'opacity-0 pointer-events-none' : 'hover:bg-gray-200'
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-colors ${step === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-200'
                             }`}
                     >
                         <FiArrowLeft /> Back
@@ -410,9 +600,9 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
                     <button
                         onClick={handleNext}
                         disabled={loading}
-                        className="flex items-center gap-2 px-8 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Saving...' : (step === 5 ? 'Save Profile' : 'Next')} <FiArrowRight />
+                        {loading ? 'Saving...' : (step === 6 ? 'Save Profile' : 'Next')} <FiArrowRight />
                     </button>
                 </div>
             </div>

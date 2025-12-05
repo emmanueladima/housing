@@ -132,6 +132,8 @@ export const login = async (req, res) => {
         email: user.email,
         userType: user.userType,
         isVerified: user.isVerified,
+        favorites: user.favorites || [],
+        savedProfiles: user.savedProfiles || [],
       },
     });
   } catch (error) {

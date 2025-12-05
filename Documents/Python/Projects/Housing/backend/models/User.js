@@ -81,6 +81,10 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'SavedSearch',
   }],
+  savedProfiles: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'LifestyleProfile',
+  }],
   unreadNotifications: {
     type: Number,
     default: 0,

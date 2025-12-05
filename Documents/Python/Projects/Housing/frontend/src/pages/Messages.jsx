@@ -5,6 +5,7 @@ import ChatWindow from '../components/Messages/ChatWindow';
 import { useAuth } from '../contexts/AuthContext';
 import { ThreadProvider, useThreads } from '../contexts/ThreadContext';
 import messageService from '../services/messageService';
+import { FiMessageSquare } from 'react-icons/fi';
 
 const MessagesContent = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -14,11 +15,9 @@ const MessagesContent = () => {
 
   useEffect(() => {
     const initThread = async () => {
-      // Check for 'user' param to start new conversation
       const targetUserId = searchParams.get('user');
       if (targetUserId) {
         try {
-          // Create or find thread with this user
           const thread = await messageService.createThread({
             type: 'dm',
             participantIds: [targetUserId]
@@ -26,7 +25,6 @@ const MessagesContent = () => {
 
           if (thread && thread._id) {
             setActiveThreadId(thread._id);
-            // Update URL to remove user param and add thread param
             setSearchParams({ thread: thread._id });
           }
         } catch (error) {
@@ -34,7 +32,6 @@ const MessagesContent = () => {
         }
       }
 
-      // Get conversation ID from URL params
       const threadId = searchParams.get('thread');
       if (threadId && threadId !== activeThreadId) {
         setActiveThreadId(threadId);
@@ -45,7 +42,6 @@ const MessagesContent = () => {
   }, [searchParams, setActiveThreadId, setSearchParams]);
 
   useEffect(() => {
-    // Sync active thread to URL
     if (activeThreadId) {
       setSearchParams({ thread: activeThreadId });
     } else {
@@ -69,11 +65,25 @@ const MessagesContent = () => {
   // Mobile view
   if (isMobileView) {
     return (
-      <div className="h-[calc(100vh-4rem)] bg-gray-100">
+      <div className="h-screen bg-gray-50 pt-20">
         {activeThreadId ? (
           <ChatWindow onBack={handleBackToList} />
         ) : (
-          <ConversationList />
+          <div className="h-full">
+            {/* Mobile Header */}
+            <div className="bg-gradient-to-r from-orange-500 via-red-500 to-orange-600 px-4 py-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/20 backdrop-blur-md rounded-xl">
+                  <FiMessageSquare className="text-white" size={24} />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-black text-white">Messages</h1>
+                  <p className="text-white/80 text-sm">Your conversations</p>
+                </div>
+              </div>
+            </div>
+            <ConversationList />
+          </div>
         )}
       </div>
     );
@@ -81,14 +91,30 @@ const MessagesContent = () => {
 
   // Desktop view
   return (
-    <div className="h-[calc(100vh-4rem)] bg-gray-100">
-      <div className="max-w-7xl mx-auto h-full">
-        <div className="grid grid-cols-12 gap-0 h-full shadow-lg">
-          <div className="col-span-4 border-r border-gray-200 bg-white overflow-hidden">
-            <ConversationList />
+    <div className="h-screen bg-gray-50 pt-20">
+      <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl shadow-lg shadow-orange-500/20">
+              <FiMessageSquare className="text-white" size={28} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-black text-gray-900">Messages</h1>
+              <p className="text-gray-500">Connect with landlords and roommates</p>
+            </div>
           </div>
-          <div className="col-span-8 bg-white overflow-hidden">
-            <ChatWindow onBack={handleBackToList} />
+        </div>
+
+        {/* Messages Grid */}
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden" style={{ height: 'calc(100vh - 220px)' }}>
+          <div className="grid grid-cols-12 h-full">
+            <div className="col-span-4 border-r border-gray-200 overflow-hidden">
+              <ConversationList />
+            </div>
+            <div className="col-span-8 overflow-hidden">
+              <ChatWindow onBack={handleBackToList} />
+            </div>
           </div>
         </div>
       </div>

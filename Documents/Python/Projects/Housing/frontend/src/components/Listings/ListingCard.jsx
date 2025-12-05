@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { FiMapPin, FiHeart, FiSquare, FiHome, FiMessageCircle } from 'react-icons/fi';
 import { formatPrice } from '../../utils/priceFormatter';
 import Badge from '../shared/Badge';
@@ -6,18 +7,27 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useFeatureFlags } from '../../contexts/FeatureFlagContext';
 import VerificationBadges from '../User/VerificationBadges';
 import QualityScoreChip from '../User/QualityScoreChip';
-import { useState } from 'react';
+
 import { createThread } from '../../services/messageService';
+import listingService from '../../services/listingService';
 
 const ListingCard = ({ listing }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, refreshUser } = useAuth();
   const { isEnabled } = useFeatureFlags();
   const navigate = useNavigate();
-  const [isFavorite, setIsFavorite] = useState(
-    user?.favorites?.includes(listing._id) || false
-  );
+  const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [messageLoading, setMessageLoading] = useState(false);
+
+  // Update isFavorite when user data changes
+  useEffect(() => {
+    if (user && user.favorites) {
+      const isInFavorites = user.favorites.some(fav =>
+        (typeof fav === 'string' ? fav : fav._id || fav) === listing._id
+      );
+      setIsFavorite(isInFavorites);
+    }
+  }, [user, listing._id]);
 
   const handleFavoriteClick = async (e) => {
     e.preventDefault();
@@ -30,10 +40,19 @@ const ListingCard = ({ listing }) => {
 
     setFavoriteLoading(true);
     try {
-      // TODO: Implement favorite toggle API call
-      setIsFavorite(!isFavorite);
+      console.log('Toggling favorite for listing:', listing._id);
+      const response = await listingService.toggleFavorite(listing._id);
+      console.log('Toggle favorite response:', response);
+
+      setIsFavorite(response.isFavorited);
+
+      // Refresh user data to persist the change
+      await refreshUser();
+      console.log('User data refreshed');
     } catch (error) {
       console.error('Error toggling favorite:', error);
+      // Revert state on error
+      setIsFavorite(!isFavorite);
     } finally {
       setFavoriteLoading(false);
     }
@@ -106,9 +125,9 @@ const ListingCard = ({ listing }) => {
           <button
             onClick={handleFavoriteClick}
             disabled={favoriteLoading}
-            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${isFavorite
-              ? 'bg-orange-600 text-white'
-              : 'bg-white/90 text-gray-600 hover:bg-orange-600 hover:text-white'
+            className={`relative z-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${isFavorite
+              ? 'bg-red-500 text-white px-4 gap-2'
+              : 'w-10 bg-white/90 text-gray-600 hover:bg-red-500 hover:text-white'
               } shadow-lg`}
             aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           >
@@ -116,6 +135,7 @@ const ListingCard = ({ listing }) => {
               className={`${isFavorite ? 'fill-current' : ''}`}
               size={18}
             />
+            {isFavorite && <span className="text-sm font-bold">Saved!</span>}
           </button>
 
           {/* Message Button (Only if not owner) */}

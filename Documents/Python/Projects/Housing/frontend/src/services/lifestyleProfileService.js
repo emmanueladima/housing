@@ -58,6 +58,18 @@ const lifestyleProfileService = {
     });
     return data;
   },
+
+  // Toggle saved status
+  toggleSavedProfile: async (id) => {
+    const { data } = await api.post(`/lifestyle-profiles/save/${id}`);
+    return data;
+  },
+
+  // Get saved profiles
+  getSavedProfiles: async () => {
+    const { data } = await api.get('/lifestyle-profiles/saved');
+    return data;
+  },
 };
 
 export default lifestyleProfileService;

@@ -241,3 +241,99 @@ export const getProfile = async (req, res) => {
         });
     }
 };
+
+/**
+ * @desc    Toggle saved status of a profile
+ * @route   POST /api/lifestyle-profiles/save/:id
+ * @access  Private
+ */
+export const toggleSavedProfile = async (req, res) => {
+    try {
+        const profileId = req.params.id;
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found',
+            });
+        }
+
+        // Check if profile exists
+        const profile = await LifestyleProfile.findById(profileId);
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                error: 'Profile not found',
+            });
+        }
+
+        // Initialize savedProfiles if it doesn't exist
+        if (!user.savedProfiles) {
+            user.savedProfiles = [];
+        }
+
+        const index = user.savedProfiles.indexOf(profileId);
+        let isSaved = false;
+
+        if (index > -1) {
+            // Remove from saved
+            user.savedProfiles.splice(index, 1);
+            isSaved = false;
+        } else {
+            // Add to saved
+            user.savedProfiles.push(profileId);
+            isSaved = true;
+        }
+
+        await user.save();
+
+        res.json({
+            success: true,
+            isSaved,
+            savedProfiles: user.savedProfiles,
+        });
+    } catch (error) {
+        console.error('Toggle saved profile error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error toggling saved profile',
+        });
+    }
+};
+
+/**
+ * @desc    Get saved profiles
+ * @route   GET /api/lifestyle-profiles/saved
+ * @access  Private
+ */
+export const getSavedProfiles = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).populate({
+            path: 'savedProfiles',
+            populate: {
+                path: 'user',
+                select: 'firstName lastName email school graduationYear avatar'
+            }
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found',
+            });
+        }
+
+        res.json({
+            success: true,
+            count: user.savedProfiles ? user.savedProfiles.length : 0,
+            profiles: user.savedProfiles || [],
+        });
+    } catch (error) {
+        console.error('Get saved profiles error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error fetching saved profiles',
+        });
+    }
+};

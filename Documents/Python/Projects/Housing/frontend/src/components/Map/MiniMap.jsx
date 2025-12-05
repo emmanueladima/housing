@@ -45,10 +45,10 @@ const MiniMap = ({ coordinates, rent, address }) => {
 
         el.innerHTML = `
       <div style="
-        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        background: linear-gradient(135deg, #DB4A2B 0%, #B0361C 100%);
         padding: 4px 10px;
         border-radius: 16px;
-        box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+        box-shadow: 0 2px 8px rgba(219, 74, 43, 0.3);
         font-weight: bold;
         font-size: 12px;
         color: white;

@@ -19,20 +19,20 @@ export const OSU_CAMPUS_POLYGON = [
 // Check if coordinates are inside OSU campus
 export const isOnCampus = (lat, lng) => {
   if (!lat || !lng) return false;
-  
+
   // Simple point-in-polygon algorithm
   let inside = false;
   const polygon = OSU_CAMPUS_POLYGON;
-  
+
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
     const xi = polygon[i][1], yi = polygon[i][0];
     const xj = polygon[j][1], yj = polygon[j][0];
-    
+
     const intersect = ((yi > lat) !== (yj > lat))
       && (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi);
     if (intersect) inside = !inside;
   }
-  
+
   return inside;
 };
 
@@ -40,7 +40,7 @@ export const isOnCampus = (lat, lng) => {
 export const COMMUTE_BUCKETS = {
   VERY_CLOSE: { max: 10, color: '#10b981', label: '< 10 min' },
   CLOSE: { max: 20, color: '#f59e0b', label: '10-20 min' },
-  MEDIUM: { max: 30, color: '#f97316', label: '20-30 min' },
+  MEDIUM: { max: 30, color: '#DB4A2B', label: '20-30 min' },
   FAR: { max: Infinity, color: '#ef4444', label: '> 30 min' },
 };
 

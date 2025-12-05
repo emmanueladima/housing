@@ -121,7 +121,7 @@ const ListingDetailPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b sticky top-16 z-10">
+      <div className="bg-white border-b relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <button
@@ -378,7 +378,7 @@ const ListingDetailPage = () => {
                 <div className="space-y-3">
                   <Button
                     variant="primary"
-                    className="w-full"
+                    className="w-full rounded-full shadow-lg shadow-orange-200 hover:shadow-orange-300 transition-all duration-300"
                     onClick={handleContact}
                   >
                     <FiMail className="mr-2" size={18} />
@@ -386,7 +386,7 @@ const ListingDetailPage = () => {
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full"
+                    className="w-full rounded-full border-2 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-600 transition-all duration-300"
                     onClick={() => {
                       if (!isAuthenticated) {
                         alert('Please log in to apply');
@@ -402,7 +402,7 @@ const ListingDetailPage = () => {
                   {flags.preMoveChecklist && isAuthenticated && (
                     <Button
                       variant="outline"
-                      className="w-full border-orange-300 text-orange-600 hover:bg-orange-50"
+                      className="w-full rounded-full border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300 transition-all duration-300"
                       onClick={() => setShowChecklist(true)}
                     >
                       <FiCalendar className="mr-2" size={18} />

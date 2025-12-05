@@ -4,17 +4,17 @@ import { FiHeart, FiEdit2, FiMoon, FiSun, FiDollarSign, FiVolume2, FiCheckCircle
 const LifestyleCard = ({ profile, onEdit }) => {
     if (!profile) {
         return (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-                <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-500">
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-200 p-8 text-center h-full flex flex-col items-center justify-center">
+                <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mb-6 text-orange-500">
                     <FiHeart size={32} />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Lifestyle Profile Yet</h3>
-                <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-                    Create your lifestyle profile to help us find roommates who match your vibe and habits.
+                <h3 className="text-xl font-black text-gray-900 mb-2">No Lifestyle Profile</h3>
+                <p className="text-gray-500 mb-8 max-w-xs mx-auto">
+                    Create your profile to find roommates who match your vibe.
                 </p>
                 <button
                     onClick={onEdit}
-                    className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium transition-colors"
+                    className="px-8 py-3 bg-black text-white rounded-full font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                 >
                     Create Profile
                 </button>
@@ -56,104 +56,102 @@ const LifestyleCard = ({ profile, onEdit }) => {
     const preferences = getPreferences();
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden h-full flex flex-col">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
                     <FiHeart className="text-pink-500" /> Lifestyle & Habits
                 </h2>
                 <button
                     onClick={onEdit}
-                    className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 font-medium px-3 py-1.5 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
+                    className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 font-bold px-4 py-2 bg-orange-50 hover:bg-orange-100 rounded-full transition-colors"
                 >
                     <FiEdit2 size={14} /> Edit
                 </button>
             </div>
 
-            <div className="p-6">
-                {/* Bio */}
-                {profile.bio && (
-                    <div className="mb-8">
-                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">About Me</h3>
-                        <p className="text-gray-700 italic leading-relaxed">"{profile.bio}"</p>
-                    </div>
-                )}
-
-                {/* Habits - Pill Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+            <div className="p-6 flex-1 flex flex-col gap-8">
+                {/* Habits - Colorful Pills */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* Sleep */}
-                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-900">
-                        <div className="p-2 bg-white rounded-xl text-indigo-500 shadow-sm">
-                            {getSleepLabel(profile.sleepTime) === 'Night Owl' ? <FiMoon /> : <FiSun />}
+                    <div className="flex flex-col p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 transition-transform hover:scale-[1.02]">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 bg-white rounded-xl text-indigo-500 shadow-sm">
+                                {getSleepLabel(profile.sleepTime) === 'Night Owl' ? <FiMoon /> : <FiSun />}
+                            </div>
+                            <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Sleep</span>
                         </div>
-                        <div>
-                            <p className="text-xs font-bold uppercase opacity-60">Sleep</p>
-                            <p className="font-bold">{getSleepLabel(profile.sleepTime)}</p>
-                        </div>
+                        <p className="font-black text-indigo-900 text-lg">{getSleepLabel(profile.sleepTime)}</p>
                     </div>
+
                     {/* Noise */}
-                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-pink-50 border border-pink-100 text-pink-900">
-                        <div className="p-2 bg-white rounded-xl text-pink-500 shadow-sm">
-                            <FiVolume2 />
+                    <div className="flex flex-col p-4 rounded-2xl bg-pink-50/50 border border-pink-100 transition-transform hover:scale-[1.02]">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 bg-white rounded-xl text-pink-500 shadow-sm">
+                                <FiVolume2 />
+                            </div>
+                            <span className="text-xs font-bold text-pink-400 uppercase tracking-wider">Noise</span>
                         </div>
-                        <div>
-                            <p className="text-xs font-bold uppercase opacity-60">Noise</p>
-                            <p className="font-bold">{getNoiseLabel(profile.noiseLevel)}</p>
-                        </div>
+                        <p className="font-black text-pink-900 text-lg">{getNoiseLabel(profile.noiseLevel)}</p>
                     </div>
+
                     {/* Cleanliness */}
-                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-teal-50 border border-teal-100 text-teal-900">
-                        <div className="p-2 bg-white rounded-xl text-teal-500 shadow-sm">
-                            <FiCheckCircle />
+                    <div className="flex flex-col p-4 rounded-2xl bg-teal-50/50 border border-teal-100 transition-transform hover:scale-[1.02]">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 bg-white rounded-xl text-teal-500 shadow-sm">
+                                <FiCheckCircle />
+                            </div>
+                            <span className="text-xs font-bold text-teal-400 uppercase tracking-wider">Cleanliness</span>
                         </div>
-                        <div>
-                            <p className="text-xs font-bold uppercase opacity-60">Cleanliness</p>
-                            <p className="font-bold">{getCleanlinessLabel(profile.cleanliness)}</p>
-                        </div>
+                        <p className="font-black text-teal-900 text-lg">{getCleanlinessLabel(profile.cleanliness)}</p>
                     </div>
                 </div>
 
                 {/* Key Stats Grid */}
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                    <div className="p-3 bg-blue-50 rounded-xl border border-blue-100">
-                        <div className="flex items-center gap-2 text-blue-600 mb-1">
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
+                        <div className="flex items-center gap-2 text-blue-600 mb-2">
                             <FiMoon size={16} />
                             <span className="text-xs font-bold uppercase">Hours</span>
                         </div>
-                        <p className="font-semibold text-gray-900">{profile.sleepTime} - {profile.wakeTime}</p>
+                        <p className="font-bold text-gray-900 text-lg">{profile.sleepTime || '-'} - {profile.wakeTime || '-'}</p>
                     </div>
-                    <div className="p-3 bg-green-50 rounded-xl border border-green-100">
-                        <div className="flex items-center gap-2 text-green-600 mb-1">
+                    <div className="p-4 bg-green-50/50 rounded-2xl border border-green-100">
+                        <div className="flex items-center gap-2 text-green-600 mb-2">
                             <FiDollarSign size={16} />
                             <span className="text-xs font-bold uppercase">Budget</span>
                         </div>
-                        <p className="font-semibold text-gray-900">${profile.budgetMin} - ${profile.budgetMax}</p>
+                        <p className="font-bold text-gray-900 text-lg">${profile.budgetMin || 0} - ${profile.budgetMax || 0}</p>
                     </div>
                 </div>
 
                 {/* My Living Preferences */}
-                <div className="mb-8">
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">My Living Preferences</h3>
-                    <ul className="space-y-2">
-                        {preferences.map((pref, i) => (
-                            <li key={i} className="flex items-start gap-2 text-gray-700 font-medium text-sm">
-                                <FiCheck className="mt-0.5 text-green-500 shrink-0" />
+                <div>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">My Living Preferences</h3>
+                    <ul className="space-y-3">
+                        {preferences.length > 0 ? preferences.map((pref, i) => (
+                            <li key={i} className="flex items-start gap-3 text-gray-700 font-medium">
+                                <div className="mt-1">
+                                    <FiCheck className="text-green-500" />
+                                </div>
                                 <span>{pref}</span>
                             </li>
-                        ))}
+                        )) : (
+                            <li className="text-gray-400 italic">No preferences set yet.</li>
+                        )}
                     </ul>
                 </div>
 
                 {/* Tags */}
                 <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Vibe & Interests</h3>
+                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Vibe & Interests</h3>
                     <div className="flex flex-wrap gap-2">
                         {profile.vibeTags?.map(tag => (
-                            <span key={tag} className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium capitalize">
+                            <span key={tag} className="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-bold capitalize">
                                 {tag}
                             </span>
                         ))}
                         {profile.interests?.map(tag => (
-                            <span key={tag} className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm capitalize">
+                            <span key={tag} className="px-4 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-xl text-sm font-medium capitalize">
                                 {tag}
                             </span>
                         ))}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiUsers, FiMessageSquare, FiBell, FiUser, FiLogOut, FiMenu, FiX, FiMap, FiTool, FiGrid, FiSettings } from 'react-icons/fi';
+import { FiHome, FiUsers, FiMessageSquare, FiBell, FiUser, FiLogOut, FiMenu, FiX, FiMap, FiTool, FiGrid, FiSettings, FiHeart } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSocket } from '../../contexts/SocketContext';
 import messageService from '../../services/messageService';
@@ -161,6 +161,14 @@ const Header = () => {
                           >
                             <FiUser size={18} />
                             <span className="font-medium">Your Profile</span>
+                          </Link>
+                          <Link
+                            to="/saved"
+                            className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            <FiHeart size={18} />
+                            <span className="font-medium">Saved Items</span>
                           </Link>
                           <Link
                             to="/applications"
