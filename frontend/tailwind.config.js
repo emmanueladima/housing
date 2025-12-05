@@ -1,10 +1,11 @@
 /** @type {import('tailwindcss').Config} */
-// Cache bust v2 - Force Tailwind rebuild
+// Cache bust v3 - Force Tailwind rebuild
 export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {

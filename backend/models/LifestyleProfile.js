@@ -98,6 +98,17 @@ const lifestyleProfileSchema = new mongoose.Schema({
       type: Date,
     },
   },
+
+  // Compatibility Test Results
+  compatibilityAnswers: {
+    type: Map,
+    of: mongoose.Schema.Types.Mixed,
+    default: {}
+  },
+  compatibilityScore: {
+    type: Number,
+    default: 0
+  },
 }, {
   timestamps: true,
 });

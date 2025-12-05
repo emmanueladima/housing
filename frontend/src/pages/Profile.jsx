@@ -200,6 +200,19 @@ const Profile = () => {
                     <p className="text-xs text-gray-400">Cleanliness</p>
                   </div>
                 </div>
+
+                {/* Compatibility Test Button */}
+                {(!lifestyleProfile?.compatibilityAnswers || Object.keys(lifestyleProfile.compatibilityAnswers).length === 0) && (
+                  <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+                    <button
+                      onClick={() => window.location.href = '/compatibility-test'}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-white text-orange-600 rounded-xl font-bold hover:bg-orange-50 transition-all border-2 border-orange-100 hover:border-orange-200 shadow-sm"
+                    >
+                      <FiCheckCircle />
+                      Take Compatibility Test
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Bio */}

@@ -22,6 +22,8 @@ import SavedPage from './pages/SavedPage';
 import Safety from './pages/Safety';
 import VerifyEmail from './pages/VerifyEmail';
 import NotFound from './pages/NotFound';
+import CompatibilityTest from './pages/CompatibilityTest';
+import Settings from './pages/Settings';
 
 function App() {
   const location = useLocation();
@@ -136,15 +138,30 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/compatibility-test"
+            element={
+              <ProtectedRoute>
+                <CompatibilityTest />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       <Footer />
-    </div >
+    </div>
   );
 }
 
 export default App;
-

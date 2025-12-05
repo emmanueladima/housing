@@ -337,3 +337,47 @@ export const getSavedProfiles = async (req, res) => {
         });
     }
 };
+/**
+ * @desc    Save compatibility test results
+ * @route   POST /api/lifestyle-profiles/compatibility-test
+ * @access  Private
+ */
+export const saveCompatibilityTest = async (req, res) => {
+    try {
+        const { answers } = req.body;
+
+        // Find user's profile
+        let profile = await LifestyleProfile.findOne({ user: req.user._id });
+
+        if (!profile) {
+            // Create profile if it doesn't exist
+            profile = await LifestyleProfile.create({ user: req.user._id });
+            await User.findByIdAndUpdate(req.user._id, { roommateProfile: profile._id });
+        }
+
+        // Update compatibility answers
+        profile.compatibilityAnswers = answers;
+
+        // Calculate a simple score based on answers (just for demo/storage purposes)
+        // In a real app, this would be a more complex vector calculation
+        let score = 0;
+        Object.values(answers).forEach(val => {
+            // Just counting answered questions as "points" for now to show progress
+            if (val) score += 10;
+        });
+        profile.compatibilityScore = score;
+
+        await profile.save();
+
+        res.json({
+            success: true,
+            profile,
+        });
+    } catch (error) {
+        console.error('Save compatibility test error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error saving compatibility test',
+        });
+    }
+};

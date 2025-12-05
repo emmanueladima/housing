@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FiX, FiUser, FiSun, FiMoon, FiVolume2, FiCheckCircle, FiSmile, FiArrowRight, FiArrowLeft, FiCheck, FiHeart, FiThermometer, FiBook, FiUsers } from 'react-icons/fi';
 import lifestyleProfileService from '../../services/lifestyleProfileService';
+import { useNavigate } from 'react-router-dom';
 
 const ProfileCreationWizard = ({ onClose, onSaved }) => {
+    const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -25,22 +27,7 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
         hasPets: false,
         petAllergies: false,
         smoking: false,
-        drinking: false,
-        // New compatibility fields
-        socialLevel: 5,
-        studyHabits: 'home',
-        temperaturePreference: 'neutral',
-        sharedSpaces: {
-            kitchen: true,
-            bathroom: true,
-            livingRoom: true
-        },
-        workSchedule: 'hybrid',
-        quietHoursImportance: 5,
-        partyFrequency: 2,
-        overnightGuests: 'sometimes',
-        petTolerance: 'some',
-        musicPreference: 'headphones'
+        drinking: false
     });
 
     useEffect(() => {
@@ -55,8 +42,7 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
                     ...prev,
                     ...profile,
                     sleepSchedule: { ...prev.sleepSchedule, ...profile.sleepSchedule },
-                    budget: { ...prev.budget, ...profile.budget },
-                    sharedSpaces: { ...prev.sharedSpaces, ...profile.sharedSpaces }
+                    budget: { ...prev.budget, ...profile.budget }
                 }));
             }
         } catch (error) {
@@ -95,7 +81,7 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
     };
 
     const handleNext = () => {
-        if (step < 6) setStep(step + 1);
+        if (step < 4) setStep(step + 1);
         else handleSubmit();
     };
 
@@ -108,6 +94,10 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
         try {
             const savedProfile = await lifestyleProfileService.saveMyProfile(formData);
             onSaved(savedProfile);
+            // Ask if they want to take the compatibility test
+            if (window.confirm('Profile saved! Do you want to take the Compatibility Test now to find better matches?')) {
+                navigate('/compatibility-test');
+            }
             onClose();
         } catch (error) {
             console.error('Error saving profile:', error);
@@ -122,10 +112,8 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
     const steps = [
         { num: 1, label: 'Basics', icon: FiUser, color: 'orange' },
         { num: 2, label: 'Habits', icon: FiMoon, color: 'blue' },
-        { num: 3, label: 'Social', icon: FiUsers, color: 'pink' },
-        { num: 4, label: 'Living', icon: FiThermometer, color: 'emerald' },
-        { num: 5, label: 'Vibe', icon: FiSmile, color: 'purple' },
-        { num: 6, label: 'Review', icon: FiCheck, color: 'teal' },
+        { num: 3, label: 'Vibe', icon: FiSmile, color: 'purple' },
+        { num: 4, label: 'Review', icon: FiCheck, color: 'teal' },
     ];
 
     const renderStepContent = () => {
@@ -247,191 +235,7 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
                         </div>
                     </div>
                 );
-            case 3: // Social & Compatibility - NEW STEP
-                return (
-                    <div className="space-y-6">
-                        <div>
-                            <div className="flex justify-between mb-2">
-                                <label className="text-sm font-bold text-gray-700">Social Energy</label>
-                                <span className="text-sm font-bold text-orange-600">{formData.socialLevel}/10</span>
-                            </div>
-                            <input
-                                type="range"
-                                name="socialLevel"
-                                min="1"
-                                max="10"
-                                value={formData.socialLevel}
-                                onChange={handleChange}
-                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                            />
-                            <div className="flex justify-between text-xs font-medium text-gray-400 mt-1">
-                                <span>Introvert</span>
-                                <span>Extrovert</span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-3">Party Frequency</label>
-                            <div className="grid grid-cols-4 gap-2">
-                                {[
-                                    { value: 1, label: 'Never' },
-                                    { value: 2, label: 'Rarely' },
-                                    { value: 3, label: 'Monthly' },
-                                    { value: 4, label: 'Weekly' }
-                                ].map(opt => (
-                                    <button
-                                        key={opt.value}
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, partyFrequency: opt.value })}
-                                        className={`p-3 rounded-xl text-sm font-bold transition-all ${formData.partyFrequency === opt.value
-                                                ? 'bg-orange-500 text-white'
-                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {opt.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-3">Overnight Guests</label>
-                            <div className="grid grid-cols-3 gap-2">
-                                {[
-                                    { value: 'never', label: 'Never' },
-                                    { value: 'sometimes', label: 'Sometimes' },
-                                    { value: 'often', label: 'Often' }
-                                ].map(opt => (
-                                    <button
-                                        key={opt.value}
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, overnightGuests: opt.value })}
-                                        className={`p-3 rounded-xl text-sm font-bold transition-all ${formData.overnightGuests === opt.value
-                                                ? 'bg-orange-500 text-white'
-                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {opt.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <div className="flex justify-between mb-2">
-                                <label className="text-sm font-bold text-gray-700">Quiet Hours Importance</label>
-                                <span className="text-sm font-bold text-orange-600">{formData.quietHoursImportance}/10</span>
-                            </div>
-                            <input
-                                type="range"
-                                name="quietHoursImportance"
-                                min="1"
-                                max="10"
-                                value={formData.quietHoursImportance}
-                                onChange={handleChange}
-                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                            />
-                        </div>
-                    </div>
-                );
-            case 4: // Living Preferences - NEW STEP
-                return (
-                    <div className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-3">Temperature Preference</label>
-                            <div className="grid grid-cols-3 gap-2">
-                                {[
-                                    { value: 'cold', label: '❄️ Cold' },
-                                    { value: 'neutral', label: '🌡️ Moderate' },
-                                    { value: 'warm', label: '🔥 Warm' }
-                                ].map(opt => (
-                                    <button
-                                        key={opt.value}
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, temperaturePreference: opt.value })}
-                                        className={`p-4 rounded-xl text-sm font-bold transition-all ${formData.temperaturePreference === opt.value
-                                                ? 'bg-orange-500 text-white'
-                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {opt.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-3">Study Habits</label>
-                            <div className="grid grid-cols-2 gap-2">
-                                {[
-                                    { value: 'home', label: '🏠 Study at Home' },
-                                    { value: 'library', label: '📚 Library' },
-                                    { value: 'cafe', label: '☕ Cafes' },
-                                    { value: 'mixed', label: '🔄 Mix of Both' }
-                                ].map(opt => (
-                                    <button
-                                        key={opt.value}
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, studyHabits: opt.value })}
-                                        className={`p-4 rounded-xl text-sm font-bold transition-all ${formData.studyHabits === opt.value
-                                                ? 'bg-orange-500 text-white'
-                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {opt.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-3">Pet Tolerance</label>
-                            <div className="grid grid-cols-3 gap-2">
-                                {[
-                                    { value: 'none', label: 'No Pets' },
-                                    { value: 'some', label: 'Some Pets OK' },
-                                    { value: 'all', label: 'Love Pets!' }
-                                ].map(opt => (
-                                    <button
-                                        key={opt.value}
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, petTolerance: opt.value })}
-                                        className={`p-3 rounded-xl text-sm font-bold transition-all ${formData.petTolerance === opt.value
-                                                ? 'bg-orange-500 text-white'
-                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {opt.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-3">Music at Home</label>
-                            <div className="grid grid-cols-3 gap-2">
-                                {[
-                                    { value: 'headphones', label: 'Headphones' },
-                                    { value: 'low', label: 'Low Volume' },
-                                    { value: 'speaker', label: 'Speaker OK' }
-                                ].map(opt => (
-                                    <button
-                                        key={opt.value}
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, musicPreference: opt.value })}
-                                        className={`p-3 rounded-xl text-sm font-bold transition-all ${formData.musicPreference === opt.value
-                                                ? 'bg-orange-500 text-white'
-                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {opt.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                );
-            case 5: // Vibe
+            case 3: // Vibe
                 return (
                     <div className="space-y-6">
                         <p className="text-gray-500 text-sm">Pick tags that describe you (select multiple)</p>
@@ -488,7 +292,7 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
                         </div>
                     </div>
                 );
-            case 6: // Review
+            case 4: // Review
                 return (
                     <div className="space-y-6">
                         <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
@@ -500,16 +304,6 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
                                 <div>
                                     <span className="text-xs font-bold text-gray-500 uppercase">Sleep</span>
                                     <p className="font-bold text-gray-900">{formData.sleepSchedule.bedtime}:00 - {formData.sleepSchedule.wakeup}:00</p>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <span className="text-xs font-bold text-gray-500 uppercase">Social Level</span>
-                                    <p className="font-bold text-gray-900">{formData.socialLevel}/10</p>
-                                </div>
-                                <div>
-                                    <span className="text-xs font-bold text-gray-500 uppercase">Temperature</span>
-                                    <p className="font-bold text-gray-900 capitalize">{formData.temperaturePreference}</p>
                                 </div>
                             </div>
                             <div>
@@ -556,10 +350,10 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
                         {steps.map((s, i) => (
                             <div key={s.num} className="flex items-center">
                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all ${step > s.num
-                                        ? 'bg-green-500 text-white'
-                                        : step === s.num
-                                            ? 'bg-orange-500 text-white'
-                                            : 'bg-gray-100 text-gray-400'
+                                    ? 'bg-green-500 text-white'
+                                    : step === s.num
+                                        ? 'bg-orange-500 text-white'
+                                        : 'bg-gray-100 text-gray-400'
                                     }`}>
                                     {step > s.num ? <FiCheck size={14} /> : s.num}
                                 </div>
@@ -578,10 +372,8 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
                         <p className="text-gray-500 text-sm">
                             {step === 1 && "Tell us about yourself"}
                             {step === 2 && "Your daily habits"}
-                            {step === 3 && "Your social preferences"}
-                            {step === 4 && "Living environment preferences"}
-                            {step === 5 && "Your vibe and house rules"}
-                            {step === 6 && "Review your profile"}
+                            {step === 3 && "Your vibe and house rules"}
+                            {step === 4 && "Review your profile"}
                         </p>
                     </div>
                     {renderStepContent()}
@@ -602,7 +394,7 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
                         disabled={loading}
                         className="flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        {loading ? 'Saving...' : (step === 6 ? 'Save Profile' : 'Next')} <FiArrowRight />
+                        {loading ? 'Saving...' : (step === 4 ? 'Save Profile' : 'Next')} <FiArrowRight />
                     </button>
                 </div>
             </div>

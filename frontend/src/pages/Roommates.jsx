@@ -30,23 +30,32 @@ const Roommates = () => {
     const [sortBy, setSortBy] = useState('match'); // 'match', 'budget', 'newest'
     const [searchQuery, setSearchQuery] = useState('');
     const [myGroup, setMyGroup] = useState(null);
+    const [hasTakenTest, setHasTakenTest] = useState(false);
 
     useEffect(() => {
         fetchData();
     }, [activeTab]);
 
     useEffect(() => {
-        // Fetch user's group on mount
-        const fetchMyGroup = async () => {
+        // Fetch user's group and profile status on mount
+        const fetchUserData = async () => {
             try {
-                const data = await roommateGroupService.getMyGroup();
-                setMyGroup(data);
+                const groupData = await roommateGroupService.getMyGroup();
+                setMyGroup(groupData);
             } catch (err) {
-                // User not in a group
                 setMyGroup(null);
             }
+
+            try {
+                const profile = await lifestyleProfileService.getMyProfile();
+                if (profile && profile.compatibilityAnswers && Object.keys(profile.compatibilityAnswers).length > 0) {
+                    setHasTakenTest(true);
+                }
+            } catch (err) {
+                console.error("Error checking compatibility status", err);
+            }
         };
-        fetchMyGroup();
+        fetchUserData();
     }, []);
 
     const fetchData = async () => {
@@ -288,6 +297,23 @@ const Roommates = () => {
             {/* Main Content Area */}
             <div className="bg-gray-50 min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                    {/* Compatibility Test Banner */}
+                    {!hasTakenTest && (
+                        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-8 mb-10 text-white flex flex-col md:flex-row items-center justify-between shadow-xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                            <div className="relative z-10 mb-6 md:mb-0">
+                                <h3 className="text-2xl font-black mb-2">Find your perfect match! 🧩</h3>
+                                <p className="text-indigo-100 text-lg">Take our 2-minute compatibility test to see who you vibe with.</p>
+                            </div>
+                            <button
+                                onClick={() => navigate('/compatibility-test')}
+                                className="relative z-10 px-8 py-3 bg-white text-indigo-600 rounded-xl font-bold hover:bg-indigo-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
+                            >
+                                Take Test
+                            </button>
+                        </div>
+                    )}
+
                     {/* Filter Bar */}
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
                         <p className="text-gray-600 font-medium">

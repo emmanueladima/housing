@@ -213,7 +213,7 @@ export const getMe = async (req, res) => {
  */
 export const updateProfile = async (req, res) => {
   try {
-    const { firstName, lastName, phone, school, graduationYear } = req.body;
+    const { firstName, lastName, phone, school, graduationYear, notificationPreferences } = req.body;
 
     const user = await User.findByIdAndUpdate(
       req.user._id,
@@ -223,6 +223,7 @@ export const updateProfile = async (req, res) => {
         phone,
         school,
         graduationYear,
+        notificationPreferences,
       },
       {
         new: true,

@@ -89,6 +89,11 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  notificationPreferences: {
+    email: { type: Boolean, default: true },
+    push: { type: Boolean, default: true },
+    marketing: { type: Boolean, default: false },
+  },
   blockedUsers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

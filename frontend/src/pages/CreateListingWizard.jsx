@@ -474,8 +474,8 @@ const CreateListingWizard = () => {
             </div>
 
             {/* Main Content */}
-            <div className="max-w-3xl mx-auto px-4 -mt-8 pb-12">
-                <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+            <div className="max-w-3xl mx-auto px-4 -mt-8 pb-24 relative z-10">
+                <div className="bg-white rounded-3xl shadow-xl overflow-hidden min-h-[600px] flex flex-col">
                     {/* Progress Steps */}
                     <div className="p-6 border-b border-gray-100">
                         <div className="flex justify-between items-center">
@@ -483,10 +483,10 @@ const CreateListingWizard = () => {
                                 <div key={s.num} className="flex items-center">
                                     <div className={`flex flex-col items-center ${step >= s.num ? 'text-orange-600' : 'text-gray-400'}`}>
                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-1 transition-all ${step > s.num
-                                                ? 'bg-orange-500 text-white'
-                                                : step === s.num
-                                                    ? 'bg-orange-100 text-orange-600 ring-2 ring-orange-500'
-                                                    : 'bg-gray-100 text-gray-400'
+                                            ? 'bg-orange-500 text-white'
+                                            : step === s.num
+                                                ? 'bg-orange-100 text-orange-600 ring-2 ring-orange-500'
+                                                : 'bg-gray-100 text-gray-400'
                                             }`}>
                                             {step > s.num ? <FiCheck size={18} /> : <s.icon size={18} />}
                                         </div>
@@ -501,7 +501,7 @@ const CreateListingWizard = () => {
                     </div>
 
                     {/* Step Content */}
-                    <div className="p-8">
+                    <div className="p-8 flex-1">
                         <div className="mb-8">
                             <h2 className="text-2xl font-black text-gray-900 mb-1">{steps[step - 1].label}</h2>
                             <p className="text-gray-500">
@@ -516,13 +516,13 @@ const CreateListingWizard = () => {
                     </div>
 
                     {/* Footer */}
-                    <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
+                    <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-between items-center mt-auto">
                         <button
                             onClick={handleBack}
                             disabled={step === 1}
                             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${step === 1
-                                    ? 'text-gray-300 cursor-not-allowed'
-                                    : 'text-gray-600 hover:bg-gray-200'
+                                ? 'text-gray-300 cursor-not-allowed'
+                                : 'text-gray-600 hover:bg-gray-200'
                                 }`}
                         >
                             <FiArrowLeft /> Back

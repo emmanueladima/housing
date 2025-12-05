@@ -4,19 +4,19 @@ const lifestyleProfileService = {
   // Get my lifestyle profile
   getMyProfile: async () => {
     const { data } = await api.get('/lifestyle-profiles/me');
-    return data;
+    return data.profile;
   },
 
   // Update my lifestyle profile
   updateMyProfile: async (profileData) => {
     const { data } = await api.post('/lifestyle-profiles/me', profileData);
-    return data;
+    return data.profile;
   },
 
   // Save my lifestyle profile (create or update)
   saveMyProfile: async (profileData) => {
     const { data } = await api.post('/lifestyle-profiles/me', profileData);
-    return data;
+    return data.profile;
   },
 
   // Get all profiles (discovery)
@@ -69,6 +69,12 @@ const lifestyleProfileService = {
   getSavedProfiles: async () => {
     const { data } = await api.get('/lifestyle-profiles/saved');
     return data;
+  },
+
+  // Update compatibility test answers
+  updateCompatibility: async (answers) => {
+    const { data } = await api.post('/lifestyle-profiles/compatibility-test', { answers });
+    return data.profile;
   },
 };
 

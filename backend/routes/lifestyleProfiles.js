@@ -8,6 +8,7 @@ import {
   getProfile,
   toggleSavedProfile,
   getSavedProfiles,
+  saveCompatibilityTest,
 } from '../controllers/lifestyleProfileController.js';
 
 const router = express.Router();
@@ -25,6 +26,7 @@ router.get('/all', getAllProfiles);
 router.get('/matches', getMatches);
 router.post('/save/:id', toggleSavedProfile);
 router.get('/saved', getSavedProfiles);
+router.post('/compatibility-test', saveCompatibilityTest);
 router.get('/:id', getProfile);
 
 export default router;
