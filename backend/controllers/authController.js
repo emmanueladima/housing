@@ -43,6 +43,15 @@ export const signup = async (req, res) => {
     // Generate verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
 
+    // Check for admin email
+    let userRole = 'student';
+    let finalUserType = userType || 'student';
+
+    if (process.env.ADMIN_EMAIL && email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase()) {
+      userRole = 'admin';
+      finalUserType = 'both'; // Admins get full access
+    }
+
     // Create user
     const user = await User.create({
       firstName,
@@ -52,7 +61,8 @@ export const signup = async (req, res) => {
       phone,
       school,
       graduationYear,
-      userType: userType || 'student',
+      userType: finalUserType,
+      role: userRole,
       verificationToken,
     });
 
