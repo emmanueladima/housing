@@ -32,22 +32,26 @@ export const signup = async (req, res) => {
       });
     }
 
-    // Verify .edu email
-    if (!email.endsWith('.edu')) {
+    // Check for admin email first (bypasses .edu requirement)
+    const isAdminEmail = process.env.ADMIN_EMAIL && email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase();
+    const isLandlord = userType === 'landlord';
+
+    // Only require .edu for students (not admins or landlords)
+    if (!isAdminEmail && !isLandlord && !email.endsWith('.edu')) {
       return res.status(400).json({
         success: false,
-        error: 'Must use a valid .edu email address',
+        error: 'Students must use a valid .edu email address',
       });
     }
 
     // Generate verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
 
-    // Check for admin email
+    // Set role and userType
     let userRole = 'student';
     let finalUserType = userType || 'student';
 
-    if (process.env.ADMIN_EMAIL && email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase()) {
+    if (isAdminEmail) {
       userRole = 'admin';
       finalUserType = 'both'; // Admins get full access
     }

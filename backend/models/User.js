@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
     trim: true,
-    match: [/\.edu$/, 'Must be a valid .edu email address'],
   },
   password: {
     type: String,
