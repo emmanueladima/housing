@@ -104,42 +104,42 @@ const CompatibilityTest = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
-            <div className="relative h-48 overflow-hidden">
+            <div className="relative h-36 sm:h-48 overflow-hidden">
                 <ModernBackground />
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <h1 className="text-3xl font-black text-white">Compatibility Test</h1>
+                <div className="absolute inset-0 flex items-end sm:items-center justify-center pb-4 sm:pb-0">
+                    <h1 className="text-xl sm:text-3xl font-black text-white">Compatibility Test</h1>
                 </div>
             </div>
 
-            <div className="flex-1 -mt-12 px-4 pb-12 relative z-10">
-                <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-xl p-8 min-h-[400px] flex flex-col">
+            <div className="flex-1 -mt-8 sm:-mt-12 px-4 pb-8 sm:pb-12 relative z-10">
+                <div className="max-w-xl mx-auto bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8 min-h-[350px] sm:min-h-[400px] flex flex-col">
                     {/* Progress */}
-                    <div className="w-full bg-gray-100 h-2 rounded-full mb-8">
+                    <div className="w-full bg-gray-100 h-1.5 sm:h-2 rounded-full mb-6 sm:mb-8">
                         <div
-                            className="bg-orange-500 h-2 rounded-full transition-all duration-500"
+                            className="bg-orange-500 h-1.5 sm:h-2 rounded-full transition-all duration-500"
                             style={{ width: `${((step + 1) / scenarios.length) * 100}%` }}
                         />
                     </div>
 
                     {/* Question */}
                     <div className="flex-1 flex flex-col items-center text-center">
-                        <div className="w-16 h-16 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mb-6 text-3xl">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-orange-100 text-orange-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 text-2xl sm:text-3xl">
                             <currentScenario.icon />
                         </div>
 
-                        <h2 className="text-2xl font-bold text-gray-900 mb-8">
+                        <h2 className="text-lg sm:text-2xl font-bold text-gray-900 mb-6 sm:mb-8">
                             {currentScenario.question}
                         </h2>
 
-                        <div className="w-full space-y-3">
+                        <div className="w-full space-y-2 sm:space-y-3">
                             {currentScenario.options.map((option) => (
                                 <button
                                     key={option.value}
                                     onClick={() => handleAnswer(option)}
-                                    className="w-full p-4 rounded-xl border-2 border-gray-100 hover:border-orange-500 hover:bg-orange-50 transition-all text-left flex items-center gap-3 group"
+                                    className="w-full p-3 sm:p-4 rounded-xl border-2 border-gray-100 hover:border-orange-500 hover:bg-orange-50 active:bg-orange-100 transition-all text-left flex items-center gap-2 sm:gap-3 group"
                                 >
-                                    <span className="font-bold text-gray-700 group-hover:text-orange-700">{option.label}</span>
-                                    <FiArrowRight className="ml-auto opacity-0 group-hover:opacity-100 text-orange-500 transition-opacity" />
+                                    <span className="font-bold text-gray-700 group-hover:text-orange-700 text-sm sm:text-base">{option.label}</span>
+                                    <FiArrowRight className="ml-auto opacity-0 group-hover:opacity-100 text-orange-500 transition-opacity flex-shrink-0" size={16} />
                                 </button>
                             ))}
                         </div>
