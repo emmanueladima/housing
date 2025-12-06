@@ -9,6 +9,7 @@ import {
   toggleSavedProfile,
   getSavedProfiles,
   saveCompatibilityTest,
+  boostMyProfile,
 } from '../controllers/lifestyleProfileController.js';
 
 const router = express.Router();
@@ -20,6 +21,7 @@ router.use(protect);
 router.get('/me', getMyProfile);
 router.put('/me', createOrUpdateProfile); // Support PUT for updates
 router.post('/me', createOrUpdateProfile); // Support POST for creation/updates
+router.post('/me/boost', boostMyProfile); // Boost profile visibility
 
 // Discovery & Matching
 router.get('/all', getAllProfiles);
@@ -30,6 +32,7 @@ router.post('/compatibility-test', saveCompatibilityTest);
 router.get('/:id', getProfile);
 
 export default router;
+
 
 
 

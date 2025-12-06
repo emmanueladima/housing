@@ -109,6 +109,16 @@ const lifestyleProfileSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  // Boost system for profile visibility
+  boost: {
+    active: {
+      type: Boolean,
+      default: false,
+    },
+    expiresAt: {
+      type: Date,
+    },
+  },
 }, {
   timestamps: true,
 });

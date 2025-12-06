@@ -7,6 +7,12 @@ const roommateGroupService = {
         return data;
     },
 
+    // Update group details
+    updateGroup: async (groupId, groupData) => {
+        const { data } = await api.put(`/roommate-groups/${groupId}`, groupData);
+        return data;
+    },
+
     // Get my group (Toolkit)
     getMyGroup: async () => {
         const { data } = await api.get('/roommate-groups/my-group');

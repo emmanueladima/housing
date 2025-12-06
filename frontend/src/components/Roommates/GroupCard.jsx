@@ -64,7 +64,7 @@ const GroupCard = ({ group, onViewDetails, onRequestJoin }) => {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 gap-3 mb-4 mt-auto">
-                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 h-full flex flex-col justify-between">
                         <div className="flex items-center gap-2 mb-1">
                             <div className="p-1 bg-emerald-100 rounded-md text-emerald-600">
                                 <FiDollarSign size={12} />
@@ -72,10 +72,10 @@ const GroupCard = ({ group, onViewDetails, onRequestJoin }) => {
                             <p className="text-xs text-gray-500 font-semibold">Budget</p>
                         </div>
                         <p className="text-lg font-bold text-gray-900">
-                            ${group.budget?.max || group.budget || 2800}
+                            ${typeof group.budget === 'object' ? group.budget.max : (group.budget || 2800)}
                         </p>
                     </div>
-                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                    <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 h-full flex flex-col justify-between">
                         <div className="flex items-center gap-2 mb-1">
                             <div className="p-1 bg-blue-100 rounded-md text-blue-600">
                                 <FiUsers size={12} />
@@ -117,7 +117,7 @@ const GroupCard = ({ group, onViewDetails, onRequestJoin }) => {
                     Request Join
                 </button>
             </div>
-        </div>
+        </div >
     );
 };
 

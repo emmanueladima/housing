@@ -3,7 +3,7 @@ import { FiX, FiUser, FiSun, FiMoon, FiVolume2, FiCheckCircle, FiSmile, FiArrowR
 import lifestyleProfileService from '../../services/lifestyleProfileService';
 import { useNavigate } from 'react-router-dom';
 
-const ProfileCreationWizard = ({ onClose, onSaved }) => {
+const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -31,8 +31,17 @@ const ProfileCreationWizard = ({ onClose, onSaved }) => {
     });
 
     useEffect(() => {
-        loadProfile();
-    }, []);
+        if (initialData) {
+            setFormData(prev => ({
+                ...prev,
+                ...initialData,
+                sleepSchedule: { ...prev.sleepSchedule, ...initialData.sleepSchedule },
+                budget: { ...prev.budget, ...initialData.budget }
+            }));
+        } else {
+            loadProfile();
+        }
+    }, [initialData]);
 
     const loadProfile = async () => {
         try {

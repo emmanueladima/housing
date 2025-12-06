@@ -458,6 +458,7 @@ const Roommates = () => {
                 roommate={selectedRoommate}
                 onMessage={() => selectedRoommate?.userId && handleMessageRoommate(selectedRoommate.userId)}
                 onFavorite={() => selectedRoommate && handleFavoriteRoommate(selectedRoommate._id)}
+                isSaved={user?.savedProfiles?.includes(selectedRoommate?._id)}
             />
         </div>
     );

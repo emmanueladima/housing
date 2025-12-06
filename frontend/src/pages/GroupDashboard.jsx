@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiUsers, FiCheck, FiX, FiMail, FiClock, FiUserPlus, FiBell, FiArrowLeft, FiSettings } from 'react-icons/fi';
+import { FiUsers, FiCheck, FiX, FiMail, FiClock, FiUserPlus, FiBell, FiArrowLeft, FiSettings, FiDollarSign } from 'react-icons/fi';
 import roommateGroupService from '../services/roommateGroupService';
 import ModernBackground from '../components/shared/ModernBackground';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -14,10 +14,38 @@ const GroupDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [processingId, setProcessingId] = useState(null);
     const [activeTab, setActiveTab] = useState('requests');
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editData, setEditData] = useState({ budget: '', lookingFor: '', description: '' });
 
     useEffect(() => {
         loadGroupData();
     }, []);
+
+    useEffect(() => {
+        if (group) {
+            setEditData({
+                budget: group.budget?.max || group.budget || '',
+                lookingFor: parseInt(group.lookingFor) || '',
+                description: group.description || ''
+            });
+        }
+    }, [group]);
+
+    const handleUpdateGroup = async (e) => {
+        e.preventDefault();
+        try {
+            await roommateGroupService.updateGroup(group._id, {
+                budget: { min: 0, max: parseInt(editData.budget) },
+                lookingFor: editData.lookingFor + ' more',
+                description: editData.description
+            });
+            setShowEditModal(false);
+            loadGroupData();
+        } catch (error) {
+            console.error('Error updating group:', error);
+            alert('Failed to update group');
+        }
+    };
 
     const loadGroupData = async () => {
         setLoading(true);
@@ -106,9 +134,18 @@ const GroupDashboard = () => {
                             <div className="flex items-center gap-3 mb-2">
                                 <h1 className="text-4xl font-black text-white tracking-tight">{group.name}</h1>
                                 {isAdmin && (
-                                    <span className="px-3 py-1 bg-yellow-400/20 text-yellow-200 text-xs font-bold rounded-full uppercase tracking-wide backdrop-blur-md border border-yellow-400/30">
-                                        Admin
-                                    </span>
+                                    <>
+                                        <span className="px-3 py-1 bg-yellow-400/20 text-yellow-200 text-xs font-bold rounded-full uppercase tracking-wide backdrop-blur-md border border-yellow-400/30">
+                                            Admin
+                                        </span>
+                                        <button
+                                            onClick={() => setShowEditModal(true)}
+                                            className="ml-2 p-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all"
+                                            title="Edit Group Details"
+                                        >
+                                            <FiSettings size={18} />
+                                        </button>
+                                    </>
                                 )}
                             </div>
                             <p className="text-white/80 text-lg">
@@ -139,8 +176,8 @@ const GroupDashboard = () => {
                         <button
                             onClick={() => setActiveTab('requests')}
                             className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all ${activeTab === 'requests'
-                                    ? 'bg-orange-600 text-white shadow-lg'
-                                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                ? 'bg-orange-600 text-white shadow-lg'
+                                : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                                 }`}
                         >
                             <FiUserPlus size={18} />
@@ -155,8 +192,8 @@ const GroupDashboard = () => {
                         <button
                             onClick={() => setActiveTab('members')}
                             className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all ${activeTab === 'members'
-                                    ? 'bg-orange-600 text-white shadow-lg'
-                                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                ? 'bg-orange-600 text-white shadow-lg'
+                                : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                                 }`}
                         >
                             <FiUsers size={18} />
@@ -285,6 +322,59 @@ const GroupDashboard = () => {
                     )}
                 </div>
             </div>
+
+            {showEditModal && (
+                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setShowEditModal(false)}>
+                    <div className="bg-white rounded-3xl w-full max-w-lg p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-black text-gray-900">Edit Group Details</h2>
+                            <button onClick={() => setShowEditModal(false)}><FiX size={24} className="text-gray-400" /></button>
+                        </div>
+                        <form onSubmit={handleUpdateGroup} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Max Budget (per person)</label>
+                                <div className="relative">
+                                    <FiDollarSign className="absolute left-3 top-3.5 text-gray-400" />
+                                    <input
+                                        type="number"
+                                        value={editData.budget}
+                                        onChange={(e) => setEditData({ ...editData, budget: e.target.value })}
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Looking For (Number of roommates)</label>
+                                <div className="relative">
+                                    <FiUsers className="absolute left-3 top-3.5 text-gray-400" />
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={editData.lookingFor}
+                                        onChange={(e) => setEditData({ ...editData, lookingFor: e.target.value })}
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
+                                <textarea
+                                    value={editData.description}
+                                    onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                                    rows="3"
+                                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all"
+                            >
+                                Save Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -5,7 +5,7 @@ const choreSchema = new mongoose.Schema({
   assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   dueDate: { type: Date },
   completed: { type: Boolean, default: false },
-  frequency: { type: String, enum: ['daily', 'weekly', 'monthly', 'one-time'], default: 'weekly' }
+  frequency: { type: String, enum: ['Daily', 'Weekly', 'Monthly', 'daily', 'weekly', 'monthly', 'one-time'], default: 'Weekly' }
 });
 
 const expenseSchema = new mongoose.Schema({
@@ -18,9 +18,8 @@ const expenseSchema = new mongoose.Schema({
 });
 
 const ruleSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String },
-  category: { type: String, enum: ['guests', 'noise', 'cleaning', 'kitchen', 'other'], default: 'other' }
+  text: { type: String, required: true },
+  category: { type: String, enum: ['Quiet Hours', 'Guests', 'Cleaning', 'Shared Items', 'other'], default: 'other' }
 });
 
 const joinRequestSchema = new mongoose.Schema({

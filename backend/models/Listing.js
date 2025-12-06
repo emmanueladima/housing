@@ -100,6 +100,10 @@ const listingSchema = new mongoose.Schema({
     lat: { type: Number },
     lng: { type: Number },
   },
+  isLandlordListing: {
+    type: Boolean,
+    default: false
+  },
   isSublease: {
     type: Boolean,
     default: false,

@@ -60,6 +60,29 @@ const Settings = () => {
         }
     };
 
+    const handleRoleSwitch = async (newRole) => {
+        setLoading(true);
+        try {
+            await authService.updateProfile({
+                role: newRole,
+                landlordProfile: newRole === 'landlord' || newRole === 'both' ? {
+                    companyName: user?.landlordProfile?.companyName || `${user?.firstName}'s Properties`,
+                    contactEmail: user?.landlordProfile?.contactEmail || user?.email,
+                    contactPhone: user?.landlordProfile?.contactPhone || user?.phone,
+                    propertiesCount: user?.landlordProfile?.propertiesCount || 0,
+                    isVerified: true
+                } : user?.landlordProfile
+            });
+            await refreshUser();
+            alert(`Switched to ${newRole} mode!`);
+        } catch (error) {
+            console.error('Error switching role:', error);
+            alert('Failed to switch account type');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const sections = [
         {
             title: 'Account',
@@ -67,6 +90,24 @@ const Settings = () => {
             items: [
                 { label: 'Edit Profile', action: () => navigate('/profile') },
                 { label: 'Change Password', action: () => setShowPasswordModal(true) }
+            ]
+        },
+        {
+            title: 'Account Type',
+            icon: FiUser,
+            items: [
+                {
+                    label: 'Student Mode',
+                    type: 'toggle',
+                    value: user?.role === 'student' || user?.role === 'both',
+                    onChange: () => handleRoleSwitch(user?.role === 'landlord' ? 'both' : 'student')
+                },
+                {
+                    label: 'Landlord Mode',
+                    type: 'toggle',
+                    value: user?.role === 'landlord' || user?.role === 'both',
+                    onChange: () => handleRoleSwitch(user?.role === 'student' ? 'landlord' : 'both')
+                }
             ]
         },
         {

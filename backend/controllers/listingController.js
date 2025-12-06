@@ -153,7 +153,7 @@ export const getListings = async (req, res) => {
 
     // Execute query
     let listings = await Listing.find(query)
-      .populate('landlord', 'firstName lastName isVerifiedLandlord ratings')
+      .populate('landlord', 'firstName lastName isVerifiedLandlord ratings role landlordProfile')
       .sort(sort)
       .limit(Number(limit))
       .skip(skip);
@@ -191,7 +191,7 @@ export const getListings = async (req, res) => {
 export const getListing = async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id)
-      .populate('landlord', 'firstName lastName email phone isVerifiedLandlord ratings')
+      .populate('landlord', 'firstName lastName email phone isVerifiedLandlord ratings role landlordProfile')
       .populate({
         path: 'reviews',
         populate: { path: 'reviewer', select: 'firstName lastName' }

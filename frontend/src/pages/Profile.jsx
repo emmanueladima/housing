@@ -3,8 +3,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { useFeatureFlags } from '../contexts/FeatureFlagContext';
 import ProfileCreationWizard from '../components/Profile/ProfileCreationWizard';
 import lifestyleProfileService from '../services/lifestyleProfileService';
-import { FiEdit3, FiCheckCircle, FiDollarSign, FiCalendar, FiSun, FiMoon, FiVolume2, FiShield, FiMail, FiMapPin } from 'react-icons/fi';
+import api from '../services/api';
+import { FiEdit3, FiCheckCircle, FiDollarSign, FiCalendar, FiSun, FiMoon, FiVolume2, FiShield, FiMail, FiMapPin, FiZap } from 'react-icons/fi';
 import ModernBackground from '../components/shared/ModernBackground';
+import LoadingSpinner from '../components/shared/LoadingSpinner';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -12,12 +14,13 @@ const Profile = () => {
   const [showWizard, setShowWizard] = useState(false);
   const [lifestyleProfile, setLifestyleProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const [boosting, setBoosting] = useState(false);
 
   useEffect(() => {
     if (flags.roommateCompatibility) {
       loadLifestyleProfile();
     }
-  }, [flags.roommateCompatibility]);
+  }, [flags.roommateCompatibility, user?._id]);
 
   const loadLifestyleProfile = async () => {
     try {
@@ -45,12 +48,14 @@ const Profile = () => {
     if (user.bio || (lifestyleProfile && lifestyleProfile.bio)) score++;
 
     if (lifestyleProfile) {
-      total += 5;
+      total += 7;
       if (lifestyleProfile.cleanliness) score++;
       if (lifestyleProfile.noiseLevel) score++;
       if (lifestyleProfile.sleepTime) score++;
       if (lifestyleProfile.budgetMin) score++;
       if (lifestyleProfile.vibeTags && lifestyleProfile.vibeTags.length > 0) score++;
+      if (lifestyleProfile.age) score++;
+      if (lifestyleProfile.gender) score++;
 
       total += 1;
       if (lifestyleProfile.weeklySchedule && lifestyleProfile.weeklySchedule.length > 0) score++;
@@ -116,6 +121,21 @@ const Profile = () => {
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-3 mb-1">
                     <h1 className="text-3xl font-black text-gray-900">{user.firstName} {user.lastName}</h1>
+                    {lifestyleProfile?.age && (
+                      <span className="text-xl text-gray-500 font-medium">, {lifestyleProfile.age}</span>
+                    )}
+
+                    {/* Role Chip */}
+                    {user.role === 'landlord' ? (
+                      <span className="flex items-center gap-1 px-2.5 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold border border-purple-200">
+                        🏢 Landlord
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 px-2.5 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold border border-orange-200">
+                        🎓 Student
+                      </span>
+                    )}
+
                     {user.isVerified && (
                       <span className="flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold border border-blue-100">
                         <FiShield size={12} />
@@ -123,8 +143,21 @@ const Profile = () => {
                       </span>
                     )}
                   </div>
+
+                  {/* Landlord Info */}
+                  {user.role === 'landlord' && user.landlordProfile && (
+                    <div className="mb-2 text-gray-600 font-medium flex items-center gap-2">
+                      <span>{user.landlordProfile.companyName}</span>
+                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                      <span>{user.landlordProfile.propertiesCount} Active Listings</span>
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap items-center gap-4 text-gray-500">
-                    {user.major && <span className="font-medium">{user.major}</span>}
+                    {user.role === 'student' && user.major && <span className="font-medium">{user.major}</span>}
+                    {lifestyleProfile?.gender && (
+                      <span className="capitalize">{lifestyleProfile.gender}</span>
+                    )}
                     {user.email && (
                       <span className="flex items-center gap-1">
                         <FiMail size={14} />
@@ -139,6 +172,39 @@ const Profile = () => {
                   <span className="font-black text-xl">{calculateCompletion()}%</span>
                   <span className="text-sm font-semibold">Complete</span>
                 </div>
+
+                {/* Boost Profile Button - Students Only */}
+                {user.role !== 'landlord' && lifestyleProfile && (
+                  <button
+                    onClick={async () => {
+                      setBoosting(true);
+                      try {
+                        const { data } = await api.post('/lifestyle-profiles/me/boost', { days: 7 });
+                        setLifestyleProfile(data.profile);
+                        alert(data.message);
+                      } catch (e) {
+                        console.error('Error boosting profile:', e);
+                        alert('Failed to boost profile');
+                      } finally {
+                        setBoosting(false);
+                      }
+                    }}
+                    disabled={boosting}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all ${lifestyleProfile.boost?.active
+                        ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
+                      }`}
+                  >
+                    {boosting ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      <>
+                        <FiZap size={16} />
+                        {lifestyleProfile.boost?.active ? 'Boosted!' : 'Boost Profile'}
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
 
               {/* Stats Row */}

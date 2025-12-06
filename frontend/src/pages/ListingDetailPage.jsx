@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   FiMapPin, FiHeart, FiSquare, FiHome, FiCalendar, FiDollarSign,
   FiCheck, FiX, FiMail, FiPhone, FiArrowLeft, FiShare2, FiMoreHorizontal, FiFlag, FiUser,
-  FiChevronLeft, FiChevronRight
+  FiChevronLeft, FiChevronRight, FiZap, FiEdit, FiEye
 } from 'react-icons/fi';
 import listingService from '../services/listingService';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -16,6 +16,7 @@ import { useFeatureFlags } from '../contexts/FeatureFlagContext';
 import ChecklistDrawer from '../components/Listings/ChecklistDrawer';
 import MiniMap from '../components/Map/MiniMap';
 import ListingCard from '../components/Listings/ListingCard';
+import TourRequestModal from '../components/Listings/TourRequestModal';
 
 const ListingDetailPage = () => {
   const { id } = useParams();
@@ -29,6 +30,7 @@ const ListingDetailPage = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showTourModal, setShowTourModal] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -289,15 +291,23 @@ const ListingDetailPage = () => {
               <h2 className="text-2xl font-bold mb-4">Description</h2>
 
               {/* Badges moved below heading */}
-              {listing.badges && listing.badges.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {listing.badges.map((badge, index) => (
-                    <span key={index} className="inline-block px-3 py-1 bg-[#FFF5E6] text-gray-900 text-sm font-bold rounded-full shadow-sm">
-                      {badge.toLowerCase()}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {/* Badges moved below heading */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {listing.isLandlordListing ? (
+                  <Badge variant="primary" className="bg-purple-600 text-white shadow-lg">
+                    Verified Landlord
+                  </Badge>
+                ) : (
+                  <Badge variant="primary" className="bg-green-600 text-white shadow-lg">
+                    Student Sublet
+                  </Badge>
+                )}
+                {listing.badges && listing.badges.length > 0 && listing.badges.map((badge, index) => (
+                  <span key={index} className="inline-block px-3 py-1 bg-[#FFF5E6] text-gray-900 text-sm font-bold rounded-full shadow-sm">
+                    {badge.toLowerCase()}
+                  </span>
+                ))}
+              </div>
 
               <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
                 {listing.description}
@@ -375,41 +385,90 @@ const ListingDetailPage = () => {
                   <div className="text-gray-600">per month</div>
                 </div>
 
-                <div className="space-y-3">
-                  <Button
-                    variant="primary"
-                    className="w-full rounded-full shadow-lg shadow-orange-200 hover:shadow-orange-300 transition-all duration-300"
-                    onClick={handleContact}
-                  >
-                    <FiMail className="mr-2" size={18} />
-                    Contact Landlord
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full rounded-full border-2 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-600 transition-all duration-300"
-                    onClick={() => {
-                      if (!isAuthenticated) {
-                        alert('Please log in to apply');
-                        return;
-                      }
-                      navigate(`/applications/new?listing=${id}`);
-                    }}
-                  >
-                    Apply Now
-                  </Button>
+                {/* Owner Controls - Show if current user owns this listing */}
+                {user && listing.landlord?._id === user._id ? (
+                  <div className="space-y-3">
+                    {/* Stats */}
+                    <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 flex items-center gap-1">
+                          <FiEye size={14} /> Views
+                        </span>
+                        <span className="font-bold text-gray-900">{listing.totalViews || 0}</span>
+                      </div>
+                    </div>
 
-                  {/* Pre-Move Checklist Button */}
-                  {flags.preMoveChecklist && isAuthenticated && (
-                    <Button
-                      variant="outline"
-                      className="w-full rounded-full border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300 transition-all duration-300"
-                      onClick={() => setShowChecklist(true)}
+                    {/* Boost Toggle */}
+                    <button
+                      onClick={async () => {
+                        try {
+                          if (listing.boost?.active) {
+                            await fetch(`/api/landlord/boost/${listing._id}`, { method: 'DELETE' });
+                          } else {
+                            await fetch(`/api/landlord/boost/${listing._id}`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ days: 7 })
+                            });
+                          }
+                          // Refresh listing
+                          const { listing: updated } = await listingService.getListingById(id);
+                          setListing(updated);
+                        } catch (e) {
+                          console.error('Error toggling boost:', e);
+                        }
+                      }}
+                      className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${listing.boost?.active
+                          ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
                     >
-                      <FiCalendar className="mr-2" size={18} />
-                      Pre-Move Checklist
+                      <FiZap size={18} />
+                      {listing.boost?.active ? 'Boosted (7 days)' : 'Boost This Listing'}
+                    </button>
+
+                    {/* Edit Listing */}
+                    <Button
+                      variant="secondary"
+                      className="w-full rounded-full"
+                      onClick={() => navigate(`/listings/edit/${listing._id}`)}
+                    >
+                      <FiEdit className="mr-2" size={18} />
+                      Edit Listing
                     </Button>
-                  )}
-                </div>
+
+                    {/* Back to Dashboard */}
+                    <button
+                      onClick={() => navigate('/landlord/dashboard')}
+                      className="w-full py-2 text-gray-600 font-medium hover:text-orange-600 transition-colors"
+                    >
+                      ← Back to Dashboard
+                    </button>
+                  </div>
+                ) : (
+                  /* Visitor Controls */
+                  <div className="space-y-3">
+                    <Button
+                      variant="primary"
+                      className="w-full rounded-full shadow-lg shadow-orange-200 hover:shadow-orange-300 transition-all duration-300"
+                      onClick={handleContact}
+                    >
+                      <FiMail className="mr-2" size={18} />
+                      Contact Landlord
+                    </Button>
+                    {/* Request Tour Button */}
+                    {isAuthenticated && (
+                      <Button
+                        variant="secondary"
+                        className="w-full rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-all duration-300"
+                        onClick={() => setShowTourModal(true)}
+                      >
+                        <FiCalendar className="mr-2" size={18} />
+                        Request Tour
+                      </Button>
+                    )}
+                  </div>
+                )}
 
                 {listing.isSublease && listing.subleaseDetails && (
                   <div className="mt-4 p-3 bg-orange-50 rounded-lg">
@@ -438,7 +497,12 @@ const ListingDetailPage = () => {
                       <p className="font-semibold text-gray-900">
                         {listing.landlord.firstName} {listing.landlord.lastName}
                       </p>
-                      {listing.landlord.isVerifiedLandlord && (
+                      {listing.landlord.role === 'landlord' && listing.landlord.landlordProfile?.companyName && (
+                        <p className="text-sm text-gray-500 font-medium">
+                          {listing.landlord.landlordProfile.companyName}
+                        </p>
+                      )}
+                      {(listing.landlord.isVerifiedLandlord || listing.landlord.landlordProfile?.isVerified) && (
                         <p className="text-sm text-green-600 flex items-center gap-1">
                           <FiCheck size={14} />
                           Verified Landlord
@@ -486,6 +550,16 @@ const ListingDetailPage = () => {
         <ChecklistDrawer
           listingId={id}
           onClose={() => setShowChecklist(false)}
+        />
+      )}
+
+      {/* Tour Request Modal */}
+      {showTourModal && (
+        <TourRequestModal
+          isOpen={showTourModal}
+          onClose={() => setShowTourModal(false)}
+          listing={listing}
+          landlordId={listing.landlord._id}
         />
       )}
     </div>

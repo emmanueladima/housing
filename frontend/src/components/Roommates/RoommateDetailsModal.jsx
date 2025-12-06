@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiX, FiMessageCircle, FiHeart, FiCheckCircle, FiSun, FiMoon, FiVolume2, FiMoreHorizontal, FiShield, FiCalendar, FiDollarSign, FiStar } from 'react-icons/fi';
 
-const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite }) => {
+const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite, isSaved }) => {
     if (!isOpen || !roommate) return null;
 
     const {
@@ -100,9 +100,12 @@ const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite
                     <div className="flex gap-3 mb-8">
                         <button
                             onClick={onFavorite}
-                            className="p-3.5 rounded-2xl border-2 border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all"
+                            className={`p-3.5 rounded-2xl border-2 transition-all ${isSaved
+                                ? 'border-red-200 bg-red-50 text-red-500'
+                                : 'border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50'
+                                }`}
                         >
-                            <FiHeart size={22} />
+                            <FiHeart size={22} className={isSaved ? 'fill-current' : ''} />
                         </button>
                         <button
                             onClick={() => { onMessage(); onClose(); }}

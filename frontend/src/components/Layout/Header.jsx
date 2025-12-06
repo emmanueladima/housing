@@ -99,8 +99,15 @@ const Header = () => {
               <nav className="hidden md:flex items-center p-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
                 <NavLink to="/" icon={FiHome} label="Home" />
                 <NavLink to="/listings" icon={FiMap} label="Listings" />
-                <NavLink to="/roommates" icon={FiUsers} label="Roommates" />
-                <NavLink to="/roommate-toolkit" icon={FiTool} label="Tools" />
+                {(user?.role === 'student' || user?.role === 'both' || !user?.role) && (
+                  <>
+                    <NavLink to="/roommates" icon={FiUsers} label="Roommates" />
+                    <NavLink to="/roommate-toolkit" icon={FiTool} label="Tools" />
+                  </>
+                )}
+                {(user?.role === 'landlord' || user?.role === 'both') && (
+                  <NavLink to="/landlord/dashboard" icon={FiGrid} label="Dashboard" />
+                )}
               </nav>
             </div>
 
@@ -251,20 +258,33 @@ const Header = () => {
               >
                 Listings
               </Link>
-              <Link
-                to="/roommates"
-                className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                Roommates
-              </Link>
-              <Link
-                to="/roommate-toolkit"
-                className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                Tools
-              </Link>
+              {(user?.role === 'student' || user?.role === 'both' || !user?.role) && (
+                <>
+                  <Link
+                    to="/roommates"
+                    className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                    onClick={() => setShowMobileMenu(false)}
+                  >
+                    Roommates
+                  </Link>
+                  <Link
+                    to="/roommate-toolkit"
+                    className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                    onClick={() => setShowMobileMenu(false)}
+                  >
+                    Tools
+                  </Link>
+                </>
+              )}
+              {(user?.role === 'landlord' || user?.role === 'both') && (
+                <Link
+                  to="/landlord/dashboard"
+                  className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Dashboard
+                </Link>
+              )}
               {!isAuthenticated && (
                 <div className="pt-4 mt-4 border-t border-gray-100 flex flex-col gap-3">
                   <button

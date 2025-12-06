@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiBookOpen, FiPlus, FiVolume2, FiUsers, FiTrash2, FiHome } from 'react-icons/fi';
+import { FiBookOpen, FiPlus, FiVolume2, FiUsers, FiTrash2, FiHome, FiX } from 'react-icons/fi';
 
 const HouseRules = ({ rules = [], onAddRule }) => {
     // Use props instead of mock data
@@ -10,6 +10,16 @@ const HouseRules = ({ rules = [], onAddRule }) => {
         { name: 'Cleaning', icon: FiHome, color: 'green' },
         { name: 'Shared Items', icon: FiBookOpen, color: 'orange' },
     ];
+
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [newRule, setNewRule] = useState({ text: '', category: 'Quiet Hours' });
+
+    const handleAddRule = (e) => {
+        e.preventDefault();
+        onAddRule(newRule);
+        setShowAddModal(false);
+        setNewRule({ text: '', category: 'Quiet Hours' });
+    };
 
     const deleteRule = (id) => {
         // TODO: Implement delete API
@@ -24,7 +34,10 @@ const HouseRules = ({ rules = [], onAddRule }) => {
                     <h2 className="text-lg font-bold text-gray-900">House Rules</h2>
                     <p className="text-gray-500 text-sm">Set expectations for a happy home.</p>
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-sm">
+                <button
+                    onClick={() => setShowAddModal(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-sm"
+                >
                     <FiPlus /> Add Rule
                 </button>
             </div>
@@ -47,10 +60,10 @@ const HouseRules = ({ rules = [], onAddRule }) => {
                                 ) : (
                                     <ul className="space-y-3">
                                         {catRules.map(rule => (
-                                            <li key={rule.id} className="flex items-start justify-between group">
+                                            <li key={rule?.id || rule?._id} className="flex items-start justify-between group">
                                                 <span className="text-gray-700 text-sm">{rule.text}</span>
                                                 <button
-                                                    onClick={() => deleteRule(rule.id)}
+                                                    onClick={() => deleteRule(rule?.id || rule?._id)}
                                                     className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                                 >
                                                     <FiTrash2 size={14} />
@@ -64,6 +77,61 @@ const HouseRules = ({ rules = [], onAddRule }) => {
                     );
                 })}
             </div>
+
+            {/* Add Rule Modal */}
+            {
+                showAddModal && (
+                    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setShowAddModal(false)}>
+                        <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold text-gray-900">Add House Rule</h3>
+                                <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                                    <FiX size={20} />
+                                </button>
+                            </div>
+                            <form onSubmit={handleAddRule} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Rule</label>
+                                    <input
+                                        type="text"
+                                        value={newRule.text}
+                                        onChange={e => setNewRule({ ...newRule, text: e.target.value })}
+                                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                                        placeholder="e.g. No noise after 10 PM"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Category</label>
+                                    <select
+                                        value={newRule.category}
+                                        onChange={e => setNewRule({ ...newRule, category: e.target.value })}
+                                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none bg-white"
+                                    >
+                                        {categories.map(cat => (
+                                            <option key={cat.name} value={cat.name}>{cat.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="flex gap-3 mt-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowAddModal(false)}
+                                        className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-colors"
+                                    >
+                                        Add Rule
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
         </div>
     );
 };

@@ -109,15 +109,23 @@ const ListingCard = ({ listing }) => {
         />
 
         {/* Badges */}
-        {listing.badges && listing.badges.length > 0 && (
-          <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-            {listing.badges.slice(0, 2).map((badge, index) => (
-              <Badge key={index} variant="primary" className="bg-orange-600 text-white shadow-lg">
-                {badge}
-              </Badge>
-            ))}
-          </div>
-        )}
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+          {listing.isLandlordListing ? (
+            <Badge variant="primary" className="bg-purple-600 text-white shadow-lg">
+              Verified Landlord
+            </Badge>
+          ) : (
+            <Badge variant="primary" className="bg-green-600 text-white shadow-lg">
+              Student Sublet
+            </Badge>
+          )}
+          {listing.badges && listing.badges.length > 0 && listing.badges.slice(0, 1).map((badge, index) => (
+            <Badge key={index} variant="primary" className="bg-orange-600 text-white shadow-lg">
+              {badge}
+            </Badge>
+          ))}
+        </div>
 
         {/* Action Buttons */}
         <div className="absolute top-3 right-3 flex flex-col gap-2">

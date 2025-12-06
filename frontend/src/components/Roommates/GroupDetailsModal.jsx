@@ -42,15 +42,6 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                     <div className="mt-4">
                         <div className="flex flex-wrap items-center gap-3 mb-2">
                             <h2 className="text-2xl font-black text-gray-900">{group.name}</h2>
-                            {isDraft && (
-                                <span className="px-2.5 py-1 bg-yellow-100 text-yellow-700 text-xs font-bold rounded-full uppercase tracking-wide">
-                                    Draft
-                                </span>
-                            )}
-                            <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full text-xs font-bold border border-blue-100">
-                                <FiShield size={10} />
-                                <span>Verified</span>
-                            </div>
                         </div>
                         <div className="flex items-center gap-2 text-gray-500 font-medium">
                             <FiMapPin size={14} />
@@ -110,7 +101,7 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                                 <FiDollarSign size={18} />
                             </div>
                             <p className="text-xs text-gray-500 font-bold uppercase mb-1">Budget</p>
-                            <p className="text-xl font-bold text-gray-900">${group.budget?.max || group.budget}</p>
+                            <p className="text-xl font-bold text-gray-900">${typeof group.budget === 'object' ? group.budget.max : (group.budget || 0)}</p>
                             <p className="text-xs text-gray-400">per person</p>
                         </div>
                         <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-center">
@@ -126,7 +117,17 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                                 <FiVolume2 size={18} />
                             </div>
                             <p className="text-xs text-gray-500 font-bold uppercase mb-1">Active</p>
-                            <p className="text-xl font-bold text-gray-900">2h</p>
+                            <p className="text-xl font-bold text-gray-900">
+                                {group.updatedAt ? (
+                                    <>
+                                        {Math.floor((new Date() - new Date(group.updatedAt)) / (1000 * 60 * 60)) < 24 ? (
+                                            `${Math.max(1, Math.floor((new Date() - new Date(group.updatedAt)) / (1000 * 60 * 60)))}h`
+                                        ) : (
+                                            `${Math.floor((new Date() - new Date(group.updatedAt)) / (1000 * 60 * 60 * 24))}d`
+                                        )}
+                                    </>
+                                ) : 'New'}
+                            </p>
                             <p className="text-xs text-gray-400">ago</p>
                         </div>
                     </div>

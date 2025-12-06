@@ -19,6 +19,8 @@ export const signup = async (req, res) => {
       school,
       graduationYear,
       userType,
+      role, // Extracted from req.body
+      landlordProfile, // Extracted from req.body
     } = req.body;
 
     // Check if user already exists
@@ -213,18 +215,30 @@ export const getMe = async (req, res) => {
  */
 export const updateProfile = async (req, res) => {
   try {
-    const { firstName, lastName, phone, school, graduationYear, notificationPreferences } = req.body;
+    const { firstName, lastName, phone, school, graduationYear, notificationPreferences, role, landlordProfile } = req.body;
+
+    const updateData = {
+      firstName,
+      lastName,
+      phone,
+      school,
+      graduationYear,
+      notificationPreferences,
+    };
+
+    // Allow role updates
+    if (role && ['student', 'landlord', 'both'].includes(role)) {
+      updateData.role = role;
+    }
+
+    // Allow landlord profile updates
+    if (landlordProfile) {
+      updateData.landlordProfile = landlordProfile;
+    }
 
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      {
-        firstName,
-        lastName,
-        phone,
-        school,
-        graduationYear,
-        notificationPreferences,
-      },
+      updateData,
       {
         new: true,
         runValidators: true,

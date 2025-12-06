@@ -37,6 +37,16 @@ const RoommateToolkit = () => {
         }
     };
 
+    // Refresh group data without showing loading spinner (for after adding items)
+    const refreshGroupData = async () => {
+        try {
+            const data = await roommateGroupService.getMyGroup();
+            setGroup(data);
+        } catch (err) {
+            console.error('Error refreshing group:', err);
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -142,7 +152,7 @@ const RoommateToolkit = () => {
                                 <ChoreRotation
                                     members={group.members}
                                     chores={group.chores}
-                                    onAddChore={(chore) => roommateGroupService.addChore(group._id, chore).then(newChores => setGroup({ ...group, chores: newChores }))}
+                                    onAddChore={(chore) => roommateGroupService.addChore(group._id, chore).then(() => refreshGroupData())}
                                 />
                             )}
                             {activeTab === 'expenses' && (
@@ -151,7 +161,7 @@ const RoommateToolkit = () => {
                                     expenses={group?.expenses || []}
                                     onAddExpense={(expense) => {
                                         if (group) {
-                                            roommateGroupService.addExpense(group._id, expense).then(newExpenses => setGroup({ ...group, expenses: newExpenses }));
+                                            roommateGroupService.addExpense(group._id, expense).then(() => refreshGroupData());
                                         }
                                     }}
                                     isPersonal={!group}
@@ -160,7 +170,7 @@ const RoommateToolkit = () => {
                             {activeTab === 'rules' && group && (
                                 <HouseRules
                                     rules={group.houseRules}
-                                    onAddRule={(rule) => roommateGroupService.addRule(group._id, rule).then(newRules => setGroup({ ...group, houseRules: newRules }))}
+                                    onAddRule={(rule) => roommateGroupService.addRule(group._id, rule).then(() => refreshGroupData())}
                                 />
                             )}
                             {activeTab === 'timeline' && <SharedTimeline />}

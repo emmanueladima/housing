@@ -1,6 +1,36 @@
 import RoommateGroup from '../models/RoommateGroup.js';
 import User from '../models/User.js';
 
+// @desc    Update a roommate group
+// @route   PUT /api/roommate-groups/:id
+// @access  Private (Admin only)
+export const updateGroup = async (req, res) => {
+    try {
+        const group = await RoommateGroup.findById(req.params.id);
+
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Only admin can update
+        if (group.admin.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Only group admin can update details' });
+        }
+
+        const { name, description, budget, location, vibe, lookingFor } = req.body;
+
+        group.name = name || group.name;
+        group.description = description || group.description;
+        if (budget) group.budget = budget;
+        group.location = location || group.location;
+        group.vibe = vibe || group.vibe;
+        group.lookingFor = lookingFor || group.lookingFor;
+
+        await group.save();
+        res.json(group);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // @desc    Create a new roommate group
 // @route   POST /api/roommate-groups
 // @access  Private

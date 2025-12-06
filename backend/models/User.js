@@ -94,6 +94,19 @@ const userSchema = new mongoose.Schema({
     push: { type: Boolean, default: true },
     marketing: { type: Boolean, default: false },
   },
+  role: {
+    type: String,
+    enum: ['student', 'landlord', 'admin'],
+    default: 'student'
+  },
+  landlordProfile: {
+    companyName: String,
+    contactEmail: String,
+    contactPhone: String,
+    propertiesCount: Number,
+    isVerified: { type: Boolean, default: false },
+    subscriptionTier: { type: String, enum: ['basic', 'pro', 'enterprise'], default: 'basic' }
+  },
   blockedUsers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

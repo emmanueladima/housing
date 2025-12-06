@@ -2,6 +2,7 @@ import express from 'express';
 import { protect } from '../middleware/auth.js';
 import {
   createGroup,
+  updateGroup,
   getMyGroup,
   getAllGroups,
   getGroupById,
@@ -18,6 +19,7 @@ const router = express.Router();
 router.use(protect);
 
 router.post('/', createGroup);
+router.put('/:id', updateGroup);
 router.get('/', getAllGroups);
 router.get('/my-group', getMyGroup);
 router.get('/:id', getGroupById);

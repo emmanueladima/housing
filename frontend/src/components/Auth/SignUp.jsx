@@ -8,6 +8,9 @@ import { isValidEduEmail } from '../../utils/schoolEmailValidator';
 
 const SignUp = ({ onSuccess, onSwitchToLogin }) => {
   const { signup } = useAuth();
+  const [step, setStep] = useState(1); // 1: Role Selection, 2: Form
+  const [role, setRole] = useState('student'); // 'student' or 'landlord'
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -16,8 +19,13 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
     phone: '',
     school: '',
     graduationYear: new Date().getFullYear() + 4,
-    userType: 'student',
+    // Landlord specific
+    companyName: '',
+    contactEmail: '',
+    contactPhone: '',
+    propertiesCount: '',
   });
+
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -26,17 +34,23 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    // Clear error for this field
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: '' });
     }
   };
 
+  const handleRoleSelect = (selectedRole) => {
+    setRole(selectedRole);
+    setStep(2);
+  };
+
   const validate = () => {
     const newErrors = {};
 
-    if (!isValidEduEmail(formData.email)) {
+    if (role === 'student' && !isValidEduEmail(formData.email)) {
       newErrors.email = 'Must be a valid .edu email address';
+    } else if (role === 'landlord' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Must be a valid email address';
     }
 
     if (formData.password.length < 6) {
@@ -47,19 +61,45 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
       newErrors.phone = 'Please enter a valid phone number';
     }
 
+    if (role === 'landlord') {
+      if (!formData.companyName) newErrors.companyName = 'Company/Individual Name is required';
+      if (!formData.propertiesCount) newErrors.propertiesCount = 'Properties count is required';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validate()) return;
 
     setLoading(true);
 
     try {
-      await signup(formData);
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        role: role,
+      };
+
+      if (role === 'student') {
+        payload.school = formData.school;
+        payload.graduationYear = formData.graduationYear;
+      } else {
+        payload.landlordProfile = {
+          companyName: formData.companyName,
+          contactEmail: formData.contactEmail || formData.email,
+          contactPhone: formData.contactPhone || formData.phone,
+          propertiesCount: Number(formData.propertiesCount),
+          isVerified: true // Placeholder verification
+        };
+      }
+
+      await signup(payload);
       onSuccess();
     } catch (err) {
       setErrors({ submit: err.message || 'Error creating account' });
@@ -71,8 +111,51 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 10 }, (_, i) => currentYear + i);
 
+  if (step === 1) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold text-center mb-6">Create your account</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <button
+            onClick={() => handleRoleSelect('student')}
+            className="p-6 border-2 border-gray-200 rounded-xl hover:border-orange-500 hover:bg-orange-50 transition-all text-center group"
+          >
+            <div className="text-4xl mb-3">🎓</div>
+            <h3 className="font-bold text-gray-900 group-hover:text-orange-600">Student</h3>
+            <p className="text-sm text-gray-500 mt-2">I'm looking for housing or roommates</p>
+          </button>
+          <button
+            onClick={() => handleRoleSelect('landlord')}
+            className="p-6 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-center group"
+          >
+            <div className="text-4xl mb-3">🏢</div>
+            <h3 className="font-bold text-gray-900 group-hover:text-blue-600">Landlord</h3>
+            <p className="text-sm text-gray-500 mt-2">I want to list properties for students</p>
+          </button>
+        </div>
+        <div className="text-center">
+          <p className="text-gray-600">
+            Already have an account?{' '}
+            <button onClick={onSwitchToLogin} className="text-orange-600 hover:text-orange-700 font-medium">
+              Log In
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
+      <div className="mb-6 flex items-center gap-2">
+        <button onClick={() => setStep(1)} className="text-gray-400 hover:text-gray-600">
+          ← Back
+        </button>
+        <h2 className="text-xl font-bold">
+          {role === 'student' ? 'Student Sign Up' : 'Landlord Registration'}
+        </h2>
+      </div>
+
       {errors.submit && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
           {errors.submit}
@@ -89,7 +172,6 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
             onChange={handleChange}
             required
           />
-
           <Input
             label="Last Name"
             type="text"
@@ -101,12 +183,12 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
         </div>
 
         <Input
-          label="University Email"
+          label={role === 'student' ? "University Email" : "Work Email"}
           type="email"
           name="email"
           value={formData.email}
           onChange={handleChange}
-          placeholder="your.email@university.edu"
+          placeholder={role === 'student' ? "your.email@university.edu" : "name@company.com"}
           error={errors.email}
           required
         />
@@ -133,56 +215,58 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
           required
         />
 
-        <Input
-          label="School Name"
-          type="text"
-          name="school"
-          value={formData.school}
-          onChange={handleChange}
-          placeholder="e.g., Stanford University"
-          required
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <Select
-            label="Graduation Year"
-            name="graduationYear"
-            value={formData.graduationYear}
-            onChange={handleChange}
-            options={years.map((year) => ({ value: year, label: year }))}
-            required
-          />
-
-          <Select
-            label="I am a..."
-            name="userType"
-            value={formData.userType}
-            onChange={handleChange}
-            options={[
-              { value: 'student', label: 'Student' },
-              { value: 'landlord', label: 'Landlord' },
-              { value: 'both', label: 'Both' },
-            ]}
-            required
-          />
-        </div>
+        {role === 'student' ? (
+          <>
+            <Input
+              label="School Name"
+              type="text"
+              name="school"
+              value={formData.school}
+              onChange={handleChange}
+              placeholder="e.g., Stanford University"
+              required
+            />
+            <Select
+              label="Graduation Year"
+              name="graduationYear"
+              value={formData.graduationYear}
+              onChange={handleChange}
+              options={years.map((year) => ({ value: year, label: year }))}
+              required
+            />
+          </>
+        ) : (
+          <>
+            <Input
+              label="Company / Individual Name"
+              type="text"
+              name="companyName"
+              value={formData.companyName}
+              onChange={handleChange}
+              placeholder="Property Management Co."
+              error={errors.companyName}
+              required
+            />
+            <Input
+              label="Properties Managed"
+              type="number"
+              name="propertiesCount"
+              value={formData.propertiesCount}
+              onChange={handleChange}
+              placeholder="e.g. 5"
+              error={errors.propertiesCount}
+              required
+            />
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-100 text-sm text-blue-800">
+              ℹ️ Quick Verification: Your account will be instantly verified for this demo.
+            </div>
+          </>
+        )}
 
         <Button type="submit" variant="primary" className="w-full" disabled={loading}>
-          {loading ? <LoadingSpinner size="sm" /> : 'Sign Up'}
+          {loading ? <LoadingSpinner size="sm" /> : (role === 'student' ? 'Sign Up' : 'Register as Landlord')}
         </Button>
       </form>
-
-      <div className="mt-6 text-center">
-        <p className="text-gray-600">
-          Already have an account?{' '}
-          <button
-            onClick={onSwitchToLogin}
-            className="text-orange-600 hover:text-orange-700 font-medium"
-          >
-            Log In
-          </button>
-        </p>
-      </div>
     </div>
   );
 };

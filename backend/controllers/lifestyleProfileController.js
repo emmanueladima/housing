@@ -381,3 +381,47 @@ export const saveCompatibilityTest = async (req, res) => {
         });
     }
 };
+
+/**
+ * @desc    Boost my profile visibility
+ * @route   POST /api/lifestyle-profiles/me/boost
+ * @access  Private
+ */
+export const boostMyProfile = async (req, res) => {
+    try {
+        const { days = 7 } = req.body;
+
+        let profile = await LifestyleProfile.findOne({ user: req.user._id });
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                error: 'Profile not found. Create a profile first.',
+            });
+        }
+
+        // Toggle boost
+        if (profile.boost?.active) {
+            profile.boost = { active: false, expiresAt: null };
+        } else {
+            profile.boost = {
+                active: true,
+                expiresAt: new Date(Date.now() + days * 24 * 60 * 60 * 1000)
+            };
+        }
+
+        await profile.save();
+
+        res.json({
+            success: true,
+            profile,
+            message: profile.boost.active ? 'Profile boosted successfully!' : 'Boost removed',
+        });
+    } catch (error) {
+        console.error('Boost profile error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error boosting profile',
+        });
+    }
+};

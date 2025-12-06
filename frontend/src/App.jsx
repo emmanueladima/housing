@@ -53,7 +53,7 @@ function App() {
           <Route
             path="/roommates"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['student', 'admin']}>
                 <Roommates />
               </ProtectedRoute>
             }
@@ -61,7 +61,7 @@ function App() {
           <Route
             path="/roommate-toolkit"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['student', 'admin']}>
                 <RoommateToolkit />
               </ProtectedRoute>
             }
