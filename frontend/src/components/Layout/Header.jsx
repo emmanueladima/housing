@@ -77,6 +77,11 @@ const Header = () => {
             <div className="flex items-center gap-8">
               {/* Logo */}
               <Link to="/" className="flex items-center gap-2 group">
+                <img
+                  src="/favicon.png"
+                  alt="Collegio Logo"
+                  className="w-8 h-8 rounded-full"
+                />
                 <span
                   className="text-3xl text-orange-600"
                   style={{
@@ -89,9 +94,6 @@ const Header = () => {
                   }}
                 >
                   collegio
-                </span>
-                <span className="bg-yellow-400 text-black text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider transform -rotate-6 group-hover:rotate-0 transition-transform">
-                  Dev
                 </span>
               </Link>
 
