@@ -6,17 +6,17 @@ const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative overflow-hidden min-h-[85vh] flex items-center">
+    <div className="relative overflow-hidden min-h-[100svh] md:min-h-[85vh] flex items-center">
       {/* Background */}
       <ModernBackground />
 
       {/* Content */}
       <div className="relative z-10 w-full">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
 
-            {/* Main Headline */}
-            <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-white mb-8 leading-[1.1] tracking-tight pt-32">
+            {/* Main Headline - Responsive text sizes */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white mb-4 sm:mb-6 md:mb-8 leading-[1.1] tracking-tight pt-24 sm:pt-28 md:pt-32">
               Find Your
               <br />
               <span className="text-yellow-200">
@@ -24,42 +24,42 @@ const Hero = () => {
               </span>
             </h1>
 
-            <p className="text-xl text-white/90 mb-12 max-w-2xl leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 md:mb-12 max-w-2xl leading-relaxed">
               Verified listings, AI roommate matching, and secure messaging — all in one place.
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-4 mb-8">
+            {/* CTA Buttons - Stack on mobile */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
               <button
                 onClick={() => navigate('/listings')}
-                className="group flex items-center gap-3 px-8 py-5 bg-white text-gray-900 font-bold text-lg rounded-2xl hover:bg-gray-100 transition-all shadow-2xl hover:-translate-y-1"
+                className="group flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-4 sm:py-5 bg-white text-gray-900 font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl hover:bg-gray-100 transition-all shadow-2xl hover:-translate-y-1"
               >
-                <FiHome size={22} />
+                <FiHome size={20} className="sm:w-[22px] sm:h-[22px]" />
                 Browse Listings
                 <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
               </button>
               <button
                 onClick={() => navigate('/roommates')}
-                className="group flex items-center gap-3 px-8 py-5 bg-white/20 backdrop-blur-md text-white border-2 border-white/30 font-bold text-lg rounded-2xl hover:bg-white/30 transition-all"
+                className="group flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-4 sm:py-5 bg-white/20 backdrop-blur-md text-white border-2 border-white/30 font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl hover:bg-white/30 transition-all"
               >
-                <FiUsers size={22} />
+                <FiUsers size={20} className="sm:w-[22px] sm:h-[22px]" />
                 Find Roommates
                 <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
 
-            {/* Stats or Trust Badges */}
-            <div className="flex flex-wrap gap-8 text-white/70 text-sm">
+            {/* Stats - Responsive layout */}
+            <div className="flex flex-wrap gap-4 sm:gap-6 md:gap-8 text-white/70 text-xs sm:text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 <span>500+ Active Listings</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 <span>1,200+ Verified Students</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 <span>.edu Only</span>
               </div>
             </div>

@@ -149,24 +149,24 @@ const Home = () => {
       </section>
 
       {/* CTA Section - Dark & Premium */}
-      <section className="py-32 relative overflow-hidden bg-gray-900">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black"></div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl"></div>
+      <section className="py-16 sm:py-24 md:py-32 relative overflow-hidden bg-gray-900">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black" />
+        <div className="absolute top-0 right-1/4 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-orange-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-orange-500/5 rounded-full blur-3xl" />
 
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-          <p className="text-orange-400 font-bold text-sm uppercase tracking-wider mb-4">Join Our Community</p>
-          <h2 className="text-5xl md:text-6xl font-black text-white mb-6">
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <p className="text-orange-400 font-bold text-xs sm:text-sm uppercase tracking-wider mb-3 sm:mb-4">Join Our Community</p>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 sm:mb-6">
             Find Your Perfect Place
           </h2>
-          <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-8 sm:mb-10 max-w-2xl mx-auto">
             Join thousands of students who found their ideal home and roommates.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <button
               onClick={() => navigate('/signup')}
-              className="px-10 py-5 bg-white text-gray-900 font-bold text-lg rounded-2xl hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-3"
+              className="px-8 sm:px-10 py-4 sm:py-5 bg-white text-gray-900 font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl flex items-center justify-center gap-3"
             >
               Get Started Free
               <FiArrowRight size={20} />
@@ -174,13 +174,13 @@ const Home = () => {
 
             <button
               onClick={() => navigate('/listings')}
-              className="px-10 py-5 bg-transparent border-2 border-white/20 text-white font-bold text-lg rounded-2xl hover:border-white/40 hover:bg-white/5 transition-all"
+              className="px-8 sm:px-10 py-4 sm:py-5 bg-transparent border-2 border-white/20 text-white font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl hover:border-white/40 hover:bg-white/5 transition-all"
             >
               Browse Listings
             </button>
           </div>
 
-          <p className="mt-8 text-gray-500 text-sm">
+          <p className="mt-6 sm:mt-8 text-gray-500 text-xs sm:text-sm">
             Verified students only • No credit card required
           </p>
         </div>
