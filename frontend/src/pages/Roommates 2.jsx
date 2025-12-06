@@ -201,98 +201,95 @@ const Roommates = () => {
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Header with Orange Gradient & Orbs */}
-            <div className="relative overflow-hidden pt-24 sm:pt-32 pb-12 sm:pb-20">
+            <div className="relative overflow-hidden pt-32 pb-20">
                 {/* Orange Gradient Background with Orbs */}
                 <ModernBackground />
 
                 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Title & Subtitle */}
-                    <div className="text-center mb-6 sm:mb-10 px-2">
-                        <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white mb-2 sm:mb-4 tracking-tight">
+                    <div className="text-center mb-10">
+                        <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">
                             Find Your Perfect Roommate
                         </h1>
-                        <p className="text-white/80 text-sm sm:text-lg max-w-2xl mx-auto">
+                        <p className="text-white/80 text-lg max-w-2xl mx-auto">
                             Connect with compatible roommates based on lifestyle, budget, and preferences.
                         </p>
                     </div>
 
                     {/* Pill Tabs */}
-                    <div className="flex justify-center mb-6 sm:mb-8">
-                        <div className="inline-flex items-center p-1 sm:p-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/20">
+                    <div className="flex justify-center mb-8">
+                        <div className="inline-flex items-center p-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/20">
                             <button
                                 onClick={() => setActiveTab('solo')}
-                                className={`flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full transition-all duration-300 text-sm sm:text-base ${activeTab === 'solo'
+                                className={`flex items-center gap-2 px-6 py-2.5 rounded-full transition-all duration-300 ${activeTab === 'solo'
                                     ? 'bg-white text-orange-600 shadow-lg font-bold'
                                     : 'text-white hover:bg-white/10 font-bold'
                                     }`}
                             >
-                                <FiUser size={16} className="sm:w-[18px] sm:h-[18px]" />
-                                <span className="hidden sm:inline">Solo Roommates</span>
-                                <span className="sm:hidden">Solo</span>
+                                <FiUser size={18} />
+                                <span>Solo Roommates</span>
                             </button>
                             <button
                                 onClick={() => setActiveTab('groups')}
-                                className={`flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full transition-all duration-300 text-sm sm:text-base ${activeTab === 'groups'
+                                className={`flex items-center gap-2 px-6 py-2.5 rounded-full transition-all duration-300 ${activeTab === 'groups'
                                     ? 'bg-white text-orange-600 shadow-lg font-bold'
                                     : 'text-white hover:bg-white/10 font-bold'
                                     }`}
                             >
-                                <FiUsers size={16} className="sm:w-[18px] sm:h-[18px]" />
+                                <FiUsers size={18} />
                                 <span>Groups</span>
                             </button>
                         </div>
                     </div>
 
                     {/* Search & Actions Row */}
-                    <div className="flex flex-col gap-3 sm:gap-4 max-w-3xl mx-auto px-2">
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-4 max-w-3xl mx-auto">
                         {/* Search Bar */}
-                        <div className="relative w-full">
-                            <div className="relative flex items-center bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden">
-                                <div className="flex items-center pl-4 sm:pl-5 pr-2 sm:pr-3">
-                                    <FiSearch className="text-gray-400" size={18} />
+                        <div className="relative flex-grow max-w-lg w-full">
+                            <div className="relative flex items-center bg-white rounded-2xl shadow-2xl overflow-hidden">
+                                <div className="flex items-center pl-5 pr-3">
+                                    <FiSearch className="text-gray-400" size={20} />
                                 </div>
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder={`Search ${activeTab === 'groups' ? 'groups' : 'roommates'}...`}
-                                    className="flex-1 py-3 sm:py-4 px-2 text-gray-900 placeholder-gray-400 focus:outline-none text-sm sm:text-base"
+                                    className="flex-1 py-4 px-2 text-gray-900 placeholder-gray-400 focus:outline-none"
                                 />
                             </div>
                         </div>
 
 
                         {/* Action Buttons */}
-                        <div className="flex justify-center gap-2 sm:gap-3">
-                            {activeTab === 'groups' ? (
-                                <>
-                                    {myGroup && (
-                                        <button
-                                            onClick={() => navigate('/group-dashboard')}
-                                            className="flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-white/20 backdrop-blur-md text-white border-2 border-white/30 rounded-xl sm:rounded-2xl font-bold hover:bg-white/30 transition-all text-sm sm:text-base"
-                                        >
-                                            <FiSettings size={16} />
-                                            <span className="hidden sm:inline">My Group</span>
-                                        </button>
-                                    )}
+                        {activeTab === 'groups' ? (
+                            <div className="flex gap-3">
+                                {myGroup && (
                                     <button
-                                        onClick={() => setShowCreateModal(true)}
-                                        className="flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-white text-gray-900 rounded-xl sm:rounded-2xl font-bold hover:bg-gray-100 transition-all shadow-2xl hover:-translate-y-0.5 text-sm sm:text-base"
+                                        onClick={() => navigate('/group-dashboard')}
+                                        className="flex items-center gap-2 px-6 py-4 bg-white/20 backdrop-blur-md text-white border-2 border-white/30 rounded-2xl font-bold hover:bg-white/30 transition-all"
                                     >
-                                        <FiPlus size={16} />
-                                        <span>Create Group</span>
+                                        <FiSettings size={18} />
+                                        <span>My Group</span>
                                     </button>
-                                </>
-                            ) : (
+                                )}
                                 <button
-                                    onClick={() => window.location.href = '/profile'}
-                                    className="flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-3 sm:py-4 bg-white text-gray-900 rounded-xl sm:rounded-2xl font-bold hover:bg-gray-100 transition-all shadow-2xl hover:-translate-y-0.5 text-sm sm:text-base"
+                                    onClick={() => setShowCreateModal(true)}
+                                    className="flex items-center gap-2 px-6 py-4 bg-white text-gray-900 rounded-2xl font-bold hover:bg-gray-100 transition-all shadow-2xl hover:-translate-y-0.5"
                                 >
-                                    <FiUser size={16} />
-                                    <span>Create Profile</span>
+                                    <FiPlus size={18} />
+                                    <span>Create Group</span>
                                 </button>
-                            )}
-                        </div>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => window.location.href = '/profile'}
+                                className="flex items-center gap-2 px-6 py-4 bg-white text-gray-900 rounded-2xl font-bold hover:bg-gray-100 transition-all shadow-2xl hover:-translate-y-0.5"
+                            >
+                                <FiUser size={18} />
+                                <span>Create Profile</span>
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -318,14 +315,14 @@ const Roommates = () => {
                     )}
 
                     {/* Filter Bar */}
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
-                        <p className="text-gray-600 font-medium text-sm sm:text-base">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+                        <p className="text-gray-600 font-medium">
                             {loading ? 'Loading...' : `${processedData.length} ${activeTab === 'groups' ? 'groups' : 'roommates'} found`}
                         </p>
 
-                        {/* Sort Pills - Horizontal scroll on mobile */}
-                        <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto">
-                            <span className="text-xs sm:text-sm font-medium text-gray-500 mr-1 sm:mr-2 whitespace-nowrap">Sort:</span>
+                        {/* Sort Pills */}
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-500 mr-2">Sort by:</span>
                             {[
                                 { id: 'match', label: 'Best Match' },
                                 { id: 'budget', label: 'Budget' },
@@ -334,7 +331,7 @@ const Roommates = () => {
                                 <button
                                     key={option.id}
                                     onClick={() => setSortBy(option.id)}
-                                    className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${sortBy === option.id
+                                    className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${sortBy === option.id
                                         ? 'bg-orange-600 text-white shadow-md'
                                         : 'bg-white text-gray-600 border border-gray-200 hover:border-orange-300 hover:bg-orange-50'
                                         }`}

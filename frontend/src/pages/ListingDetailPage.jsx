@@ -123,33 +123,33 @@ const ListingDetailPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="bg-white border-b relative z-10 pt-16 sm:pt-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-gray-600 hover:text-orange-600 transition-colors"
+              className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-orange-600 transition-colors"
             >
               <FiArrowLeft size={20} />
-              <span className="font-medium">Back</span>
+              <span className="font-medium hidden sm:inline">Back</span>
             </button>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 sm:gap-3">
               <button
                 onClick={handleShare}
-                className="flex items-center gap-2 px-4 py-2 rounded-full hover:bg-gray-100 transition-colors font-medium text-gray-700"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-full hover:bg-gray-100 transition-colors font-medium text-gray-700"
               >
                 <FiShare2 size={18} />
-                Share
+                <span className="hidden sm:inline">Share</span>
               </button>
               <button
                 onClick={handleFavoriteToggle}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors font-medium ${isFavorite
+                className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-full transition-colors font-medium ${isFavorite
                   ? 'bg-orange-50 text-orange-600'
                   : 'hover:bg-gray-100 text-gray-700'
                   }`}
               >
                 <FiHeart className={isFavorite ? 'fill-current' : ''} size={18} />
-                {isFavorite ? 'Saved' : 'Save'}
+                <span className="hidden sm:inline">{isFavorite ? 'Saved' : 'Save'}</span>
               </button>
 
               <div className="relative">
@@ -191,7 +191,7 @@ const ListingDetailPage = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Image Gallery */}
             <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-              <div className="relative h-96 bg-gray-100 group">
+              <div className="relative h-56 sm:h-72 md:h-96 bg-gray-100 group">
                 <img
                   src={primaryImage}
                   alt={listing.title}
@@ -243,18 +243,18 @@ const ListingDetailPage = () => {
 
             {/* Title and Basic Info */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h1 className="text-3xl font-black text-gray-900 mb-4">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 mb-2 sm:mb-4">
                 {listing.title}
               </h1>
 
-              <div className="flex items-center text-gray-600 mb-4">
-                <FiMapPin className="mr-2" size={18} />
-                <span className="text-lg">
+              <div className="flex items-center text-gray-600 mb-3 sm:mb-4">
+                <FiMapPin className="mr-2 flex-shrink-0" size={16} />
+                <span className="text-sm sm:text-lg truncate">
                   {listing.address}, {listing.city}, {listing.state} {listing.zipCode}
                 </span>
               </div>
 
-              <div className="flex flex-wrap gap-6 py-4 border-y border-gray-200">
+              <div className="flex flex-wrap gap-3 sm:gap-6 py-3 sm:py-4 border-y border-gray-200 text-sm sm:text-base">
                 <div className="flex items-center gap-2">
                   {listing.bedrooms === 0 ? (
                     <>
