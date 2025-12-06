@@ -76,7 +76,6 @@ const ConversationList = () => {
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Messages</h2>
 
         {/* Search Bar */}
         <div className="relative">
@@ -118,8 +117,8 @@ const ConversationList = () => {
                   key={thread._id}
                   onClick={() => setActiveThreadId(thread._id)}
                   className={`p-4 cursor-pointer transition-colors ${isActive
-                      ? 'bg-orange-50 border-l-4 border-orange-600'
-                      : 'hover:bg-gray-50 border-l-4 border-transparent'
+                    ? 'bg-orange-50 border-l-4 border-orange-600'
+                    : 'hover:bg-gray-50 border-l-4 border-transparent'
                     }`}
                 >
                   <div className="flex items-start space-x-3">

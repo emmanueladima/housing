@@ -398,38 +398,14 @@ const ListingDetailPage = () => {
                       </div>
                     </div>
 
-                    {/* Boost Toggle */}
-                    <button
-                      onClick={async () => {
-                        try {
-                          if (listing.boost?.active) {
-                            await fetch(`/api/landlord/boost/${listing._id}`, { method: 'DELETE' });
-                          } else {
-                            await fetch(`/api/landlord/boost/${listing._id}`, {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ days: 7 })
-                            });
-                          }
-                          // Refresh listing
-                          const { listing: updated } = await listingService.getListingById(id);
-                          setListing(updated);
-                        } catch (e) {
-                          console.error('Error toggling boost:', e);
-                        }
-                      }}
-                      className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${listing.boost?.active
-                          ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                    >
-                      <FiZap size={18} />
-                      {listing.boost?.active ? 'Boosted (7 days)' : 'Boost This Listing'}
-                    </button>
+                    {/* Listing Status */}
+                    <div className={`w-full py-3 rounded-xl text-center font-bold ${listing.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                      {listing.isActive ? '✓ Active Listing' : 'Inactive'}
+                    </div>
 
                     {/* Edit Listing */}
                     <Button
-                      variant="secondary"
+                      variant="primary"
                       className="w-full rounded-full"
                       onClick={() => navigate(`/listings/edit/${listing._id}`)}
                     >

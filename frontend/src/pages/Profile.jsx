@@ -173,38 +173,7 @@ const Profile = () => {
                   <span className="text-sm font-semibold">Complete</span>
                 </div>
 
-                {/* Boost Profile Button - Students Only */}
-                {user.role !== 'landlord' && lifestyleProfile && (
-                  <button
-                    onClick={async () => {
-                      setBoosting(true);
-                      try {
-                        const { data } = await api.post('/lifestyle-profiles/me/boost', { days: 7 });
-                        setLifestyleProfile(data.profile);
-                        alert(data.message);
-                      } catch (e) {
-                        console.error('Error boosting profile:', e);
-                        alert('Failed to boost profile');
-                      } finally {
-                        setBoosting(false);
-                      }
-                    }}
-                    disabled={boosting}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-all ${lifestyleProfile.boost?.active
-                        ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
-                      }`}
-                  >
-                    {boosting ? (
-                      <LoadingSpinner size="sm" />
-                    ) : (
-                      <>
-                        <FiZap size={16} />
-                        {lifestyleProfile.boost?.active ? 'Boosted!' : 'Boost Profile'}
-                      </>
-                    )}
-                  </button>
-                )}
+                {/* Boost Profile Button - Hidden until payment integration */}
               </div>
 
               {/* Stats Row */}

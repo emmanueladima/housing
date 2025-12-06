@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiHome, FiMessageSquare, FiTrendingUp, FiPlus, FiZap, FiEdit, FiEye, FiToggleLeft, FiToggleRight } from 'react-icons/fi';
+import { FiHome, FiMessageSquare, FiTrendingUp, FiPlus, FiEdit, FiEye } from 'react-icons/fi';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import ModernBackground from '../components/shared/ModernBackground';
@@ -22,7 +22,6 @@ const LandlordDashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [boostingId, setBoostingId] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -40,25 +39,6 @@ const LandlordDashboard = () => {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleBoostToggle = async (listingId, currentlyBoosted) => {
-    setBoostingId(listingId);
-    try {
-      if (currentlyBoosted) {
-        await api.delete(`/landlord/boost/${listingId}`);
-      } else {
-        await api.post(`/landlord/boost/${listingId}`, { days: 7 });
-      }
-      // Refresh listings
-      const { data } = await api.get('/landlord/listings');
-      setListings(data.listings || []);
-    } catch (error) {
-      console.error('Error toggling boost:', error);
-      alert('Failed to toggle boost');
-    } finally {
-      setBoostingId(null);
     }
   };
 
@@ -159,66 +139,33 @@ const LandlordDashboard = () => {
                         <span className="text-xs text-gray-400 flex items-center gap-1">
                           <FiEye size={12} /> {listing.totalViews || 0} views
                         </span>
-                        {listing.boost?.active && (
-                          <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <FiZap size={10} /> Boosted
-                          </span>
-                        )}
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${listing.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                          {listing.isActive ? 'Active' : 'Inactive'}
+                        </span>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* Boost Toggle */}
-                    <button
-                      onClick={() => handleBoostToggle(listing._id, listing.boost?.active)}
-                      disabled={boostingId === listing._id}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all ${listing.boost?.active
-                          ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                    >
-                      {boostingId === listing._id ? (
-                        <LoadingSpinner size="sm" />
-                      ) : (
-                        <>
-                          <FiZap size={14} />
-                          {listing.boost?.active ? 'Boosted' : 'Boost'}
-                        </>
-                      )}
-                    </button>
-
-                    {/* Edit Button */}
+                    {/* View Listing */}
                     <Link
                       to={`/listings/${listing._id}`}
-                      className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                      className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm"
+                    >
+                      View
+                    </Link>
+                    {/* Edit Button */}
+                    <button
+                      onClick={() => navigate(`/listings/edit/${listing._id}`)}
+                      className="p-2 bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200 transition-colors"
                     >
                       <FiEdit size={18} />
-                    </Link>
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
-
-        {/* Boost Info */}
-        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-3xl p-8 border border-yellow-100">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-yellow-100 rounded-xl text-yellow-600">
-              <FiZap size={24} />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Boost Your Listings</h3>
-              <p className="text-gray-600 mb-4">
-                Boosted listings appear higher in search results and get up to 3x more views.
-                Boost lasts for 7 days and can be renewed anytime.
-              </p>
-              <p className="text-sm text-gray-500">
-                💡 Tip: Listings with photos and complete details get better results when boosted.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

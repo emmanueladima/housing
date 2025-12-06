@@ -16,8 +16,8 @@ const lifestyleProfileSchema = new mongoose.Schema({
   age: { type: Number, min: 17, max: 100 },
 
   // Lifestyle Traits
-  cleanliness: { type: Number, min: 1, max: 5, default: 3 },
-  noiseLevel: { type: Number, min: 1, max: 5, default: 3 },
+  cleanliness: { type: Number, min: 1, max: 10, default: 5 },
+  noiseLevel: { type: Number, min: 1, max: 10, default: 5 },
   wakeTime: { type: String, default: "08:00" },
   sleepTime: { type: String, default: "23:00" },
   guestsFrequency: {
@@ -38,6 +38,7 @@ const lifestyleProfileSchema = new mongoose.Schema({
     enum: ['non-smoker', 'occasional', 'regular', 'outside-only'],
     default: 'non-smoker',
   },
+  drinking: { type: Boolean, default: false }, // Added this field
   socialPreference: {
     type: String,
     enum: ['introvert', 'balanced', 'extrovert'],
@@ -65,11 +66,9 @@ const lifestyleProfileSchema = new mongoose.Schema({
   budgetMax: { type: Number, default: 2000 },
   vibeTags: [{
     type: String,
-    enum: ['quiet', 'social', 'party', 'studious', 'athletic', 'creative', 'night-owl', 'early-bird', 'homebody', 'adventurous'],
   }],
   interests: [{
     type: String,
-    enum: ['sports', 'gaming', 'music', 'outdoors', 'art', 'reading', 'fitness', 'cooking', 'travel'],
   }],
 
   // Schedule

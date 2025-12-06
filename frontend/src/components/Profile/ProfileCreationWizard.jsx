@@ -47,11 +47,25 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
         try {
             const profile = await lifestyleProfileService.getMyProfile();
             if (profile) {
+                // Map backend data to frontend state
+                const guestsMap = { 'never': 1, 'rarely': 2, 'sometimes': 3, 'often': 4, 'very-often': 5 };
+
                 setFormData(prev => ({
                     ...prev,
                     ...profile,
-                    sleepSchedule: { ...prev.sleepSchedule, ...profile.sleepSchedule },
-                    budget: { ...prev.budget, ...profile.budget }
+                    // Map flattened fields back to objects
+                    budget: {
+                        min: profile.budgetMin || 0,
+                        max: profile.budgetMax || 1000
+                    },
+                    sleepSchedule: {
+                        bedtime: profile.sleepTime ? parseInt(profile.sleepTime.split(':')[0]) : 23,
+                        wakeup: profile.wakeTime ? parseInt(profile.wakeTime.split(':')[0]) : 8
+                    },
+                    vibes: profile.vibeTags || [],
+                    guestFrequency: guestsMap[profile.guestsFrequency] || 3,
+                    smoking: profile.smoking === 'regular' || profile.smoking === 'occasional',
+                    // Cleanliness/Noise match (1-10)
                 }));
             }
         } catch (error) {
@@ -101,7 +115,29 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
     const handleSubmit = async () => {
         setLoading(true);
         try {
-            const savedProfile = await lifestyleProfileService.saveMyProfile(formData);
+            // Transform data for backend
+            const payload = {
+                ...formData,
+                // Flatten budget
+                budgetMin: formData.budget?.min || 0,
+                budgetMax: formData.budget?.max || 1000,
+                // Flatten sleep schedule
+                sleepTime: `${String(formData.sleepSchedule?.bedtime || 23).padStart(2, '0')}:00`,
+                wakeTime: `${String(formData.sleepSchedule?.wakeup || 8).padStart(2, '0')}:00`,
+                // Map fields
+                vibeTags: formData.vibes || [],
+                guestsFrequency: ['never', 'rarely', 'sometimes', 'often', 'very-often'][Math.min(formData.guestFrequency - 1, 4)] || 'sometimes',
+                smoking: formData.smoking ? 'regular' : 'non-smoker',
+                // Keep cleanliness/noiseLevel as is (now 1-10 in backend)
+            };
+
+            // Remove incompatible fields
+            delete payload.budget;
+            delete payload.sleepSchedule;
+            delete payload.vibes;
+            delete payload.guestFrequency;
+
+            const savedProfile = await lifestyleProfileService.saveMyProfile(payload);
             onSaved(savedProfile);
             // Ask if they want to take the compatibility test
             if (window.confirm('Profile saved! Do you want to take the Compatibility Test now to find better matches?')) {
@@ -110,7 +146,8 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
             onClose();
         } catch (error) {
             console.error('Error saving profile:', error);
-            alert('Failed to save profile');
+            // Show more detailed error if available
+            alert(`Failed to save profile: ${error.response?.data?.error || error.message}`);
         } finally {
             setLoading(false);
         }
