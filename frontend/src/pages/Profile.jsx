@@ -81,48 +81,49 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Header with Orange Gradient & Orbs */}
-      <div className="relative overflow-hidden pt-32 pb-24">
+      <div className="relative overflow-hidden pt-20 sm:pt-32 pb-16 sm:pb-24">
         <ModernBackground />
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Profile Card - Horizontal Layout */}
           <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
             {/* Gray Header Band */}
-            <div className="bg-gray-100 h-20 relative">
+            <div className="bg-gray-100 h-16 sm:h-20 relative">
               {/* Edit Button */}
               <button
                 onClick={() => setShowWizard(true)}
-                className="absolute top-4 right-4 flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all shadow-md border border-gray-200"
+                className="absolute top-3 sm:top-4 right-3 sm:right-4 flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-gray-700 rounded-lg sm:rounded-xl font-semibold hover:bg-gray-50 transition-all shadow-md border border-gray-200 text-sm sm:text-base"
               >
-                <FiEdit3 size={16} />
-                Edit Profile
+                <FiEdit3 size={14} />
+                <span className="hidden sm:inline">Edit Profile</span>
+                <span className="sm:hidden">Edit</span>
               </button>
             </div>
 
             {/* Main Content */}
-            <div className="px-6 md:px-8 pb-8">
+            <div className="px-4 sm:px-6 md:px-8 pb-6 sm:pb-8">
               {/* Photo & Basic Info Row */}
-              <div className="flex flex-col md:flex-row md:items-end gap-6 -mt-12 mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6 -mt-10 sm:-mt-12 mb-6 sm:mb-8">
                 {/* Photo */}
                 <div className="relative shrink-0">
                   <img
                     src={user.avatar || user.profileImage || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=ea580c&color=fff&size=128`}
                     alt={`${user.firstName} ${user.lastName}`}
-                    className="w-28 h-28 rounded-2xl object-cover border-4 border-white shadow-xl"
+                    className="w-20 h-20 sm:w-28 sm:h-28 rounded-xl sm:rounded-2xl object-cover border-4 border-white shadow-xl"
                   />
                   {user.isVerified && (
-                    <div className="absolute -bottom-2 -right-2 bg-green-500 w-7 h-7 rounded-lg flex items-center justify-center border-3 border-white shadow">
-                      <FiCheckCircle className="text-white" size={14} />
+                    <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 bg-green-500 w-5 h-5 sm:w-7 sm:h-7 rounded-md sm:rounded-lg flex items-center justify-center border-2 sm:border-3 border-white shadow">
+                      <FiCheckCircle className="text-white" size={12} />
                     </div>
                   )}
                 </div>
 
                 {/* Name & Info */}
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-3 mb-1">
-                    <h1 className="text-3xl font-black text-gray-900">{user.firstName} {user.lastName}</h1>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 truncate">{user.firstName} {user.lastName}</h1>
                     {lifestyleProfile?.age && (
-                      <span className="text-xl text-gray-500 font-medium">, {lifestyleProfile.age}</span>
+                      <span className="text-lg sm:text-xl text-gray-500 font-medium">, {lifestyleProfile.age}</span>
                     )}
 
                     {/* Role Chip */}
@@ -153,86 +154,87 @@ const Profile = () => {
                     </div>
                   )}
 
-                  <div className="flex flex-wrap items-center gap-4 text-gray-500">
-                    {user.role === 'student' && user.major && <span className="font-medium">{user.major}</span>}
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-gray-500 text-sm sm:text-base">
+                    {user.role === 'student' && user.major && <span className="font-medium truncate">{user.major}</span>}
                     {lifestyleProfile?.gender && (
                       <span className="capitalize">{lifestyleProfile.gender}</span>
                     )}
                     {user.email && (
-                      <span className="flex items-center gap-1">
-                        <FiMail size={14} />
-                        {user.email}
+                      <span className="flex items-center gap-1 truncate">
+                        <FiMail size={12} />
+                        <span className="hidden sm:inline">{user.email}</span>
+                        <span className="sm:hidden">{user.email.split('@')[0]}...</span>
                       </span>
                     )}
                   </div>
                 </div>
 
                 {/* Completion Score */}
-                <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-xl border border-green-100">
-                  <span className="font-black text-xl">{calculateCompletion()}%</span>
-                  <span className="text-sm font-semibold">Complete</span>
+                <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-green-50 text-green-700 rounded-lg sm:rounded-xl border border-green-100">
+                  <span className="font-black text-lg sm:text-xl">{calculateCompletion()}%</span>
+                  <span className="text-xs sm:text-sm font-semibold">Complete</span>
                 </div>
 
                 {/* Boost Profile Button - Hidden until payment integration */}
               </div>
 
               {/* Stats Row */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                  <div className="flex items-center gap-2 mb-1">
-                    <FiDollarSign className="text-emerald-500" size={16} />
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                <div className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-100">
+                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                    <FiDollarSign className="text-emerald-500" size={14} />
                     <p className="text-xs text-gray-500 font-bold uppercase">Budget</p>
                   </div>
-                  <p className="text-xl font-bold text-gray-900">
+                  <p className="text-base sm:text-xl font-bold text-gray-900">
                     ${lifestyleProfile?.budgetMin || 500} - ${lifestyleProfile?.budgetMax || 1200}
                   </p>
                 </div>
-                <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                  <div className="flex items-center gap-2 mb-1">
-                    <FiCalendar className="text-blue-500" size={16} />
+                <div className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-100">
+                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                    <FiCalendar className="text-blue-500" size={14} />
                     <p className="text-xs text-gray-500 font-bold uppercase">Move-in</p>
                   </div>
-                  <p className="text-xl font-bold text-gray-900">
+                  <p className="text-base sm:text-xl font-bold text-gray-900">
                     {lifestyleProfile?.lookingFor?.moveInDate
                       ? new Date(lifestyleProfile.lookingFor.moveInDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                       : 'Flexible'}
                   </p>
                 </div>
-                <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 md:col-span-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <FiMapPin className="text-orange-500" size={16} />
+                <div className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-100 col-span-2">
+                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                    <FiMapPin className="text-orange-500" size={14} />
                     <p className="text-xs text-gray-500 font-bold uppercase">Looking In</p>
                   </div>
-                  <p className="text-xl font-bold text-gray-900">
+                  <p className="text-base sm:text-xl font-bold text-gray-900">
                     {lifestyleProfile?.lookingFor?.location || 'Near Campus'}
                   </p>
                 </div>
               </div>
 
               {/* Lifestyle Section */}
-              <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100 mb-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-5">Lifestyle</h3>
-                <div className="grid grid-cols-3 gap-6">
+              <div className="p-4 sm:p-6 bg-gray-50 rounded-xl sm:rounded-2xl border border-gray-100 mb-6 sm:mb-8">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-5">Lifestyle</h3>
+                <div className="grid grid-cols-3 gap-3 sm:gap-6">
                   <div className="text-center">
-                    <div className={`w-14 h-14 mx-auto rounded-xl flex items-center justify-center mb-2 ${habitColors.sleep}`}>
-                      {habits.sleep === 'Night Owl' ? <FiMoon size={22} /> : <FiSun size={22} />}
+                    <div className={`w-10 h-10 sm:w-14 sm:h-14 mx-auto rounded-lg sm:rounded-xl flex items-center justify-center mb-1 sm:mb-2 ${habitColors.sleep}`}>
+                      {habits.sleep === 'Night Owl' ? <FiMoon size={18} /> : <FiSun size={18} />}
                     </div>
-                    <p className="text-sm font-bold text-gray-700">{habits.sleep}</p>
-                    <p className="text-xs text-gray-400">Sleep</p>
+                    <p className="text-xs sm:text-sm font-bold text-gray-700">{habits.sleep}</p>
+                    <p className="text-xs text-gray-400 hidden sm:block">Sleep</p>
                   </div>
                   <div className="text-center">
-                    <div className={`w-14 h-14 mx-auto rounded-xl flex items-center justify-center mb-2 ${habitColors.noise}`}>
-                      <FiVolume2 size={22} />
+                    <div className={`w-10 h-10 sm:w-14 sm:h-14 mx-auto rounded-lg sm:rounded-xl flex items-center justify-center mb-1 sm:mb-2 ${habitColors.noise}`}>
+                      <FiVolume2 size={18} />
                     </div>
-                    <p className="text-sm font-bold text-gray-700">{habits.noise}</p>
-                    <p className="text-xs text-gray-400">Noise</p>
+                    <p className="text-xs sm:text-sm font-bold text-gray-700">{habits.noise}</p>
+                    <p className="text-xs text-gray-400 hidden sm:block">Noise</p>
                   </div>
                   <div className="text-center">
-                    <div className={`w-14 h-14 mx-auto rounded-xl flex items-center justify-center mb-2 ${habitColors.cleanliness}`}>
-                      <FiCheckCircle size={22} />
+                    <div className={`w-10 h-10 sm:w-14 sm:h-14 mx-auto rounded-lg sm:rounded-xl flex items-center justify-center mb-1 sm:mb-2 ${habitColors.cleanliness}`}>
+                      <FiCheckCircle size={18} />
                     </div>
-                    <p className="text-sm font-bold text-gray-700">{habits.cleanliness}</p>
-                    <p className="text-xs text-gray-400">Cleanliness</p>
+                    <p className="text-xs sm:text-sm font-bold text-gray-700">{habits.cleanliness}</p>
+                    <p className="text-xs text-gray-400 hidden sm:block">Cleanliness</p>
                   </div>
                 </div>
 

@@ -139,42 +139,42 @@ const Settings = () => {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 transition-colors duration-300">
             {/* Header */}
-            <div className="relative h-48 overflow-hidden mb-8">
+            <div className="relative h-40 sm:h-48 overflow-hidden mb-6 sm:mb-8">
                 <ModernBackground />
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <h1 className="text-3xl font-black text-white">Settings</h1>
+                <div className="absolute inset-0 flex items-end sm:items-center justify-center pb-4 sm:pb-0">
+                    <h1 className="text-2xl sm:text-3xl font-black text-white">Settings</h1>
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto px-4 -mt-12 space-y-6 relative z-10">
+            <div className="max-w-2xl mx-auto px-4 -mt-8 sm:-mt-12 space-y-4 sm:space-y-6 relative z-10">
                 {/* User Card */}
-                <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg flex items-center gap-4 transition-colors duration-300">
-                    <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-2xl font-bold text-orange-600 dark:text-orange-400">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg flex items-center gap-3 sm:gap-4 transition-colors duration-300">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-lg sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
                         {user?.firstName?.[0]}{user?.lastName?.[0]}
                     </div>
-                    <div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{user?.firstName} {user?.lastName}</h2>
-                        <p className="text-gray-500 dark:text-gray-400">{user?.email}</p>
+                    <div className="min-w-0 flex-1">
+                        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">{user?.firstName} {user?.lastName}</h2>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base truncate">{user?.email}</p>
                     </div>
                 </div>
 
                 {/* Settings Sections */}
                 {sections.map((section) => (
-                    <div key={section.title} className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg overflow-hidden transition-colors duration-300">
-                        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3">
-                            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-xl text-gray-600 dark:text-gray-300">
-                                <section.icon size={20} />
+                    <div key={section.title} className="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-lg overflow-hidden transition-colors duration-300">
+                        <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2 sm:gap-3">
+                            <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg sm:rounded-xl text-gray-600 dark:text-gray-300">
+                                <section.icon size={18} />
                             </div>
-                            <h3 className="font-bold text-gray-900 dark:text-white">{section.title}</h3>
+                            <h3 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">{section.title}</h3>
                         </div>
                         <div className="divide-y divide-gray-100 dark:divide-gray-700">
                             {section.items.map((item, i) => (
                                 <div
                                     key={i}
                                     onClick={item.action}
-                                    className={`p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${item.action && item.type !== 'toggle' ? 'cursor-pointer' : ''}`}
+                                    className={`p-3 sm:p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${item.action && item.type !== 'toggle' ? 'cursor-pointer' : ''}`}
                                 >
-                                    <span className="font-medium text-gray-700 dark:text-gray-200">{item.label}</span>
+                                    <span className="font-medium text-gray-700 dark:text-gray-200 text-sm sm:text-base">{item.label}</span>
                                     {item.type === 'toggle' ? (
                                         <button
                                             onClick={(e) => {
@@ -202,9 +202,10 @@ const Settings = () => {
                 {/* Logout Button */}
                 <button
                     onClick={logout}
-                    className="w-full p-4 bg-white dark:bg-gray-800 rounded-3xl shadow-lg text-red-500 font-bold flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    className="w-full p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-lg text-red-500 font-bold flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-sm sm:text-base"
                 >
-                    <FiLogOut /> Log Out
+                    <FiLogOut />
+                    Log Out
                 </button>
 
                 <div className="text-center text-gray-400 text-sm py-4">

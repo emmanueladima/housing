@@ -56,50 +56,51 @@ const SavedPage = () => {
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Header with Orange Gradient & Orbs */}
-            <div className="relative overflow-hidden pt-32 pb-16">
+            <div className="relative overflow-hidden pt-24 sm:pt-32 pb-10 sm:pb-16">
                 <ModernBackground />
 
                 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Title & Subtitle */}
-                    <div className="text-center mb-10">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full border border-white/30 mb-6">
-                            <FiHeart className="text-yellow-200" size={16} />
-                            <span className="text-yellow-100 text-sm font-bold uppercase tracking-wider">Your Collection</span>
+                    <div className="text-center mb-6 sm:mb-10">
+                        <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/20 backdrop-blur-md rounded-full border border-white/30 mb-4 sm:mb-6">
+                            <FiHeart className="text-yellow-200" size={14} />
+                            <span className="text-yellow-100 text-xs sm:text-sm font-bold uppercase tracking-wider">Your Collection</span>
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">
+                        <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white mb-2 sm:mb-4 tracking-tight">
                             Saved Items
                         </h1>
-                        <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                        <p className="text-white/80 text-sm sm:text-lg max-w-2xl mx-auto">
                             Your collection of favorite places and potential roommates.
                         </p>
                     </div>
 
                     {/* Pill Tabs */}
                     <div className="flex justify-center">
-                        <div className="inline-flex items-center p-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/20">
+                        <div className="inline-flex items-center p-1 sm:p-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/20">
                             <button
                                 onClick={() => setActiveTab('listings')}
-                                className={`flex items-center gap-2 px-6 py-2.5 rounded-full transition-all duration-300 ${activeTab === 'listings'
+                                className={`flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full transition-all duration-300 text-sm sm:text-base ${activeTab === 'listings'
                                     ? 'bg-white text-orange-600 shadow-lg font-bold'
                                     : 'text-white hover:bg-white/10 font-bold'
                                     }`}
                             >
-                                <FiMap size={18} />
-                                <span>Listings</span>
-                                <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'listings' ? 'bg-orange-100 text-orange-600' : 'bg-white/20 text-white'}`}>
+                                <FiMap size={16} />
+                                <span className="hidden sm:inline">Listings</span>
+                                <span className="sm:hidden">Places</span>
+                                <span className={`ml-1 px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'listings' ? 'bg-orange-100 text-orange-600' : 'bg-white/20 text-white'}`}>
                                     {listings.length}
                                 </span>
                             </button>
                             <button
                                 onClick={() => setActiveTab('roommates')}
-                                className={`flex items-center gap-2 px-6 py-2.5 rounded-full transition-all duration-300 ${activeTab === 'roommates'
+                                className={`flex items-center gap-1 sm:gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full transition-all duration-300 text-sm sm:text-base ${activeTab === 'roommates'
                                     ? 'bg-white text-orange-600 shadow-lg font-bold'
                                     : 'text-white hover:bg-white/10 font-bold'
                                     }`}
                             >
-                                <FiUsers size={18} />
-                                <span>Roommates</span>
-                                <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'roommates' ? 'bg-orange-100 text-orange-600' : 'bg-white/20 text-white'}`}>
+                                <FiUsers size={16} />
+                                <span>People</span>
+                                <span className={`ml-1 px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'roommates' ? 'bg-orange-100 text-orange-600' : 'bg-white/20 text-white'}`}>
                                     {roommates.length}
                                 </span>
                             </button>
@@ -110,7 +111,7 @@ const SavedPage = () => {
 
             {/* Main Content Area */}
             <div className="bg-gray-50 min-h-screen">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
                     {/* Content */}
                     {loading ? (
                         <div className="flex justify-center py-20">
@@ -120,7 +121,7 @@ const SavedPage = () => {
                         <div className="min-h-[400px]">
                             {activeTab === 'listings' ? (
                                 listings.length > 0 ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                                         {listings.map(listing => (
                                             <ListingCard
                                                 key={listing._id}
@@ -141,7 +142,7 @@ const SavedPage = () => {
                                 )
                             ) : (
                                 roommates.length > 0 ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                                         {roommates.map(profile => (
                                             <RoommateCard
                                                 key={profile._id}
@@ -177,15 +178,15 @@ const SavedPage = () => {
 };
 
 const EmptyState = ({ icon: Icon, title, description, actionLink, actionText }) => (
-    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100">
-        <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-50 rounded-full flex items-center justify-center mb-6">
-            <Icon className="text-orange-500" size={32} />
+    <div className="flex flex-col items-center justify-center py-12 sm:py-20 bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 mx-auto">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-100 to-orange-50 rounded-full flex items-center justify-center mb-4 sm:mb-6">
+            <Icon className="text-orange-500" size={28} />
         </div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
-        <p className="text-gray-500 mb-8 max-w-md text-center">{description}</p>
+        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{title}</h3>
+        <p className="text-gray-500 mb-6 sm:mb-8 max-w-md text-center text-sm sm:text-base px-4">{description}</p>
         <Link
             to={actionLink}
-            className="inline-flex items-center gap-2 px-8 py-3 bg-orange-600 text-white rounded-full font-bold hover:bg-orange-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 bg-orange-600 text-white rounded-full font-bold hover:bg-orange-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm sm:text-base"
         >
             <span>{actionText}</span>
             <FiArrowRight />
