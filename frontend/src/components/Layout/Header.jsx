@@ -95,31 +95,35 @@ const Header = () => {
                 </span>
               </Link>
 
-              {/* Desktop Navigation - Pill Container */}
-              <nav className="hidden md:flex items-center p-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
-                <NavLink to="/" icon={FiHome} label="Home" />
-                <NavLink to="/listings" icon={FiMap} label="Listings" />
-                {(user?.role === 'student' || user?.role === 'both' || !user?.role) && (
-                  <>
-                    <NavLink to="/roommates" icon={FiUsers} label="Roommates" />
-                    <NavLink to="/roommate-toolkit" icon={FiTool} label="Tools" />
-                  </>
-                )}
-                {(user?.role === 'landlord' || user?.role === 'both') && (
-                  <NavLink to="/landlord/dashboard" icon={FiGrid} label="Dashboard" />
-                )}
-              </nav>
+              {/* Desktop Navigation - Pill Container (Only show when logged in) */}
+              {isAuthenticated && (
+                <nav className="hidden md:flex items-center p-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
+                  <NavLink to="/" icon={FiHome} label="Home" />
+                  <NavLink to="/listings" icon={FiMap} label="Listings" />
+                  {(user?.role === 'student' || user?.role === 'both' || !user?.role) && (
+                    <>
+                      <NavLink to="/roommates" icon={FiUsers} label="Roommates" />
+                      <NavLink to="/roommate-toolkit" icon={FiTool} label="Tools" />
+                    </>
+                  )}
+                  {(user?.role === 'landlord' || user?.role === 'both') && (
+                    <NavLink to="/landlord/dashboard" icon={FiGrid} label="Dashboard" />
+                  )}
+                </nav>
+              )}
             </div>
 
             {/* Right Section: Actions & Profile */}
             <div className="hidden md:flex items-center gap-4">
-              <Link
-                to="/listings/create"
-                className="flex items-center gap-2 px-5 py-2.5 bg-white/80 backdrop-blur-md text-orange-600 font-bold rounded-full hover:bg-white hover:shadow-md transition-all border border-white/20"
-              >
-                <FiHome size={18} />
-                <span>List a Place</span>
-              </Link>
+              {isAuthenticated && (
+                <Link
+                  to="/listings/create"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-white/80 backdrop-blur-md text-orange-600 font-bold rounded-full hover:bg-white hover:shadow-md transition-all border border-white/20"
+                >
+                  <FiHome size={18} />
+                  <span>List a Place</span>
+                </Link>
+              )}
 
               {isAuthenticated ? (
                 <div className="flex items-center gap-3 pl-2">
@@ -244,46 +248,50 @@ const Header = () => {
         {showMobileMenu && (
           <div className="md:hidden bg-white border-t border-gray-100 shadow-xl">
             <div className="px-4 py-4 space-y-2">
-              <Link
-                to="/"
-                className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                Home
-              </Link>
-              <Link
-                to="/listings"
-                className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                Listings
-              </Link>
-              {(user?.role === 'student' || user?.role === 'both' || !user?.role) && (
+              {isAuthenticated && (
                 <>
                   <Link
-                    to="/roommates"
+                    to="/"
                     className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
                     onClick={() => setShowMobileMenu(false)}
                   >
-                    Roommates
+                    Home
                   </Link>
                   <Link
-                    to="/roommate-toolkit"
+                    to="/listings"
                     className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
                     onClick={() => setShowMobileMenu(false)}
                   >
-                    Tools
+                    Listings
                   </Link>
+                  {(user?.role === 'student' || user?.role === 'both' || !user?.role) && (
+                    <>
+                      <Link
+                        to="/roommates"
+                        className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Roommates
+                      </Link>
+                      <Link
+                        to="/roommate-toolkit"
+                        className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Tools
+                      </Link>
+                    </>
+                  )}
+                  {(user?.role === 'landlord' || user?.role === 'both') && (
+                    <Link
+                      to="/landlord/dashboard"
+                      className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                      onClick={() => setShowMobileMenu(false)}
+                    >
+                      Dashboard
+                    </Link>
+                  )}
                 </>
-              )}
-              {(user?.role === 'landlord' || user?.role === 'both') && (
-                <Link
-                  to="/landlord/dashboard"
-                  className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  Dashboard
-                </Link>
               )}
               {!isAuthenticated && (
                 <div className="pt-4 mt-4 border-t border-gray-100 flex flex-col gap-3">
