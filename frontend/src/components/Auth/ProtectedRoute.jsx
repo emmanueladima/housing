@@ -17,9 +17,28 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/" replace />;
   }
 
-  const userRole = user?.role || 'student';
-  if (allowedRoles && !allowedRoles.includes(userRole)) {
-    return <Navigate to="/" replace />;
+  // Check access based on allowedRoles
+  // allowedRoles can include: 'admin', 'landlord', 'student'
+  if (allowedRoles) {
+    const userRole = user?.role; // 'admin' or undefined
+    const userType = user?.userType; // 'landlord', 'student', or 'both'
+
+    // Admin users can access everything
+    if (userRole === 'admin') {
+      return children;
+    }
+
+    // Check if userType matches allowed roles (userType can be 'both')
+    const hasAccess = allowedRoles.some(role => {
+      if (role === 'admin') return userRole === 'admin';
+      if (role === 'landlord') return userType === 'landlord' || userType === 'both';
+      if (role === 'student') return userType === 'student' || userType === 'both';
+      return false;
+    });
+
+    if (!hasAccess) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return children;

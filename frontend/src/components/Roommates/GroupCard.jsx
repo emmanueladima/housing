@@ -42,9 +42,9 @@ const GroupCard = ({ group, onViewDetails, onRequestJoin }) => {
                     </div>
 
                     {/* Match Score */}
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 rounded-full border border-green-100">
-                        <FiStar className="text-green-600 fill-current" size={14} />
-                        <span className="text-green-700 font-black text-sm">{compatibility}%</span>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 rounded-full border border-teal-100">
+                        <FiStar className="text-teal-600 fill-current" size={14} />
+                        <span className="text-teal-700 font-black text-sm">{compatibility}%</span>
                     </div>
                 </div>
 
@@ -66,7 +66,7 @@ const GroupCard = ({ group, onViewDetails, onRequestJoin }) => {
                 <div className="grid grid-cols-2 gap-3 mb-4 mt-auto">
                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 h-full flex flex-col justify-between">
                         <div className="flex items-center gap-2 mb-1">
-                            <div className="p-1 bg-emerald-100 rounded-md text-emerald-600">
+                            <div className="p-1 bg-teal-100 rounded-md text-teal-600">
                                 <FiDollarSign size={12} />
                             </div>
                             <p className="text-xs text-gray-500 font-semibold">Budget</p>

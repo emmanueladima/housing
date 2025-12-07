@@ -73,7 +73,7 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                     {/* Actions & Match Score */}
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                         {/* Match Score */}
-                        <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full border border-green-100 w-fit">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-teal-50 text-teal-700 rounded-full border border-teal-100 w-fit">
                             <FiStar className="fill-current" size={16} />
                             <span className="font-black text-lg">{compatibility}%</span>
                             <span className="text-sm font-bold">Match</span>
@@ -97,7 +97,7 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                     {/* Key Stats */}
                     <div className="grid grid-cols-3 gap-4 mb-8">
                         <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-center">
-                            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl w-fit mx-auto mb-2">
+                            <div className="p-2 bg-teal-100 text-teal-600 rounded-xl w-fit mx-auto mb-2">
                                 <FiDollarSign size={18} />
                             </div>
                             <p className="text-xs text-gray-500 font-bold uppercase mb-1">Budget</p>
@@ -175,14 +175,14 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                     </section>
 
                     {/* Why We Match */}
-                    <section className="p-5 bg-green-50/50 rounded-2xl border border-green-100">
+                    <section className="p-5 bg-teal-50/50 rounded-2xl border border-teal-100">
                         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <span className="text-xl">✨</span> Why we match
                         </h3>
                         <ul className="space-y-3">
                             {matchSentences.map((sentence, i) => (
                                 <li key={i} className="flex items-start gap-3 text-gray-700">
-                                    <div className="mt-0.5 p-1 bg-green-500 rounded-full shrink-0">
+                                    <div className="mt-0.5 p-1 bg-teal-500 rounded-full shrink-0">
                                         <FiCheckCircle className="text-white w-3 h-3" />
                                     </div>
                                     <span className="font-medium">{sentence}</span>

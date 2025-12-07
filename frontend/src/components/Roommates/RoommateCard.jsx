@@ -24,7 +24,7 @@ const RoommateCard = ({ roommate, onMessage, onFavorite, isSaved, onInvite, onCl
   const habitColors = {
     sleep: 'bg-amber-100 text-amber-600',
     noise: 'bg-blue-100 text-blue-600',
-    cleanliness: 'bg-emerald-100 text-emerald-600'
+    cleanliness: 'bg-teal-100 text-teal-600'
   };
 
   return (
@@ -42,13 +42,13 @@ const RoommateCard = ({ roommate, onMessage, onFavorite, isSaved, onInvite, onCl
               alt={`${firstName} ${lastName}`}
               className="w-16 h-16 rounded-xl object-cover border-2 border-gray-100 shadow-sm group-hover:scale-105 transition-transform duration-300"
             />
-            <div className="absolute -bottom-1 -right-1 bg-green-500 w-3.5 h-3.5 rounded-full border-2 border-white"></div>
+            {/* Removed green online dot */}
           </div>
 
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 rounded-full border border-green-100">
-            <FiStar className="text-green-600 fill-current" size={14} />
-            <span className="text-green-700 font-black text-sm">{compatibility}%</span>
-            <span className="text-green-600 text-xs font-bold uppercase">Match</span>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 rounded-full border border-teal-100">
+            <FiStar className="text-teal-600 fill-current" size={14} />
+            <span className="text-teal-700 font-black text-sm">{compatibility}%</span>
+            <span className="text-teal-600 text-xs font-bold uppercase">Match</span>
           </div>
         </div>
 
@@ -75,7 +75,7 @@ const RoommateCard = ({ roommate, onMessage, onFavorite, isSaved, onInvite, onCl
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">You match on</p>
           <div className="flex flex-wrap gap-1.5">
             {matchReasons.slice(0, 3).map((reason, i) => (
-              <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-green-50 text-green-700 text-xs font-semibold border border-green-100">
+              <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-50 text-teal-700 text-xs font-semibold border border-teal-100">
                 <FiCheckCircle size={10} /> {reason}
               </span>
             ))}
