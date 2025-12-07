@@ -38,7 +38,7 @@ const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite
     const habitColors = {
         sleep: 'bg-amber-100 text-amber-600',
         noise: 'bg-blue-100 text-blue-600',
-        cleanliness: 'bg-emerald-100 text-emerald-600'
+        cleanliness: 'bg-teal-100 text-teal-600'
     };
 
     return (
@@ -69,7 +69,7 @@ const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite
                             alt={`${firstName} ${lastName}`}
                             className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-lg"
                         />
-                        <div className="absolute -bottom-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-3 border-white"></div>
+                        <div className="absolute -bottom-1 -right-1 bg-teal-500 w-5 h-5 rounded-full border-3 border-white"></div>
                     </div>
                 </div>
 
@@ -89,7 +89,7 @@ const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite
                         </div>
 
                         {/* Match Score */}
-                        <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full border border-green-100 w-fit">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-teal-50 text-teal-700 rounded-full border border-teal-100 w-fit">
                             <FiStar className="fill-current" size={16} />
                             <span className="font-black text-lg">{compatibility}%</span>
                             <span className="text-sm font-bold">Match</span>
@@ -163,14 +163,14 @@ const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite
                     </section>
 
                     {/* Why We Match */}
-                    <section className="mb-8 p-5 bg-green-50/50 rounded-2xl border border-green-100">
+                    <section className="mb-8 p-5 bg-teal-50/50 rounded-2xl border border-teal-100">
                         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <span className="text-xl">✨</span> Why you match
                         </h3>
                         <ul className="space-y-3">
                             {matchSentences.map((sentence, i) => (
                                 <li key={i} className="flex items-start gap-3 text-gray-700">
-                                    <div className="mt-0.5 p-1 bg-green-500 rounded-full shrink-0">
+                                    <div className="mt-0.5 p-1 bg-teal-500 rounded-full shrink-0">
                                         <FiCheckCircle className="text-white w-3 h-3" />
                                     </div>
                                     <span className="font-medium">{sentence}</span>
