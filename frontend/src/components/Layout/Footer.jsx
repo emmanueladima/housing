@@ -11,7 +11,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="col-span-1">
             <div className="flex items-center space-x-2 mb-4">
-              <FiHome className="text-primary-600" size={28} />
+              <img src="/favicon.png" alt="Collegio Logo" className="w-8 h-8 rounded-full" />
               <span className="text-2xl text-white" style={{ fontFamily: "'Archivo Black', sans-serif" }}>collegio</span>
             </div>
             <p className="text-sm">
