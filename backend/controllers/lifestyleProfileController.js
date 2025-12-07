@@ -15,6 +15,22 @@ export const createOrUpdateProfile = async (req, res) => {
             user: req.user._id,
         };
 
+        // Handle uploaded photo from Cloudinary
+        if (req.file && req.file.path) {
+            profileData.photo = req.file.path;
+        }
+
+        // Parse JSON fields from FormData
+        ['sleepSchedule', 'budget', 'interests', 'vibes', 'lookingFor'].forEach(field => {
+            if (typeof profileData[field] === 'string') {
+                try {
+                    profileData[field] = JSON.parse(profileData[field]);
+                } catch (e) {
+                    // Ignore parse errors
+                }
+            }
+        });
+
         // Check if profile already exists
         let profile = await LifestyleProfile.findOne({ user: req.user._id });
 
@@ -30,8 +46,7 @@ export const createOrUpdateProfile = async (req, res) => {
             profile = await LifestyleProfile.create(profileData);
             await profile.populate('user', 'firstName lastName email school graduationYear');
 
-            // Update user's profile reference (using new field name if we changed it, or keeping same)
-            // We kept 'roommateProfile' field name in User model but changed ref to LifestyleProfile
+            // Update user's profile reference
             await User.findByIdAndUpdate(req.user._id, {
                 roommateProfile: profile._id,
             });
@@ -90,7 +105,8 @@ export const getAllProfiles = async (req, res) => {
     try {
         const profiles = await LifestyleProfile.find({
             user: { $ne: req.user._id }, // Exclude current user
-        }).populate('user', 'firstName lastName school graduationYear');
+            lookingForRoommate: true, // Only show profiles that opted in
+        }).populate('user', 'firstName lastName school graduationYear profilePhoto');
 
         res.json({
             success: true,

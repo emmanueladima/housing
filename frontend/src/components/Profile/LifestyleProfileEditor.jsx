@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { FiX, FiSave, FiCheck } from 'react-icons/fi';
+import React, { useState, useEffect, useRef } from 'react';
+import { FiX, FiSave, FiCheck, FiCamera, FiUsers } from 'react-icons/fi';
 import lifestyleProfileService from '../../services/lifestyleProfileService';
+import { useAuth } from '../../contexts/AuthContext';
 
 const LifestyleProfileEditor = ({ onClose, onSaved }) => {
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [photoPreview, setPhotoPreview] = useState(null);
+    const fileInputRef = useRef(null);
     const [formData, setFormData] = useState({
+        lookingForRoommate: false,
+        photo: '',
         age: '',
         gender: '',
         bio: '',
@@ -24,7 +30,8 @@ const LifestyleProfileEditor = ({ onClose, onSaved }) => {
         hasPets: false,
         petAllergies: false,
         smoking: false,
-        drinking: false
+        drinking: false,
+        newPhoto: null
     });
 
     useEffect(() => {
@@ -41,6 +48,9 @@ const LifestyleProfileEditor = ({ onClose, onSaved }) => {
                     sleepSchedule: { ...formData.sleepSchedule, ...profile.sleepSchedule },
                     budget: { ...formData.budget, ...profile.budget }
                 });
+                if (profile.photo) {
+                    setPhotoPreview(profile.photo);
+                }
             }
         } catch (error) {
             console.error('Error loading profile:', error);
@@ -64,6 +74,14 @@ const LifestyleProfileEditor = ({ onClose, onSaved }) => {
                 ...prev,
                 [name]: type === 'checkbox' ? checked : (type === 'number' ? parseFloat(value) : value)
             }));
+        }
+    };
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData(prev => ({ ...prev, newPhoto: file }));
+            setPhotoPreview(URL.createObjectURL(file));
         }
     };
 
@@ -105,6 +123,73 @@ const LifestyleProfileEditor = ({ onClose, onSaved }) => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-8">
+                    {/* Profile Photo */}
+                    <section className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Profile Photo</h3>
+                        <div className="flex items-center gap-6">
+                            <div
+                                onClick={() => fileInputRef.current?.click()}
+                                className="relative cursor-pointer group"
+                            >
+                                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center border-2 border-gray-200 group-hover:border-orange-400 transition-colors">
+                                    {photoPreview || user?.profilePhoto ? (
+                                        <img
+                                            src={photoPreview || user?.profilePhoto}
+                                            alt="Profile"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <FiCamera className="text-gray-400" size={32} />
+                                    )}
+                                </div>
+                                <div className="absolute inset-0 bg-black/30 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <FiCamera className="text-white" size={24} />
+                                </div>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-600">Click to upload a profile photo</p>
+                                <p className="text-xs text-gray-400 mt-1">This will be shown on your roommate profile</p>
+                            </div>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handlePhotoChange}
+                                accept="image/*"
+                                className="hidden"
+                            />
+                        </div>
+                    </section>
+
+                    {/* Roommate Sharing Toggle */}
+                    <section className="p-4 rounded-xl border-2 border-teal-200 bg-teal-50">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-teal-100 rounded-lg text-teal-600">
+                                    <FiUsers size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900">Looking for Roommates?</h3>
+                                    <p className="text-sm text-gray-600">Share your profile on the Roommates page</p>
+                                </div>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    name="lookingForRoommate"
+                                    checked={formData.lookingForRoommate}
+                                    onChange={handleChange}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-teal-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-500"></div>
+                            </label>
+                        </div>
+                        {formData.lookingForRoommate && (
+                            <p className="mt-3 text-sm text-teal-700 bg-teal-100 p-2 rounded-lg">
+                                ✓ Your profile will appear on the Roommates page for others to find you!
+                            </p>
+                        )}
+                    </section>
+
                     {/* Basic Info */}
                     <section className="space-y-4">
                         <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Basic Info</h3>

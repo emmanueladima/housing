@@ -318,6 +318,27 @@ export const createListing = async (req, res) => {
       }
     }
 
+    // Parse coordinates if it's a string (from FormData)
+    if (typeof listingData.coordinates === 'string') {
+      try {
+        listingData.coordinates = JSON.parse(listingData.coordinates);
+      } catch (e) {
+        console.error('Error parsing coordinates:', e);
+        listingData.coordinates = null;
+      }
+    }
+
+    // Ensure coordinates are stored in location.coordinates for map display
+    if (listingData.coordinates?.lat && listingData.coordinates?.lng) {
+      listingData.location = {
+        ...(listingData.location || {}),
+        coordinates: {
+          lat: parseFloat(listingData.coordinates.lat),
+          lng: parseFloat(listingData.coordinates.lng)
+        }
+      };
+    }
+
     const listing = await Listing.create(listingData);
 
     // Populate landlord info

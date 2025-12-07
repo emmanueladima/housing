@@ -7,6 +7,15 @@ const lifestyleProfileSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  // Profile visibility on roommates page
+  lookingForRoommate: {
+    type: Boolean,
+    default: false,
+  },
+  // Profile photo (stored in Cloudinary)
+  photo: {
+    type: String,
+  },
   // Basic Info (from RoommateProfile)
   bio: { type: String, maxlength: 500 },
   gender: {

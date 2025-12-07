@@ -15,6 +15,28 @@ const lifestyleProfileService = {
 
   // Save my lifestyle profile (create or update)
   saveMyProfile: async (profileData) => {
+    // If there's a new photo, use FormData
+    if (profileData.newPhoto) {
+      const formData = new FormData();
+      formData.append('image', profileData.newPhoto);
+
+      // Append other fields
+      Object.keys(profileData).forEach(key => {
+        if (key !== 'newPhoto' && key !== 'image') {
+          if (typeof profileData[key] === 'object') {
+            formData.append(key, JSON.stringify(profileData[key]));
+          } else {
+            formData.append(key, profileData[key]);
+          }
+        }
+      });
+
+      const { data } = await api.post('/lifestyle-profiles/me', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      return data.profile;
+    }
+
     const { data } = await api.post('/lifestyle-profiles/me', profileData);
     return data.profile;
   },

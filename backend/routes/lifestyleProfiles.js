@@ -1,5 +1,6 @@
 import express from 'express';
 import { protect } from '../middleware/auth.js';
+import { uploadSingleImage } from '../middleware/multer.js';
 import {
   createOrUpdateProfile,
   getMyProfile,
@@ -19,8 +20,8 @@ router.use(protect);
 
 // Profile management
 router.get('/me', getMyProfile);
-router.put('/me', createOrUpdateProfile); // Support PUT for updates
-router.post('/me', createOrUpdateProfile); // Support POST for creation/updates
+router.put('/me', uploadSingleImage, createOrUpdateProfile); // Support PUT for updates
+router.post('/me', uploadSingleImage, createOrUpdateProfile); // Support POST for creation/updates with photo
 router.post('/me/boost', boostMyProfile); // Boost profile visibility
 
 // Discovery & Matching
