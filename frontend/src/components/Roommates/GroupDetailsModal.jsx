@@ -155,17 +155,17 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                         </h3>
                         <div className="space-y-3">
                             {group.members && group.members.length > 0 ? group.members.map((member, i) => (
-                                <div key={i} className="flex items-center gap-4 p-3 rounded-xl bg-white border border-gray-100">
-                                    <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center overflow-hidden">
-                                        {member.photo || member.avatar ? (
-                                            <img src={member.photo || member.avatar} alt="Member" className="w-full h-full object-cover" />
+                                <div key={member._id || i} className="flex items-center gap-4 p-3 rounded-xl bg-white border border-gray-100">
+                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center overflow-hidden">
+                                        {member.profilePhoto ? (
+                                            <img src={member.profilePhoto} alt={member.firstName} className="w-full h-full object-cover" />
                                         ) : (
-                                            <span className="text-gray-600 font-bold">{member.firstName?.charAt(0) || '?'}</span>
+                                            <span className="text-orange-600 font-bold text-lg">{member.firstName?.charAt(0) || '?'}</span>
                                         )}
                                     </div>
-                                    <div>
+                                    <div className="flex-1">
                                         <p className="font-semibold text-gray-900">{member.firstName} {member.lastName?.charAt(0)}.</p>
-                                        <p className="text-xs text-gray-500">{member.major || 'Student'}</p>
+                                        <p className="text-xs text-gray-500">{member.school || member.major || 'Student'}</p>
                                     </div>
                                 </div>
                             )) : (

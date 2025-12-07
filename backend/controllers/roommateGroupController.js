@@ -61,10 +61,10 @@ export const createGroup = async (req, res) => {
 export const getMyGroup = async (req, res) => {
     try {
         const group = await RoommateGroup.findOne({ members: req.user._id })
-            .populate('members', 'firstName lastName avatar email')
-            .populate('chores.assignedTo', 'firstName lastName avatar')
-            .populate('expenses.paidBy', 'firstName lastName avatar')
-            .populate('expenses.splitAmong', 'firstName lastName avatar');
+            .populate('members', 'firstName lastName profilePhoto email school')
+            .populate('chores.assignedTo', 'firstName lastName profilePhoto')
+            .populate('expenses.paidBy', 'firstName lastName profilePhoto')
+            .populate('expenses.splitAmong', 'firstName lastName profilePhoto');
 
         if (!group) {
             return res.status(404).json({ message: 'No group found' });
@@ -82,7 +82,7 @@ export const getMyGroup = async (req, res) => {
 export const getAllGroups = async (req, res) => {
     try {
         const groups = await RoommateGroup.find()
-            .populate('members', 'firstName lastName avatar')
+            .populate('members', 'firstName lastName profilePhoto school')
             .sort({ createdAt: -1 });
         res.json(groups);
     } catch (error) {
@@ -244,9 +244,9 @@ export const handleJoinRequest = async (req, res) => {
 export const getGroupById = async (req, res) => {
     try {
         const group = await RoommateGroup.findById(req.params.id)
-            .populate('members', 'firstName lastName avatar email major')
-            .populate('admin', 'firstName lastName avatar email')
-            .populate('joinRequests.user', 'firstName lastName avatar email major');
+            .populate('members', 'firstName lastName profilePhoto email school major')
+            .populate('admin', 'firstName lastName profilePhoto email')
+            .populate('joinRequests.user', 'firstName lastName profilePhoto email major');
 
         if (!group) return res.status(404).json({ message: 'Group not found' });
 
