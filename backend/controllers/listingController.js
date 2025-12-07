@@ -268,7 +268,7 @@ export const createListing = async (req, res) => {
 
     // Handle uploaded images
     if (req.files && req.files.length > 0) {
-      listingData.images = req.files.map(file => `/uploads/${file.filename}`);
+      listingData.images = req.files.map(file => file.path); // Cloudinary provides full URL in file.path
     }
 
     // Permission check: Only landlords can create regular listings
