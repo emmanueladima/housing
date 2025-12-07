@@ -6,7 +6,7 @@ const QualityScoreChip = ({ score, size = 'sm', showLabel = true }) => {
 
   // Determine color based on score
   const getScoreColor = () => {
-    if (score >= 80) return 'bg-green-100 text-green-700 border-green-300';
+    if (score >= 80) return 'bg-teal-100 text-teal-700 border-teal-300';
     if (score >= 60) return 'bg-yellow-100 text-yellow-700 border-yellow-300';
     if (score >= 40) return 'bg-orange-100 text-orange-700 border-orange-300';
     return 'bg-red-100 text-red-700 border-red-300';

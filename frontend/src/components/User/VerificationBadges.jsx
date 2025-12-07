@@ -13,7 +13,7 @@ const VerificationBadges = ({ badges = [], size = 'sm', showTooltip = true }) =>
     student: {
       icon: FiShield,
       label: '.edu Verified',
-      color: 'text-green-600 bg-green-100',
+      color: 'text-teal-600 bg-teal-100',
     },
     id: {
       icon: FiCheckCircle,

@@ -7,7 +7,7 @@ const CompatibilityScore = ({ score, reasons = [], compact = false }) => {
   // Determine color and label based on score
   const getScoreConfig = () => {
     if (score >= 80) return {
-      color: 'bg-green-100 text-green-700 border-green-300',
+      color: 'bg-teal-100 text-teal-700 border-teal-300',
       label: 'Excellent Match',
       emoji: '🎉',
     };
@@ -62,7 +62,7 @@ const CompatibilityScore = ({ score, reasons = [], compact = false }) => {
           <ul className="space-y-1">
             {reasons.map((reason, index) => (
               <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
-                <FiCheck size={16} className="text-green-600 flex-shrink-0 mt-0.5" />
+                <FiCheck size={16} className="text-teal-600 flex-shrink-0 mt-0.5" />
                 <span>{reason}</span>
               </li>
             ))}

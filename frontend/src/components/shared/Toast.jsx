@@ -10,14 +10,14 @@ const Toast = ({ type = 'success', message, onClose, duration = 5000 }) => {
   }, [duration, onClose]);
 
   const icons = {
-    success: <FiCheckCircle className="text-green-500" size={24} />,
+    success: <FiCheckCircle className="text-teal-600" size={24} />,
     error: <FiXCircle className="text-red-500" size={24} />,
     warning: <FiAlertCircle className="text-yellow-500" size={24} />,
     info: <FiInfo className="text-blue-500" size={24} />,
   };
 
   const bgColors = {
-    success: 'bg-green-50 border-green-200',
+    success: 'bg-teal-50 border-teal-200',
     error: 'bg-red-50 border-red-200',
     warning: 'bg-yellow-50 border-yellow-200',
     info: 'bg-blue-50 border-blue-200',

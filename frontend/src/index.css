@@ -7,7 +7,7 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -36,7 +36,7 @@
   .animation-delay-2000 {
     animation-delay: 2s;
   }
-  
+
   .animation-delay-4000 {
     animation-delay: 4s;
   }
@@ -110,6 +110,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -121,9 +122,11 @@
     transform: translateX(-100%);
     opacity: 0;
   }
+
   50% {
     opacity: 1;
   }
+
   100% {
     transform: translateX(100%);
     opacity: 0;
@@ -131,10 +134,13 @@
 }
 
 @keyframes waveExpand {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scaleX(1);
     opacity: 0.9;
   }
+
   50% {
     transform: scaleX(1.5);
     opacity: 1;
@@ -146,12 +152,15 @@
     transform: translateY(0);
     opacity: 0;
   }
+
   10% {
     opacity: 1;
   }
+
   90% {
     opacity: 1;
   }
+
   100% {
     transform: translateY(150vh);
     opacity: 0;
@@ -167,6 +176,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -200,9 +210,12 @@
 
 /* Skeleton loader */
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -233,7 +246,7 @@
 
 /* Compatibility badge colors */
 .compatibility-excellent {
-  @apply bg-green-100 text-green-800 border border-green-200;
+  @apply bg-teal-100 text-teal-800 border border-teal-200;
 }
 
 .compatibility-good {
@@ -247,4 +260,3 @@
 .compatibility-low {
   @apply bg-red-100 text-red-800 border border-red-200;
 }
-

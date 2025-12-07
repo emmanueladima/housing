@@ -64,6 +64,43 @@ export default {
             dark: '#f43f5e',
           },
         },
+        // New complementary colors
+        teal: {
+          50: '#f0fdfa',
+          100: '#ccfbf1',
+          200: '#99f6e4',
+          300: '#5eead4',
+          400: '#2dd4bf',
+          500: '#14b8a6',
+          600: '#0F766E', // Primary teal
+          700: '#0d6460',
+          800: '#2C5F5F', // Deep teal
+          900: '#134e4a',
+        },
+        navy: {
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155', // Slate blue
+          800: '#1E293B', // Dark slate
+          900: '#0f172a',
+        },
+        sage: {
+          50: '#f0fdf4',
+          100: '#D1FAE5', // Light sage
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#849b87', // Sage green
+          500: '#6b8f70',
+          600: '#4d7c4f',
+          700: '#3f6b3f',
+          800: '#365e35',
+          900: '#2d4f2c',
+        },
       },
       boxShadow: {
         'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
