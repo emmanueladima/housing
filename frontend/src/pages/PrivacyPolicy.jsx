@@ -114,8 +114,8 @@ const PrivacyPolicy = () => {
                         </ul>
                         <p className="text-gray-600 leading-relaxed mt-3">
                             To exercise these rights, please contact us at{' '}
-                            <a href="mailto:privacy@collegio.us" className="text-orange-600 hover:underline">
-                                privacy@collegio.us
+                            <a href="mailto:admin@collegio.us" className="text-orange-600 hover:underline">
+                                admin@collegio.us
                             </a>
                         </p>
                     </section>
@@ -176,8 +176,8 @@ const PrivacyPolicy = () => {
                             <p className="text-gray-700 font-semibold">Collegio Privacy Team</p>
                             <p className="text-gray-600">
                                 Email:{' '}
-                                <a href="mailto:privacy@collegio.us" className="text-orange-600 hover:underline">
-                                    privacy@collegio.us
+                                <a href="mailto:admin@collegio.us" className="text-orange-600 hover:underline">
+                                    admin@collegio.us
                                 </a>
                             </p>
                         </div>

@@ -160,8 +160,8 @@ const TermsOfService = () => {
                         <h2 className="text-xl font-bold text-gray-900 mb-4">13. Contact Information</h2>
                         <p className="text-gray-600 leading-relaxed">
                             For questions about these Terms of Service, please contact us at{' '}
-                            <a href="mailto:legal@collegio.us" className="text-orange-600 hover:underline">
-                                legal@collegio.us
+                            <a href="mailto:admin@collegio.us" className="text-orange-600 hover:underline">
+                                admin@collegio.us
                             </a>
                         </p>
                     </section>

@@ -183,8 +183,8 @@ const CookiePolicy = () => {
                         <h2 className="text-xl font-bold text-gray-900 mb-4">9. Contact Us</h2>
                         <p className="text-gray-600 leading-relaxed">
                             If you have questions about our use of cookies, please contact us at{' '}
-                            <a href="mailto:privacy@collegio.us" className="text-orange-600 hover:underline">
-                                privacy@collegio.us
+                            <a href="mailto:admin@collegio.us" className="text-orange-600 hover:underline">
+                                admin@collegio.us
                             </a>
                         </p>
                     </section>

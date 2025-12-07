@@ -102,7 +102,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="mailto:support@collegio.us" className="hover:text-primary-500 transition-colors">
+                <a href="mailto:admin@collegio.us" className="hover:text-primary-500 transition-colors">
                   Contact Us
                 </a>
               </li>
