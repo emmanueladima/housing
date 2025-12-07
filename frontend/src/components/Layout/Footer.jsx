@@ -87,22 +87,22 @@ const Footer = () => {
             <h4 className="text-white font-semibold mb-4">Legal</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="hover:text-primary-500 transition-colors">
+                <Link to="/terms" className="hover:text-primary-500 transition-colors">
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-primary-500 transition-colors">
+                <Link to="/privacy" className="hover:text-primary-500 transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-primary-500 transition-colors">
+                <Link to="/cookies" className="hover:text-primary-500 transition-colors">
                   Cookie Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-primary-500 transition-colors">
+                <a href="mailto:support@collegio.us" className="hover:text-primary-500 transition-colors">
                   Contact Us
                 </a>
               </li>

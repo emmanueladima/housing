@@ -24,6 +24,9 @@ import VerifyEmail from './pages/VerifyEmail';
 import NotFound from './pages/NotFound';
 import CompatibilityTest from './pages/CompatibilityTest';
 import Settings from './pages/Settings';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import CookiePolicy from './pages/CookiePolicy';
 
 function App() {
   const location = useLocation();
@@ -48,6 +51,9 @@ function App() {
           />
           <Route path="/safety" element={<Safety />} />
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
 
           {/* Protected routes */}
           <Route
