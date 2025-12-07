@@ -15,6 +15,7 @@ import Applications from './pages/Applications';
 import CreateListingWizard from './pages/CreateListingWizard';
 
 import LandlordDashboard from './pages/LandlordDashboard';
+import EditListing from './pages/EditListing';
 import GroupDashboard from './pages/GroupDashboard';
 import Notifications from './pages/Notifications';
 import SavedSearches from './pages/SavedSearches';
@@ -133,6 +134,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['landlord', 'admin']}>
                 <LandlordDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/listings/edit/:id"
+            element={
+              <ProtectedRoute allowedRoles={['landlord', 'admin']}>
+                <EditListing />
               </ProtectedRoute>
             }
           />

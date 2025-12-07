@@ -69,7 +69,7 @@ const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite
                             alt={`${firstName} ${lastName}`}
                             className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-lg"
                         />
-                        <div className="absolute -bottom-1 -right-1 bg-teal-500 w-5 h-5 rounded-full border-3 border-white"></div>
+                        {/* Online dot removed */}
                     </div>
                 </div>
 

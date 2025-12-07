@@ -1,16 +1,6 @@
 import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Configure Cloudinary
 cloudinary.config({
@@ -42,4 +32,3 @@ export const uploadListingImages = upload.array('images', 10);
 
 // Middleware for single image upload (profile photos, review photos)
 export const uploadSingleImage = upload.single('image');
-
