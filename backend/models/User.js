@@ -31,11 +31,17 @@ const userSchema = new mongoose.Schema({
   },
   school: {
     type: String,
-    required: [true, 'School name is required'],
+    required: [
+      function () { return this.userType === 'student'; },
+      'School name is required for students'
+    ],
   },
   graduationYear: {
     type: Number,
-    required: [true, 'Graduation year is required'],
+    required: [
+      function () { return this.userType === 'student'; },
+      'Graduation year is required for students'
+    ],
   },
   userType: {
     type: String,
