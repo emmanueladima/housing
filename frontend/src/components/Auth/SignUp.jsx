@@ -10,6 +10,7 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
   const { signup } = useAuth();
   const [step, setStep] = useState(1); // 1: Role Selection, 2: Form
   const [role, setRole] = useState('student'); // 'student' or 'landlord'
+  const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -75,6 +76,7 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
     if (!validate()) return;
 
     setLoading(true);
+    setErrors({});
 
     try {
       const payload = {
@@ -83,6 +85,7 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
         email: formData.email,
         password: formData.password,
         phone: formData.phone,
+        userType: role,
         role: role,
       };
 
@@ -100,7 +103,7 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
       }
 
       await signup(payload);
-      onSuccess();
+      setSuccess(true);
     } catch (err) {
       setErrors({ submit: err.message || 'Error creating account' });
     } finally {
@@ -110,6 +113,25 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 10 }, (_, i) => currentYear + i);
+
+  // Success screen
+  if (success) {
+    return (
+      <div className="text-center space-y-6 py-8">
+        <div className="text-6xl mb-4">🎉</div>
+        <h2 className="text-2xl font-bold text-gray-900">Account Created!</h2>
+        <p className="text-gray-600">
+          Your account has been successfully created. Please check your email to verify your account.
+        </p>
+        <button
+          onClick={onSwitchToLogin}
+          className="w-full py-3 px-4 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition-colors"
+        >
+          Log In Now
+        </button>
+      </div>
+    );
+  }
 
   if (step === 1) {
     return (

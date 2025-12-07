@@ -14,6 +14,7 @@ const CreateListingWizard = () => {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [stepErrors, setStepErrors] = useState({});
     const fileInputRef = useRef(null);
 
     // Address Autocomplete State
@@ -149,12 +150,47 @@ const CreateListingWizard = () => {
         setPreviewImages(prev => prev.filter((_, i) => i !== index));
     };
 
+    // Step validation
+    const validateStep = (currentStep) => {
+        const errors = {};
+        switch (currentStep) {
+            case 1:
+                if (!formData.title.trim()) errors.title = 'Title is required';
+                if (!formData.description.trim()) errors.description = 'Description is required';
+                break;
+            case 2:
+                if (!formData.address.trim()) errors.address = 'Address is required';
+                if (!formData.city.trim()) errors.city = 'City is required';
+                if (!formData.state.trim()) errors.state = 'State is required';
+                if (!formData.zipCode.trim()) errors.zipCode = 'ZIP code is required';
+                break;
+            case 3:
+                if (!formData.rent) errors.rent = 'Rent is required';
+                if (!formData.bedrooms) errors.bedrooms = 'Bedrooms is required';
+                if (!formData.bathrooms) errors.bathrooms = 'Bathrooms is required';
+                if (!formData.availableDate) errors.availableDate = 'Available date is required';
+                break;
+            case 4:
+                // Amenities are optional
+                break;
+            case 5:
+                if (formData.images.length === 0) errors.images = 'At least one image is required';
+                break;
+        }
+        setStepErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     const handleNext = () => {
+        if (!validateStep(step)) {
+            return;
+        }
         if (step < 5) setStep(step + 1);
         else handleSubmit();
     };
 
     const handleBack = () => {
+        setStepErrors({});
         if (step > 1) setStep(step - 1);
     };
 
@@ -166,7 +202,7 @@ const CreateListingWizard = () => {
                 throw new Error('Please upload at least one image');
             }
             await listingService.createListing(formData);
-            navigate('/listings');
+            navigate('/listings?refresh=true');
         } catch (err) {
             console.error('Error creating listing:', err);
             setError(err.response?.data?.error || err.message || 'Failed to create listing');
@@ -187,27 +223,38 @@ const CreateListingWizard = () => {
             case 1: // Basics
                 return (
                     <div className="space-y-6">
+                        {Object.keys(stepErrors).length > 0 && (
+                            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl">
+                                <p className="text-red-600 font-medium">Please fill in all required fields</p>
+                            </div>
+                        )}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Listing Title</label>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                                Listing Title <span className="text-red-500">*</span>
+                            </label>
                             <input
                                 type="text"
                                 name="title"
                                 value={formData.title}
                                 onChange={handleChange}
                                 placeholder="e.g. Spacious 2BR near Campus"
-                                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all"
+                                className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.title ? 'border-red-400' : 'border-gray-200'}`}
                             />
+                            {stepErrors.title && <p className="text-red-500 text-sm mt-1">{stepErrors.title}</p>}
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                                Description <span className="text-red-500">*</span>
+                            </label>
                             <textarea
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
                                 rows="5"
                                 placeholder="Describe the place, roommates, and vibe..."
-                                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none resize-none transition-all"
+                                className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none resize-none transition-all ${stepErrors.description ? 'border-red-400' : 'border-gray-200'}`}
                             />
+                            {stepErrors.description && <p className="text-red-500 text-sm mt-1">{stepErrors.description}</p>}
                         </div>
                         <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl">
                             <label className="flex items-center gap-3 cursor-pointer">
@@ -231,15 +278,23 @@ const CreateListingWizard = () => {
             case 2: // Location
                 return (
                     <div className="space-y-6">
+                        {Object.keys(stepErrors).length > 0 && (
+                            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl">
+                                <p className="text-red-600 font-medium">Please fill in all required fields</p>
+                            </div>
+                        )}
                         <div className="relative">
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Street Address</label>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                                Street Address <span className="text-red-500">*</span>
+                            </label>
                             <input
                                 type="text"
                                 value={addressQuery || formData.address}
                                 onChange={(e) => setAddressQuery(e.target.value)}
                                 placeholder="Start typing address..."
-                                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all"
+                                className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.address ? 'border-red-400' : 'border-gray-200'}`}
                             />
+                            {stepErrors.address && <p className="text-red-500 text-sm mt-1">{stepErrors.address}</p>}
                             {showSuggestions && suggestions.length > 0 && (
                                 <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-2xl mt-2 shadow-xl max-h-60 overflow-y-auto">
                                     {suggestions.map((suggestion) => (
@@ -257,36 +312,45 @@ const CreateListingWizard = () => {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">City</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                    City <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     name="city"
                                     value={formData.city}
                                     onChange={handleChange}
-                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all"
+                                    className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.city ? 'border-red-400' : 'border-gray-200'}`}
                                 />
+                                {stepErrors.city && <p className="text-red-500 text-sm mt-1">{stepErrors.city}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">State</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                    State <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     name="state"
                                     value={formData.state}
                                     onChange={handleChange}
-                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all"
+                                    className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.state ? 'border-red-400' : 'border-gray-200'}`}
                                 />
+                                {stepErrors.state && <p className="text-red-500 text-sm mt-1">{stepErrors.state}</p>}
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">ZIP Code</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                    ZIP Code <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     name="zipCode"
                                     value={formData.zipCode}
                                     onChange={handleChange}
-                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all"
+                                    className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.zipCode ? 'border-red-400' : 'border-gray-200'}`}
                                 />
+                                {stepErrors.zipCode && <p className="text-red-500 text-sm mt-1">{stepErrors.zipCode}</p>}
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Nearby University</label>
@@ -304,9 +368,16 @@ const CreateListingWizard = () => {
             case 3: // Details
                 return (
                     <div className="space-y-6">
+                        {Object.keys(stepErrors).length > 0 && (
+                            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl">
+                                <p className="text-red-600 font-medium">Please fill in all required fields</p>
+                            </div>
+                        )}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Monthly Rent</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                    Monthly Rent <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
                                     <input
@@ -315,9 +386,10 @@ const CreateListingWizard = () => {
                                         value={formData.rent}
                                         onChange={handleChange}
                                         placeholder="0"
-                                        className="w-full p-4 pl-8 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all"
+                                        className={`w-full p-4 pl-8 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.rent ? 'border-red-400' : 'border-gray-200'}`}
                                     />
                                 </div>
+                                {stepErrors.rent && <p className="text-red-500 text-sm mt-1">{stepErrors.rent}</p>}
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Lease Term</label>
@@ -336,18 +408,23 @@ const CreateListingWizard = () => {
                         </div>
                         <div className="grid grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Bedrooms</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                    Bedrooms <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="number"
                                     name="bedrooms"
                                     value={formData.bedrooms}
                                     onChange={handleChange}
                                     min="0"
-                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none text-center transition-all"
+                                    className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none text-center transition-all ${stepErrors.bedrooms ? 'border-red-400' : 'border-gray-200'}`}
                                 />
+                                {stepErrors.bedrooms && <p className="text-red-500 text-sm mt-1">{stepErrors.bedrooms}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Bathrooms</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">
+                                    Bathrooms <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="number"
                                     name="bathrooms"
@@ -355,8 +432,9 @@ const CreateListingWizard = () => {
                                     onChange={handleChange}
                                     min="0"
                                     step="0.5"
-                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none text-center transition-all"
+                                    className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none text-center transition-all ${stepErrors.bathrooms ? 'border-red-400' : 'border-gray-200'}`}
                                 />
+                                {stepErrors.bathrooms && <p className="text-red-500 text-sm mt-1">{stepErrors.bathrooms}</p>}
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Sq Ft</label>
@@ -370,14 +448,17 @@ const CreateListingWizard = () => {
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Available Date</label>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">
+                                Available Date <span className="text-red-500">*</span>
+                            </label>
                             <input
                                 type="date"
                                 name="availableDate"
                                 value={formData.availableDate}
                                 onChange={handleChange}
-                                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all"
+                                className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.availableDate ? 'border-red-400' : 'border-gray-200'}`}
                             />
+                            {stepErrors.availableDate && <p className="text-red-500 text-sm mt-1">{stepErrors.availableDate}</p>}
                         </div>
                     </div>
                 );
@@ -409,7 +490,12 @@ const CreateListingWizard = () => {
             case 5: // Photos
                 return (
                     <div className="space-y-6">
-                        <p className="text-gray-500 text-sm">Add up to 5 photos. First photo will be the cover.</p>
+                        {stepErrors.images && (
+                            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl">
+                                <p className="text-red-600 font-medium">{stepErrors.images}</p>
+                            </div>
+                        )}
+                        <p className="text-gray-500 text-sm">Add up to 5 photos. First photo will be the cover. <span className="text-red-500">*</span></p>
 
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {previewImages.map((src, index) => (

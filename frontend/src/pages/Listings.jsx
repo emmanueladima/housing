@@ -97,6 +97,17 @@ const Listings = () => {
     fetchListings();
   }, [fetchListings]);
 
+  // Handle refresh parameter from CreateListingWizard
+  useEffect(() => {
+    if (searchParams.get('refresh') === 'true') {
+      fetchListings();
+      // Clear the refresh param from URL without adding to history
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('refresh');
+      navigate(`/listings${newParams.toString() ? '?' + newParams.toString() : ''}`, { replace: true });
+    }
+  }, [searchParams, navigate]);
+
   // Calculate commute data
   useEffect(() => {
     if (showCommuteLayer && listings.length > 0) {
@@ -275,16 +286,16 @@ const Listings = () => {
         {/* Listings Section - Floating Panel */}
         <div
           className={`absolute transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-10 bg-white shadow-2xl border border-gray-200 overflow-clip origin-top-right ${showFilters
-              ? 'top-24 right-4 w-[800px] h-[calc(100vh-8rem)] rounded-3xl flex flex-col'
-              : 'top-24 right-4 w-[200px] h-[56px] rounded-full'
+            ? 'top-24 right-4 w-[800px] h-[calc(100vh-8rem)] rounded-3xl flex flex-col'
+            : 'top-24 right-4 w-[200px] h-[56px] rounded-full'
             }`}
         >
           {/* Collapse/Expand Toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`focus:outline-none transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex items-center justify-center z-50 ${showFilters
-                ? 'absolute top-4 right-4 w-10 h-10 bg-white shadow-md rounded-full hover:bg-gray-50'
-                : 'absolute inset-0 w-full h-full gap-2 font-bold text-gray-900 hover:bg-gray-50'
+              ? 'absolute top-4 right-4 w-10 h-10 bg-white shadow-md rounded-full hover:bg-gray-50'
+              : 'absolute inset-0 w-full h-full gap-2 font-bold text-gray-900 hover:bg-gray-50'
               }`}
             title={showFilters ? 'Hide listings' : 'Show listings'}
           >
