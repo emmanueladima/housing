@@ -20,17 +20,34 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const httpServer = createServer(app);
 
-// Initialize Socket.io
-const io = new Server(httpServer, {
-  cors: {
-    origin: [
+// CORS Configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    const allowedOrigins = [
       'http://localhost:5173',
       'http://localhost:5174',
       'http://localhost:5175',
+      'https://collegio.us',
+      'https://www.collegio.us',
       process.env.FRONTEND_URL
-    ].filter(Boolean),
-    credentials: true,
+    ].filter(Boolean);
+
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
   },
+  credentials: true,
+};
+
+// Initialize Socket.io
+const io = new Server(httpServer, {
+  cors: corsOptions,
 });
 
 // Connect to database and seed dev user if in development
@@ -44,15 +61,7 @@ connectDB().then(() => {
 });
 
 // Middleware
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:5175',
-    process.env.FRONTEND_URL
-  ].filter(Boolean),
-  credentials: true,
-}));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
