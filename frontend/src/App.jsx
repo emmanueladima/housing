@@ -45,7 +45,7 @@ function App() {
           <Route
             path="/listings/create"
             element={
-              <ProtectedRoute allowedRoles={['landlord', 'admin']}>
+              <ProtectedRoute>
                 <CreateListingWizard />
               </ProtectedRoute>
             }
@@ -140,7 +140,7 @@ function App() {
           <Route
             path="/listings/edit/:id"
             element={
-              <ProtectedRoute allowedRoles={['landlord', 'admin']}>
+              <ProtectedRoute>
                 <EditListing />
               </ProtectedRoute>
             }
