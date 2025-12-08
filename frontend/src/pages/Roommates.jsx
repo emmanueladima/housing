@@ -454,6 +454,17 @@ const Roommates = () => {
                 onClose={() => setShowGroupDetailsModal(false)}
                 group={selectedGroup}
                 onJoin={() => handleRequestJoin(selectedGroup)}
+                isOwner={myGroup && selectedGroup && myGroup._id === selectedGroup._id}
+                onDelete={async () => {
+                    try {
+                        await roommateGroupService.deleteMyGroup();
+                        setMyGroup(null);
+                        setShowGroupDetailsModal(false);
+                    } catch (error) {
+                        console.error('Error deleting group:', error);
+                        alert('Failed to delete group');
+                    }
+                }}
             />
             <RoommateDetailsModal
                 isOpen={showRoommateDetailsModal}

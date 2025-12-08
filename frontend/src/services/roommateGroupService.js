@@ -66,6 +66,12 @@ const roommateGroupService = {
         const { data } = await api.post(`/roommate-groups/${groupId}/rules`, ruleData);
         return data;
     },
+
+    // Delete my group
+    deleteMyGroup: async () => {
+        const { data } = await api.delete('/roommate-groups/my-group');
+        return data;
+    },
 };
 
 export default roommateGroupService;

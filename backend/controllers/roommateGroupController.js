@@ -255,3 +255,27 @@ export const getGroupById = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// @desc    Delete my group
+// @route   DELETE /api/roommate-groups/my-group
+// @access  Private (owner only)
+export const deleteMyGroup = async (req, res) => {
+    try {
+        const group = await RoommateGroup.findOne({
+            $or: [
+                { admin: req.user._id },
+                { createdBy: req.user._id }
+            ]
+        });
+
+        if (!group) {
+            return res.status(404).json({ message: 'You do not have a group to delete' });
+        }
+
+        await RoommateGroup.deleteOne({ _id: group._id });
+
+        res.json({ success: true, message: 'Group deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

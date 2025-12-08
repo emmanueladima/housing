@@ -11,7 +11,8 @@ import {
   addRule,
   requestJoin,
   getJoinRequests,
-  handleJoinRequest
+  handleJoinRequest,
+  deleteMyGroup
 } from '../controllers/roommateGroupController.js';
 
 const router = express.Router();
@@ -22,6 +23,7 @@ router.post('/', createGroup);
 router.put('/:id', updateGroup);
 router.get('/', getAllGroups);
 router.get('/my-group', getMyGroup);
+router.delete('/my-group', deleteMyGroup);
 router.get('/:id', getGroupById);
 
 // Join Request Routes

@@ -63,31 +63,22 @@ const Profile = () => {
   };
 
   const calculateCompletion = () => {
+    if (!lifestyleProfile) return 0;
+
     let score = 0;
-    let total = 0;
+    const total = 8; // Total optional fields to complete
 
-    // Basic profile fields
-    total += 3;
-    if (user.profilePhoto || user.avatar) score++;
-    if (user.isVerified) score++;
-    if (user.bio || lifestyleProfile?.bio) score++;
+    // Count completed fields
+    if (user.profilePhoto || user.avatar || lifestyleProfile.photo) score++;
+    if (lifestyleProfile.bio) score++;
+    if (lifestyleProfile.age) score++;
+    if (lifestyleProfile.gender) score++;
+    if (lifestyleProfile.cleanliness && lifestyleProfile.cleanliness !== 5) score++; // Default is 5
+    if (lifestyleProfile.noiseLevel && lifestyleProfile.noiseLevel !== 5) score++; // Default is 5
+    if (lifestyleProfile.vibeTags && lifestyleProfile.vibeTags.length > 0) score++;
+    if (lifestyleProfile.budgetMin > 0 || lifestyleProfile.budgetMax < 2000) score++;
 
-    if (lifestyleProfile) {
-      total += 8;
-      if (lifestyleProfile.cleanliness) score++;
-      if (lifestyleProfile.noiseLevel) score++;
-      if (lifestyleProfile.sleepTime) score++;
-      if (lifestyleProfile.budgetMin || lifestyleProfile.budgetMax) score++;
-      if (lifestyleProfile.vibeTags && lifestyleProfile.vibeTags.length > 0) score++;
-      if (lifestyleProfile.age) score++;
-      if (lifestyleProfile.gender) score++;
-      if (lifestyleProfile.photo) score++;
-
-      total += 1;
-      if (lifestyleProfile.weeklySchedule && lifestyleProfile.weeklySchedule.length > 0) score++;
-    }
-
-    return Math.round((score / total) * 100) || 0;
+    return Math.round((score / total) * 100);
   };
 
   if (!user) return null;

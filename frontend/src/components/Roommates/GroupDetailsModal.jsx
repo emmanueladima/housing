@@ -1,7 +1,9 @@
-import React from 'react';
-import { FiX, FiUsers, FiDollarSign, FiMapPin, FiCheckCircle, FiMoreHorizontal, FiShield, FiVolume2, FiHeart, FiUserPlus, FiStar } from 'react-icons/fi';
+import React, { useState } from 'react';
+import { FiX, FiUsers, FiDollarSign, FiMapPin, FiCheckCircle, FiMoreHorizontal, FiShield, FiVolume2, FiHeart, FiUserPlus, FiStar, FiTrash2 } from 'react-icons/fi';
 
-const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
+const GroupDetailsModal = ({ isOpen, onClose, group, onJoin, onDelete, isOwner }) => {
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
     if (!isOpen || !group) return null;
 
     const isDraft = !group.description || group.members?.length < 2;
@@ -81,16 +83,29 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
 
                         {/* Action Buttons */}
                         <div className="flex gap-3 w-full md:w-auto">
-                            <button className="p-3.5 rounded-2xl border-2 border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all">
-                                <FiHeart size={22} />
-                            </button>
-                            <button
-                                onClick={() => { onJoin(); onClose(); }}
-                                className="flex-1 md:flex-none px-8 py-3.5 rounded-2xl bg-gray-900 text-white font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
-                            >
-                                <FiUserPlus size={18} />
-                                Request to Join
-                            </button>
+                            {!isOwner && (
+                                <>
+                                    <button className="p-3.5 rounded-2xl border-2 border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all">
+                                        <FiHeart size={22} />
+                                    </button>
+                                    <button
+                                        onClick={() => { onJoin(); onClose(); }}
+                                        className="flex-1 md:flex-none px-8 py-3.5 rounded-2xl bg-gray-900 text-white font-bold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                                    >
+                                        <FiUserPlus size={18} />
+                                        Request to Join
+                                    </button>
+                                </>
+                            )}
+                            {isOwner && (
+                                <button
+                                    onClick={() => setShowDeleteConfirm(true)}
+                                    className="px-6 py-3.5 rounded-2xl bg-red-50 text-red-600 border-2 border-red-200 font-bold hover:bg-red-100 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <FiTrash2 size={18} />
+                                    Delete Group
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -200,6 +215,39 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin }) => {
                     )}
                 </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4" onClick={() => setShowDeleteConfirm(false)}>
+                    <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <div className="w-16 h-16 mx-auto bg-red-100 rounded-2xl flex items-center justify-center mb-4">
+                            <FiTrash2 className="text-red-500" size={32} />
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 text-center mb-2">Delete Group?</h3>
+                        <p className="text-gray-600 text-center mb-8">
+                            This action cannot be undone. All group data and member connections will be permanently removed.
+                        </p>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="flex-1 py-4 bg-gray-100 text-gray-700 rounded-2xl font-bold hover:bg-gray-200 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    onDelete();
+                                    setShowDeleteConfirm(false);
+                                    onClose();
+                                }}
+                                className="flex-1 py-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-2xl font-bold hover:from-red-600 hover:to-red-700 transition-all"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

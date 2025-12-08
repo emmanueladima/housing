@@ -27,7 +27,11 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
         hasPets: false,
         petAllergies: false,
         smoking: false,
-        drinking: false
+        drinking: false,
+        lookingForRoommate: false,
+        photo: null,
+        newPhoto: null,
+        photoPreview: null
     });
 
     useEffect(() => {
@@ -128,6 +132,7 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                 vibeTags: formData.vibes || [],
                 guestsFrequency: ['never', 'rarely', 'sometimes', 'often', 'very-often'][Math.min(formData.guestFrequency - 1, 4)] || 'sometimes',
                 smoking: formData.smoking ? 'regular' : 'non-smoker',
+                lookingForRoommate: formData.lookingForRoommate || false,
                 // Keep cleanliness/noiseLevel as is (now 1-10 in backend)
             };
 
@@ -136,8 +141,9 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
             delete payload.sleepSchedule;
             delete payload.vibes;
             delete payload.guestFrequency;
+            delete payload.photoPreview;
 
-            const savedProfile = await lifestyleProfileService.saveMyProfile(payload);
+            const savedProfile = await lifestyleProfileService.saveMyProfile(payload, formData.newPhoto);
             onSaved(savedProfile);
             onClose();
         } catch (error) {
@@ -163,6 +169,37 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
             case 1: // Basics
                 return (
                     <div className="space-y-6">
+                        {/* Profile Photo */}
+                        <div className="flex flex-col items-center">
+                            <label className="block text-sm font-bold text-gray-700 mb-3 text-center">Profile Photo</label>
+                            <div className="relative">
+                                <img
+                                    src={formData.photoPreview || formData.photo || `https://ui-avatars.com/api/?name=User&background=ea580c&color=fff&size=96`}
+                                    alt="Profile"
+                                    className="w-24 h-24 rounded-2xl object-cover border-4 border-gray-100"
+                                />
+                                <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl cursor-pointer opacity-0 hover:opacity-100 transition-opacity">
+                                    <FiUser className="text-white" size={24} />
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    newPhoto: file,
+                                                    photoPreview: URL.createObjectURL(file)
+                                                }));
+                                            }
+                                        }}
+                                        className="hidden"
+                                    />
+                                </label>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2">Click to upload photo</p>
+                        </div>
+
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Age</label>
@@ -197,10 +234,27 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                 name="bio"
                                 value={formData.bio}
                                 onChange={handleChange}
-                                rows="4"
+                                rows="3"
                                 placeholder="I'm a junior studying CS. I love hiking and coffee..."
                                 className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none resize-none transition-all"
                             />
+                        </div>
+
+                        {/* Roommate Visibility Toggle */}
+                        <div className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.lookingForRoommate ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}
+                            onClick={() => setFormData(prev => ({ ...prev, lookingForRoommate: !prev.lookingForRoommate }))}>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <FiUsers className={formData.lookingForRoommate ? 'text-orange-500' : 'text-gray-400'} size={20} />
+                                    <div>
+                                        <p className="font-bold text-gray-900">Show on Roommates Page</p>
+                                        <p className="text-xs text-gray-500">Let others find you as a potential roommate</p>
+                                    </div>
+                                </div>
+                                <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-all ${formData.lookingForRoommate ? 'bg-orange-500 justify-end' : 'bg-gray-200 justify-start'}`}>
+                                    <div className="w-4 h-4 bg-white rounded-full shadow" />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 );

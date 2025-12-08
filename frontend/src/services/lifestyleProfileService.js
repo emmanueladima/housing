@@ -14,16 +14,16 @@ const lifestyleProfileService = {
   },
 
   // Save my lifestyle profile (create or update)
-  saveMyProfile: async (profileData) => {
+  saveMyProfile: async (profileData, newPhoto = null) => {
     // If there's a new photo, use FormData
-    if (profileData.newPhoto) {
+    if (newPhoto) {
       const formData = new FormData();
-      formData.append('image', profileData.newPhoto);
+      formData.append('image', newPhoto);
 
       // Append other fields
       Object.keys(profileData).forEach(key => {
-        if (key !== 'newPhoto' && key !== 'image') {
-          if (typeof profileData[key] === 'object') {
+        if (key !== 'newPhoto' && key !== 'image' && key !== 'photo' && profileData[key] != null) {
+          if (typeof profileData[key] === 'object' && !(profileData[key] instanceof File)) {
             formData.append(key, JSON.stringify(profileData[key]));
           } else {
             formData.append(key, profileData[key]);
