@@ -102,13 +102,13 @@ const Header = () => {
                 <nav className="hidden md:flex items-center p-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
                   <NavLink to="/" icon={FiHome} label="Home" />
                   <NavLink to="/listings" icon={FiMap} label="Listings" />
-                  {(user?.role === 'student' || user?.role === 'both' || !user?.role) && (
+                  {(user?.userType === 'student' || user?.userType === 'both' || !user?.userType) && (
                     <>
                       <NavLink to="/roommates" icon={FiUsers} label="Roommates" />
                       <NavLink to="/roommate-toolkit" icon={FiTool} label="Tools" />
                     </>
                   )}
-                  {(user?.role === 'landlord' || user?.role === 'both') && (
+                  {(user?.userType === 'landlord' || user?.userType === 'both') && (
                     <NavLink to="/landlord/dashboard" icon={FiGrid} label="Dashboard" />
                   )}
                 </nav>
@@ -266,7 +266,7 @@ const Header = () => {
                   >
                     Listings
                   </Link>
-                  {(user?.role === 'student' || user?.role === 'both' || !user?.role) && (
+                  {(user?.userType === 'student' || user?.userType === 'both' || !user?.userType) && (
                     <>
                       <Link
                         to="/roommates"
@@ -284,7 +284,7 @@ const Header = () => {
                       </Link>
                     </>
                   )}
-                  {(user?.role === 'landlord' || user?.role === 'both') && (
+                  {(user?.userType === 'landlord' || user?.userType === 'both') && (
                     <Link
                       to="/landlord/dashboard"
                       className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
