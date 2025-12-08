@@ -240,9 +240,9 @@ export const updateProfile = async (req, res) => {
       notificationPreferences,
     };
 
-    // Allow role updates
+    // Allow userType updates (student, landlord, both)
     if (role && ['student', 'landlord', 'both'].includes(role)) {
-      updateData.role = role;
+      updateData.userType = role; // Use userType field, not role
     }
 
     // Allow landlord profile updates

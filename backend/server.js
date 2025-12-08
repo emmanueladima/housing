@@ -113,6 +113,7 @@ import userRoutes from './routes/users.js';
 import matchRoutes from './routes/matches.js';
 import reportRoutes from './routes/reports.js';
 import threadRoutes from './routes/threads.js';
+import landlordRoutes from './routes/landlord.js';
 
 import uploadRoutes from './routes/uploads.js';
 
@@ -163,6 +164,7 @@ app.use('/api/matches', matchRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/threads', threadRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/landlord', landlordRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
