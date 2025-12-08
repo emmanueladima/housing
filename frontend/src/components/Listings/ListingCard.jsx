@@ -109,22 +109,22 @@ const ListingCard = ({ listing }) => {
         />
 
         {/* Badges */}
-        {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-          {listing.isLandlordListing ? (
-            <Badge variant="primary" className="bg-purple-600 text-white shadow-lg">
-              Verified Landlord
-            </Badge>
-          ) : (
-            <Badge variant="primary" className="bg-green-600 text-white shadow-lg">
-              Student Sublet
+          {listing.isSublease && (
+            <Badge variant="primary" className="bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg">
+              Sublease
             </Badge>
           )}
-          {listing.badges && listing.badges.length > 0 && listing.badges.slice(0, 1).map((badge, index) => (
-            <Badge key={index} variant="primary" className="bg-orange-600 text-white shadow-lg">
-              {badge}
+          {listing.landlord?.landlordProfile?.isVerified && (
+            <Badge variant="primary" className="bg-gradient-to-r from-gray-700 to-gray-800 text-white shadow-lg">
+              Verified Landlord
             </Badge>
-          ))}
+          )}
+          {listing.createdAt && new Date(listing.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
+            <Badge variant="primary" className="bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg">
+              New
+            </Badge>
+          )}
         </div>
 
         {/* Action Buttons */}

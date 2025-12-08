@@ -291,22 +291,22 @@ const ListingDetailPage = () => {
               <h2 className="text-2xl font-bold mb-4">Description</h2>
 
               {/* Badges moved below heading */}
-              {/* Badges moved below heading */}
               <div className="flex flex-wrap gap-2 mb-4">
-                {listing.isLandlordListing ? (
-                  <Badge variant="primary" className="bg-purple-600 text-white shadow-lg">
-                    Verified Landlord
-                  </Badge>
-                ) : (
-                  <Badge variant="primary" className="bg-green-600 text-white shadow-lg">
+                {listing.isSublease && (
+                  <Badge variant="primary" className="bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg">
                     Student Sublet
                   </Badge>
                 )}
-                {listing.badges && listing.badges.length > 0 && listing.badges.map((badge, index) => (
-                  <span key={index} className="inline-block px-3 py-1 bg-[#FFF5E6] text-gray-900 text-sm font-bold rounded-full shadow-sm">
-                    {badge.toLowerCase()}
-                  </span>
-                ))}
+                {listing.landlord?.landlordProfile?.isVerified && (
+                  <Badge variant="primary" className="bg-gradient-to-r from-gray-700 to-gray-800 text-white shadow-lg">
+                    Verified Landlord
+                  </Badge>
+                )}
+                {listing.createdAt && new Date(listing.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
+                  <Badge variant="primary" className="bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg">
+                    New
+                  </Badge>
+                )}
               </div>
 
               <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">

@@ -42,20 +42,22 @@ const Profile = () => {
     let score = 0;
     let total = 0;
 
+    // Basic profile fields
     total += 3;
-    if (user.profileImage || user.avatar) score++;
+    if (user.profilePhoto || user.avatar) score++;
     if (user.isVerified) score++;
-    if (user.bio || (lifestyleProfile && lifestyleProfile.bio)) score++;
+    if (user.bio || lifestyleProfile?.bio) score++;
 
     if (lifestyleProfile) {
-      total += 7;
+      total += 8;
       if (lifestyleProfile.cleanliness) score++;
       if (lifestyleProfile.noiseLevel) score++;
       if (lifestyleProfile.sleepTime) score++;
-      if (lifestyleProfile.budgetMin) score++;
+      if (lifestyleProfile.budgetMin || lifestyleProfile.budgetMax) score++;
       if (lifestyleProfile.vibeTags && lifestyleProfile.vibeTags.length > 0) score++;
       if (lifestyleProfile.age) score++;
       if (lifestyleProfile.gender) score++;
+      if (lifestyleProfile.photo) score++;
 
       total += 1;
       if (lifestyleProfile.weeklySchedule && lifestyleProfile.weeklySchedule.length > 0) score++;
