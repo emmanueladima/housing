@@ -16,7 +16,7 @@ const NavLink = ({ to, icon: Icon, label }) => {
   return (
     <Link
       to={to}
-      className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${active
+      className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full transition-all duration-300 ${active
         ? 'bg-orange-600 text-white shadow-md font-bold'
         : 'text-orange-600 hover:bg-orange-50 font-bold'
         }`}
@@ -99,7 +99,7 @@ const Header = () => {
 
               {/* Desktop Navigation - Pill Container (Only show when logged in) */}
               {isAuthenticated && (
-                <nav className="hidden md:flex items-center p-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
+                <nav className="hidden md:flex items-center gap-1 p-2 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
                   <NavLink to="/" icon={FiHome} label="Home" />
                   <NavLink to="/listings" icon={FiMap} label="Listings" />
                   {(user?.userType === 'student' || user?.userType === 'both' || !user?.userType) && (
