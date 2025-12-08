@@ -1,6 +1,6 @@
 import Listing from '../models/Listing.js';
 import User from '../models/User.js';
-import ThreadMember from '../models/ThreadMember.js';
+import ThreadParticipant from '../models/ThreadParticipant.js';
 import Thread from '../models/Thread.js';
 
 export const getDashboardMetrics = async (req, res) => {
@@ -20,7 +20,7 @@ export const getDashboardMetrics = async (req, res) => {
         // Count messages in threads where landlord is a participant
         let totalMessages = 0;
         try {
-            const landlordThreads = await ThreadMember.find({ user: landlordId }).distinct('thread');
+            const landlordThreads = await ThreadParticipant.find({ user: landlordId }).distinct('thread');
             totalMessages = landlordThreads.length;
         } catch (e) {
             console.error('Error counting messages:', e);
