@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiUsers, FiMessageSquare, FiBell, FiUser, FiLogOut, FiMenu, FiX, FiMap, FiTool, FiGrid, FiSettings, FiHeart } from 'react-icons/fi';
+import { FiHome, FiUsers, FiMessageSquare, FiBell, FiUser, FiLogOut, FiMenu, FiX, FiMap, FiTool, FiGrid, FiSettings, FiHeart, FiMessageCircle } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSocket } from '../../contexts/SocketContext';
 import messageService from '../../services/messageService';
@@ -105,6 +105,7 @@ const Header = () => {
                   {(user?.userType === 'student' || user?.userType === 'both' || !user?.userType) && (
                     <>
                       <NavLink to="/roommates" icon={FiUsers} label="Roommates" />
+                      <NavLink to="/community" icon={FiMessageCircle} label="Community" />
                       <NavLink to="/roommate-toolkit" icon={FiTool} label="Tools" />
                     </>
                   )}

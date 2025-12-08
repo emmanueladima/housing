@@ -114,6 +114,7 @@ import matchRoutes from './routes/matches.js';
 import reportRoutes from './routes/reports.js';
 import threadRoutes from './routes/threads.js';
 import landlordRoutes from './routes/landlord.js';
+import communityRoutes from './routes/community.js';
 
 import uploadRoutes from './routes/uploads.js';
 
@@ -142,6 +143,7 @@ app.get('/', (req, res) => {
       reports: '/api/reports',
       threads: '/api/threads',
       uploads: '/api/uploads',
+      community: '/api/community',
     },
   });
 });
@@ -165,6 +167,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/threads', threadRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/landlord', landlordRoutes);
+app.use('/api/community', communityRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

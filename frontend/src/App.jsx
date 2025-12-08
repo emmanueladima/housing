@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import Listings from './pages/Listings';
 import ListingDetailPage from './pages/ListingDetailPage';
 import Roommates from './pages/Roommates';
+import Community from './pages/Community';
 import RoommateToolkit from './pages/RoommateToolkit';
 import Profile from './pages/Profile';
 import Messages from './pages/Messages';
@@ -62,6 +63,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['student', 'admin']}>
                 <Roommates />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/community"
+            element={
+              <ProtectedRoute>
+                <Community />
               </ProtectedRoute>
             }
           />
