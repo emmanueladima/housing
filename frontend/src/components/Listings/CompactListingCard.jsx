@@ -125,15 +125,23 @@ const CompactListingCard = ({ listing }) => {
                 </button>
 
                 {/* Badges */}
-                {listing.badges && listing.badges.length > 0 && (
-                    <div className="absolute top-3 left-3 flex flex-wrap gap-1 z-10">
-                        {listing.badges.map((badge, index) => (
-                            <span key={index} className="inline-block px-2.5 py-1 bg-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
-                                {badge.toLowerCase()}
-                            </span>
-                        ))}
-                    </div>
-                )}
+                <div className="absolute top-3 left-3 flex flex-wrap gap-1 z-10">
+                    {listing.isSublease && (
+                        <span className="inline-block px-2.5 py-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold rounded-full shadow-lg">
+                            Sublease
+                        </span>
+                    )}
+                    {listing.landlord?.landlordProfile?.isVerified && (
+                        <span className="inline-block px-2.5 py-1 bg-gradient-to-r from-gray-700 to-gray-800 text-white text-xs font-bold rounded-full shadow-lg">
+                            Verified
+                        </span>
+                    )}
+                    {listing.createdAt && new Date(listing.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
+                        <span className="inline-block px-2.5 py-1 bg-gradient-to-r from-teal-500 to-teal-600 text-white text-xs font-bold rounded-full shadow-lg">
+                            New
+                        </span>
+                    )}
+                </div>
             </div>
 
             {/* Details Section */}

@@ -7,8 +7,10 @@ import {
   getMe,
   updateProfile,
   resendVerification,
+  updateProfilePhoto,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
+import { uploadSingleImage } from '../middleware/multer.js';
 
 const router = express.Router();
 
@@ -44,6 +46,7 @@ router.get('/verify-email/:token', verifyEmail);
 // Protected routes
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
+router.put('/profile-photo', protect, uploadSingleImage, updateProfilePhoto);
 router.post('/resend-verification', protect, resendVerification);
 
 export default router;

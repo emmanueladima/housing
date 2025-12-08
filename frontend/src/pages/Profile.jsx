@@ -1,20 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useFeatureFlags } from '../contexts/FeatureFlagContext';
 import ProfileCreationWizard from '../components/Profile/ProfileCreationWizard';
 import lifestyleProfileService from '../services/lifestyleProfileService';
 import api from '../services/api';
-import { FiEdit3, FiCheckCircle, FiDollarSign, FiCalendar, FiSun, FiMoon, FiVolume2, FiShield, FiMail, FiMapPin, FiZap } from 'react-icons/fi';
+import { FiEdit3, FiCheckCircle, FiDollarSign, FiCalendar, FiSun, FiMoon, FiVolume2, FiShield, FiMail, FiMapPin, FiZap, FiCamera } from 'react-icons/fi';
 import ModernBackground from '../components/shared/ModernBackground';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { flags } = useFeatureFlags();
   const [showWizard, setShowWizard] = useState(false);
   const [lifestyleProfile, setLifestyleProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [boosting, setBoosting] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef(null);
 
   useEffect(() => {
     if (flags.roommateCompatibility) {
@@ -36,6 +38,28 @@ const Profile = () => {
   const handleSaveProfile = async (updatedProfile) => {
     setLifestyleProfile(updatedProfile);
     setShowWizard(false);
+  };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingPhoto(true);
+    try {
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      await api.put('/auth/profile-photo', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      await refreshUser();
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      alert('Failed to upload photo');
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
   const calculateCompletion = () => {
@@ -107,11 +131,30 @@ const Profile = () => {
               {/* Photo & Basic Info Row */}
               <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6 -mt-10 sm:-mt-12 mb-6 sm:mb-8">
                 {/* Photo */}
-                <div className="relative shrink-0">
+                <div className="relative shrink-0 group">
                   <img
-                    src={user.avatar || user.profileImage || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=ea580c&color=fff&size=128`}
+                    src={user.profilePhoto || user.avatar || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=ea580c&color=fff&size=128`}
                     alt={`${user.firstName} ${user.lastName}`}
                     className="w-20 h-20 sm:w-28 sm:h-28 rounded-xl sm:rounded-2xl object-cover border-4 border-white shadow-xl"
+                  />
+                  {/* Photo Upload Overlay */}
+                  <button
+                    onClick={() => photoInputRef.current?.click()}
+                    disabled={uploadingPhoto}
+                    className="absolute inset-0 bg-black/40 rounded-xl sm:rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  >
+                    {uploadingPhoto ? (
+                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent" />
+                    ) : (
+                      <FiCamera className="text-white" size={24} />
+                    )}
+                  </button>
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    className="hidden"
                   />
                   {user.isVerified && (
                     <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 bg-green-500 w-5 h-5 sm:w-7 sm:h-7 rounded-md sm:rounded-lg flex items-center justify-center border-2 sm:border-3 border-white shadow">

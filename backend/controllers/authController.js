@@ -310,3 +310,39 @@ export const resendVerification = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Update user profile photo
+ * @route   PUT /api/auth/profile-photo
+ * @access  Private
+ */
+export const updateProfilePhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'No photo file provided',
+      });
+    }
+
+    // Get the Cloudinary URL from the uploaded file
+    const photoUrl = req.file.path;
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { profilePhoto: photoUrl },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    res.json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.error('Update profile photo error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error updating profile photo',
+    });
+  }
+};
+

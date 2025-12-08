@@ -139,10 +139,6 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
 
             const savedProfile = await lifestyleProfileService.saveMyProfile(payload);
             onSaved(savedProfile);
-            // Ask if they want to take the compatibility test
-            if (window.confirm('Profile saved! Do you want to take the Compatibility Test now to find better matches?')) {
-                navigate('/compatibility-test');
-            }
             onClose();
         } catch (error) {
             console.error('Error saving profile:', error);
