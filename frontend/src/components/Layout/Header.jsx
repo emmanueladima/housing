@@ -96,35 +96,35 @@ const Header = () => {
                   collegio
                 </span>
               </Link>
-
-              {/* Desktop Navigation - Pill Container (Only show when logged in) */}
-              {isAuthenticated && (
-                <nav className="hidden md:flex items-center gap-1 p-2 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
-                  <NavLink to="/" icon={FiHome} label="Home" />
-                  <NavLink to="/listings" icon={FiMap} label="Listings" />
-                  {(user?.userType === 'student' || user?.userType === 'both' || !user?.userType) && (
-                    <>
-                      <NavLink to="/roommates" icon={FiUsers} label="Roommates" />
-                      <NavLink to="/community" icon={FiMessageCircle} label="Community" />
-                      <NavLink to="/roommate-toolkit" icon={FiTool} label="Tools" />
-                    </>
-                  )}
-                  {(user?.userType === 'landlord' || user?.userType === 'both') && (
-                    <NavLink to="/landlord/dashboard" icon={FiGrid} label="Dashboard" />
-                  )}
-                </nav>
-              )}
             </div>
 
+            {/* Center Section: Main Navigation */}
+            {isAuthenticated && (
+              <nav className="hidden lg:flex items-center gap-1 p-2 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm absolute left-1/2 -translate-x-1/2">
+                <NavLink to="/" icon={FiHome} label="Home" />
+                <NavLink to="/listings" icon={FiMap} label="Listings" />
+                {(user?.userType === 'student' || user?.userType === 'both' || !user?.userType) && (
+                  <>
+                    <NavLink to="/roommates" icon={FiUsers} label="Roommates" />
+                    <NavLink to="/community" icon={FiMessageCircle} label="Community" />
+                    <NavLink to="/roommate-toolkit" icon={FiTool} label="Tools" />
+                  </>
+                )}
+                {(user?.userType === 'landlord' || user?.userType === 'both') && (
+                  <NavLink to="/landlord/dashboard" icon={FiGrid} label="Dashboard" />
+                )}
+              </nav>
+            )}
+
             {/* Right Section: Actions & Profile */}
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-3">
               {isAuthenticated && (
                 <Link
                   to="/listings/create"
-                  className="flex items-center gap-2 px-5 py-2.5 bg-white/80 backdrop-blur-md text-orange-600 font-bold rounded-full hover:bg-white hover:shadow-md transition-all border border-white/20"
+                  className="flex items-center gap-2 px-4 py-2 text-orange-600 font-bold rounded-full hover:bg-white/50 transition-all"
                 >
-                  <FiHome size={18} />
-                  <span>List a Place</span>
+                  <FiHome size={16} />
+                  <span className="hidden xl:inline">List a Place</span>
                 </Link>
               )}
 
