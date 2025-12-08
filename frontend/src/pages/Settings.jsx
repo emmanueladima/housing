@@ -99,14 +99,14 @@ const Settings = () => {
                 {
                     label: 'Student Mode',
                     type: 'toggle',
-                    value: user?.role === 'student' || user?.role === 'both',
-                    onChange: () => handleRoleSwitch(user?.role === 'landlord' ? 'both' : 'student')
+                    value: user?.userType === 'student' || user?.userType === 'both',
+                    onChange: () => handleRoleSwitch('student')
                 },
                 {
                     label: 'Landlord Mode',
                     type: 'toggle',
-                    value: user?.role === 'landlord' || user?.role === 'both',
-                    onChange: () => handleRoleSwitch(user?.role === 'student' ? 'landlord' : 'both')
+                    value: user?.userType === 'landlord' || user?.userType === 'both',
+                    onChange: () => handleRoleSwitch('landlord')
                 }
             ]
         },
