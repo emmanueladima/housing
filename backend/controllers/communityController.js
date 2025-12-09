@@ -1,5 +1,6 @@
 import CommunityPost from '../models/CommunityPost.js';
 import CommunityComment from '../models/CommunityComment.js';
+import Notification from '../models/Notification.js';
 
 // @desc    Create a new community post
 // @route   POST /api/community/posts
@@ -258,7 +259,8 @@ export const addComment = async (req, res) => {
             });
         }
 
-        const post = await CommunityPost.findById(req.params.id);
+        const post = await CommunityPost.findById(req.params.id)
+            .populate('author', 'firstName lastName');
         if (!post) {
             return res.status(404).json({ success: false, error: 'Post not found' });
         }
@@ -274,6 +276,23 @@ export const addComment = async (req, res) => {
         await post.save();
 
         await comment.populate('author', 'firstName lastName profilePhoto');
+
+        // Create notification for post author (if not replying to own post)
+        if (post.author._id.toString() !== req.user._id.toString()) {
+            try {
+                await Notification.create({
+                    userId: post.author._id,
+                    type: 'community_reply',
+                    content: `${req.user.firstName} replied to your post "${post.title.substring(0, 30)}${post.title.length > 30 ? '...' : ''}"`,
+                    link: `/community?post=${post._id}`,
+                    relatedId: comment._id,
+                    icon: 'message-circle'
+                });
+            } catch (notifError) {
+                console.error('Error creating notification:', notifError);
+                // Don't fail the comment if notification fails
+            }
+        }
 
         res.status(201).json({ success: true, comment });
     } catch (error) {

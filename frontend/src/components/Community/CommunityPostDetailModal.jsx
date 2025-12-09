@@ -222,9 +222,9 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage }) => {
                                     <p className="text-sm text-gray-500">{post.author?.school || 'Student'}</p>
                                 </div>
                             </div>
-                            {user && post.author?._id !== user._id && (
+                            {user && (post.author?._id || post.author?.id) !== (user._id || user.id) && (
                                 <button
-                                    onClick={() => onMessage(post.author._id)}
+                                    onClick={() => onMessage(post.author._id || post.author.id)}
                                     className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:from-orange-600 hover:to-red-600 transition-all shadow-lg hover:shadow-xl hover:scale-105"
                                 >
                                     <FiMessageCircle size={18} />

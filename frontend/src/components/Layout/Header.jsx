@@ -135,9 +135,12 @@ const Header = () => {
                       </span>
                     )}
                   </Link>
-                  <button className="p-2.5 text-orange-600 hover:bg-orange-50 rounded-full transition-colors">
+                  <Link
+                    to="/notifications"
+                    className="relative p-2.5 text-orange-600 hover:bg-orange-50 rounded-full transition-colors"
+                  >
                     <FiBell size={20} />
-                  </button>
+                  </Link>
                 </div>
               )}
 

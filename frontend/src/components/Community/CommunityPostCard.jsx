@@ -38,12 +38,16 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage }) => {
 
     const handleMessageClick = (e) => {
         e.stopPropagation();
-        if (post.author?._id) {
-            onMessage(post.author._id);
+        const authorId = post.author?._id || post.author?.id;
+        if (authorId) {
+            onMessage(authorId);
         }
     };
 
-    const canMessage = user && post.author?._id && post.author._id !== user._id;
+    // Handle both _id and id property names for compatibility
+    const userId = user?._id || user?.id;
+    const authorId = post.author?._id || post.author?.id;
+    const canMessage = user && authorId && authorId !== userId;
 
     return (
         <div
