@@ -86,27 +86,27 @@ const Community = () => {
     const sortOptions = [
         { id: 'newest', label: 'Newest', icon: FiClock },
         { id: 'most-active', label: 'Most Active', icon: FiTrendingUp },
-        { id: 'price-low', label: 'Price: Low to High', icon: FiDollarSign },
-        { id: 'price-high', label: 'Price: High to Low', icon: FiDollarSign },
+        { id: 'price-low', label: 'Price: Low', icon: FiDollarSign },
+        { id: 'price-high', label: 'Price: High', icon: FiDollarSign },
     ];
 
     return (
-        <div className="min-h-screen relative">
-            <ModernBackground />
-
-            {/* Fixed Header */}
-            <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-100">
-                <div className="max-w-7xl mx-auto px-4 py-4">
-                    <div className="flex items-center justify-between">
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
+            {/* Hero Header */}
+            <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 text-white">
+                <div className="max-w-7xl mx-auto px-4 py-12">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                         <div>
-                            <h1 className="text-2xl font-black text-gray-900">Community</h1>
-                            <p className="text-sm text-gray-500">Connect with fellow students</p>
+                            <h1 className="text-4xl font-black mb-2">Community</h1>
+                            <p className="text-orange-100 text-lg">
+                                Connect, share, and discover with fellow students
+                            </p>
                         </div>
                         <button
                             onClick={() => setShowCreateModal(true)}
-                            className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl"
+                            className="flex items-center justify-center gap-2 px-8 py-4 bg-white text-orange-600 font-bold rounded-2xl hover:bg-orange-50 transition-all shadow-xl hover:shadow-2xl hover:scale-105"
                         >
-                            <FiPlus size={18} />
+                            <FiPlus size={20} />
                             Create Post
                         </button>
                     </div>
@@ -114,43 +114,51 @@ const Community = () => {
             </div>
 
             {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-4 py-6">
-                <div className="flex gap-6">
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                <div className="flex gap-8">
                     {/* Left Sidebar - Channels */}
-                    <div className="hidden lg:block w-64 shrink-0">
-                        <div className="sticky top-28">
-                            <ChannelSidebar
-                                activeChannel={activeChannel}
-                                onChannelChange={setActiveChannel}
-                            />
+                    <div className="hidden lg:block w-72 shrink-0">
+                        <div className="sticky top-28 space-y-6">
+                            <div className="bg-white rounded-3xl shadow-lg border border-orange-100 overflow-hidden">
+                                <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
+                                    <h3 className="font-bold text-white text-lg">Channels</h3>
+                                </div>
+                                <div className="p-4">
+                                    <ChannelSidebar
+                                        activeChannel={activeChannel}
+                                        onChannelChange={setActiveChannel}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     {/* Main Feed */}
                     <div className="flex-1 min-w-0">
                         {/* Search & Filters Bar */}
-                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-6">
-                            <form onSubmit={handleSearch} className="flex gap-3 mb-4">
+                        <div className="bg-white rounded-3xl shadow-lg border border-orange-100 p-5 mb-6">
+                            <form onSubmit={handleSearch} className="flex gap-3">
                                 <div className="relative flex-1">
-                                    <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                                    <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400" size={20} />
                                     <input
                                         type="text"
                                         value={searchQuery}
                                         onChange={e => setSearchQuery(e.target.value)}
-                                        placeholder="Search posts..."
-                                        className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all"
+                                        placeholder="Search housing, roommates, furniture..."
+                                        className="w-full pl-12 pr-4 py-4 bg-orange-50 border-2 border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-300 focus:bg-white outline-none transition-all text-gray-700 placeholder-gray-400"
                                     />
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => setShowFilters(!showFilters)}
-                                    className={`px-4 py-3 rounded-xl border-2 transition-all ${showFilters ? 'border-orange-500 bg-orange-50 text-orange-600' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}
+                                    className={`px-5 py-4 rounded-2xl border-2 transition-all flex items-center gap-2 font-medium ${showFilters ? 'border-orange-500 bg-orange-500 text-white' : 'border-orange-200 text-orange-600 hover:border-orange-400 hover:bg-orange-50'}`}
                                 >
                                     <FiSliders size={18} />
+                                    <span className="hidden sm:inline">Filters</span>
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-6 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
+                                    className="px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-2xl hover:from-orange-600 hover:to-red-600 transition-all shadow-lg hover:shadow-xl"
                                 >
                                     Search
                                 </button>
@@ -214,8 +222,8 @@ const Community = () => {
                                             key={opt.id}
                                             onClick={() => setSortBy(opt.id)}
                                             className={`flex items-center gap-1 px-3 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-all ${sortBy === opt.id
-                                                    ? 'bg-orange-500 text-white'
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                ? 'bg-orange-500 text-white'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                                 }`}
                                         >
                                             <Icon size={14} />
@@ -286,8 +294,8 @@ const Community = () => {
                                         key={page}
                                         onClick={() => fetchPosts(page)}
                                         className={`w-10 h-10 rounded-xl font-bold transition-all ${pagination.page === page
-                                                ? 'bg-orange-500 text-white'
-                                                : 'bg-white border border-gray-200 text-gray-600 hover:border-orange-300'
+                                            ? 'bg-orange-500 text-white'
+                                            : 'bg-white border border-gray-200 text-gray-600 hover:border-orange-300'
                                             }`}
                                     >
                                         {page}
@@ -298,41 +306,43 @@ const Community = () => {
                     </div>
 
                     {/* Right Sidebar - CTA & Tips */}
-                    <div className="hidden xl:block w-72 shrink-0">
-                        <div className="sticky top-28 space-y-4">
+                    <div className="hidden xl:block w-80 shrink-0">
+                        <div className="sticky top-8 space-y-6">
                             {/* Create CTA */}
-                            <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-3xl p-6 text-white">
-                                <h3 className="text-xl font-bold mb-2">Share with the Community</h3>
-                                <p className="text-orange-100 text-sm mb-4">
+                            <div className="bg-gradient-to-br from-orange-500 via-orange-600 to-red-500 rounded-3xl p-6 text-white shadow-xl">
+                                <h3 className="text-xl font-bold mb-3">Share with the Community</h3>
+                                <p className="text-orange-100 text-sm mb-5 leading-relaxed">
                                     Looking for a sublease? Selling furniture? Find study buddies? Post it here!
                                 </p>
                                 <button
                                     onClick={() => setShowCreateModal(true)}
-                                    className="w-full py-3 bg-white text-orange-600 font-bold rounded-xl hover:bg-orange-50 transition-colors"
+                                    className="w-full py-4 bg-white text-orange-600 font-bold rounded-2xl hover:bg-orange-50 transition-all shadow-lg hover:shadow-xl hover:scale-105"
                                 >
                                     Create Post
                                 </button>
                             </div>
 
                             {/* Quick Tips */}
-                            <div className="bg-white rounded-3xl border border-gray-100 p-6">
-                                <h3 className="font-bold text-gray-900 mb-4">Community Guidelines</h3>
-                                <ul className="space-y-3 text-sm text-gray-600">
-                                    <li className="flex items-start gap-2">
-                                        <span className="text-green-500">✓</span>
-                                        Be respectful and helpful
+                            <div className="bg-white rounded-3xl shadow-lg border border-orange-100 overflow-hidden">
+                                <div className="bg-gradient-to-r from-gray-800 to-gray-900 px-6 py-4">
+                                    <h3 className="font-bold text-white">Community Guidelines</h3>
+                                </div>
+                                <ul className="p-6 space-y-4 text-sm">
+                                    <li className="flex items-start gap-3">
+                                        <span className="w-5 h-5 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold shrink-0">✓</span>
+                                        <span className="text-gray-600">Be respectful and helpful to others</span>
                                     </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="text-green-500">✓</span>
-                                        Provide clear details in posts
+                                    <li className="flex items-start gap-3">
+                                        <span className="w-5 h-5 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold shrink-0">✓</span>
+                                        <span className="text-gray-600">Provide clear details in your posts</span>
                                     </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="text-green-500">✓</span>
-                                        Report suspicious content
+                                    <li className="flex items-start gap-3">
+                                        <span className="w-5 h-5 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold shrink-0">✓</span>
+                                        <span className="text-gray-600">Report suspicious content</span>
                                     </li>
-                                    <li className="flex items-start gap-2">
-                                        <span className="text-red-500">✗</span>
-                                        No spam or duplicate posts
+                                    <li className="flex items-start gap-3">
+                                        <span className="w-5 h-5 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-xs font-bold shrink-0">✗</span>
+                                        <span className="text-gray-600">No spam or duplicate posts</span>
                                     </li>
                                 </ul>
                             </div>

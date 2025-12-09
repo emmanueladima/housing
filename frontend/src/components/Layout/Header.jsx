@@ -74,14 +74,14 @@ const Header = () => {
         <div className="w-full px-6 lg:px-12">
           <div className="flex justify-between items-center h-20 relative">
             {/* Left Section: Logo */}
-            <Link to="/" className="flex items-center gap-2 group shrink-0">
+            <Link to="/" className="flex items-center gap-2 group shrink-0 px-4 py-2 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
               <img
                 src="/favicon.png"
                 alt="Collegio Logo"
-                className="w-8 h-8 rounded-full"
+                className="w-7 h-7 rounded-full"
               />
               <span
-                className="text-2xl text-orange-600"
+                className="text-xl text-orange-600"
                 style={{
                   fontFamily: "'Archivo Black', sans-serif",
                   fontWeight: 900,
@@ -114,34 +114,35 @@ const Header = () => {
             )}
 
             {/* Right Section: Actions & Profile */}
-            <div className="hidden md:flex items-center gap-2 shrink-0">
+            <div className="hidden md:flex items-center gap-3 shrink-0">
               {isAuthenticated && (
-                <Link
-                  to="/listings/create"
-                  className="flex items-center gap-2 px-4 py-2 text-orange-600 font-bold hover:bg-white/30 rounded-full transition-all"
-                >
-                  <FiHome size={16} />
-                  <span>List a Place</span>
-                </Link>
-              )}
-
-              {isAuthenticated ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 px-2 py-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
+                  <Link
+                    to="/listings/create"
+                    className="flex items-center gap-2 px-4 py-2 text-orange-600 font-bold hover:bg-orange-50 rounded-full transition-all"
+                  >
+                    <FiHome size={16} />
+                    <span>List a Place</span>
+                  </Link>
                   <Link
                     to="/messages"
-                    className="relative p-2.5 text-orange-600 hover:bg-white/50 rounded-full transition-colors"
+                    className="relative p-2.5 text-orange-600 hover:bg-orange-50 rounded-full transition-colors"
                   >
-                    <FiMessageSquare size={22} />
+                    <FiMessageSquare size={20} />
                     {unreadCount > 0 && (
-                      <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold flex items-center justify-center rounded-full border-2 border-white">
+                      <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white text-xs font-bold flex items-center justify-center rounded-full">
                         {unreadCount}
                       </span>
                     )}
                   </Link>
-
-                  <button className="p-2.5 text-orange-600 hover:bg-white/50 rounded-full transition-colors">
-                    <FiBell size={22} />
+                  <button className="p-2.5 text-orange-600 hover:bg-orange-50 rounded-full transition-colors">
+                    <FiBell size={20} />
                   </button>
+                </div>
+              )}
+
+              {isAuthenticated ? (
+                <div className="flex items-center">
 
                   <div className="relative ml-2">
                     <button

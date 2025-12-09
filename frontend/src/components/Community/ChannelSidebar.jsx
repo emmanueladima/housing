@@ -31,28 +31,25 @@ const activeColorMap = {
 
 const ChannelSidebar = ({ activeChannel, onChannelChange }) => {
     return (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-4">
-            <h3 className="font-bold text-gray-900 mb-4 px-2">Channels</h3>
-            <div className="space-y-1">
-                {channels.map(channel => {
-                    const Icon = channel.icon;
-                    const isActive = activeChannel === channel.id || (activeChannel === '' && channel.id === 'all');
+        <div className="space-y-1.5">
+            {channels.map(channel => {
+                const Icon = channel.icon;
+                const isActive = activeChannel === channel.id || (activeChannel === '' && channel.id === 'all');
 
-                    return (
-                        <button
-                            key={channel.id}
-                            onClick={() => onChannelChange(channel.id === 'all' ? '' : channel.id)}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all ${isActive
-                                    ? activeColorMap[channel.color]
-                                    : `${colorMap[channel.color]} hover:scale-[1.02]`
-                                }`}
-                        >
-                            <Icon size={18} />
-                            <span>{channel.label}</span>
-                        </button>
-                    );
-                })}
-            </div>
+                return (
+                    <button
+                        key={channel.id}
+                        onClick={() => onChannelChange(channel.id === 'all' ? '' : channel.id)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${isActive
+                            ? activeColorMap[channel.color]
+                            : `${colorMap[channel.color]} hover:scale-[1.02]`
+                            }`}
+                    >
+                        <Icon size={18} />
+                        <span>{channel.label}</span>
+                    </button>
+                );
+            })}
         </div>
     );
 };
