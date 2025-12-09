@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiX, FiMessageCircle, FiSend, FiFlag, FiExternalLink, FiMapPin, FiDollarSign, FiChevronLeft, FiChevronRight, FiHome, FiKey, FiUsers, FiShoppingBag, FiBook, FiHash } from 'react-icons/fi';
+import { FiX, FiMessageCircle, FiSend, FiFlag, FiExternalLink, FiMapPin, FiDollarSign, FiChevronLeft, FiChevronRight, FiHome, FiKey, FiUsers, FiShoppingBag, FiBook, FiHash, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import communityService from '../../services/communityService';
 import { useAuth } from '../../contexts/AuthContext';
@@ -42,7 +42,7 @@ const formatTimeAgo = (date) => {
     return `${days}d ago`;
 };
 
-const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage }) => {
+const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage, onEdit, onDelete }) => {
     const { user } = useAuth();
     const [comments, setComments] = useState([]);
     const [loadingComments, setLoadingComments] = useState(false);
@@ -104,6 +104,7 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage }) => {
     const userId = user?._id || user?.id;
     const authorId = post.author?._id || post.author?.id;
     const canMessage = user && authorId && authorId !== userId;
+    const isOwner = user && authorId && authorId === userId;
 
     return (
         <div
@@ -140,13 +141,35 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage }) => {
                         <span className="text-xs text-gray-400">{formatTimeAgo(post.createdAt)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={handleReport}
-                            className="p-2 rounded-lg transition-colors hover:bg-red-50"
-                            style={{ color: '#9CA3AF' }}
-                        >
-                            <FiFlag size={16} />
-                        </button>
+                        {isOwner ? (
+                            <>
+                                <button
+                                    onClick={() => { onEdit && onEdit(post); onClose(); }}
+                                    className="p-2 rounded-lg transition-colors hover:bg-gray-100"
+                                    style={{ color: '#6B7280' }}
+                                    title="Edit Post"
+                                >
+                                    <FiEdit2 size={16} />
+                                </button>
+                                <button
+                                    onClick={() => { onDelete && onDelete(post); }}
+                                    className="p-2 rounded-lg transition-colors hover:bg-red-50"
+                                    style={{ color: '#EF4444' }}
+                                    title="Delete Post"
+                                >
+                                    <FiTrash2 size={16} />
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={handleReport}
+                                className="p-2 rounded-lg transition-colors hover:bg-red-50"
+                                style={{ color: '#9CA3AF' }}
+                                title="Report Post"
+                            >
+                                <FiFlag size={16} />
+                            </button>
+                        )}
                         <button
                             onClick={onClose}
                             className="p-2 rounded-lg transition-colors hover:bg-gray-100"

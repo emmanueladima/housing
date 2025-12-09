@@ -48,7 +48,8 @@ const activeColorMap = {
     gray: 'border-gray-500 bg-gray-100 ring-2 ring-gray-500',
 };
 
-const CreatePostModal = ({ isOpen, onClose, onCreated }) => {
+const CreatePostModal = ({ isOpen, onClose, onCreated, onUpdated, editPost }) => {
+    const isEditing = !!editPost;
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -76,6 +77,44 @@ const CreatePostModal = ({ isOpen, onClose, onCreated }) => {
             fetchUserAssets();
         }
     }, [isOpen, step]);
+
+    // Populate form when editing
+    useEffect(() => {
+        if (isOpen && editPost) {
+            setFormData({
+                channel: editPost.channel || '',
+                intent: editPost.intent || '',
+                title: editPost.title || '',
+                description: editPost.description || '',
+                price: editPost.price?.toString() || '',
+                budgetMin: editPost.budgetMin?.toString() || '',
+                budgetMax: editPost.budgetMax?.toString() || '',
+                location: editPost.location || '',
+                tags: editPost.tags || [],
+                linkedListing: editPost.linkedListing?._id || editPost.linkedListing || '',
+                linkedGroup: editPost.linkedGroup?._id || editPost.linkedGroup || '',
+            });
+            // Set existing image previews
+            if (editPost.images && editPost.images.length > 0) {
+                setImagePreviews(editPost.images);
+            }
+            // Skip step 1 if already has channel and intent
+            if (editPost.channel && editPost.intent) {
+                setStep(2);
+            }
+        } else if (isOpen && !editPost) {
+            // Reset form for new post
+            setStep(1);
+            setFormData({
+                channel: '', intent: '', title: '', description: '',
+                price: '', budgetMin: '', budgetMax: '', location: '', tags: [],
+                linkedListing: '', linkedGroup: ''
+            });
+            setImages([]);
+            setImagePreviews([]);
+            setErrors({});
+        }
+    }, [isOpen, editPost]);
 
     const fetchUserAssets = async () => {
         try {
@@ -169,8 +208,15 @@ const CreatePostModal = ({ isOpen, onClose, onCreated }) => {
             if (formData.linkedListing) postData.linkedListing = formData.linkedListing;
             if (formData.linkedGroup) postData.linkedGroup = formData.linkedGroup;
 
-            const post = await communityService.createPost(postData, images);
-            onCreated(post);
+            if (isEditing) {
+                // Update existing post
+                const updatedPost = await communityService.updatePost(editPost._id, postData, images);
+                onUpdated && onUpdated(updatedPost);
+            } else {
+                // Create new post
+                const post = await communityService.createPost(postData, images);
+                onCreated(post);
+            }
             onClose();
 
             // Reset form
@@ -183,8 +229,8 @@ const CreatePostModal = ({ isOpen, onClose, onCreated }) => {
             setImages([]);
             setImagePreviews([]);
         } catch (error) {
-            console.error('Error creating post:', error);
-            setErrors({ submit: error.response?.data?.error || 'Failed to create post' });
+            console.error('Error saving post:', error);
+            setErrors({ submit: error.response?.data?.error || (isEditing ? 'Failed to update post' : 'Failed to create post') });
         } finally {
             setLoading(false);
         }
@@ -201,7 +247,7 @@ const CreatePostModal = ({ isOpen, onClose, onCreated }) => {
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-100">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900">Create Post</h2>
+                        <h2 className="text-xl font-bold text-gray-900">{isEditing ? 'Edit Post' : 'Create Post'}</h2>
                         <p className="text-sm text-gray-500">Step {step} of 3</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
@@ -534,13 +580,13 @@ const CreatePostModal = ({ isOpen, onClose, onCreated }) => {
                             disabled={loading}
                             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all disabled:opacity-50"
                         >
-                            {loading ? 'Posting...' : 'Create Post'}
+                            {loading ? (isEditing ? 'Saving...' : 'Posting...') : (isEditing ? 'Save Changes' : 'Create Post')}
                             <FiCheck size={18} />
                         </button>
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

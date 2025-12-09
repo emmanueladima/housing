@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiMessageCircle, FiMoreHorizontal, FiHome, FiKey, FiUsers, FiShoppingBag, FiBook, FiHash } from 'react-icons/fi';
+import { FiMessageCircle, FiMoreHorizontal, FiHome, FiKey, FiUsers, FiShoppingBag, FiBook, FiHash, FiEdit2, FiTrash2, FiFlag } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 
 // Brand colors
@@ -49,7 +49,7 @@ const formatTimeAgo = (date) => {
     return `${days}d ago`;
 };
 
-const CommunityPostCard = ({ post, onViewDetails, onMessage, channelColor = '#6B7280' }) => {
+const CommunityPostCard = ({ post, onViewDetails, onMessage, onEdit, onDelete, onReport, channelColor = '#6B7280' }) => {
     const { user } = useAuth();
     const [showMenu, setShowMenu] = useState(false);
 
@@ -68,6 +68,7 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage, channelColor = '#6B
     const userId = user?._id || user?.id;
     const authorId = post.author?._id || post.author?.id;
     const canMessage = user && authorId && authorId !== userId;
+    const isOwner = user && authorId && authorId === userId;
 
     return (
         <div
@@ -196,31 +197,47 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage, channelColor = '#6B
 
                         {showMenu && (
                             <div
-                                className="absolute right-0 bottom-full mb-1 w-32 rounded-lg shadow-lg overflow-hidden z-10"
+                                className="absolute right-0 bottom-full mb-1 w-36 rounded-lg shadow-lg overflow-hidden z-10"
                                 style={{ backgroundColor: 'white', border: '1px solid #E5E7EB' }}
                             >
-                                {canMessage && (
-                                    <button
-                                        onClick={handleMessageClick}
-                                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
-                                        style={{ color: BRAND.navy }}
-                                    >
-                                        Message
-                                    </button>
+                                {isOwner ? (
+                                    <>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); setShowMenu(false); onEdit && onEdit(post); }}
+                                            className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+                                            style={{ color: BRAND.navy }}
+                                        >
+                                            <FiEdit2 size={14} />
+                                            Edit Post
+                                        </button>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); setShowMenu(false); onDelete && onDelete(post); }}
+                                            className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 flex items-center gap-2 text-red-600"
+                                        >
+                                            <FiTrash2 size={14} />
+                                            Delete Post
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        {canMessage && (
+                                            <button
+                                                onClick={handleMessageClick}
+                                                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
+                                                style={{ color: BRAND.navy }}
+                                            >
+                                                Message
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); setShowMenu(false); onReport && onReport(post); }}
+                                            className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 flex items-center gap-2 text-red-600"
+                                        >
+                                            <FiFlag size={14} />
+                                            Report
+                                        </button>
+                                    </>
                                 )}
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); setShowMenu(false); }}
-                                    className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
-                                    style={{ color: BRAND.navy }}
-                                >
-                                    Save
-                                </button>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); setShowMenu(false); }}
-                                    className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 text-red-600"
-                                >
-                                    Report
-                                </button>
                             </div>
                         )}
                     </div>

@@ -9,8 +9,26 @@ const openai = process.env.OPENAI_API_KEY ? new OpenAI({
 const BANNED_WORDS = [
     // Slurs and hate speech terms
     'nigger', 'nigga', 'faggot', 'fag', 'retard', 'spic', 'chink', 'kike',
-    'cunt', 'bitch', 'whore', 'slut',
-    // Add more as needed
+    'cunt', 'wetback', 'gook', 'towelhead', 'sandnigger', 'beaner', 'cracker',
+    'tranny', 'shemale', 'dyke',
+];
+
+// Hate speech patterns - phrases that target groups
+const HATE_PATTERNS = [
+    // "I hate [group] people" patterns
+    /\bi\s+hate\s+(white|black|asian|hispanic|latino|latina|mexican|chinese|jewish|muslim|arab|indian|african|gay|lesbian|trans|transgender|disabled)\s+(people|folks|men|women|persons)/i,
+    // "[group] people are bad/evil/terrible" patterns
+    /\b(white|black|asian|hispanic|latino|latina|mexican|chinese|jewish|muslim|arab|indian|african|gay|lesbian|trans|transgender|disabled)\s+(people|folks|men|women|persons)\s+(are|is)\s+(bad|evil|terrible|stupid|dumb|disgusting|trash|garbage|scum|worthless|inferior)/i,
+    // "kill/die [group]" patterns  
+    /\b(kill|murder|exterminate|eliminate|die)\s+(all\s+)?(the\s+)?(white|black|asian|hispanic|latino|latina|mexican|chinese|jewish|muslim|arab|indian|african|gay|lesbian|trans|transgender|disabled)s?/i,
+    // "[group] should die/burn" patterns
+    /\b(white|black|asian|hispanic|latino|latina|mexican|chinese|jewish|muslim|arab|indian|african|gay|lesbian|trans|transgender|disabled)s?\s+(should|must|need\s+to)\s+(die|burn|be\s+killed|be\s+eliminated)/i,
+    // "I hate [group]" standalone
+    /\bi\s+hate\s+(whites|blacks|asians|hispanics|latinos|latinas|mexicans|chinese|jews|muslims|arabs|indians|africans|gays|lesbians|trans\s+people|immigrants)/i,
+    // "All [group] are" generalizations with negative terms
+    /\ball\s+(white|black|asian|hispanic|latino|latina|mexican|chinese|jewish|muslim|arab|indian|african|gay|lesbian|trans|transgender|disabled)s?\s+(are|is)\s+/i,
+    // Hate content mentioning multiple racial groups negatively
+    /\bi\s+hate\s+\w+\s+people.*\bi\s+hate\s+\w+\s+people/i,
 ];
 
 /**
@@ -30,6 +48,16 @@ export const checkContent = async (text) => {
             return {
                 safe: false,
                 reason: 'Your message contains inappropriate language. Please revise and try again.',
+            };
+        }
+    }
+
+    // Check for hate speech patterns targeting groups
+    for (const pattern of HATE_PATTERNS) {
+        if (pattern.test(text)) {
+            return {
+                safe: false,
+                reason: 'Your message contains hateful content targeting a group of people. Please be respectful to all community members.',
             };
         }
     }

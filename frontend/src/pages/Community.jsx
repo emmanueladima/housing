@@ -55,6 +55,7 @@ const Community = () => {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [selectedPost, setSelectedPost] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
+    const [editingPost, setEditingPost] = useState(null);
 
     const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
 
@@ -90,6 +91,48 @@ const Community = () => {
 
     const handlePostCreated = (newPost) => {
         setPosts([newPost, ...posts]);
+    };
+
+    const handleEditPost = (post) => {
+        setEditingPost(post);
+        setShowCreateModal(true);
+        setShowDetailModal(false);
+    };
+
+    const handleDeletePost = async (post) => {
+        if (window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+            try {
+                await communityService.deletePost(post._id);
+                setPosts(posts.filter(p => p._id !== post._id));
+                setShowDetailModal(false);
+                setSelectedPost(null);
+            } catch (error) {
+                console.error('Error deleting post:', error);
+                alert('Failed to delete post. Please try again.');
+            }
+        }
+    };
+
+    const handleReportPost = async (post) => {
+        if (window.confirm('Report this post for violating community guidelines?')) {
+            try {
+                await communityService.reportPost(post._id, 'Inappropriate content');
+                alert('Post reported. Our team will review it.');
+            } catch (error) {
+                console.error('Error reporting:', error);
+                alert('Failed to report post. Please try again.');
+            }
+        }
+    };
+
+    const handlePostUpdated = (updatedPost) => {
+        setPosts(posts.map(p => p._id === updatedPost._id ? updatedPost : p));
+        setEditingPost(null);
+    };
+
+    const handleModalClose = () => {
+        setShowCreateModal(false);
+        setEditingPost(null);
     };
 
     const getActiveChannelData = () => channels.find(c => c.id === activeChannel) || channels[0];
@@ -256,6 +299,9 @@ const Community = () => {
                                         post={post}
                                         onViewDetails={handleViewDetails}
                                         onMessage={handleMessage}
+                                        onEdit={handleEditPost}
+                                        onDelete={handleDeletePost}
+                                        onReport={handleReportPost}
                                         channelColor={channels.find(c => c.id === post.channel)?.color || '#6B7280'}
                                     />
                                 ))}
@@ -340,8 +386,10 @@ const Community = () => {
             {/* Modals */}
             <CreatePostModal
                 isOpen={showCreateModal}
-                onClose={() => setShowCreateModal(false)}
+                onClose={handleModalClose}
                 onCreated={handlePostCreated}
+                onUpdated={handlePostUpdated}
+                editPost={editingPost}
             />
 
             <CommunityPostDetailModal
@@ -349,6 +397,8 @@ const Community = () => {
                 onClose={() => setShowDetailModal(false)}
                 post={selectedPost}
                 onMessage={handleMessage}
+                onEdit={handleEditPost}
+                onDelete={handleDeletePost}
             />
         </div>
     );
