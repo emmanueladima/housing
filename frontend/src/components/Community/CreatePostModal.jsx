@@ -12,12 +12,23 @@ const channels = [
     { id: 'misc', label: 'Misc', icon: FiMoreHorizontal, color: 'gray' },
 ];
 
-const intents = [
-    { id: 'looking-for', label: 'Looking For', description: 'You need something', color: 'blue' },
-    { id: 'offering', label: 'Offering', description: 'You have something', color: 'green' },
-    { id: 'selling', label: 'Selling', description: 'For sale', color: 'orange' },
-    { id: 'announcement', label: 'Announcement', description: 'Just sharing', color: 'gray' },
-];
+// All available intents
+const allIntents = {
+    'looking-for': { id: 'looking-for', label: 'Looking For', description: 'You need something', color: 'blue' },
+    'offering': { id: 'offering', label: 'Offering', description: 'You have something', color: 'green' },
+    'selling': { id: 'selling', label: 'Selling', description: 'For sale', color: 'orange' },
+    'announcement': { id: 'announcement', label: 'Announcement', description: 'Just sharing', color: 'gray' },
+};
+
+// Channel-specific intent mapping
+const channelIntents = {
+    'housing': ['looking-for', 'offering'],
+    'subleases': ['looking-for', 'offering'],
+    'roommates': ['looking-for', 'offering'],
+    'furniture': ['selling', 'looking-for'],
+    'study-groups': ['looking-for', 'offering', 'announcement'],
+    'misc': ['looking-for', 'offering', 'announcement'],
+};
 
 const colorMap = {
     orange: 'border-orange-300 bg-orange-50 hover:border-orange-500',
@@ -225,7 +236,12 @@ const CreatePostModal = ({ isOpen, onClose, onCreated }) => {
                                             <button
                                                 key={channel.id}
                                                 type="button"
-                                                onClick={() => setFormData({ ...formData, channel: channel.id })}
+                                                onClick={() => {
+                                                    const newIntents = channelIntents[channel.id] || [];
+                                                    // Auto-select first intent if only one option, or reset
+                                                    const newIntent = newIntents.length === 1 ? newIntents[0] : '';
+                                                    setFormData({ ...formData, channel: channel.id, intent: newIntent });
+                                                }}
                                                 className={`p-4 rounded-2xl border-2 transition-all text-left ${isActive ? activeColorMap[channel.color] : colorMap[channel.color]
                                                     }`}
                                             >
@@ -238,28 +254,32 @@ const CreatePostModal = ({ isOpen, onClose, onCreated }) => {
                                 {errors.channel && <p className="text-red-500 text-sm mt-2">{errors.channel}</p>}
                             </div>
 
-                            {/* Intent Selection */}
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-3">Intent *</label>
-                                <div className="grid grid-cols-2 gap-3">
-                                    {intents.map(intent => {
-                                        const isActive = formData.intent === intent.id;
-                                        return (
-                                            <button
-                                                key={intent.id}
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, intent: intent.id })}
-                                                className={`p-4 rounded-2xl border-2 transition-all text-left ${isActive ? activeColorMap[intent.color] : colorMap[intent.color]
-                                                    }`}
-                                            >
-                                                <p className="font-bold">{intent.label}</p>
-                                                <p className="text-sm text-gray-600">{intent.description}</p>
-                                            </button>
-                                        );
-                                    })}
+                            {/* Intent Selection - Channel-specific */}
+                            {formData.channel && (
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-3">Intent *</label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {(channelIntents[formData.channel] || []).map(intentId => {
+                                            const intent = allIntents[intentId];
+                                            if (!intent) return null;
+                                            const isActive = formData.intent === intent.id;
+                                            return (
+                                                <button
+                                                    key={intent.id}
+                                                    type="button"
+                                                    onClick={() => setFormData({ ...formData, intent: intent.id })}
+                                                    className={`p-4 rounded-2xl border-2 transition-all text-left ${isActive ? activeColorMap[intent.color] : colorMap[intent.color]
+                                                        }`}
+                                                >
+                                                    <p className="font-bold">{intent.label}</p>
+                                                    <p className="text-sm text-gray-600">{intent.description}</p>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    {errors.intent && <p className="text-red-500 text-sm mt-2">{errors.intent}</p>}
                                 </div>
-                                {errors.intent && <p className="text-red-500 text-sm mt-2">{errors.intent}</p>}
-                            </div>
+                            )}
                         </div>
                     )}
 
@@ -467,7 +487,7 @@ const CreatePostModal = ({ isOpen, onClose, onCreated }) => {
                                 <h4 className="font-bold text-gray-900 mb-3">Preview</h4>
                                 <div className="space-y-2 text-sm">
                                     <p><strong>Channel:</strong> {channels.find(c => c.id === formData.channel)?.label}</p>
-                                    <p><strong>Intent:</strong> {intents.find(i => i.id === formData.intent)?.label}</p>
+                                    <p><strong>Intent:</strong> {allIntents[formData.intent]?.label}</p>
                                     <p><strong>Title:</strong> {formData.title}</p>
                                     <p><strong>Description:</strong> {formData.description.slice(0, 100)}...</p>
                                     {formData.price && <p><strong>Price:</strong> ${formData.price}</p>}

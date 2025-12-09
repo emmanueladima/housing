@@ -1,6 +1,7 @@
 import CommunityPost from '../models/CommunityPost.js';
 import CommunityComment from '../models/CommunityComment.js';
 import Notification from '../models/Notification.js';
+import contentModeration from '../services/contentModerationService.js';
 
 // @desc    Create a new community post
 // @route   POST /api/community/posts
@@ -42,6 +43,18 @@ export const createPost = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 error: 'Description must be at least 20 characters'
+            });
+        }
+
+        // Content moderation check
+        const contentToCheck = `${title} ${description}`;
+        const moderationResult = await contentModeration.checkContent(contentToCheck);
+
+        if (!moderationResult.safe) {
+            return res.status(400).json({
+                success: false,
+                error: moderationResult.reason || 'Your post contains inappropriate content. Please revise and try again.',
+                moderation: true
             });
         }
 
@@ -259,6 +272,16 @@ export const addComment = async (req, res) => {
             });
         }
 
+        // Content moderation check
+        const moderationResult = await contentModeration.checkContent(content);
+        if (!moderationResult.safe) {
+            return res.status(400).json({
+                success: false,
+                error: moderationResult.reason || 'Your comment contains inappropriate content. Please revise.',
+                moderation: true
+            });
+        }
+
         const post = await CommunityPost.findById(req.params.id)
             .populate('author', 'firstName lastName');
         if (!post) {
@@ -346,11 +369,49 @@ export const reportPost = async (req, res) => {
             return res.status(404).json({ success: false, error: 'Post not found' });
         }
 
-        // For now, just flag the post - could be expanded to create Report documents
-        post.status = 'flagged';
-        await post.save();
+        // AI auto-moderation review
+        const contentToReview = `${post.title} ${post.description}`;
+        const reviewResult = await contentModeration.reviewReportedContent(contentToReview, reason);
 
-        res.json({ success: true, message: 'Post reported and flagged for review' });
+        if (reviewResult.shouldRemove) {
+            // Auto-remove content that is clearly inappropriate
+            post.status = 'removed';
+            post.moderationReason = reviewResult.reason;
+            await post.save();
+
+            return res.json({
+                success: true,
+                message: 'Post has been removed for violating community guidelines.',
+                action: 'removed'
+            });
+        } else if (reviewResult.confidence < 0.7) {
+            // Flag for manual review if AI is uncertain
+            post.status = 'flagged';
+            post.reportReason = reason;
+            await post.save();
+
+            return res.json({
+                success: true,
+                message: 'Post reported and flagged for manual review.',
+                action: 'flagged'
+            });
+        } else {
+            // Content appears safe - still log the report
+            if (!post.reports) post.reports = [];
+            post.reports.push({
+                reporter: req.user._id,
+                reason,
+                reviewedAt: new Date(),
+                result: 'safe'
+            });
+            await post.save();
+
+            return res.json({
+                success: true,
+                message: 'Report received. Our AI reviewed the content and found no violations.',
+                action: 'reviewed'
+            });
+        }
     } catch (error) {
         console.error('Report post error:', error);
         res.status(500).json({ success: false, error: error.message });
