@@ -1,14 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { FiX, FiMessageCircle, FiSend, FiFlag, FiExternalLink, FiMapPin, FiClock, FiDollarSign, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiX, FiMessageCircle, FiSend, FiFlag, FiExternalLink, FiMapPin, FiDollarSign, FiChevronLeft, FiChevronRight, FiHome, FiKey, FiUsers, FiShoppingBag, FiBook, FiHash } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import communityService from '../../services/communityService';
 import { useAuth } from '../../contexts/AuthContext';
 
+// Brand colors
+const BRAND = {
+    orange: '#DB4A2B',
+    navy: '#1E293B',
+    beige: '#F5EBE0',
+    beigeLight: '#FAF8F5',
+};
+
+// Intent styles
 const intentStyles = {
-    'looking-for': { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Looking For' },
-    'offering': { bg: 'bg-green-100', text: 'text-green-700', label: 'Offering' },
-    'selling': { bg: 'bg-orange-100', text: 'text-orange-700', label: 'Selling' },
-    'announcement': { bg: 'bg-gray-100', text: 'text-gray-700', label: 'Announcement' },
+    'looking-for': { bg: '#DBEAFE', color: '#1D4ED8', label: 'Looking for' },
+    'offering': { bg: '#D1FAE5', color: '#059669', label: 'Offering' },
+    'selling': { bg: '#FEF3C7', color: '#D97706', label: 'Selling' },
+    'announcement': { bg: '#EDE9FE', color: '#7C3AED', label: 'Announcement' },
+};
+
+// Channel config
+const channelConfig = {
+    'housing': { icon: FiHome, color: '#DB4A2B', label: 'Housing' },
+    'subleases': { icon: FiKey, color: '#10B981', label: 'Subleases' },
+    'roommates': { icon: FiUsers, color: '#3B82F6', label: 'Roommates' },
+    'furniture': { icon: FiShoppingBag, color: '#8B5CF6', label: 'Furniture' },
+    'study-groups': { icon: FiBook, color: '#6B9080', label: 'Study Groups' },
+    'misc': { icon: FiHash, color: '#6B7280', label: 'Misc' },
 };
 
 const formatTimeAgo = (date) => {
@@ -78,32 +97,62 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage }) => {
 
     if (!isOpen || !post) return null;
 
-    const intentStyle = intentStyles[post.intent] || intentStyles['announcement'];
+    const intentStyle = intentStyles[post.intent] || { bg: '#F3F4F6', color: '#6B7280', label: 'Post' };
+    const channel = channelConfig[post.channel] || { icon: FiHash, color: '#6B7280', label: 'Community' };
+    const ChannelIcon = channel.icon;
+
+    const userId = user?._id || user?.id;
+    const authorId = post.author?._id || post.author?.id;
+    const canMessage = user && authorId && authorId !== userId;
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+            onClick={onClose}
+        >
             <div
-                className="bg-white rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+                className="w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col rounded-2xl shadow-2xl"
+                style={{ backgroundColor: 'white' }}
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-100">
+                <div
+                    className="flex items-center justify-between px-5 py-4 border-b"
+                    style={{ borderColor: '#E4E2DD' }}
+                >
                     <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 rounded-full text-sm font-bold ${intentStyle.bg} ${intentStyle.text}`}>
+                        {/* Channel Pill */}
+                        <div
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+                            style={{ backgroundColor: channel.color, color: 'white' }}
+                        >
+                            <ChannelIcon size={12} />
+                            <span>{channel.label}</span>
+                        </div>
+                        {/* Intent Tag */}
+                        <span
+                            className="px-2.5 py-1 rounded-md text-xs font-medium"
+                            style={{ backgroundColor: intentStyle.bg, color: intentStyle.color }}
+                        >
                             {intentStyle.label}
                         </span>
-                        <span className="text-sm text-gray-400">{formatTimeAgo(post.createdAt)}</span>
+                        <span className="text-xs text-gray-400">{formatTimeAgo(post.createdAt)}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handleReport}
-                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
-                            title="Report post"
+                            className="p-2 rounded-lg transition-colors hover:bg-red-50"
+                            style={{ color: '#9CA3AF' }}
                         >
-                            <FiFlag size={18} />
+                            <FiFlag size={16} />
                         </button>
-                        <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
-                            <FiX size={20} />
+                        <button
+                            onClick={onClose}
+                            className="p-2 rounded-lg transition-colors hover:bg-gray-100"
+                            style={{ color: '#6B7280' }}
+                        >
+                            <FiX size={18} />
                         </button>
                     </div>
                 </div>
@@ -112,7 +161,7 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage }) => {
                 <div className="flex-1 overflow-y-auto">
                     {/* Images Carousel */}
                     {post.images && post.images.length > 0 && (
-                        <div className="relative h-64 bg-gray-100">
+                        <div className="relative h-56" style={{ backgroundColor: '#F3F4F6' }}>
                             <img
                                 src={post.images[currentImageIndex]}
                                 alt={post.title}
@@ -122,21 +171,22 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage }) => {
                                 <>
                                     <button
                                         onClick={() => setCurrentImageIndex(i => (i > 0 ? i - 1 : post.images.length - 1))}
-                                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow hover:bg-white transition-colors"
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-white/90 rounded-full shadow"
                                     >
-                                        <FiChevronLeft size={20} />
+                                        <FiChevronLeft size={18} />
                                     </button>
                                     <button
                                         onClick={() => setCurrentImageIndex(i => (i < post.images.length - 1 ? i + 1 : 0))}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow hover:bg-white transition-colors"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-white/90 rounded-full shadow"
                                     >
-                                        <FiChevronRight size={20} />
+                                        <FiChevronRight size={18} />
                                     </button>
-                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1">
+                                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1">
                                         {post.images.map((_, i) => (
                                             <div
                                                 key={i}
-                                                className={`w-2 h-2 rounded-full ${i === currentImageIndex ? 'bg-white' : 'bg-white/50'}`}
+                                                className="w-2 h-2 rounded-full"
+                                                style={{ backgroundColor: i === currentImageIndex ? 'white' : 'rgba(255,255,255,0.5)' }}
                                             />
                                         ))}
                                     </div>
@@ -145,89 +195,110 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage }) => {
                         </div>
                     )}
 
-                    <div className="p-6">
-                        {/* Title & Description */}
-                        <h2 className="text-2xl font-bold text-gray-900 mb-3">{post.title}</h2>
-                        <p className="text-gray-700 whitespace-pre-wrap mb-4">{post.description}</p>
+                    <div className="p-5">
+                        {/* Title */}
+                        <h2 className="text-xl font-bold mb-3" style={{ color: BRAND.navy }}>{post.title}</h2>
+
+                        {/* Description */}
+                        <p className="text-sm leading-relaxed mb-4 whitespace-pre-wrap" style={{ color: `${BRAND.navy}CC` }}>
+                            {post.description}
+                        </p>
 
                         {/* Meta info */}
-                        <div className="flex flex-wrap gap-4 mb-4 text-sm">
+                        <div className="flex flex-wrap gap-3 mb-4">
                             {(post.price || post.budgetMin || post.budgetMax) && (
-                                <div className="flex items-center gap-1 font-bold text-gray-900">
-                                    <FiDollarSign size={14} className="text-green-500" />
-                                    {post.price ? (
-                                        <span>${post.price}</span>
-                                    ) : (
-                                        <span>${post.budgetMin || 0} - ${post.budgetMax || '∞'}</span>
-                                    )}
-                                </div>
+                                <span
+                                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-bold"
+                                    style={{ backgroundColor: '#D1FAE5', color: '#059669' }}
+                                >
+                                    <FiDollarSign size={14} />
+                                    {post.price ? `$${post.price}` : `$${post.budgetMin || 0} – $${post.budgetMax || '∞'}`}
+                                </span>
                             )}
                             {post.location && (
-                                <div className="flex items-center gap-1 text-gray-600">
+                                <span
+                                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm"
+                                    style={{ backgroundColor: '#F3F4F6', color: '#6B7280' }}
+                                >
                                     <FiMapPin size={14} />
-                                    <span>{post.location}</span>
-                                </div>
+                                    {post.location}
+                                </span>
                             )}
                         </div>
 
                         {/* Tags */}
                         {post.tags && post.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mb-4">
+                            <div className="flex flex-wrap gap-2 mb-5">
                                 {post.tags.map((tag, i) => (
-                                    <span key={i} className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                                        {tag}
+                                    <span
+                                        key={i}
+                                        className="px-2.5 py-1 rounded-lg text-xs"
+                                        style={{ backgroundColor: '#F3F4F6', color: '#6B7280' }}
+                                    >
+                                        #{tag}
                                     </span>
                                 ))}
                             </div>
                         )}
 
-                        {/* Linked Listing/Group */}
-                        <div className="flex flex-wrap gap-3 mb-6">
-                            {post.linkedListing && (
-                                <Link
-                                    to={`/listings/${post.linkedListing._id}`}
-                                    className="flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-700 rounded-xl font-bold hover:bg-orange-200 transition-colors"
-                                >
-                                    <FiExternalLink size={16} />
-                                    View Linked Listing
-                                </Link>
-                            )}
-                            {post.linkedGroup && (
-                                <Link
-                                    to="/roommates"
-                                    className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-xl font-bold hover:bg-blue-200 transition-colors"
-                                >
-                                    <FiExternalLink size={16} />
-                                    View Linked Group
-                                </Link>
-                            )}
-                        </div>
+                        {/* Linked Resources */}
+                        {(post.linkedListing || post.linkedGroup) && (
+                            <div className="flex flex-wrap gap-2 mb-5">
+                                {post.linkedListing && (
+                                    <Link
+                                        to={`/listings/${post.linkedListing._id}`}
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium"
+                                        style={{ backgroundColor: '#FEF3C7', color: '#D97706' }}
+                                    >
+                                        <FiExternalLink size={14} />
+                                        View Listing
+                                    </Link>
+                                )}
+                                {post.linkedGroup && (
+                                    <Link
+                                        to="/roommates"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium"
+                                        style={{ backgroundColor: '#DBEAFE', color: '#1D4ED8' }}
+                                    >
+                                        <FiExternalLink size={14} />
+                                        View Group
+                                    </Link>
+                                )}
+                            </div>
+                        )}
 
                         {/* Author Card */}
-                        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-orange-50 rounded-2xl mb-6 border border-orange-100">
+                        <div
+                            className="flex items-center justify-between p-4 rounded-xl mb-5"
+                            style={{ backgroundColor: BRAND.beige }}
+                        >
                             <div className="flex items-center gap-3">
-                                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center overflow-hidden shadow-md">
+                                <div
+                                    className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden"
+                                    style={{ backgroundColor: BRAND.orange }}
+                                >
                                     {post.author?.profilePhoto ? (
                                         <img src={post.author.profilePhoto} alt="" className="w-full h-full object-cover" />
                                     ) : (
-                                        <span className="text-white font-bold text-xl">
+                                        <span className="text-white font-bold">
                                             {post.author?.firstName?.charAt(0) || '?'}
                                         </span>
                                     )}
                                 </div>
                                 <div>
-                                    <p className="font-bold text-gray-900 text-lg">
+                                    <p className="font-bold" style={{ color: BRAND.navy }}>
                                         {post.author?.firstName} {post.author?.lastName}
                                     </p>
-                                    <p className="text-sm text-gray-500">{post.author?.school || 'Student'}</p>
+                                    <p className="text-xs" style={{ color: '#6B7280' }}>{post.author?.school || 'Student'}</p>
                                 </div>
                             </div>
-                            {user && (post.author?._id || post.author?.id) !== (user._id || user.id) && (
+                            {canMessage && (
                                 <button
-                                    onClick={() => onMessage(post.author._id || post.author.id)}
-                                    className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:from-orange-600 hover:to-red-600 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                                    onClick={() => onMessage(authorId)}
+                                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-bold text-sm transition-all hover:opacity-90"
+                                    style={{ backgroundColor: BRAND.orange }}
                                 >
-                                    <FiMessageCircle size={18} />
+                                    <FiMessageCircle size={16} />
                                     Message
                                 </button>
                             )}
@@ -235,8 +306,8 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage }) => {
 
                         {/* Comments Section */}
                         <div>
-                            <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                <FiMessageCircle size={18} />
+                            <h3 className="font-bold mb-4 flex items-center gap-2" style={{ color: BRAND.navy }}>
+                                <FiMessageCircle size={16} />
                                 Comments ({comments.length})
                             </h3>
 
@@ -248,46 +319,59 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage }) => {
                                         value={newComment}
                                         onChange={e => setNewComment(e.target.value)}
                                         placeholder="Add a comment..."
-                                        className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all"
+                                        className="flex-1 p-3 rounded-xl text-sm outline-none transition-all"
+                                        style={{
+                                            backgroundColor: BRAND.beigeLight,
+                                            border: '1px solid #E4E2DD',
+                                            color: BRAND.navy
+                                        }}
                                     />
                                     <button
                                         type="submit"
                                         disabled={submitting || newComment.length < 2}
-                                        className="px-4 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-50"
+                                        className="px-4 py-3 rounded-xl text-white transition-colors disabled:opacity-50"
+                                        style={{ backgroundColor: BRAND.orange }}
                                     >
-                                        <FiSend size={18} />
+                                        <FiSend size={16} />
                                     </button>
                                 </form>
                             )}
 
                             {/* Comments List */}
                             {loadingComments ? (
-                                <p className="text-gray-500 text-center py-4">Loading comments...</p>
+                                <p className="text-center py-4 text-sm text-gray-400">Loading comments...</p>
                             ) : comments.length === 0 ? (
-                                <p className="text-gray-400 text-center py-4">No comments yet. Be the first!</p>
+                                <p className="text-center py-4 text-sm text-gray-400">No comments yet. Be the first!</p>
                             ) : (
                                 <div className="space-y-3">
                                     {comments.map(comment => (
-                                        <div key={comment._id} className="flex gap-3 p-3 bg-gray-50 rounded-xl">
-                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center overflow-hidden shrink-0">
+                                        <div
+                                            key={comment._id}
+                                            className="flex gap-3 p-3 rounded-xl"
+                                            style={{ backgroundColor: BRAND.beigeLight }}
+                                        >
+                                            <div
+                                                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                                                style={{ backgroundColor: BRAND.orange }}
+                                            >
                                                 {comment.author?.profilePhoto ? (
-                                                    <img src={comment.author.profilePhoto} alt="" className="w-full h-full object-cover" />
+                                                    <img src={comment.author.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" />
                                                 ) : (
-                                                    <span className="text-orange-600 font-bold text-xs">
+                                                    <span className="text-white font-bold text-xs">
                                                         {comment.author?.firstName?.charAt(0) || '?'}
                                                     </span>
                                                 )}
                                             </div>
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <span className="font-bold text-gray-900 text-sm">
+                                                    <span className="font-bold text-sm" style={{ color: BRAND.navy }}>
                                                         {comment.author?.firstName} {comment.author?.lastName?.charAt(0)}.
                                                     </span>
                                                     <span className="text-xs text-gray-400">
                                                         {formatTimeAgo(comment.createdAt)}
                                                     </span>
                                                 </div>
-                                                <p className="text-gray-700 text-sm">{comment.content}</p>
+                                                <p className="text-sm" style={{ color: `${BRAND.navy}CC` }}>{comment.content}</p>
                                             </div>
                                         </div>
                                     ))}
