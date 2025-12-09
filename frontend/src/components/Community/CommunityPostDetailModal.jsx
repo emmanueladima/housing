@@ -204,19 +204,19 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage }) => {
                         </div>
 
                         {/* Author Card */}
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl mb-6">
+                        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-orange-50 rounded-2xl mb-6 border border-orange-100">
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center overflow-hidden">
+                                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center overflow-hidden shadow-md">
                                     {post.author?.profilePhoto ? (
                                         <img src={post.author.profilePhoto} alt="" className="w-full h-full object-cover" />
                                     ) : (
-                                        <span className="text-orange-600 font-bold text-lg">
+                                        <span className="text-white font-bold text-xl">
                                             {post.author?.firstName?.charAt(0) || '?'}
                                         </span>
                                     )}
                                 </div>
                                 <div>
-                                    <p className="font-bold text-gray-900">
+                                    <p className="font-bold text-gray-900 text-lg">
                                         {post.author?.firstName} {post.author?.lastName}
                                     </p>
                                     <p className="text-sm text-gray-500">{post.author?.school || 'Student'}</p>
@@ -225,9 +225,9 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage }) => {
                             {user && post.author?._id !== user._id && (
                                 <button
                                     onClick={() => onMessage(post.author._id)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
+                                    className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:from-orange-600 hover:to-red-600 transition-all shadow-lg hover:shadow-xl hover:scale-105"
                                 >
-                                    <FiMessageCircle size={16} />
+                                    <FiMessageCircle size={18} />
                                     Message
                                 </button>
                             )}

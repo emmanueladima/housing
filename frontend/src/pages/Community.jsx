@@ -75,20 +75,77 @@ const Community = () => {
         setPosts([newPost, ...posts]);
     };
 
-    const intentOptions = [
-        { id: '', label: 'All Intents' },
-        { id: 'looking-for', label: 'Looking For' },
-        { id: 'offering', label: 'Offering' },
-        { id: 'selling', label: 'Selling' },
-        { id: 'announcement', label: 'Announcement' },
-    ];
+    // Channel-specific intents
+    const channelIntents = {
+        '': [
+            { id: '', label: 'All Intents', color: 'gray' },
+            { id: 'looking-for', label: 'Looking For', color: 'blue' },
+            { id: 'offering', label: 'Offering', color: 'green' },
+            { id: 'selling', label: 'Selling', color: 'orange' },
+            { id: 'announcement', label: 'Announcement', color: 'purple' },
+        ],
+        'housing': [
+            { id: '', label: 'All', color: 'gray' },
+            { id: 'looking-for', label: 'Looking for Place', color: 'blue' },
+            { id: 'offering', label: 'Offering Lease', color: 'green' },
+            { id: 'announcement', label: 'Announcement', color: 'purple' },
+        ],
+        'subleases': [
+            { id: '', label: 'All', color: 'gray' },
+            { id: 'looking-for', label: 'Need Sublease', color: 'blue' },
+            { id: 'offering', label: 'Subletting', color: 'green' },
+            { id: 'announcement', label: 'Announcement', color: 'purple' },
+        ],
+        'roommates': [
+            { id: '', label: 'All', color: 'gray' },
+            { id: 'looking-for', label: 'Need Roommate', color: 'blue' },
+            { id: 'offering', label: 'Have Room', color: 'green' },
+            { id: 'announcement', label: 'Announcement', color: 'purple' },
+        ],
+        'furniture': [
+            { id: '', label: 'All', color: 'gray' },
+            { id: 'selling', label: 'Selling', color: 'orange' },
+            { id: 'offering', label: 'Giving Away', color: 'green' },
+            { id: 'looking-for', label: 'Looking For', color: 'blue' },
+        ],
+        'study-groups': [
+            { id: '', label: 'All', color: 'gray' },
+            { id: 'looking-for', label: 'Looking for Group', color: 'blue' },
+            { id: 'offering', label: 'Starting Group', color: 'green' },
+            { id: 'announcement', label: 'Announcement', color: 'purple' },
+        ],
+        'misc': [
+            { id: '', label: 'All', color: 'gray' },
+            { id: 'announcement', label: 'Discussion', color: 'purple' },
+            { id: 'looking-for', label: 'Question', color: 'blue' },
+            { id: 'offering', label: 'Sharing', color: 'green' },
+        ],
+    };
+
+    const currentIntents = channelIntents[activeChannel] || channelIntents[''];
 
     const sortOptions = [
         { id: 'newest', label: 'Newest', icon: FiClock },
-        { id: 'most-active', label: 'Most Active', icon: FiTrendingUp },
-        { id: 'price-low', label: 'Price: Low', icon: FiDollarSign },
-        { id: 'price-high', label: 'Price: High', icon: FiDollarSign },
+        { id: 'most-active', label: 'Active', icon: FiTrendingUp },
+        { id: 'price-low', label: 'Price ↑', icon: FiDollarSign },
+        { id: 'price-high', label: 'Price ↓', icon: FiDollarSign },
     ];
+
+    const intentColors = {
+        gray: 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200',
+        blue: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100',
+        green: 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100',
+        orange: 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100',
+        purple: 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100',
+    };
+
+    const intentActiveColors = {
+        gray: 'bg-gray-700 text-white border-gray-700',
+        blue: 'bg-blue-600 text-white border-blue-600',
+        green: 'bg-green-600 text-white border-green-600',
+        orange: 'bg-orange-600 text-white border-orange-600',
+        purple: 'bg-purple-600 text-white border-purple-600',
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
@@ -144,7 +201,7 @@ const Community = () => {
                                         type="text"
                                         value={searchQuery}
                                         onChange={e => setSearchQuery(e.target.value)}
-                                        placeholder="Search housing, roommates, furniture..."
+                                        placeholder="Search posts..."
                                         className="w-full pl-12 pr-4 py-4 bg-orange-50 border-2 border-orange-100 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-300 focus:bg-white outline-none transition-all text-gray-700 placeholder-gray-400"
                                     />
                                 </div>
@@ -164,49 +221,69 @@ const Community = () => {
                                 </button>
                             </form>
 
-                            {/* Expanded Filters */}
+                            {/* Expanded Filters - Pill Buttons */}
                             {showFilters && (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+                                <div className="pt-5 mt-5 border-t border-orange-100 space-y-5">
+                                    {/* Intent Pills */}
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">Intent</label>
-                                        <select
-                                            value={activeIntent}
-                                            onChange={e => setActiveIntent(e.target.value)}
-                                            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all"
-                                        >
-                                            {intentOptions.map(opt => (
-                                                <option key={opt.id} value={opt.id}>{opt.label}</option>
+                                        <label className="block text-sm font-bold text-gray-700 mb-3">Type</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {currentIntents.map(intent => (
+                                                <button
+                                                    key={intent.id}
+                                                    onClick={() => setActiveIntent(intent.id)}
+                                                    className={`px-4 py-2.5 rounded-full border-2 font-medium text-sm transition-all ${activeIntent === intent.id
+                                                        ? intentActiveColors[intent.color]
+                                                        : intentColors[intent.color]
+                                                        }`}
+                                                >
+                                                    {intent.label}
+                                                </button>
                                             ))}
-                                        </select>
+                                        </div>
                                     </div>
+
+                                    {/* Sort Pills */}
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">Sort By</label>
-                                        <select
-                                            value={sortBy}
-                                            onChange={e => setSortBy(e.target.value)}
-                                            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all"
-                                        >
-                                            {sortOptions.map(opt => (
-                                                <option key={opt.id} value={opt.id}>{opt.label}</option>
-                                            ))}
-                                        </select>
+                                        <label className="block text-sm font-bold text-gray-700 mb-3">Sort By</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {sortOptions.map(opt => {
+                                                const Icon = opt.icon;
+                                                return (
+                                                    <button
+                                                        key={opt.id}
+                                                        onClick={() => setSortBy(opt.id)}
+                                                        className={`flex items-center gap-2 px-4 py-2.5 rounded-full border-2 font-medium text-sm transition-all ${sortBy === opt.id
+                                                            ? 'bg-gray-800 text-white border-gray-800'
+                                                            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+                                                            }`}
+                                                    >
+                                                        <Icon size={14} />
+                                                        {opt.label}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
+
+                                    {/* Price Range - Compact */}
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">Price Range</label>
-                                        <div className="flex gap-2">
+                                        <label className="block text-sm font-bold text-gray-700 mb-3">Price Range</label>
+                                        <div className="flex items-center gap-3 max-w-xs">
                                             <input
                                                 type="number"
                                                 value={priceRange.min}
                                                 onChange={e => setPriceRange({ ...priceRange, min: e.target.value })}
-                                                placeholder="Min"
-                                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all"
+                                                placeholder="$0"
+                                                className="w-24 p-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-300 outline-none transition-all text-center"
                                             />
+                                            <span className="text-gray-400 font-medium">to</span>
                                             <input
                                                 type="number"
                                                 value={priceRange.max}
                                                 onChange={e => setPriceRange({ ...priceRange, max: e.target.value })}
-                                                placeholder="Max"
-                                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all"
+                                                placeholder="$∞"
+                                                className="w-24 p-3 bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-300 outline-none transition-all text-center"
                                             />
                                         </div>
                                     </div>
@@ -274,7 +351,7 @@ const Community = () => {
                                 </button>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-6">
                                 {posts.map(post => (
                                     <CommunityPostCard
                                         key={post._id}
