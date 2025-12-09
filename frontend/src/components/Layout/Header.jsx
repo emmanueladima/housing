@@ -71,32 +71,29 @@ const Header = () => {
       <header
         className="absolute top-0 w-full z-50 transition-all duration-300 bg-gradient-to-b from-black/50 via-black/25 to-transparent"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-24">
-            {/* Left Section: Logo + Nav Pills */}
-            <div className="flex items-center gap-8">
-              {/* Logo */}
-              <Link to="/" className="flex items-center gap-2 group">
-                <img
-                  src="/favicon.png"
-                  alt="Collegio Logo"
-                  className="w-8 h-8 rounded-full"
-                />
-                <span
-                  className="text-3xl text-orange-600"
-                  style={{
-                    fontFamily: "'Archivo Black', sans-serif",
-                    fontWeight: 900,
-                    WebkitFontSmoothing: 'antialiased',
-                    MozOsxFontSmoothing: 'grayscale',
-                    textRendering: 'optimizeLegibility',
-                    letterSpacing: '-0.02em'
-                  }}
-                >
-                  collegio
-                </span>
-              </Link>
-            </div>
+        <div className="w-full px-6 lg:px-12">
+          <div className="flex justify-between items-center h-20 relative">
+            {/* Left Section: Logo */}
+            <Link to="/" className="flex items-center gap-2 group shrink-0">
+              <img
+                src="/favicon.png"
+                alt="Collegio Logo"
+                className="w-8 h-8 rounded-full"
+              />
+              <span
+                className="text-2xl text-orange-600"
+                style={{
+                  fontFamily: "'Archivo Black', sans-serif",
+                  fontWeight: 900,
+                  WebkitFontSmoothing: 'antialiased',
+                  MozOsxFontSmoothing: 'grayscale',
+                  textRendering: 'optimizeLegibility',
+                  letterSpacing: '-0.02em'
+                }}
+              >
+                collegio
+              </span>
+            </Link>
 
             {/* Center Section: Main Navigation */}
             {isAuthenticated && (
@@ -117,19 +114,19 @@ const Header = () => {
             )}
 
             {/* Right Section: Actions & Profile */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2 shrink-0">
               {isAuthenticated && (
                 <Link
                   to="/listings/create"
-                  className="flex items-center gap-2 px-4 py-2 text-orange-600 font-bold rounded-full hover:bg-white/50 transition-all"
+                  className="flex items-center gap-2 px-4 py-2 text-orange-600 font-bold hover:bg-white/30 rounded-full transition-all"
                 >
                   <FiHome size={16} />
-                  <span className="hidden xl:inline">List a Place</span>
+                  <span>List a Place</span>
                 </Link>
               )}
 
               {isAuthenticated ? (
-                <div className="flex items-center gap-3 pl-2">
+                <div className="flex items-center gap-2">
                   <Link
                     to="/messages"
                     className="relative p-2.5 text-orange-600 hover:bg-white/50 rounded-full transition-colors"
