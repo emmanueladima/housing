@@ -70,8 +70,10 @@ export const signup = async (req, res) => {
       verificationToken,
     });
 
-    // Send verification email
-    await emailService.sendVerificationEmail(user, verificationToken);
+    // Send verification email (non-blocking - don't let email issues block signup)
+    emailService.sendVerificationEmail(user, verificationToken)
+      .then(() => console.log('✅ Verification email sent to:', user.email))
+      .catch((err) => console.error('⚠️ Failed to send verification email:', err.message));
 
     // Generate JWT token
     const token = generateToken(user._id);
