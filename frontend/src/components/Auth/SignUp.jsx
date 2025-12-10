@@ -77,6 +77,7 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
 
     setLoading(true);
     setErrors({});
+    console.log('📝 Starting signup process...');
 
     try {
       const payload = {
@@ -102,11 +103,15 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
         };
       }
 
-      await signup(payload);
+      console.log('📤 Sending signup request with payload:', payload);
+      const result = await signup(payload);
+      console.log('✅ Signup successful:', result);
       setSuccess(true);
     } catch (err) {
+      console.error('❌ Signup error:', err);
       setErrors({ submit: err.message || 'Error creating account' });
     } finally {
+      console.log('🏁 Signup process finished, setting loading to false');
       setLoading(false);
     }
   };

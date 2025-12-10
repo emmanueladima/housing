@@ -77,9 +77,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signup = async (userData) => {
+    console.log('🔐 AuthContext.signup: Starting signup...');
     const data = await authService.signup(userData);
+    console.log('🔐 AuthContext.signup: Signup complete, setting user state');
     setUser(data.user);
     setIsAuthenticated(true);
+    console.log('🔐 AuthContext.signup: User state set, returning data');
     return data;
   };
 

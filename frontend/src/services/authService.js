@@ -3,10 +3,13 @@ import api from './api';
 const authService = {
   // Sign up
   async signup(userData) {
+    console.log('📡 authService.signup: Making API call...');
     const response = await api.post('/auth/signup', userData);
+    console.log('📡 authService.signup: API response received:', response.data);
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
+      console.log('📡 authService.signup: Token and user saved to localStorage');
     }
     return response.data;
   },
