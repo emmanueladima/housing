@@ -137,6 +137,16 @@ export const login = async (req, res) => {
       });
     }
 
+    // Check if email is verified
+    if (!user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        error: 'Please verify your email before logging in. Check your inbox for the verification link.',
+        needsVerification: true,
+        email: user.email,
+      });
+    }
+
     // Generate JWT token
     const token = generateToken(user._id);
 
@@ -305,6 +315,63 @@ export const resendVerification = async (req, res) => {
     });
   } catch (error) {
     console.error('Resend verification error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error resending verification email',
+    });
+  }
+};
+
+/**
+ * @desc    Resend verification email (public - no auth required)
+ * @route   POST /api/auth/resend-verification-public
+ * @access  Public
+ */
+export const resendVerificationPublic = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is required',
+      });
+    }
+
+    const user = await User.findOne({ email }).select('+verificationToken');
+
+    if (!user) {
+      // Don't reveal if user exists or not for security
+      return res.json({
+        success: true,
+        message: 'If an account exists with this email, a verification link has been sent.',
+      });
+    }
+
+    if (user.isVerified) {
+      return res.json({
+        success: true,
+        message: 'Email is already verified. You can log in.',
+      });
+    }
+
+    // Generate new token if needed
+    if (!user.verificationToken) {
+      user.verificationToken = crypto.randomBytes(32).toString('hex');
+      await user.save();
+    }
+
+    // Send verification email (non-blocking)
+    emailService.sendVerificationEmail(user, user.verificationToken)
+      .then(() => console.log('✅ Verification email resent to:', user.email))
+      .catch((err) => console.error('⚠️ Failed to resend verification email:', err.message));
+
+    res.json({
+      success: true,
+      message: 'Verification email sent! Please check your inbox.',
+    });
+  } catch (error) {
+    console.error('Resend verification public error:', error);
     res.status(500).json({
       success: false,
       error: 'Error resending verification email',

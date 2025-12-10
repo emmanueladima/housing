@@ -7,6 +7,7 @@ import {
   getMe,
   updateProfile,
   resendVerification,
+  resendVerificationPublic,
   updateProfilePhoto,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
@@ -42,6 +43,7 @@ const loginValidation = [
 router.post('/signup', signupValidation, signup);
 router.post('/login', loginValidation, login);
 router.get('/verify-email/:token', verifyEmail);
+router.post('/resend-verification-public', resendVerificationPublic);
 
 // Protected routes
 router.get('/me', protect, getMe);
