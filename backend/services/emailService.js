@@ -3,23 +3,39 @@ import nodemailer from 'nodemailer';
 /**
  * Email Service - handles all email sending
  * Supports DEV_MODE (console.log) and PROD_MODE (real SMTP)
+ * Always logs verification links to console as backup
  */
 
 class EmailService {
   constructor() {
     this.isDev = process.env.DEV_MODE === 'true';
+    this.isConfigured = false;
 
     if (!this.isDev) {
-      // Create reusable transporter for production
-      this.transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: process.env.EMAIL_PORT,
-        secure: false, // true for 465, false for other ports
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
+      // Check if SMTP is properly configured
+      const hasValidConfig =
+        process.env.EMAIL_HOST &&
+        process.env.EMAIL_USER &&
+        process.env.EMAIL_PASS &&
+        !process.env.EMAIL_USER.includes('your-email') &&
+        !process.env.EMAIL_PASS.includes('your-app-password');
+
+      if (hasValidConfig) {
+        // Create reusable transporter for production
+        this.transporter = nodemailer.createTransport({
+          host: process.env.EMAIL_HOST,
+          port: process.env.EMAIL_PORT || 587,
+          secure: false, // true for 465, false for other ports
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
+        });
+        this.isConfigured = true;
+        console.log('📧 Email service configured with SMTP');
+      } else {
+        console.log('⚠️ Email service: SMTP not configured, emails will be logged to console');
+      }
     }
   }
 
@@ -28,34 +44,38 @@ class EmailService {
    */
   async sendEmail({ to, subject, html, text }) {
     const mailOptions = {
-      from: `collegio Housing <${process.env.EMAIL_USER}>`,
+      from: `collegio Housing <${process.env.EMAIL_USER || 'noreply@collegio.com'}>`,
       to,
       subject,
       html,
       text,
     };
 
-    if (this.isDev) {
-      // Development mode - just log to console
-      console.log('\n📧 ===== EMAIL (DEV MODE) =====');
+    // Always log email details in dev mode or if SMTP is not configured
+    if (this.isDev || !this.isConfigured) {
+      console.log('\n📧 ===== EMAIL (CONSOLE MODE) =====');
       console.log('To:', to);
       console.log('Subject:', subject);
       console.log('Content:', text || 'See HTML version');
-      if (html) {
-        console.log('HTML Preview:', html.substring(0, 200) + '...');
-      }
       console.log('================================\n');
-      return { success: true, mode: 'dev' };
-    } else {
-      // Production mode - send real email
-      try {
-        const info = await this.transporter.sendMail(mailOptions);
-        console.log('✅ Email sent:', info.messageId);
-        return { success: true, messageId: info.messageId };
-      } catch (error) {
-        console.error('❌ Email send error:', error);
-        throw error;
-      }
+      return { success: true, mode: 'console' };
+    }
+
+    // Production mode with configured SMTP
+    try {
+      const info = await this.transporter.sendMail(mailOptions);
+      console.log('✅ Email sent:', info.messageId);
+      return { success: true, messageId: info.messageId };
+    } catch (error) {
+      console.error('❌ Email send error:', error.message);
+      // Log email content as fallback
+      console.log('\n📧 ===== EMAIL FAILED - LOGGING CONTENT =====');
+      console.log('To:', to);
+      console.log('Subject:', subject);
+      console.log('Content:', text || 'See HTML version');
+      console.log('==============================================\n');
+      // Don't throw - return gracefully
+      return { success: false, error: error.message };
     }
   }
 
@@ -64,6 +84,12 @@ class EmailService {
    */
   async sendVerificationEmail(user, token) {
     const verificationUrl = `${process.env.FRONTEND_URL}/verify-email/${token}`;
+
+    // ALWAYS log verification URL for debugging/manual verification
+    console.log('\n🔗 ===== VERIFICATION LINK =====');
+    console.log(`User: ${user.email}`);
+    console.log(`Link: ${verificationUrl}`);
+    console.log('================================\n');
 
     const html = `
       <!DOCTYPE html>
