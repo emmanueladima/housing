@@ -116,17 +116,17 @@ class EmailService {
       <head>
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-          .content { background: #f9fafb; padding: 30px; }
-          .button { display: inline-block; background: #2563eb; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; }
-          .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; font-family: 'Arial', sans-serif; }
+          .header { padding: 0; text-align: center; border-radius: 10px 10px 0 0; overflow: hidden; background: #ffffff; }
+          .content { background: #ffffff; padding: 40px 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+          .button { display: inline-block; background: #ea580c; color: white; padding: 16px 32px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; margin: 20px 0; }
+          .footer { text-align: center; padding: 20px; color: #9ca3af; font-size: 12px; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <img src="${process.env.FRONTEND_URL}/assets/Beige%20Cover.svg" alt="Collegio" style="height: 60px; width: auto;">
+            <img src="${process.env.FRONTEND_URL}/assets/Beige%20Cover.svg" alt="Collegio" style="width: 100%; height: auto; display: block; border-radius: 10px 10px 0 0;">
           </div>
           <div class="content">
             <h2>Hi ${user.firstName}!</h2>
