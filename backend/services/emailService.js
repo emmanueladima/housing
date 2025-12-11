@@ -24,8 +24,8 @@ class EmailService {
         // Create reusable transporter for production
         this.transporter = nodemailer.createTransport({
           host: process.env.EMAIL_HOST,
-          port: process.env.EMAIL_PORT || 587,
-          secure: false, // true for 465, false for other ports
+          port: parseInt(process.env.EMAIL_PORT || '587'),
+          secure: process.env.EMAIL_PORT === '465', // true for 465, false for other ports
           auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS,
@@ -33,6 +33,16 @@ class EmailService {
         });
         this.isConfigured = true;
         console.log('📧 Email service configured with SMTP');
+
+        // Verify connection configuration
+        this.transporter.verify((error, success) => {
+          if (error) {
+            console.error('❌ SMTP Connection Error:', error);
+            console.error('SMTP Error Details:', JSON.stringify(error, null, 2));
+          } else {
+            console.log('✅ SMTP Connection Verified');
+          }
+        });
       } else {
         console.log('⚠️ Email service: SMTP not configured, emails will be logged to console');
       }
@@ -68,6 +78,7 @@ class EmailService {
       return { success: true, messageId: info.messageId };
     } catch (error) {
       console.error('❌ Email send error:', error.message);
+      console.error('Full Error:', error);
       // Log email content as fallback
       console.log('\n📧 ===== EMAIL FAILED - LOGGING CONTENT =====');
       console.log('To:', to);
@@ -90,6 +101,14 @@ class EmailService {
     console.log(`User: ${user.email}`);
     console.log(`Link: ${verificationUrl}`);
     console.log('================================\n');
+
+    // Diagnostic logging
+    console.log(`[EmailService] Attempting to send verification email to ${user.email}`);
+    console.log(`[EmailService] Config Status: IsDev=${this.isDev}, IsConfigured=${this.isConfigured}`);
+    if (!this.isConfigured && !this.isDev) {
+      console.log('[EmailService] ⚠️ SMTP is NOT configured. This is why it is not sending.');
+      console.log(`[EmailService] Env vars present: HOST=${!!process.env.EMAIL_HOST}, USER=${!!process.env.EMAIL_USER}, PASS=${!!process.env.EMAIL_PASS}`);
+    }
 
     const html = `
       <!DOCTYPE html>

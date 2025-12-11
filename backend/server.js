@@ -1,5 +1,5 @@
+import 'dotenv/config';
 import express from 'express';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -8,9 +8,6 @@ import { fileURLToPath } from 'url';
 import connectDB from './config/database.js';
 import seedDevUser from './scripts/seedDevUser.js';
 import seedFeatureFlags from './scripts/seedFeatureFlags.js';
-
-// Load environment variables
-dotenv.config();
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
