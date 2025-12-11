@@ -51,19 +51,30 @@ export const AuthProvider = ({ children }) => {
     const token = authService.getToken();
 
     if (storedUser && token) {
-      setUser(storedUser);
-      setIsAuthenticated(true);
+      // Only set authenticated if user is verified
+      if (storedUser.isVerified) {
+        setUser(storedUser);
+        setIsAuthenticated(true);
 
-      // Fetch fresh user data
-      authService.getCurrentUser()
-        .then((freshUser) => {
-          setUser(freshUser);
-        })
-        .catch((error) => {
-          console.error('Error fetching user:', error);
-          // Token might be invalid, logout
-          logout();
-        });
+        // Fetch fresh user data
+        authService.getCurrentUser()
+          .then((freshUser) => {
+            setUser(freshUser);
+            // Re-check verification status
+            if (!freshUser.isVerified) {
+              logout();
+            }
+          })
+          .catch((error) => {
+            console.error('Error fetching user:', error);
+            // Token might be invalid, logout
+            logout();
+          });
+      } else {
+        // User not verified - clear stored auth
+        console.log('⚠️ Stored user not verified, clearing auth');
+        authService.logout();
+      }
     }
 
     setLoading(false);
@@ -79,10 +90,11 @@ export const AuthProvider = ({ children }) => {
   const signup = async (userData) => {
     console.log('🔐 AuthContext.signup: Starting signup...');
     const data = await authService.signup(userData);
-    console.log('🔐 AuthContext.signup: Signup complete, setting user state');
-    setUser(data.user);
-    setIsAuthenticated(true);
-    console.log('🔐 AuthContext.signup: User state set, returning data');
+    console.log('🔐 AuthContext.signup: Signup complete');
+    // Do NOT set authenticated state - user needs to verify email first
+    // Just clear any stored auth to prevent auto-login
+    authService.logout();
+    console.log('🔐 AuthContext.signup: Cleared auth, user needs to verify email');
     return data;
   };
 

@@ -1,16 +1,13 @@
 import api from './api';
 
 const authService = {
-  // Sign up
+  // Sign up - does NOT store token since user needs to verify email first
   async signup(userData) {
     console.log('📡 authService.signup: Making API call...');
     const response = await api.post('/auth/signup', userData);
     console.log('📡 authService.signup: API response received:', response.data);
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      console.log('📡 authService.signup: Token and user saved to localStorage');
-    }
+    // Do NOT store token - user must verify email before logging in
+    console.log('📡 authService.signup: User created, needs email verification');
     return response.data;
   },
 
