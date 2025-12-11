@@ -54,7 +54,7 @@ class EmailService {
    */
   async sendEmail({ to, subject, html, text }) {
     const mailOptions = {
-      from: `collegio Housing <${process.env.EMAIL_USER || 'noreply@collegio.com'}>`,
+      from: `Collegio <${process.env.EMAIL_USER || 'noreply@collegio.com'}>`, // Updated sender name
       to,
       subject,
       html,
@@ -126,7 +126,7 @@ class EmailService {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🏠 Welcome to collegio!</h1>
+            <img src="${process.env.FRONTEND_URL}/assets/logo.png" alt="Collegio" style="height: 60px; width: auto;">
           </div>
           <div class="content">
             <h2>Hi ${user.firstName}!</h2>
