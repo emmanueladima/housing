@@ -126,7 +126,7 @@ class EmailService {
       <body>
         <div class="container">
           <div class="header">
-            <img src="${process.env.FRONTEND_URL}/assets/beige-cover.svg" alt="Collegio" style="width: 100%; height: auto; display: block; border-radius: 10px 10px 0 0;">
+            <img src="${process.env.FRONTEND_URL}/assets/beige-cover.png" alt="Collegio" style="width: 100%; height: auto; display: block; border-radius: 10px 10px 0 0;">
           </div>
           <div class="content">
             <h2>Hi ${user.firstName}!</h2>
