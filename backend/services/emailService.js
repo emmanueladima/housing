@@ -119,14 +119,14 @@ class EmailService {
           .container { max-width: 600px; margin: 0 auto; padding: 20px; font-family: 'Arial', sans-serif; }
           .header { padding: 0; text-align: center; border-radius: 10px 10px 0 0; overflow: hidden; background: #ffffff; }
           .content { background: #ffffff; padding: 40px 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-          .button { display: inline-block; background: #db4a2b; color: white; padding: 16px 32px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; margin: 20px 0; }
+          .button { display: inline-block; background: #db4a2b; color: #E4E2DD; padding: 16px 32px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; margin: 20px 0; }
           .footer { text-align: center; padding: 20px; color: #9ca3af; font-size: 12px; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <img src="${process.env.FRONTEND_URL}/assets/Beige%20Cover.svg" alt="Collegio" style="width: 100%; height: auto; display: block; border-radius: 10px 10px 0 0;">
+            <img src="${process.env.FRONTEND_URL}/assets/beige-cover.svg" alt="Collegio" style="width: 100%; height: auto; display: block; border-radius: 10px 10px 0 0;">
           </div>
           <div class="content">
             <h2>Hi ${user.firstName}!</h2>
