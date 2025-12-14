@@ -3,6 +3,7 @@ import ApplicationTemplate from '../models/ApplicationTemplate.js';
 import Listing from '../models/Listing.js';
 import User from '../models/User.js';
 import notificationService from '../services/notificationService.js';
+import emailService from '../services/emailService.js';
 
 /**
  * @desc    Submit application
@@ -549,7 +550,7 @@ export const updateApplicationStatus = async (req, res) => {
 
     await application.save();
 
-    // Notify applicant
+    // Notify applicant via socket
     const io = req.app.get('io');
     await notificationService.notifyApplicationStatus(
       io,
@@ -558,6 +559,15 @@ export const updateApplicationStatus = async (req, res) => {
       status,
       application.listingId.title
     );
+
+    // Send email notification
+    await emailService.sendStatusChange({
+      applicant: application.userId,
+      listing: application.listingId,
+      oldStatus: application.statusHistory?.[application.statusHistory.length - 2]?.status || 'submitted',
+      newStatus: status,
+      message: landlordResponse,
+    });
 
     res.json({
       success: true,

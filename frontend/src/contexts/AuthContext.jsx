@@ -18,7 +18,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Developer Mode: Auto-login for testing
-    const isDevMode = import.meta.env.VITE_DEV_MODE === 'true';
+    const devModeValue = import.meta.env.VITE_DEV_MODE;
+    console.log('🔧 VITE_DEV_MODE value:', devModeValue, typeof devModeValue);
+    const isDevMode = devModeValue === 'true';
 
     if (isDevMode) {
       console.log('🔧 Dev Mode: Attempting auto-login...');

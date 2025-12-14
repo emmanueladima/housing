@@ -48,6 +48,8 @@ const applicationSchema = new mongoose.Schema({
       enum: ['invited', 'accepted', 'declined'],
       default: 'invited',
     },
+    inviteToken: String, // Unique token for invite link
+    inviteExpires: Date, // Token expiration
     invitedAt: { type: Date, default: Date.now },
     respondedAt: Date,
   }],
