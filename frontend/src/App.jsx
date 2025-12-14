@@ -14,7 +14,7 @@ import Profile from './pages/Profile';
 import Messages from './pages/Messages';
 import Applications from './pages/Applications';
 import CreateListingWizard from './pages/CreateListingWizard';
-
+import LandlordApplicationDashboard from './pages/LandlordApplicationDashboard';
 import LandlordDashboard from './pages/LandlordDashboard';
 import EditListing from './pages/EditListing';
 import GroupDashboard from './pages/GroupDashboard';
@@ -143,6 +143,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['landlord', 'admin']}>
                 <LandlordDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/landlord/applications"
+            element={
+              <ProtectedRoute allowedRoles={['landlord', 'admin']}>
+                <LandlordApplicationDashboard />
               </ProtectedRoute>
             }
           />

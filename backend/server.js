@@ -112,6 +112,7 @@ import reportRoutes from './routes/reports.js';
 import threadRoutes from './routes/threads.js';
 import landlordRoutes from './routes/landlord.js';
 import communityRoutes from './routes/community.js';
+import applicationTemplateRoutes from './routes/applicationTemplates.js';
 
 import uploadRoutes from './routes/uploads.js';
 
@@ -141,6 +142,7 @@ app.get('/', (req, res) => {
       threads: '/api/threads',
       uploads: '/api/uploads',
       community: '/api/community',
+      applicationTemplates: '/api/application-templates',
     },
   });
 });
@@ -165,6 +167,7 @@ app.use('/api/threads', threadRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/landlord', landlordRoutes);
 app.use('/api/community', communityRoutes);
+app.use('/api/application-templates', applicationTemplateRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

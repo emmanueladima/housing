@@ -17,6 +17,7 @@ import ChecklistDrawer from '../components/Listings/ChecklistDrawer';
 import MiniMap from '../components/Map/MiniMap';
 import ListingCard from '../components/Listings/ListingCard';
 import TourRequestModal from '../components/Listings/TourRequestModal';
+import QuickApplyModal from '../components/applications/QuickApplyModal';
 
 const ListingDetailPage = () => {
   const { id } = useParams();
@@ -31,6 +32,8 @@ const ListingDetailPage = () => {
   const [showChecklist, setShowChecklist] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showTourModal, setShowTourModal] = useState(false);
+  const [showQuickApply, setShowQuickApply] = useState(false);
+  const [hasApplied, setHasApplied] = useState(false);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -424,9 +427,25 @@ const ListingDetailPage = () => {
                 ) : (
                   /* Visitor Controls */
                   <div className="space-y-3">
+                    {/* Quick Apply Button */}
+                    {isAuthenticated && !hasApplied && (
+                      <Button
+                        variant="primary"
+                        className="w-full rounded-full shadow-lg shadow-orange-200 hover:shadow-orange-300 transition-all duration-300"
+                        onClick={() => setShowQuickApply(true)}
+                      >
+                        <FiZap className="mr-2" size={18} />
+                        Quick Apply
+                      </Button>
+                    )}
+                    {hasApplied && (
+                      <div className="w-full py-3 rounded-full bg-green-100 text-green-700 text-center font-bold">
+                        ✓ Application Submitted
+                      </div>
+                    )}
                     <Button
-                      variant="primary"
-                      className="w-full rounded-full shadow-lg shadow-orange-200 hover:shadow-orange-300 transition-all duration-300"
+                      variant={hasApplied ? "primary" : "secondary"}
+                      className={`w-full rounded-full ${hasApplied ? 'shadow-lg shadow-orange-200' : 'bg-gray-50 border border-gray-200'} transition-all duration-300`}
                       onClick={handleContact}
                     >
                       <FiMail className="mr-2" size={18} />
@@ -538,6 +557,14 @@ const ListingDetailPage = () => {
           landlordId={listing.landlord._id}
         />
       )}
+
+      {/* Quick Apply Modal */}
+      <QuickApplyModal
+        isOpen={showQuickApply}
+        onClose={() => setShowQuickApply(false)}
+        listing={listing}
+        onSuccess={() => setHasApplied(true)}
+      />
     </div>
   );
 };
