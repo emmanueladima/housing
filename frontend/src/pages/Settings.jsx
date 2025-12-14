@@ -92,7 +92,8 @@ const Settings = () => {
                 { label: 'Change Password', action: () => setShowPasswordModal(true) }
             ]
         },
-        {
+        // Only show Account Type section for admin
+        ...(user?.email === 'admin@collegio.us' ? [{
             title: 'Account Type',
             icon: FiUser,
             items: [
@@ -109,7 +110,7 @@ const Settings = () => {
                     onChange: () => handleRoleSwitch('landlord')
                 }
             ]
-        },
+        }] : []),
         {
             title: 'Notifications',
             icon: FiBell,
