@@ -117,10 +117,10 @@ class EmailService {
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; font-family: 'Arial', sans-serif; }
-          .header { padding: 0; text-align: center; border-radius: 10px 10px 0 0; overflow: hidden; background: #E4E2DD; height: 120px; }
-          .header img { width: 100%; height: 120px; object-fit: cover; object-position: center; display: block; }
+          .header { padding: 0; text-align: center; border-radius: 10px 10px 0 0; overflow: hidden; background: #E4E2DD; height: 150px; }
+          .header img { width: 100%; height: 150px; object-fit: cover; object-position: center; display: block; }
           .content { background: #ffffff; padding: 40px 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-          .button { display: inline-block; background: linear-gradient(135deg, #db4a2b 0%, #c43d20 100%); color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; margin: 20px 0; box-shadow: 0 4px 14px rgba(219, 74, 43, 0.4); }
+          .button { display: inline-block; background: linear-gradient(135deg, #db4a2b 0%, #c43d20 100%); color: #ffffff !important; padding: 16px 40px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; margin: 20px 0; box-shadow: 0 4px 14px rgba(219, 74, 43, 0.4); }
           .footer { text-align: center; padding: 20px; color: #9ca3af; font-size: 12px; }
         </style>
       </head>
@@ -134,7 +134,7 @@ class EmailService {
             <p>Thanks for signing up for collegio, the student housing platform that makes finding your perfect place easy.</p>
             <p>Please verify your email address by clicking the button below:</p>
             <p style="text-align: center; margin: 30px 0;">
-              <a href="${verificationUrl}" class="button">Verify Email Address</a>
+              <a href="${verificationUrl}" class="button" style="color: #ffffff !important; text-decoration: none;">Verify Email Address</a>
             </p>
             <p>Or copy and paste this link into your browser:</p>
             <p style="word-break: break-all; color: #666;">${verificationUrl}</p>
