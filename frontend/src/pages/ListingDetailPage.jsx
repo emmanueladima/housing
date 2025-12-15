@@ -18,6 +18,7 @@ import MiniMap from '../components/Map/MiniMap';
 import ListingCard from '../components/Listings/ListingCard';
 import TourRequestModal from '../components/Listings/TourRequestModal';
 import QuickApplyModal from '../components/applications/QuickApplyModal';
+import ListingReviews from '../components/Listings/ListingReviews';
 
 const ListingDetailPage = () => {
   const { id } = useParams();
@@ -523,6 +524,15 @@ const ListingDetailPage = () => {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-12 bg-white rounded-3xl p-8 shadow-sm">
+          <ListingReviews
+            listingId={id}
+            averageRating={listing.averageRating || 0}
+            totalReviews={listing.reviews?.length || 0}
+          />
         </div>
 
         {/* Similar Listings Section */}

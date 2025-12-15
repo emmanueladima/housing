@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FiCheckSquare, FiDollarSign, FiBook, FiClock, FiUsers, FiPlus, FiTool, FiInfo } from 'react-icons/fi';
+import { FiCheckSquare, FiDollarSign, FiBook, FiClock, FiUsers, FiPlus, FiTool, FiInfo, FiClipboard } from 'react-icons/fi';
 import roommateGroupService from '../services/roommateGroupService';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import ChoreRotation from '../components/RoommateToolkit/ChoreRotation';
 import SplitExpenses from '../components/RoommateToolkit/SplitExpenses';
 import HouseRules from '../components/RoommateToolkit/HouseRules';
 import SharedTimeline from '../components/RoommateToolkit/SharedTimeline';
+import MoveInChecklist from '../components/RoommateToolkit/MoveInChecklist';
 import ModernBackground from '../components/shared/ModernBackground';
 import { useNavigate } from 'react-router-dom';
 
@@ -56,11 +57,13 @@ const RoommateToolkit = () => {
     }
 
     const tabs = group ? [
+        { id: 'checklist', label: 'Move-In', icon: FiClipboard, requiresGroup: false },
         { id: 'chores', label: 'Chores', icon: FiCheckSquare, requiresGroup: true },
         { id: 'expenses', label: 'Expenses', icon: FiDollarSign, requiresGroup: false },
         { id: 'rules', label: 'Rules', icon: FiBook, requiresGroup: true },
         { id: 'timeline', label: 'Timeline', icon: FiClock, requiresGroup: false },
     ] : [
+        { id: 'checklist', label: 'Move-In', icon: FiClipboard, requiresGroup: false },
         { id: 'expenses', label: 'My Expenses', icon: FiDollarSign, requiresGroup: false },
         { id: 'timeline', label: 'Timeline', icon: FiClock, requiresGroup: false },
     ];
@@ -148,6 +151,7 @@ const RoommateToolkit = () => {
                     {/* Content Card */}
                     <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden min-h-[500px]">
                         <div className="p-6 md:p-8">
+                            {activeTab === 'checklist' && <MoveInChecklist />}
                             {activeTab === 'chores' && group && (
                                 <ChoreRotation
                                     members={group.members}

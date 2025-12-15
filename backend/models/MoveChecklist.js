@@ -9,18 +9,20 @@ const moveChecklistSchema = new mongoose.Schema({
   listing: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Listing',
-    required: true,
+    default: null, // null for personal checklist
   },
   items: [{
     text: { type: String, required: true },
     completed: { type: Boolean, default: false },
     order: { type: Number, default: 0 },
+    category: { type: String, default: 'general' }, // planning, packing, logistics, admin, move-day, settling, custom
   }],
 }, {
   timestamps: true,
 });
 
-moveChecklistSchema.index({ user: 1, listing: 1 }, { unique: true });
+// Index for user + listing (null listing = personal checklist)
+moveChecklistSchema.index({ user: 1, listing: 1 }, { unique: true, sparse: true });
 
 export const DEFAULT_CHECKLIST_ITEMS = [
   { text: 'Sign lease agreement', order: 1 },
