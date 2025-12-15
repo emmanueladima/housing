@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiCheck, FiPlus, FiTrash2, FiRefreshCw, FiBox, FiTruck, FiClipboard, FiHome, FiPackage, FiStar } from 'react-icons/fi';
+import { FiCheck, FiPlus, FiTrash2, FiRefreshCw, FiBox, FiTruck, FiClipboard, FiHome, FiPackage, FiStar, FiList, FiEdit3 } from 'react-icons/fi';
 import checklistService from '../../services/checklistService';
 
 const CATEGORY_CONFIG = {
@@ -19,6 +19,7 @@ const MoveInChecklist = () => {
     const [showAddForm, setShowAddForm] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('custom');
     const [filterCategory, setFilterCategory] = useState('all');
+    const [needsSetup, setNeedsSetup] = useState(false);
 
     useEffect(() => {
         fetchChecklist();
@@ -27,9 +28,28 @@ const MoveInChecklist = () => {
     const fetchChecklist = async () => {
         try {
             const data = await checklistService.getPersonalChecklist();
-            setChecklist(data);
+            if (data.notCreated) {
+                setNeedsSetup(true);
+                setChecklist(null);
+            } else {
+                setChecklist(data);
+                setNeedsSetup(false);
+            }
         } catch (error) {
             console.error('Error fetching checklist:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const initializeChecklist = async (useTemplate) => {
+        setLoading(true);
+        try {
+            const data = await checklistService.initPersonalChecklist(useTemplate);
+            setChecklist(data);
+            setNeedsSetup(false);
+        } catch (error) {
+            console.error('Error initializing checklist:', error);
         } finally {
             setLoading(false);
         }
@@ -48,7 +68,7 @@ const MoveInChecklist = () => {
             await checklistService.updatePersonalChecklist(updatedItems);
         } catch (error) {
             console.error('Error updating checklist:', error);
-            fetchChecklist(); // Revert on error
+            fetchChecklist();
         }
     };
 
@@ -76,13 +96,24 @@ const MoveInChecklist = () => {
     };
 
     const resetChecklist = async () => {
-        if (!window.confirm('Reset checklist to defaults? This will remove all custom items.')) return;
+        if (!window.confirm('Reset checklist to template? This will replace all items.')) return;
 
         try {
             const data = await checklistService.resetPersonalChecklist();
             setChecklist(data);
         } catch (error) {
             console.error('Error resetting checklist:', error);
+        }
+    };
+
+    const clearChecklist = async () => {
+        if (!window.confirm('Clear all items? You can add new ones after.')) return;
+
+        try {
+            await checklistService.updatePersonalChecklist([]);
+            setChecklist({ ...checklist, items: [] });
+        } catch (error) {
+            console.error('Error clearing checklist:', error);
         }
     };
 
@@ -94,18 +125,64 @@ const MoveInChecklist = () => {
         );
     }
 
+    // Template Choice Screen
+    if (needsSetup) {
+        return (
+            <div className="space-y-6">
+                <div className="text-center mb-8">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Move-In Checklist</h2>
+                    <p className="text-gray-500">How would you like to start your checklist?</p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                    {/* Template Option */}
+                    <button
+                        onClick={() => initializeChecklist(true)}
+                        className="group p-8 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl border-2 border-orange-200 hover:border-orange-400 hover:shadow-lg transition-all text-left"
+                    >
+                        <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <FiList className="text-orange-600" size={28} />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Use Template</h3>
+                        <p className="text-gray-600 mb-4">Start with 20 pre-made tasks organized by category. Perfect if you want guidance.</p>
+                        <div className="flex flex-wrap gap-2">
+                            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">Planning</span>
+                            <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">Packing</span>
+                            <span className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded-full">Move Day</span>
+                            <span className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded-full">+3 more</span>
+                        </div>
+                    </button>
+
+                    {/* Custom Option */}
+                    <button
+                        onClick={() => initializeChecklist(false)}
+                        className="group p-8 bg-gray-50 rounded-2xl border-2 border-gray-200 hover:border-gray-400 hover:shadow-lg transition-all text-left"
+                    >
+                        <div className="w-14 h-14 bg-gray-200 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <FiEdit3 className="text-gray-600" size={28} />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Start Fresh</h3>
+                        <p className="text-gray-600 mb-4">Create your own custom checklist from scratch. Add exactly what you need.</p>
+                        <div className="flex items-center gap-2 text-gray-500">
+                            <FiPlus size={16} />
+                            <span className="text-sm">Add your own tasks</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     const items = checklist?.items || [];
     const completedCount = items.filter(i => i.completed).length;
     const progress = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0;
 
-    // Filter items
     const filteredItems = filterCategory === 'all'
         ? items
         : items.filter(item => item.category === filterCategory);
 
-    // Group by category for display
     const groupedItems = filteredItems.reduce((acc, item) => {
-        const cat = item.category || 'general';
+        const cat = item.category || 'custom';
         if (!acc[cat]) acc[cat] = [];
         acc[cat].push(item);
         return acc;
@@ -113,71 +190,95 @@ const MoveInChecklist = () => {
 
     return (
         <div className="space-y-6">
-            {/* Header with Progress */}
+            {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900">Move-In Checklist</h2>
                     <p className="text-gray-500 mt-1">Track your moving progress step by step</p>
                 </div>
-                <button
-                    onClick={resetChecklist}
-                    className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all"
-                >
-                    <FiRefreshCw size={16} />
-                    Reset
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={resetChecklist}
+                        className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all text-sm"
+                        title="Reset to template"
+                    >
+                        <FiRefreshCw size={16} />
+                        Template
+                    </button>
+                    <button
+                        onClick={clearChecklist}
+                        className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all text-sm"
+                        title="Clear all items"
+                    >
+                        <FiTrash2 size={16} />
+                        Clear
+                    </button>
+                </div>
             </div>
 
             {/* Progress Bar */}
-            <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-100">
-                <div className="flex items-center justify-between mb-3">
-                    <span className="text-lg font-bold text-gray-900">{progress}% Complete</span>
-                    <span className="text-sm text-gray-500">{completedCount} of {items.length} tasks</span>
-                </div>
-                <div className="h-4 bg-white rounded-full overflow-hidden border border-orange-200">
-                    <div
-                        className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full transition-all duration-500 ease-out"
-                        style={{ width: `${progress}%` }}
-                    ></div>
-                </div>
-                {progress === 100 && (
-                    <div className="mt-4 flex items-center gap-2 text-green-600 font-bold">
-                        <FiCheck className="text-green-500" size={20} />
-                        🎉 Congratulations! You're ready for your move!
+            {items.length > 0 && (
+                <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-100">
+                    <div className="flex items-center justify-between mb-3">
+                        <span className="text-lg font-bold text-gray-900">{progress}% Complete</span>
+                        <span className="text-sm text-gray-500">{completedCount} of {items.length} tasks</span>
                     </div>
-                )}
-            </div>
+                    <div className="h-4 bg-white rounded-full overflow-hidden border border-orange-200">
+                        <div
+                            className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full transition-all duration-500 ease-out"
+                            style={{ width: `${progress}%` }}
+                        ></div>
+                    </div>
+                    {progress === 100 && (
+                        <div className="mt-4 flex items-center gap-2 text-green-600 font-bold">
+                            <FiCheck className="text-green-500" size={20} />
+                            🎉 Congratulations! You're ready for your move!
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Category Filter Pills */}
-            <div className="flex flex-wrap gap-2">
-                <button
-                    onClick={() => setFilterCategory('all')}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${filterCategory === 'all'
+            {items.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        onClick={() => setFilterCategory('all')}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${filterCategory === 'all'
                             ? 'bg-gray-900 text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                >
-                    All ({items.length})
-                </button>
-                {Object.entries(CATEGORY_CONFIG).map(([key, config]) => {
-                    const count = items.filter(i => i.category === key).length;
-                    if (count === 0) return null;
-                    const Icon = config.icon;
-                    return (
-                        <button
-                            key={key}
-                            onClick={() => setFilterCategory(key)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${filterCategory === key
+                            }`}
+                    >
+                        All ({items.length})
+                    </button>
+                    {Object.entries(CATEGORY_CONFIG).map(([key, config]) => {
+                        const count = items.filter(i => i.category === key).length;
+                        if (count === 0) return null;
+                        const Icon = config.icon;
+                        return (
+                            <button
+                                key={key}
+                                onClick={() => setFilterCategory(key)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${filterCategory === key
                                     ? 'bg-gray-900 text-white'
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                }`}
-                        >
-                            <Icon size={14} />
-                            {config.label} ({count})
-                        </button>
-                    );
-                })}
-            </div>
+                                    }`}
+                            >
+                                <Icon size={14} />
+                                {config.label} ({count})
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Empty State */}
+            {items.length === 0 && (
+                <div className="text-center py-12 bg-gray-50 rounded-2xl">
+                    <FiClipboard className="mx-auto text-gray-300 mb-4" size={48} />
+                    <h3 className="text-lg font-bold text-gray-700 mb-2">No tasks yet</h3>
+                    <p className="text-gray-500 mb-4">Add your first task to get started!</p>
+                </div>
+            )}
 
             {/* Checklist Items by Category */}
             <div className="space-y-6">
@@ -191,11 +292,10 @@ const MoveInChecklist = () => {
 
                     return (
                         <div key={category} className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                            {/* Category Header */}
-                            <div className={`px-5 py-3 bg-${config.color}-50 border-b border-${config.color}-100 flex items-center justify-between`}>
+                            <div className="px-5 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded-lg bg-${config.color}-100 flex items-center justify-center`}>
-                                        <Icon className={`text-${config.color}-600`} size={16} />
+                                    <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+                                        <Icon className="text-gray-600" size={16} />
                                     </div>
                                     <span className="font-bold text-gray-900">{config.label}</span>
                                 </div>
@@ -204,7 +304,6 @@ const MoveInChecklist = () => {
                                 </span>
                             </div>
 
-                            {/* Items */}
                             <div className="divide-y divide-gray-100">
                                 {categoryItems.sort((a, b) => a.order - b.order).map(item => (
                                     <div
@@ -215,8 +314,8 @@ const MoveInChecklist = () => {
                                         <button
                                             onClick={() => toggleItem(item._id)}
                                             className={`flex-shrink-0 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${item.completed
-                                                    ? 'bg-green-500 border-green-500 text-white'
-                                                    : 'border-gray-300 hover:border-orange-500'
+                                                ? 'bg-green-500 border-green-500 text-white'
+                                                : 'border-gray-300 hover:border-orange-500'
                                                 }`}
                                         >
                                             {item.completed && <FiCheck size={14} />}
@@ -224,14 +323,12 @@ const MoveInChecklist = () => {
                                         <span className={`flex-1 ${item.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
                                             {item.text}
                                         </span>
-                                        {item.category === 'custom' && (
-                                            <button
-                                                onClick={() => deleteItem(item._id)}
-                                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                                            >
-                                                <FiTrash2 size={16} />
-                                            </button>
-                                        )}
+                                        <button
+                                            onClick={() => deleteItem(item._id)}
+                                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                        >
+                                            <FiTrash2 size={16} />
+                                        </button>
                                     </div>
                                 ))}
                             </div>
@@ -243,7 +340,7 @@ const MoveInChecklist = () => {
             {/* Add Custom Item */}
             {showAddForm ? (
                 <form onSubmit={addItem} className="bg-orange-50 rounded-2xl p-5 border border-orange-200">
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Add Custom Task</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Add Task</label>
                     <input
                         type="text"
                         value={newItemText}
@@ -261,8 +358,8 @@ const MoveInChecklist = () => {
                                     type="button"
                                     onClick={() => setSelectedCategory(key)}
                                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selectedCategory === key
-                                            ? 'bg-orange-500 text-white'
-                                            : 'bg-white text-gray-600 border border-gray-200 hover:border-orange-300'
+                                        ? 'bg-orange-500 text-white'
+                                        : 'bg-white text-gray-600 border border-gray-200 hover:border-orange-300'
                                         }`}
                                 >
                                     <Icon size={12} />
@@ -293,7 +390,7 @@ const MoveInChecklist = () => {
                     className="w-full py-4 border-2 border-dashed border-gray-300 rounded-2xl text-gray-500 hover:border-orange-400 hover:text-orange-500 transition-all flex items-center justify-center gap-2 font-medium"
                 >
                     <FiPlus size={20} />
-                    Add Custom Task
+                    Add Task
                 </button>
             )}
         </div>

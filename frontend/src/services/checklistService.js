@@ -27,6 +27,11 @@ const checklistService = {
         return response.data;
     },
 
+    initPersonalChecklist: async (useTemplate = true) => {
+        const response = await api.post('/checklists/personal/init', { useTemplate });
+        return response.data;
+    },
+
     // Listing-specific checklist
     getListingChecklist: async (listingId) => {
         const response = await api.get(`/checklists/listing/${listingId}`);

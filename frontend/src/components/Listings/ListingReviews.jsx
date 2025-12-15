@@ -21,8 +21,8 @@ const StarRating = ({ rating, size = 16, interactive = false, onChange }) => {
                     <FiStar
                         size={size}
                         className={`${star <= (hovered || rating)
-                                ? 'fill-yellow-400 text-yellow-400'
-                                : 'text-gray-300'
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'text-gray-300'
                             } transition-colors`}
                     />
                 </button>
@@ -67,23 +67,6 @@ const ReviewCard = ({ review, onReport }) => {
                 </div>
                 <StarRating rating={review.rating} />
             </div>
-
-            {/* Category Ratings */}
-            {review.categoryRatings && Object.keys(review.categoryRatings).length > 0 && (
-                <div className="flex flex-wrap gap-3 mb-4">
-                    {Object.entries(review.categoryRatings).map(([category, rating]) => (
-                        rating && (
-                            <div key={category} className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg text-sm">
-                                <span className="text-gray-600 capitalize">{category}</span>
-                                <div className="flex items-center gap-1">
-                                    <FiStar size={12} className="fill-yellow-400 text-yellow-400" />
-                                    <span className="font-medium">{rating}</span>
-                                </div>
-                            </div>
-                        )
-                    ))}
-                </div>
-            )}
 
             {/* Review Text */}
             <p className="text-gray-700 leading-relaxed mb-4">{review.reviewText}</p>
@@ -140,12 +123,6 @@ const ReviewCard = ({ review, onReport }) => {
 
 const WriteReviewForm = ({ listingId, onSubmit, onCancel }) => {
     const [rating, setRating] = useState(0);
-    const [categoryRatings, setCategoryRatings] = useState({
-        cleanliness: 0,
-        accuracy: 0,
-        communication: 0,
-        value: 0,
-    });
     const [reviewText, setReviewText] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -153,7 +130,7 @@ const WriteReviewForm = ({ listingId, onSubmit, onCancel }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (rating === 0) {
-            setError('Please select an overall rating');
+            setError('Please select a rating');
             return;
         }
         if (!reviewText.trim()) {
@@ -168,7 +145,6 @@ const WriteReviewForm = ({ listingId, onSubmit, onCancel }) => {
             await reviewService.createReview({
                 listingId,
                 rating,
-                categoryRatings,
                 reviewText: reviewText.trim(),
             });
             onSubmit?.();
@@ -189,25 +165,10 @@ const WriteReviewForm = ({ listingId, onSubmit, onCancel }) => {
                 </div>
             )}
 
-            {/* Overall Rating */}
+            {/* Rating */}
             <div className="mb-6">
-                <label className="block text-sm font-bold text-gray-700 mb-2">Overall Rating *</label>
-                <StarRating rating={rating} size={28} interactive onChange={setRating} />
-            </div>
-
-            {/* Category Ratings */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-                {Object.keys(categoryRatings).map((category) => (
-                    <div key={category}>
-                        <label className="block text-sm font-medium text-gray-600 mb-1 capitalize">{category}</label>
-                        <StarRating
-                            rating={categoryRatings[category]}
-                            size={18}
-                            interactive
-                            onChange={(value) => setCategoryRatings(prev => ({ ...prev, [category]: value }))}
-                        />
-                    </div>
-                ))}
+                <label className="block text-sm font-bold text-gray-700 mb-3">Your Rating *</label>
+                <StarRating rating={rating} size={32} interactive onChange={setRating} />
             </div>
 
             {/* Review Text */}
@@ -350,8 +311,8 @@ const ListingReviews = ({ listingId, averageRating = 0, totalReviews = 0 }) => {
                             key={p}
                             onClick={() => setPage(p)}
                             className={`w-10 h-10 rounded-full font-bold transition-all ${page === p
-                                    ? 'bg-orange-500 text-white'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
                         >
                             {p}

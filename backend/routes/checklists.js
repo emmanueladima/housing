@@ -116,26 +116,47 @@ const PERSONAL_CHECKLIST_ITEMS = [
   { text: 'Meet your new neighbors/roommates', order: 20, category: 'settling' },
 ];
 
-// GET personal checklist
+// GET personal checklist (returns null if not created yet)
 router.get('/personal', protect, async (req, res) => {
   try {
+    const checklist = await MoveChecklist.findOne({
+      user: req.user.id,
+      listing: null,
+    });
+
+    // Return null if no checklist exists (user hasn't chosen template yet)
+    res.json(checklist || { notCreated: true });
+  } catch (error) {
+    console.error('Error fetching personal checklist:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// POST initialize personal checklist (template or custom)
+router.post('/personal/init', protect, async (req, res) => {
+  try {
+    const { useTemplate = true } = req.body;
+
+    // Check if already exists
     let checklist = await MoveChecklist.findOne({
       user: req.user.id,
       listing: null,
     });
 
-    if (!checklist) {
-      // Create default personal checklist
-      checklist = await MoveChecklist.create({
-        user: req.user.id,
-        listing: null,
-        items: PERSONAL_CHECKLIST_ITEMS,
-      });
+    if (checklist) {
+      return res.json(checklist);
     }
 
-    res.json(checklist);
+    // Create with template items or empty
+    checklist = await MoveChecklist.create({
+      user: req.user.id,
+      listing: null,
+      items: useTemplate ? PERSONAL_CHECKLIST_ITEMS : [],
+    });
+
+    res.status(201).json(checklist);
   } catch (error) {
-    console.error('Error fetching personal checklist:', error);
+    console.error('Error initializing personal checklist:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
