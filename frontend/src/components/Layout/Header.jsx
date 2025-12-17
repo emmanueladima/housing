@@ -8,7 +8,7 @@ import Modal from '../shared/Modal';
 import Login from '../Auth/Login';
 import SignUp from '../Auth/SignUp';
 
-const NavLink = ({ to, icon: Icon, label }) => {
+const NavLink = ({ to, icon: Icon, label, compact = false }) => {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
   const active = isActive(to);
@@ -16,12 +16,12 @@ const NavLink = ({ to, icon: Icon, label }) => {
   return (
     <Link
       to={to}
-      className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full transition-all duration-300 ${active
+      className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap ${active
         ? 'bg-orange-600 text-white shadow-md font-bold'
         : 'text-orange-600 hover:bg-orange-50 font-bold'
-        }`}
+        } ${compact ? 'text-sm' : ''}`}
     >
-      {Icon && <Icon size={18} />}
+      {Icon && <Icon size={compact ? 16 : 18} />}
       <span>{label}</span>
     </Link>
   );
@@ -97,8 +97,7 @@ const Header = () => {
 
             {/* Center Section: Main Navigation */}
             {isAuthenticated && (
-              <nav className="hidden lg:flex items-center gap-1 p-2 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm absolute left-1/2 -translate-x-1/2">
-                <NavLink to="/" icon={FiHome} label="Home" />
+              <nav className="hidden xl:flex items-center gap-0.5 p-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm absolute left-1/2 -translate-x-1/2">
                 <NavLink to="/listings" icon={FiMap} label="Listings" />
                 {(user?.userType === 'student' || user?.userType === 'both' || !user?.userType) && (
                   <>
@@ -114,7 +113,7 @@ const Header = () => {
             )}
 
             {/* Right Section: Actions & Profile */}
-            <div className="hidden md:flex items-center gap-3 shrink-0">
+            <div className="hidden xl:flex items-center gap-3 shrink-0">
               {isAuthenticated && (
                 <div className="flex items-center gap-1 px-2 py-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
                   <Link
@@ -238,10 +237,10 @@ const Header = () => {
               )}
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - show on screens smaller than xl */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="md:hidden p-2 text-orange-600 bg-white/80 backdrop-blur-md rounded-full"
+              className="xl:hidden p-2 text-orange-600 bg-white/80 backdrop-blur-md rounded-full"
             >
               {showMobileMenu ? <FiX size={24} /> : <FiMenu size={24} />}
             </button>
@@ -250,17 +249,10 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {showMobileMenu && (
-          <div className="md:hidden bg-white border-t border-gray-100 shadow-xl">
+          <div className="xl:hidden bg-white border-t border-gray-100 shadow-xl">
             <div className="px-4 py-4 space-y-2">
               {isAuthenticated && (
                 <>
-                  <Link
-                    to="/"
-                    className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                    onClick={() => setShowMobileMenu(false)}
-                  >
-                    Home
-                  </Link>
                   <Link
                     to="/listings"
                     className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
