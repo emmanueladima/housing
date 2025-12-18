@@ -54,7 +54,6 @@ const Header = () => {
 
       fetchUnreadCount();
 
-      // Listen for new messages
       if (socket) {
         socket.on('new_message', () => {
           fetchUnreadCount();
@@ -71,9 +70,7 @@ const Header = () => {
 
   return (
     <>
-      <header
-        className="absolute top-0 w-full z-50 transition-all duration-300 bg-gradient-to-b from-black/50 via-black/25 to-transparent"
-      >
+      <header className="absolute top-0 w-full z-50 transition-all duration-300 bg-gradient-to-b from-black/50 via-black/25 to-transparent">
         <div className="w-full px-6 lg:px-12">
           <div className="flex justify-between items-center h-20 relative">
             {/* Left Section: Logo */}
@@ -88,9 +85,6 @@ const Header = () => {
                 style={{
                   fontFamily: "'Archivo Black', sans-serif",
                   fontWeight: 900,
-                  WebkitFontSmoothing: 'antialiased',
-                  MozOsxFontSmoothing: 'grayscale',
-                  textRendering: 'optimizeLegibility',
                   letterSpacing: '-0.02em'
                 }}
               >
@@ -98,10 +92,13 @@ const Header = () => {
               </span>
             </Link>
 
-            {/* Center Section: Main Navigation - Only 3 items */}
+            {/* Center Section: Main Navigation */}
             {isAuthenticated && (
               <nav className="hidden md:flex items-center gap-1 p-2 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm absolute left-1/2 -translate-x-1/2">
                 <NavLink to="/listings" icon={FiMap} label="Listings" />
+                {isLandlord && (
+                  <NavLink to="/landlord/dashboard" icon={FiGrid} label="Dashboard" />
+                )}
                 {isStudent && (
                   <>
                     <NavLink to="/roommates" icon={FiUsers} label="Roommates" />
@@ -144,15 +141,12 @@ const Header = () => {
 
               {isAuthenticated ? (
                 <div className="flex items-center">
-
                   <div
                     className="relative ml-2"
                     onMouseEnter={() => setShowUserMenu(true)}
                     onMouseLeave={() => setShowUserMenu(false)}
                   >
-                    <button
-                      className="flex items-center gap-3 p-1.5 pr-4 bg-white/80 backdrop-blur-md rounded-full border border-white/20 hover:shadow-md transition-all group"
-                    >
+                    <button className="flex items-center gap-3 p-1.5 pr-4 bg-white/80 backdrop-blur-md rounded-full border border-white/20 hover:shadow-md transition-all group">
                       <div className="w-9 h-9 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
                         <FiUser size={18} />
                       </div>
@@ -178,45 +172,35 @@ const Header = () => {
                             <FiUser size={18} />
                             <span className="font-medium">Your Profile</span>
                           </Link>
-                          <Link
-                            to="/saved"
-                            className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                            onClick={() => setShowUserMenu(false)}
-                          >
-                            <FiHeart size={18} />
-                            <span className="font-medium">Saved Items</span>
-                          </Link>
-                          <Link
-                            to="/applications"
-                            className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                            onClick={() => setShowUserMenu(false)}
-                          >
-                            <FiGrid size={18} />
-                            <span className="font-medium">Applications</span>
-                          </Link>
 
-                          {/* Tools - moved to dropdown */}
+                          {/* Only show these for students, not landlords */}
                           {isStudent && (
-                            <Link
-                              to="/roommate-toolkit"
-                              className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                              onClick={() => setShowUserMenu(false)}
-                            >
-                              <FiTool size={18} />
-                              <span className="font-medium">Roommate Toolkit</span>
-                            </Link>
-                          )}
-
-                          {/* Dashboard - moved to dropdown */}
-                          {isLandlord && (
-                            <Link
-                              to="/landlord/dashboard"
-                              className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                              onClick={() => setShowUserMenu(false)}
-                            >
-                              <FiGrid size={18} />
-                              <span className="font-medium">Landlord Dashboard</span>
-                            </Link>
+                            <>
+                              <Link
+                                to="/saved"
+                                className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                                onClick={() => setShowUserMenu(false)}
+                              >
+                                <FiHeart size={18} />
+                                <span className="font-medium">Saved Items</span>
+                              </Link>
+                              <Link
+                                to="/applications"
+                                className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                                onClick={() => setShowUserMenu(false)}
+                              >
+                                <FiGrid size={18} />
+                                <span className="font-medium">Applications</span>
+                              </Link>
+                              <Link
+                                to="/roommate-toolkit"
+                                className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                                onClick={() => setShowUserMenu(false)}
+                              >
+                                <FiTool size={18} />
+                                <span className="font-medium">Roommate Toolkit</span>
+                              </Link>
+                            </>
                           )}
 
                           <Link
@@ -287,6 +271,15 @@ const Header = () => {
                   >
                     Listings
                   </Link>
+                  {isLandlord && (
+                    <Link
+                      to="/landlord/dashboard"
+                      className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                      onClick={() => setShowMobileMenu(false)}
+                    >
+                      Dashboard
+                    </Link>
+                  )}
                   {isStudent && (
                     <>
                       <Link
@@ -311,15 +304,6 @@ const Header = () => {
                         Roommate Toolkit
                       </Link>
                     </>
-                  )}
-                  {isLandlord && (
-                    <Link
-                      to="/landlord/dashboard"
-                      className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                      onClick={() => setShowMobileMenu(false)}
-                    >
-                      Dashboard
-                    </Link>
                   )}
                   <div className="border-t border-gray-100 pt-2 mt-2">
                     <Link
