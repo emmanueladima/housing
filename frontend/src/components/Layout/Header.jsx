@@ -145,9 +145,12 @@ const Header = () => {
               {isAuthenticated ? (
                 <div className="flex items-center">
 
-                  <div className="relative ml-2">
+                  <div
+                    className="relative ml-2"
+                    onMouseEnter={() => setShowUserMenu(true)}
+                    onMouseLeave={() => setShowUserMenu(false)}
+                  >
                     <button
-                      onClick={() => setShowUserMenu(!showUserMenu)}
                       className="flex items-center gap-3 p-1.5 pr-4 bg-white/80 backdrop-blur-md rounded-full border border-white/20 hover:shadow-md transition-all group"
                     >
                       <div className="w-9 h-9 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
