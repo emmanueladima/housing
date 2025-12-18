@@ -97,7 +97,7 @@ const Header = () => {
 
             {/* Center Section: Main Navigation */}
             {isAuthenticated && (
-              <nav className="hidden xl:flex items-center gap-0.5 p-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm absolute left-1/2 -translate-x-1/2">
+              <nav className="hidden 2xl:flex items-center gap-0.5 p-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm absolute left-1/2 -translate-x-1/2">
                 <NavLink to="/listings" icon={FiMap} label="Listings" />
                 {(user?.userType === 'student' || user?.userType === 'both' || !user?.userType) && (
                   <>
@@ -113,7 +113,7 @@ const Header = () => {
             )}
 
             {/* Right Section: Actions & Profile */}
-            <div className="hidden xl:flex items-center gap-3 shrink-0">
+            <div className="hidden 2xl:flex items-center gap-3 shrink-0">
               {isAuthenticated && (
                 <div className="flex items-center gap-1 px-2 py-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
                   <Link
@@ -240,7 +240,7 @@ const Header = () => {
             {/* Mobile Menu Button - show on screens smaller than xl */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="xl:hidden p-2 text-orange-600 bg-white/80 backdrop-blur-md rounded-full"
+              className="2xl:hidden p-2 text-orange-600 bg-white/80 backdrop-blur-md rounded-full"
             >
               {showMobileMenu ? <FiX size={24} /> : <FiMenu size={24} />}
             </button>
@@ -249,7 +249,7 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {showMobileMenu && (
-          <div className="xl:hidden bg-white border-t border-gray-100 shadow-xl">
+          <div className="2xl:hidden bg-white border-t border-gray-100 shadow-xl">
             <div className="px-4 py-4 space-y-2">
               {isAuthenticated && (
                 <>
