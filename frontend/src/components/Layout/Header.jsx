@@ -1,11 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import {
-  FiHome, FiUsers, FiMessageSquare, FiBell, FiUser, FiLogOut,
-  FiMenu, FiX, FiMap, FiTool, FiGrid, FiSettings, FiHeart,
-  FiMessageCircle, FiChevronDown, FiSearch, FiPlus, FiStar,
-  FiClipboard, FiDollarSign, FiCalendar, FiUserPlus, FiCompass
-} from 'react-icons/fi';
+import { FiHome, FiUsers, FiMessageSquare, FiBell, FiUser, FiLogOut, FiMenu, FiX, FiMap, FiTool, FiGrid, FiSettings, FiHeart, FiMessageCircle } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSocket } from '../../contexts/SocketContext';
 import messageService from '../../services/messageService';
@@ -13,87 +8,22 @@ import Modal from '../shared/Modal';
 import Login from '../Auth/Login';
 import SignUp from '../Auth/SignUp';
 
-// Dropdown menu configurations for each section
-const DROPDOWN_MENUS = {
-  listings: {
-    label: 'Listings',
-    items: [
-      { to: '/listings', icon: FiSearch, label: 'Browse Listings' },
-      { to: '/listings/create', icon: FiPlus, label: 'List a Place' },
-      { to: '/saved', icon: FiHeart, label: 'Saved Listings' },
-      { to: '/applications', icon: FiClipboard, label: 'My Applications' },
-    ]
-  },
-  roommates: {
-    label: 'Roommates',
-    items: [
-      { to: '/roommates', icon: FiSearch, label: 'Find Roommates' },
-      { to: '/roommates?tab=groups', icon: FiUsers, label: 'Find Groups' },
-      { to: '/profile#lifestyle', icon: FiUser, label: 'My Profile' },
-    ]
-  },
-  community: {
-    label: 'Community',
-    items: [
-      { to: '/community', icon: FiMessageCircle, label: 'Browse Discussions' },
-      { to: '/community?channel=housing-tips', icon: FiHome, label: 'Housing Tips' },
-      { to: '/community?channel=roommate-search', icon: FiUserPlus, label: 'Roommate Search' },
-    ]
-  },
-  tools: {
-    label: 'Tools',
-    items: [
-      { to: '/roommate-toolkit', icon: FiClipboard, label: 'Move-In Checklist' },
-      { to: '/roommate-toolkit?tab=expenses', icon: FiDollarSign, label: 'Split Expenses' },
-      { to: '/roommate-toolkit?tab=timeline', icon: FiCalendar, label: 'Timeline' },
-    ]
-  }
-};
-
-const DropdownMenu = ({ id, label, items, isOpen, onToggle, onClose }) => {
-  const dropdownRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen, onClose]);
+const NavLink = ({ to, icon: Icon, label }) => {
+  const location = useLocation();
+  const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
+  const active = isActive(to);
 
   return (
-    <div ref={dropdownRef} className="relative">
-      <button
-        onClick={() => onToggle(id)}
-        className={`flex items-center gap-1.5 px-3 py-2 text-white/90 hover:text-white font-medium transition-colors ${isOpen ? 'text-white' : ''}`}
-      >
-        <span>{label}</span>
-        <FiChevronDown
-          size={14}
-          className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-        />
-      </button>
-
-      {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden py-2 animate-in fade-in slide-in-from-top-2 duration-200">
-          {items.map((item, index) => (
-            <Link
-              key={index}
-              to={item.to}
-              onClick={onClose}
-              className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-            >
-              <item.icon size={18} className="text-gray-400" />
-              <span className="font-medium">{item.label}</span>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
+    <Link
+      to={to}
+      className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 whitespace-nowrap ${active
+        ? 'bg-orange-600 text-white shadow-md font-bold'
+        : 'text-orange-600 hover:bg-orange-50 font-bold'
+        }`}
+    >
+      {Icon && <Icon size={18} />}
+      <span>{label}</span>
+    </Link>
   );
 };
 
@@ -101,19 +31,14 @@ const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const { socket } = useSocket();
   const navigate = useNavigate();
-  const location = useLocation();
   const [showLogin, setShowLogin] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [openDropdown, setOpenDropdown] = useState(null);
 
-  // Close dropdowns on route change
-  useEffect(() => {
-    setOpenDropdown(null);
-    setShowMobileMenu(false);
-  }, [location.pathname]);
+  const isLandlord = user?.userType === 'landlord' || user?.userType === 'both';
+  const isStudent = user?.userType === 'student' || user?.userType === 'both' || !user?.userType;
 
   // Fetch unread messages count
   useEffect(() => {
@@ -129,6 +54,7 @@ const Header = () => {
 
       fetchUnreadCount();
 
+      // Listen for new messages
       if (socket) {
         socket.on('new_message', () => {
           fetchUnreadCount();
@@ -143,24 +69,15 @@ const Header = () => {
     }
   }, [isAuthenticated, socket]);
 
-  const handleDropdownToggle = (id) => {
-    setOpenDropdown(openDropdown === id ? null : id);
-  };
-
-  const closeDropdowns = () => {
-    setOpenDropdown(null);
-  };
-
-  const isLandlord = user?.userType === 'landlord' || user?.userType === 'both';
-  const isStudent = user?.userType === 'student' || user?.userType === 'both' || !user?.userType;
-
   return (
     <>
-      <header className="absolute top-0 w-full z-50 transition-all duration-300 bg-gradient-to-b from-black/50 via-black/25 to-transparent">
+      <header
+        className="absolute top-0 w-full z-50 transition-all duration-300 bg-gradient-to-b from-black/50 via-black/25 to-transparent"
+      >
         <div className="w-full px-6 lg:px-12">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex justify-between items-center h-20 relative">
             {/* Left Section: Logo */}
-            <Link to="/" className="flex items-center gap-2 group shrink-0 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full border border-white/20 shadow-sm hover:bg-white transition-colors">
+            <Link to="/" className="flex items-center gap-2 group shrink-0 px-4 py-2 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
               <img
                 src="/favicon.png"
                 alt="Collegio Logo"
@@ -171,6 +88,9 @@ const Header = () => {
                 style={{
                   fontFamily: "'Archivo Black', sans-serif",
                   fontWeight: 900,
+                  WebkitFontSmoothing: 'antialiased',
+                  MozOsxFontSmoothing: 'grayscale',
+                  textRendering: 'optimizeLegibility',
                   letterSpacing: '-0.02em'
                 }}
               >
@@ -178,97 +98,71 @@ const Header = () => {
               </span>
             </Link>
 
-            {/* Right Section: Nav + Profile */}
-            <div className="hidden md:flex items-center gap-2">
+            {/* Center Section: Main Navigation - Only 3 items */}
+            {isAuthenticated && (
+              <nav className="hidden md:flex items-center gap-1 p-2 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm absolute left-1/2 -translate-x-1/2">
+                <NavLink to="/listings" icon={FiMap} label="Listings" />
+                {isStudent && (
+                  <>
+                    <NavLink to="/roommates" icon={FiUsers} label="Roommates" />
+                    <NavLink to="/community" icon={FiMessageCircle} label="Community" />
+                  </>
+                )}
+              </nav>
+            )}
+
+            {/* Right Section: Actions & Profile */}
+            <div className="hidden md:flex items-center gap-3 shrink-0">
               {isAuthenticated && (
-                <>
-                  {/* Main Navigation Dropdowns */}
-                  <nav className="flex items-center">
-                    <DropdownMenu
-                      id="listings"
-                      label={DROPDOWN_MENUS.listings.label}
-                      items={DROPDOWN_MENUS.listings.items}
-                      isOpen={openDropdown === 'listings'}
-                      onToggle={handleDropdownToggle}
-                      onClose={closeDropdowns}
-                    />
-
-                    {isStudent && (
-                      <>
-                        <DropdownMenu
-                          id="roommates"
-                          label={DROPDOWN_MENUS.roommates.label}
-                          items={DROPDOWN_MENUS.roommates.items}
-                          isOpen={openDropdown === 'roommates'}
-                          onToggle={handleDropdownToggle}
-                          onClose={closeDropdowns}
-                        />
-                        <DropdownMenu
-                          id="community"
-                          label={DROPDOWN_MENUS.community.label}
-                          items={DROPDOWN_MENUS.community.items}
-                          isOpen={openDropdown === 'community'}
-                          onToggle={handleDropdownToggle}
-                          onClose={closeDropdowns}
-                        />
-                        <DropdownMenu
-                          id="tools"
-                          label={DROPDOWN_MENUS.tools.label}
-                          items={DROPDOWN_MENUS.tools.items}
-                          isOpen={openDropdown === 'tools'}
-                          onToggle={handleDropdownToggle}
-                          onClose={closeDropdowns}
-                        />
-                      </>
+                <div className="flex items-center gap-1 px-2 py-1.5 bg-white/80 backdrop-blur-md rounded-full border border-white/20 shadow-sm">
+                  <Link
+                    to="/listings/create"
+                    className="flex items-center gap-2 px-4 py-2 text-orange-600 font-bold hover:bg-orange-50 rounded-full transition-all"
+                  >
+                    <FiHome size={16} />
+                    <span>List a Place</span>
+                  </Link>
+                  <Link
+                    to="/messages"
+                    className="relative p-2.5 text-orange-600 hover:bg-orange-50 rounded-full transition-colors"
+                  >
+                    <FiMessageSquare size={20} />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white text-xs font-bold flex items-center justify-center rounded-full">
+                        {unreadCount}
+                      </span>
                     )}
+                  </Link>
+                  <Link
+                    to="/notifications"
+                    className="relative p-2.5 text-orange-600 hover:bg-orange-50 rounded-full transition-colors"
+                  >
+                    <FiBell size={20} />
+                  </Link>
+                </div>
+              )}
 
-                    {isLandlord && (
-                      <Link
-                        to="/landlord/dashboard"
-                        className="flex items-center gap-1.5 px-3 py-2 text-white/90 hover:text-white font-medium transition-colors"
-                      >
-                        <span>Dashboard</span>
-                      </Link>
-                    )}
-                  </nav>
+              {isAuthenticated ? (
+                <div className="flex items-center">
 
-                  {/* Icons: Messages & Notifications */}
-                  <div className="flex items-center gap-1 ml-4">
-                    <Link
-                      to="/messages"
-                      className="relative p-2.5 text-white/80 hover:text-white transition-colors"
-                    >
-                      <FiMessageSquare size={20} />
-                      {unreadCount > 0 && (
-                        <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white text-xs font-bold flex items-center justify-center rounded-full">
-                          {unreadCount}
-                        </span>
-                      )}
-                    </Link>
-                    <Link
-                      to="/notifications"
-                      className="relative p-2.5 text-white/80 hover:text-white transition-colors"
-                    >
-                      <FiBell size={20} />
-                    </Link>
-                  </div>
-
-                  {/* Profile Dropdown */}
                   <div className="relative ml-2">
                     <button
                       onClick={() => setShowUserMenu(!showUserMenu)}
-                      className="flex items-center gap-2 p-1.5 pr-3 bg-white/90 backdrop-blur-md rounded-full border border-white/20 hover:bg-white transition-all group"
+                      className="flex items-center gap-3 p-1.5 pr-4 bg-white/80 backdrop-blur-md rounded-full border border-white/20 hover:shadow-md transition-all group"
                     >
-                      <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
-                        <FiUser size={16} />
+                      <div className="w-9 h-9 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                        <FiUser size={18} />
                       </div>
-                      <FiChevronDown size={14} className={`text-gray-500 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+                      <span className="font-bold text-orange-600 text-sm">
+                        {user?.firstName || 'User'}
+                      </span>
                     </button>
 
+                    {/* Dropdown Menu */}
                     {showUserMenu && (
                       <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden py-2 animate-in fade-in slide-in-from-top-2">
                         <div className="px-4 py-3 border-b border-gray-50">
-                          <p className="text-sm font-bold text-gray-900">{user?.firstName || 'User'}</p>
+                          <p className="text-sm font-bold text-gray-900">Signed in as</p>
                           <p className="text-sm text-gray-500 truncate">{user?.email}</p>
                         </div>
 
@@ -297,6 +191,31 @@ const Header = () => {
                             <FiGrid size={18} />
                             <span className="font-medium">Applications</span>
                           </Link>
+
+                          {/* Tools - moved to dropdown */}
+                          {isStudent && (
+                            <Link
+                              to="/roommate-toolkit"
+                              className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <FiTool size={18} />
+                              <span className="font-medium">Roommate Toolkit</span>
+                            </Link>
+                          )}
+
+                          {/* Dashboard - moved to dropdown */}
+                          {isLandlord && (
+                            <Link
+                              to="/landlord/dashboard"
+                              className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <FiGrid size={18} />
+                              <span className="font-medium">Landlord Dashboard</span>
+                            </Link>
+                          )}
+
                           <Link
                             to="/settings"
                             className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
@@ -323,20 +242,18 @@ const Header = () => {
                       </div>
                     )}
                   </div>
-                </>
-              )}
-
-              {!isAuthenticated && (
-                <div className="flex items-center gap-3">
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 pl-4">
                   <button
                     onClick={() => setShowLogin(true)}
-                    className="text-white font-medium hover:text-white/80 transition-colors"
+                    className="text-orange-600 font-bold hover:text-orange-700 transition-colors"
                   >
                     Log In
                   </button>
                   <button
                     onClick={() => setShowSignUp(true)}
-                    className="bg-white text-orange-600 px-5 py-2 rounded-full font-bold hover:bg-orange-50 transition-all shadow-lg"
+                    className="bg-orange-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-orange-700 transition-all shadow-lg shadow-orange-600/20"
                   >
                     Sign Up Free
                   </button>
@@ -347,7 +264,7 @@ const Header = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="md:hidden p-2 text-white bg-white/20 backdrop-blur-md rounded-full"
+              className="md:hidden p-2 text-orange-600 bg-white/80 backdrop-blur-md rounded-full"
             >
               {showMobileMenu ? <FiX size={24} /> : <FiMenu size={24} />}
             </button>
@@ -357,107 +274,64 @@ const Header = () => {
         {/* Mobile Menu */}
         {showMobileMenu && (
           <div className="md:hidden bg-white border-t border-gray-100 shadow-xl">
-            <div className="px-4 py-4 space-y-1">
+            <div className="px-4 py-4 space-y-2">
               {isAuthenticated && (
                 <>
-                  {/* Mobile Nav Sections */}
-                  <div className="pb-3 mb-3 border-b border-gray-100">
-                    <p className="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Listings</p>
-                    {DROPDOWN_MENUS.listings.items.map((item, index) => (
-                      <Link
-                        key={index}
-                        to={item.to}
-                        className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
-                        onClick={() => setShowMobileMenu(false)}
-                      >
-                        <item.icon size={18} className="text-gray-400" />
-                        <span className="font-medium">{item.label}</span>
-                      </Link>
-                    ))}
-                  </div>
-
+                  <Link
+                    to="/listings"
+                    className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                    onClick={() => setShowMobileMenu(false)}
+                  >
+                    Listings
+                  </Link>
                   {isStudent && (
                     <>
-                      <div className="pb-3 mb-3 border-b border-gray-100">
-                        <p className="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Roommates</p>
-                        {DROPDOWN_MENUS.roommates.items.map((item, index) => (
-                          <Link
-                            key={index}
-                            to={item.to}
-                            className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
-                            onClick={() => setShowMobileMenu(false)}
-                          >
-                            <item.icon size={18} className="text-gray-400" />
-                            <span className="font-medium">{item.label}</span>
-                          </Link>
-                        ))}
-                      </div>
-
-                      <div className="pb-3 mb-3 border-b border-gray-100">
-                        <p className="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Community</p>
-                        {DROPDOWN_MENUS.community.items.map((item, index) => (
-                          <Link
-                            key={index}
-                            to={item.to}
-                            className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
-                            onClick={() => setShowMobileMenu(false)}
-                          >
-                            <item.icon size={18} className="text-gray-400" />
-                            <span className="font-medium">{item.label}</span>
-                          </Link>
-                        ))}
-                      </div>
-
-                      <div className="pb-3 mb-3 border-b border-gray-100">
-                        <p className="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Tools</p>
-                        {DROPDOWN_MENUS.tools.items.map((item, index) => (
-                          <Link
-                            key={index}
-                            to={item.to}
-                            className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
-                            onClick={() => setShowMobileMenu(false)}
-                          >
-                            <item.icon size={18} className="text-gray-400" />
-                            <span className="font-medium">{item.label}</span>
-                          </Link>
-                        ))}
-                      </div>
+                      <Link
+                        to="/roommates"
+                        className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Roommates
+                      </Link>
+                      <Link
+                        to="/community"
+                        className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Community
+                      </Link>
+                      <Link
+                        to="/roommate-toolkit"
+                        className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                        onClick={() => setShowMobileMenu(false)}
+                      >
+                        Roommate Toolkit
+                      </Link>
                     </>
                   )}
-
                   {isLandlord && (
                     <Link
                       to="/landlord/dashboard"
-                      className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+                      className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
                       onClick={() => setShowMobileMenu(false)}
                     >
-                      <FiGrid size={18} className="text-gray-400" />
-                      <span className="font-medium">Landlord Dashboard</span>
+                      Dashboard
                     </Link>
                   )}
-
-                  {/* Profile Section */}
-                  <div className="pt-3 mt-3 border-t border-gray-100">
+                  <div className="border-t border-gray-100 pt-2 mt-2">
                     <Link
                       to="/profile"
-                      className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+                      className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
                       onClick={() => setShowMobileMenu(false)}
                     >
-                      <FiUser size={18} className="text-gray-400" />
-                      <span className="font-medium">Your Profile</span>
+                      Profile
                     </Link>
                     <Link
                       to="/messages"
-                      className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+                      className="block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-orange-50 hover:text-orange-600 transition-colors"
                       onClick={() => setShowMobileMenu(false)}
                     >
-                      <FiMessageSquare size={18} className="text-gray-400" />
-                      <span className="font-medium">Messages</span>
-                      {unreadCount > 0 && (
-                        <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                          {unreadCount}
-                        </span>
-                      )}
+                      Messages {unreadCount > 0 && `(${unreadCount})`}
                     </Link>
                     <button
                       onClick={() => {
@@ -465,15 +339,13 @@ const Header = () => {
                         setShowMobileMenu(false);
                         navigate('/');
                       }}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="w-full text-left px-4 py-3 rounded-xl text-red-600 font-medium hover:bg-red-50 transition-colors"
                     >
-                      <FiLogOut size={18} />
-                      <span className="font-medium">Sign Out</span>
+                      Sign Out
                     </button>
                   </div>
                 </>
               )}
-
               {!isAuthenticated && (
                 <div className="pt-4 mt-4 border-t border-gray-100 flex flex-col gap-3">
                   <button
