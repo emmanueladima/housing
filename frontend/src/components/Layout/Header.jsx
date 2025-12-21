@@ -135,14 +135,14 @@ const Header = () => {
         <div className="w-full px-6 lg:px-12">
           <div className="flex justify-between items-center h-20">
             {/* Left Section: Logo */}
-            <Link to="/" className="flex items-center gap-2 group shrink-0 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full border border-white/20 shadow-sm hover:bg-white transition-colors">
+            <Link to="/" className="flex items-center gap-2 group shrink-0 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-colors">
               <img
                 src="/favicon.png"
                 alt="Collegio Logo"
                 className="w-7 h-7 rounded-full"
               />
               <span
-                className="text-xl text-orange-600"
+                className="text-xl text-white"
                 style={{
                   fontFamily: "'Archivo Black', sans-serif",
                   fontWeight: 900,
@@ -222,11 +222,11 @@ const Header = () => {
                     onMouseEnter={() => setShowUserMenu(true)}
                     onMouseLeave={() => setShowUserMenu(false)}
                   >
-                    <button className="flex items-center gap-2 p-1.5 pr-3 bg-white/90 backdrop-blur-md rounded-full border border-white/20 hover:bg-white transition-all group">
-                      <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                    <button className="flex items-center gap-2 p-1.5 pr-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-all group">
+                      <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white group-hover:bg-white group-hover:text-orange-600 transition-colors">
                         <FiUser size={16} />
                       </div>
-                      <FiChevronDown size={14} className={`text-gray-500 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+                      <FiChevronDown size={14} className={`text-white/80 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
                     </button>
 
                     {showUserMenu && (
