@@ -200,12 +200,15 @@ const Roommates = () => {
 
     return (
         <div className="min-h-screen bg-white">
-            {/* Hero Header with Orange Gradient & Orbs */}
-            <div className="relative overflow-hidden pt-24 sm:pt-32 pb-12 sm:pb-20">
-                {/* Orange Gradient Background with Orbs */}
-                <ModernBackground />
+            {/* Hero Header with Orange Gradient & Orbs - extends to very top */}
+            <div className="relative overflow-hidden">
+                {/* Orange Gradient Background with Orbs - positioned from top */}
+                <div className="absolute inset-0">
+                    <ModernBackground />
+                </div>
 
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Content with top padding for navbar */}
+                <div className="relative z-10 pt-24 sm:pt-32 pb-12 sm:pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Title & Subtitle */}
                     <div className="text-center mb-6 sm:mb-10 px-2">
                         <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white mb-2 sm:mb-4 tracking-tight">

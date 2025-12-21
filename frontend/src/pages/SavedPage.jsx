@@ -55,11 +55,15 @@ const SavedPage = () => {
 
     return (
         <div className="min-h-screen bg-white">
-            {/* Hero Header with Orange Gradient & Orbs */}
-            <div className="relative overflow-hidden pt-24 sm:pt-32 pb-10 sm:pb-16">
-                <ModernBackground />
+            {/* Hero Header with Orange Gradient & Orbs - extends to very top */}
+            <div className="relative overflow-hidden">
+                {/* Orange Gradient Background - positioned from top */}
+                <div className="absolute inset-0">
+                    <ModernBackground />
+                </div>
 
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Content with top padding for navbar */}
+                <div className="relative z-10 pt-24 sm:pt-32 pb-10 sm:pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Title & Subtitle */}
                     <div className="text-center mb-6 sm:mb-10">
                         <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/20 backdrop-blur-md rounded-full border border-white/30 mb-4 sm:mb-6">
