@@ -83,13 +83,8 @@ const Header = () => {
 
   const roommatesDropdown = [
     { to: '/roommates', icon: FiSearch, label: 'Find Roommates' },
-    { to: '/roommates?tab=groups', icon: FiUsers, label: 'Find Groups' },
+    { to: '/roommates#groups', icon: FiUsers, label: 'Find Groups' },
     { to: '/profile#lifestyle', icon: FiUser, label: 'My Profile' },
-  ];
-
-  const communityDropdown = [
-    { to: '/community', icon: FiMessageCircle, label: 'Browse Discussions' },
-    { to: '/community?channel=housing-tips', icon: FiHome, label: 'Housing Tips' },
   ];
 
   // Close dropdowns on route change
@@ -181,13 +176,12 @@ const Header = () => {
                           onToggle={() => handleDropdownToggle('roommates')}
                           onClose={closeDropdowns}
                         />
-                        <DropdownMenu
-                          label="Community"
-                          items={communityDropdown}
-                          isOpen={openDropdown === 'community'}
-                          onToggle={() => handleDropdownToggle('community')}
-                          onClose={closeDropdowns}
-                        />
+                        <Link
+                          to="/community"
+                          className="flex items-center gap-1.5 px-3 py-2 text-white/90 hover:text-white font-medium transition-colors"
+                        >
+                          <span>Community</span>
+                        </Link>
                       </>
                     )}
 
@@ -277,7 +271,7 @@ const Header = () => {
                                 onClick={() => setShowUserMenu(false)}
                               >
                                 <FiTool size={18} />
-                                <span className="font-medium">Roommate Toolkit</span>
+                                <span className="font-medium">Toolkit</span>
                               </Link>
                             </>
                           )}
@@ -381,18 +375,14 @@ const Header = () => {
 
                       {/* Community Section */}
                       <div className="pb-3 mb-3 border-b border-gray-100">
-                        <p className="px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Community</p>
-                        {communityDropdown.map((item, index) => (
-                          <Link
-                            key={index}
-                            to={item.to}
-                            className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
-                            onClick={() => setShowMobileMenu(false)}
-                          >
-                            <item.icon size={18} className="text-gray-400" />
-                            <span className="font-medium">{item.label}</span>
-                          </Link>
-                        ))}
+                        <Link
+                          to="/community"
+                          className="flex items-center gap-3 px-3 py-2.5 text-gray-700 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors"
+                          onClick={() => setShowMobileMenu(false)}
+                        >
+                          <FiMessageCircle size={18} className="text-gray-400" />
+                          <span className="font-medium">Community</span>
+                        </Link>
                       </div>
 
                       {/* Tools Section */}
@@ -403,7 +393,7 @@ const Header = () => {
                           onClick={() => setShowMobileMenu(false)}
                         >
                           <FiTool size={18} className="text-gray-400" />
-                          <span className="font-medium">Roommate Toolkit</span>
+                          <span className="font-medium">Toolkit</span>
                         </Link>
                       </div>
                     </>
