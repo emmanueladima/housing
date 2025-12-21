@@ -212,41 +212,8 @@ const Community = () => {
 
             {/* Main Content Area */}
             <div className="bg-gray-50 min-h-screen">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
                     <div className="flex gap-6">
-
-                        {/* LEFT SIDEBAR - Channels (Discord-style) */}
-                        <div className="hidden lg:block w-64 shrink-0">
-                            <div className="sticky top-24">
-                                <div className="rounded-2xl shadow-sm overflow-hidden bg-white border border-gray-100">
-                                    <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
-                                        <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                                            Channels
-                                        </span>
-                                    </div>
-                                    <div className="p-2 space-y-1">
-                                        {channels.map(channel => {
-                                            const Icon = channel.icon;
-                                            const isActive = activeChannel === channel.id;
-
-                                            return (
-                                                <button
-                                                    key={channel.id}
-                                                    onClick={() => setActiveChannel(channel.id)}
-                                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all text-sm ${isActive
-                                                            ? 'bg-orange-600 text-white'
-                                                            : 'text-gray-700 hover:bg-gray-50'
-                                                        }`}
-                                                >
-                                                    <Icon size={16} />
-                                                    <span>{channel.label}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
                         {/* CENTER - Feed */}
                         <div className="flex-1 min-w-0">
@@ -262,8 +229,8 @@ const Community = () => {
                                                 key={filter.id}
                                                 onClick={() => setActiveFilter(filter.id)}
                                                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${isActive
-                                                        ? 'bg-orange-600 text-white'
-                                                        : 'bg-white text-gray-700 border border-gray-200 hover:border-orange-300'
+                                                    ? 'bg-orange-600 text-white'
+                                                    : 'bg-white text-gray-700 border border-gray-200 hover:border-orange-300'
                                                     }`}
                                             >
                                                 {filter.label}
@@ -332,8 +299,8 @@ const Community = () => {
                                             key={page}
                                             onClick={() => fetchPosts(page)}
                                             className={`w-9 h-9 rounded-lg font-bold text-sm transition-all ${pagination.page === page
-                                                    ? 'bg-orange-600 text-white'
-                                                    : 'bg-white text-gray-700 border border-gray-200 hover:border-orange-300'
+                                                ? 'bg-orange-600 text-white'
+                                                : 'bg-white text-gray-700 border border-gray-200 hover:border-orange-300'
                                                 }`}
                                         >
                                             {page}
