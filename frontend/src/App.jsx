@@ -32,7 +32,27 @@ import CookiePolicy from './pages/CookiePolicy';
 
 function App() {
   const location = useLocation();
-  const isTransparentPage = location.pathname === '/' || location.pathname === '/listings';
+  // Pages with gradient headers that handle their own top padding
+  const transparentPages = [
+    '/',
+    '/listings',
+    '/roommates',
+    '/saved',
+    '/community',
+    '/roommate-toolkit',
+    '/profile',
+    '/messages',
+    '/applications',
+    '/notifications',
+    '/landlord/dashboard',
+    '/group-dashboard',
+    '/compatibility-test',
+    '/settings',
+    '/safety',
+  ];
+  const isTransparentPage = transparentPages.some(page =>
+    location.pathname === page || location.pathname.startsWith(page + '/')
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
