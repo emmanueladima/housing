@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     StyleSheet,
     View,
@@ -8,11 +8,16 @@ import {
     TouchableOpacity,
     StatusBar,
     Dimensions,
+    ActivityIndicator,
+    RefreshControl,
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
+import lifestyleProfileService, { LifestyleProfile } from '../services/lifestyleProfileService';
+import roommateGroupService, { RoommateGroup } from '../services/roommateGroupService';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - SPACING.lg * 2 - SPACING.md) / 2;
@@ -22,40 +27,68 @@ interface RoommatesScreenProps {
 }
 
 const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
-    const [activeTab, setActiveTab] = React.useState<'Solo' | 'Groups'>('Solo');
-    const [searchQuery, setSearchQuery] = React.useState('');
-    const [likedProfiles, setLikedProfiles] = React.useState<number[]>([]);
+    const [activeTab, setActiveTab] = useState<'Solo' | 'Groups'>('Solo');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [likedProfiles, setLikedProfiles] = useState<string[]>([]);
+    const [profiles, setProfiles] = useState<LifestyleProfile[]>([]);
+    const [groups, setGroups] = useState<RoommateGroup[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const toggleLike = (id: number) => {
-        setLikedProfiles(prev =>
-            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-        );
+    const fetchData = useCallback(async (showLoader = true) => {
+        if (showLoader) setIsLoading(true);
+        try {
+            if (activeTab === 'Solo') {
+                const profilesData = await lifestyleProfileService.getMatches();
+                setProfiles(profilesData || []);
+            } else {
+                const groupsData = await roommateGroupService.getAllGroups();
+                setGroups(groupsData || []);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        } finally {
+            setIsLoading(false);
+            setIsRefreshing(false);
+        }
+    }, [activeTab]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const onRefresh = () => {
+        setIsRefreshing(true);
+        fetchData(false);
     };
 
-    const openRoommateDetail = () => {
-        navigation?.navigate?.('RoommateDetail');
+    const toggleLike = async (id: string) => {
+        try {
+            await lifestyleProfileService.toggleSavedProfile(id);
+            setLikedProfiles(prev =>
+                prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+            );
+        } catch (error) {
+            console.error('Error toggling save:', error);
+        }
     };
 
-    const openGroupDetail = () => {
-        navigation?.navigate?.('GroupDetail');
+    const openRoommateDetail = (profile: LifestyleProfile) => {
+        navigation?.navigate?.('RoommateDetail', { profileId: profile._id });
     };
 
-    // Sample data
-    const soloRoommates = [
-        { id: 1, name: 'John D.', major: 'Computer Science', year: 'Junior', match: 85 },
-        { id: 2, name: 'Emily C.', major: 'Business', year: 'Senior', match: 92 },
-        { id: 3, name: 'Alex M.', major: 'Engineering', year: 'Sophomore', match: 78 },
-        { id: 4, name: 'Sarah K.', major: 'Biology', year: 'Junior', match: 88 },
-        { id: 5, name: 'Mike T.', major: 'Art', year: 'Freshman', match: 72 },
-        { id: 6, name: 'Lisa P.', major: 'Psychology', year: 'Senior', match: 95 },
-    ];
+    const openGroupDetail = (group: RoommateGroup) => {
+        navigation?.navigate?.('GroupDetail', { groupId: group._id });
+    };
 
-    const groups = [
-        { id: 101, name: 'OSU CS House', members: 4, spots: 1, budget: '$800-1000' },
-        { id: 102, name: 'Quiet Study Group', members: 3, spots: 2, budget: '$600-800' },
-        { id: 103, name: 'Active Lifestyle', members: 5, spots: 0, budget: '$700-900' },
-        { id: 104, name: 'Seniors 2025', members: 2, spots: 2, budget: '$900-1200' },
-    ];
+    const getInitials = (name: string) => {
+        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    };
+
+    const formatBudget = (budget?: { min: number; max: number }) => {
+        if (!budget) return 'Flexible';
+        return `$${budget.min}-${budget.max}`;
+    };
 
     return (
         <View style={styles.container}>
@@ -70,7 +103,7 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
 
-                {/* Pill Tab Switcher - Centered and Prominent */}
+                {/* Pill Tab Switcher */}
                 <View style={styles.tabContainer}>
                     <View style={styles.tabPill}>
                         <TouchableOpacity
@@ -118,113 +151,147 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
             </SafeAreaView>
 
             {/* Content */}
-            <ScrollView
-                style={styles.content}
-                contentContainerStyle={styles.contentContainer}
-                showsVerticalScrollIndicator={false}
-            >
-                <View style={styles.grid}>
-                    {activeTab === 'Solo' ? (
-                        // Solo Roommates
-                        soloRoommates.map((roommate) => (
-                            <TouchableOpacity
-                                key={roommate.id}
-                                style={styles.card}
-                                activeOpacity={0.95}
-                                onPress={openRoommateDetail}
-                            >
-                                {/* Image */}
-                                <View style={styles.imageContainer}>
-                                    <LinearGradient
-                                        colors={['#E5E7EB', '#D1D5DB']}
-                                        style={styles.imagePlaceholder}
-                                    >
-                                        <View style={styles.avatarCircle}>
-                                            <Text style={styles.avatarText}>
-                                                {roommate.name.split(' ').map(n => n[0]).join('')}
-                                            </Text>
-                                        </View>
-                                    </LinearGradient>
-
-                                    {/* Heart */}
-                                    <TouchableOpacity
-                                        style={styles.heartButton}
-                                        onPress={() => toggleLike(roommate.id)}
-                                    >
-                                        <Ionicons
-                                            name={likedProfiles.includes(roommate.id) ? "heart" : "heart-outline"}
-                                            size={18}
-                                            color={likedProfiles.includes(roommate.id) ? COLORS.primary : COLORS.text}
-                                        />
-                                    </TouchableOpacity>
-
-                                    {/* Match Badge */}
-                                    <View style={styles.matchBadge}>
-                                        <Text style={styles.matchText}>{roommate.match}%</Text>
-                                    </View>
-                                </View>
-
-                                {/* Content */}
-                                <View style={styles.cardContent}>
-                                    <Text style={styles.cardName} numberOfLines={1}>{roommate.name}</Text>
-                                    <Text style={styles.cardDetails}>{roommate.year}</Text>
-                                    <Text style={styles.cardMajor} numberOfLines={1}>{roommate.major}</Text>
-                                </View>
-                            </TouchableOpacity>
-                        ))
-                    ) : (
-                        // Groups
-                        groups.map((group) => (
-                            <TouchableOpacity
-                                key={group.id}
-                                style={styles.card}
-                                activeOpacity={0.95}
-                                onPress={openGroupDetail}
-                            >
-                                {/* Image */}
-                                <View style={styles.imageContainer}>
-                                    <LinearGradient
-                                        colors={['#E5E7EB', '#D1D5DB']}
-                                        style={styles.imagePlaceholder}
-                                    >
-                                        <View style={styles.groupIcon}>
-                                            <Ionicons name="people" size={30} color={COLORS.primary} />
-                                        </View>
-                                    </LinearGradient>
-
-                                    {/* Spots Badge */}
-                                    <View style={[
-                                        styles.matchBadge,
-                                        { backgroundColor: group.spots > 0 ? COLORS.success : COLORS.textMuted }
-                                    ]}>
-                                        <Text style={styles.matchText}>
-                                            {group.spots > 0 ? `${group.spots} spot${group.spots > 1 ? 's' : ''}` : 'Full'}
-                                        </Text>
-                                    </View>
-                                </View>
-
-                                {/* Content */}
-                                < View style={styles.cardContent} >
-                                    <Text style={styles.cardName} numberOfLines={1}>{group.name}</Text>
-                                    <Text style={styles.cardDetails}>{group.members} members</Text>
-                                    <Text style={styles.cardMajor}>{group.budget}/mo</Text>
-                                </View>
-                            </TouchableOpacity>
-                        ))
-                    )}
+            {isLoading ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={COLORS.primary} />
                 </View>
+            ) : (
+                <ScrollView
+                    style={styles.content}
+                    contentContainerStyle={styles.contentContainer}
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={isRefreshing}
+                            onRefresh={onRefresh}
+                            tintColor={COLORS.primary}
+                        />
+                    }
+                >
+                    <View style={styles.grid}>
+                        {activeTab === 'Solo' ? (
+                            profiles.length === 0 ? (
+                                <View style={styles.emptyContainer}>
+                                    <Ionicons name="person-outline" size={60} color={COLORS.textMuted} />
+                                    <Text style={styles.emptyText}>No roommates found</Text>
+                                </View>
+                            ) : (
+                                profiles.map((profile) => (
+                                    <TouchableOpacity
+                                        key={profile._id}
+                                        style={styles.card}
+                                        activeOpacity={0.95}
+                                        onPress={() => openRoommateDetail(profile)}
+                                    >
+                                        {/* Image */}
+                                        <View style={styles.imageContainer}>
+                                            {profile.user.profilePhoto ? (
+                                                <Image
+                                                    source={{ uri: profile.user.profilePhoto }}
+                                                    style={styles.profileImage}
+                                                />
+                                            ) : (
+                                                <LinearGradient
+                                                    colors={['#E5E7EB', '#D1D5DB']}
+                                                    style={styles.imagePlaceholder}
+                                                >
+                                                    <View style={styles.avatarCircle}>
+                                                        <Text style={styles.avatarText}>
+                                                            {getInitials(profile.user.name)}
+                                                        </Text>
+                                                    </View>
+                                                </LinearGradient>
+                                            )}
 
-                {/* Bottom padding */}
-                <View style={{ height: 120 }} />
-            </ScrollView >
+                                            {/* Heart */}
+                                            <TouchableOpacity
+                                                style={styles.heartButton}
+                                                onPress={() => toggleLike(profile._id)}
+                                            >
+                                                <Ionicons
+                                                    name={likedProfiles.includes(profile._id) ? "heart" : "heart-outline"}
+                                                    size={18}
+                                                    color={likedProfiles.includes(profile._id) ? COLORS.primary : COLORS.text}
+                                                />
+                                            </TouchableOpacity>
+
+                                            {/* Match Badge */}
+                                            {profile.matchScore && (
+                                                <View style={styles.matchBadge}>
+                                                    <Text style={styles.matchText}>{profile.matchScore}%</Text>
+                                                </View>
+                                            )}
+                                        </View>
+
+                                        {/* Content */}
+                                        <View style={styles.cardContent}>
+                                            <Text style={styles.cardName} numberOfLines={1}>{profile.user.name}</Text>
+                                            <Text style={styles.cardDetails}>{profile.year || 'Student'}</Text>
+                                            <Text style={styles.cardMajor} numberOfLines={1}>{profile.major || 'Undeclared'}</Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                ))
+                            )
+                        ) : (
+                            groups.length === 0 ? (
+                                <View style={styles.emptyContainer}>
+                                    <Ionicons name="people-outline" size={60} color={COLORS.textMuted} />
+                                    <Text style={styles.emptyText}>No groups found</Text>
+                                </View>
+                            ) : (
+                                groups.map((group) => (
+                                    <TouchableOpacity
+                                        key={group._id}
+                                        style={styles.card}
+                                        activeOpacity={0.95}
+                                        onPress={() => openGroupDetail(group)}
+                                    >
+                                        {/* Image */}
+                                        <View style={styles.imageContainer}>
+                                            <LinearGradient
+                                                colors={['#E5E7EB', '#D1D5DB']}
+                                                style={styles.imagePlaceholder}
+                                            >
+                                                <View style={styles.groupIcon}>
+                                                    <Ionicons name="people" size={30} color={COLORS.primary} />
+                                                </View>
+                                            </LinearGradient>
+
+                                            {/* Spots Badge */}
+                                            <View style={[
+                                                styles.matchBadge,
+                                                { backgroundColor: group.spotsAvailable > 0 ? COLORS.success : COLORS.textMuted }
+                                            ]}>
+                                                <Text style={styles.matchText}>
+                                                    {group.spotsAvailable > 0 ? `${group.spotsAvailable} spot${group.spotsAvailable > 1 ? 's' : ''}` : 'Full'}
+                                                </Text>
+                                            </View>
+                                        </View>
+
+                                        {/* Content */}
+                                        <View style={styles.cardContent}>
+                                            <Text style={styles.cardName} numberOfLines={1}>{group.name}</Text>
+                                            <Text style={styles.cardDetails}>{group.members.length} members</Text>
+                                            <Text style={styles.cardMajor}>{formatBudget(group.budget)}/mo</Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                ))
+                            )
+                        )}
+                    </View>
+
+                    {/* Bottom padding */}
+                    <View style={{ height: 120 }} />
+                </ScrollView>
+            )}
 
             {/* Floating Create Button */}
-            < View style={styles.createButtonContainer} >
+            <View style={styles.createButtonContainer}>
                 <TouchableOpacity style={styles.createButton} activeOpacity={0.9}>
                     <Ionicons name="add" size={24} color={COLORS.card} />
                 </TouchableOpacity>
-            </View >
-        </View >
+            </View>
+        </View>
     );
 };
 
@@ -235,6 +302,23 @@ const styles = StyleSheet.create({
     },
     safeArea: {
         backgroundColor: COLORS.background,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    emptyContainer: {
+        flex: 1,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: 100,
+    },
+    emptyText: {
+        fontSize: FONT_SIZES.md,
+        color: COLORS.textMuted,
+        marginTop: SPACING.md,
     },
 
     // Header
@@ -261,7 +345,7 @@ const styles = StyleSheet.create({
         borderColor: COLORS.border,
     },
 
-    // Tab Pill - Centered and Prominent
+    // Tab Pill
     tabContainer: {
         alignItems: 'center',
         paddingVertical: SPACING.md,
@@ -345,6 +429,10 @@ const styles = StyleSheet.create({
     imageContainer: {
         height: 140,
         position: 'relative',
+    },
+    profileImage: {
+        width: '100%',
+        height: '100%',
     },
     imagePlaceholder: {
         flex: 1,

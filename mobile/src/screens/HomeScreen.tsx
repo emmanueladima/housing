@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     StyleSheet,
     View,
@@ -9,15 +9,19 @@ import {
     StatusBar,
     Dimensions,
     Modal,
+    ActivityIndicator,
+    RefreshControl,
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from 'expo-linear-gradient'
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
+import listingService, { Listing, ListingFilters } from '../services/listingService';
 
 const { width } = Dimensions.get('window');
 
-// Big filter pills with icons (like AllTrails)
+// Filter pills
 const filters = [
     { id: 'nearby', label: 'Nearby', icon: 'location' },
     { id: 'verified', label: 'Verified', icon: 'shield-checkmark' },
@@ -38,11 +42,47 @@ interface HomeScreenProps {
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-    const [activeFilters, setActiveFilters] = React.useState<string[]>([]);
-    const [searchQuery, setSearchQuery] = React.useState('');
-    const [likedListings, setLikedListings] = React.useState<number[]>([]);
-    const [showFilters, setShowFilters] = React.useState(false);
-    const [placeType, setPlaceType] = React.useState('any');
+    const [listings, setListings] = useState<Listing[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [activeFilters, setActiveFilters] = useState<string[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [likedListings, setLikedListings] = useState<string[]>([]);
+    const [showFilters, setShowFilters] = useState(false);
+    const [placeType, setPlaceType] = useState('any');
+
+    // Fetch listings from API
+    const fetchListings = useCallback(async (showLoader = true) => {
+        if (showLoader) setIsLoading(true);
+        try {
+            const apiFilters: ListingFilters = {};
+
+            // Apply active filters
+            if (activeFilters.includes('verified')) {
+                // Backend filter for verified
+            }
+            if (activeFilters.includes('pets')) {
+                apiFilters.amenities = ['pets'];
+            }
+
+            const response = await listingService.getListings(apiFilters);
+            setListings(response.listings || []);
+        } catch (error) {
+            console.error('Error fetching listings:', error);
+        } finally {
+            setIsLoading(false);
+            setIsRefreshing(false);
+        }
+    }, [activeFilters]);
+
+    useEffect(() => {
+        fetchListings();
+    }, [fetchListings]);
+
+    const onRefresh = () => {
+        setIsRefreshing(true);
+        fetchListings(false);
+    };
 
     const toggleFilter = (id: string) => {
         setActiveFilters(prev =>
@@ -50,15 +90,23 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         );
     };
 
-    const toggleLike = (id: number) => {
-        setLikedListings(prev =>
-            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-        );
+    const toggleLike = async (id: string) => {
+        try {
+            await listingService.toggleFavorite(id);
+            setLikedListings(prev =>
+                prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+            );
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+        }
     };
 
-    const openListingDetail = () => {
-        // Navigate to listing detail
-        navigation?.navigate?.('ListingDetail');
+    const openListingDetail = (listing: Listing) => {
+        navigation?.navigate?.('ListingDetail', { listingId: listing._id });
+    };
+
+    const formatPrice = (price: number) => {
+        return `$${price.toLocaleString()}`;
     };
 
     return (
@@ -86,7 +134,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
 
-                {/* Big Filter Pills with orange outline (like AllTrails) */}
+                {/* Filter Pills */}
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -115,67 +163,103 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </SafeAreaView>
 
             {/* Listings */}
-            <ScrollView
-                style={styles.listingsScroll}
-                contentContainerStyle={styles.listingsContent}
-                showsVerticalScrollIndicator={false}
-            >
-                {[1, 2, 3, 4].map((item) => (
-                    <TouchableOpacity
-                        key={item}
-                        style={styles.listingCard}
-                        activeOpacity={0.95}
-                        onPress={openListingDetail}
-                    >
-                        {/* Image */}
-                        <View style={styles.imageContainer}>
-                            <LinearGradient
-                                colors={['#E5E7EB', '#D1D5DB']}
-                                style={styles.imagePlaceholder}
-                            >
-                                <Ionicons name="home" size={40} color={COLORS.textMuted} />
-                            </LinearGradient>
-
-                            {/* Heart Button */}
+            {isLoading ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={COLORS.primary} />
+                    <Text style={styles.loadingText}>Loading listings...</Text>
+                </View>
+            ) : (
+                <ScrollView
+                    style={styles.listingsScroll}
+                    contentContainerStyle={styles.listingsContent}
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={isRefreshing}
+                            onRefresh={onRefresh}
+                            tintColor={COLORS.primary}
+                        />
+                    }
+                >
+                    {listings.length === 0 ? (
+                        <View style={styles.emptyContainer}>
+                            <Ionicons name="home-outline" size={60} color={COLORS.textMuted} />
+                            <Text style={styles.emptyTitle}>No listings found</Text>
+                            <Text style={styles.emptyText}>Try adjusting your filters</Text>
+                        </View>
+                    ) : (
+                        listings.map((listing) => (
                             <TouchableOpacity
-                                style={styles.heartButton}
-                                onPress={() => toggleLike(item)}
+                                key={listing._id}
+                                style={styles.listingCard}
+                                activeOpacity={0.95}
+                                onPress={() => openListingDetail(listing)}
                             >
-                                <Ionicons
-                                    name={likedListings.includes(item) ? "heart" : "heart-outline"}
-                                    size={22}
-                                    color={likedListings.includes(item) ? COLORS.primary : COLORS.text}
-                                />
+                                {/* Image */}
+                                <View style={styles.imageContainer}>
+                                    {listing.images && listing.images.length > 0 ? (
+                                        <Image
+                                            source={{ uri: listing.images[0] }}
+                                            style={styles.listingImage}
+                                            resizeMode="cover"
+                                        />
+                                    ) : (
+                                        <LinearGradient
+                                            colors={['#E5E7EB', '#D1D5DB']}
+                                            style={styles.imagePlaceholder}
+                                        >
+                                            <Ionicons name="home" size={40} color={COLORS.textMuted} />
+                                        </LinearGradient>
+                                    )}
+
+                                    {/* Heart Button */}
+                                    <TouchableOpacity
+                                        style={styles.heartButton}
+                                        onPress={() => toggleLike(listing._id)}
+                                    >
+                                        <Ionicons
+                                            name={likedListings.includes(listing._id) ? "heart" : "heart-outline"}
+                                            size={22}
+                                            color={likedListings.includes(listing._id) ? COLORS.primary : COLORS.text}
+                                        />
+                                    </TouchableOpacity>
+
+                                    {/* Verified Badge */}
+                                    {listing.isVerified && (
+                                        <View style={styles.verifiedBadge}>
+                                            <Ionicons name="shield-checkmark" size={12} color={COLORS.card} />
+                                        </View>
+                                    )}
+
+                                    {/* Image dots */}
+                                    {listing.images && listing.images.length > 1 && (
+                                        <View style={styles.imageDots}>
+                                            {listing.images.slice(0, 5).map((_, index) => (
+                                                <View key={index} style={[styles.dot, index === 0 && styles.dotActive]} />
+                                            ))}
+                                        </View>
+                                    )}
+                                </View>
+
+                                {/* Content */}
+                                <View style={styles.cardContent}>
+                                    <Text style={styles.cardTitle} numberOfLines={1}>{listing.title}</Text>
+                                    <Text style={styles.cardLocation}>{listing.city}, {listing.state}</Text>
+
+                                    <View style={styles.cardDetails}>
+                                        <Text style={styles.detailText}>{listing.bedrooms}bd {listing.bathrooms}ba</Text>
+                                        <Text style={styles.detailDot}>·</Text>
+                                        <Text style={styles.priceText}>{formatPrice(listing.rent)}/mo</Text>
+                                    </View>
+                                </View>
                             </TouchableOpacity>
+                        ))
+                    )}
 
-                            {/* Image dots */}
-                            <View style={styles.imageDots}>
-                                <View style={[styles.dot, styles.dotActive]} />
-                                <View style={styles.dot} />
-                                <View style={styles.dot} />
-                            </View>
-                        </View>
-
-                        {/* Content */}
-                        <View style={styles.cardContent}>
-                            <Text style={styles.cardTitle}>Modern Studio Apartment</Text>
-                            <Text style={styles.cardLocation}>Corvallis, Oregon</Text>
-
-                            <View style={styles.cardDetails}>
-                                <Ionicons name="star" size={14} color={COLORS.warning} />
-                                <Text style={styles.ratingText}>4.6 (24)</Text>
-                                <Text style={styles.detailDot}>·</Text>
-                                <Text style={styles.detailText}>1bd 1ba</Text>
-                                <Text style={styles.detailDot}>·</Text>
-                                <Text style={styles.detailText}>$1,200/mo</Text>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                ))}
-
-                {/* Bottom padding */}
-                <View style={{ height: 120 }} />
-            </ScrollView>
+                    {/* Bottom padding */}
+                    <View style={{ height: 120 }} />
+                </ScrollView>
+            )}
 
             {/* Floating Map Button */}
             <View style={styles.mapButtonContainer}>
@@ -238,59 +322,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                             ))}
                         </View>
 
-                        {/* Price range */}
-                        <Text style={styles.sectionTitle}>Price range</Text>
-                        <Text style={styles.sectionSubtitle}>Monthly rent, includes all fees</Text>
-                        <View style={styles.priceRow}>
-                            <View style={styles.priceInput}>
-                                <Text style={styles.priceLabel}>Minimum</Text>
-                                <Text style={styles.priceValue}>$ 0</Text>
-                            </View>
-                            <Text style={styles.priceDash}>-</Text>
-                            <View style={styles.priceInput}>
-                                <Text style={styles.priceLabel}>Maximum</Text>
-                                <Text style={styles.priceValue}>$ 5000+</Text>
-                            </View>
-                        </View>
-
-                        {/* Rooms and beds */}
-                        <Text style={styles.sectionTitle}>Rooms and beds</Text>
-                        <View style={styles.counterRow}>
-                            <Text style={styles.counterLabel}>Bedrooms</Text>
-                            <View style={styles.counterControls}>
-                                <TouchableOpacity style={styles.counterButton}>
-                                    <Ionicons name="remove" size={18} color={COLORS.textMuted} />
-                                </TouchableOpacity>
-                                <Text style={styles.counterValue}>Any</Text>
-                                <TouchableOpacity style={styles.counterButton}>
-                                    <Ionicons name="add" size={18} color={COLORS.text} />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                        <View style={styles.counterRow}>
-                            <Text style={styles.counterLabel}>Bathrooms</Text>
-                            <View style={styles.counterControls}>
-                                <TouchableOpacity style={styles.counterButton}>
-                                    <Ionicons name="remove" size={18} color={COLORS.textMuted} />
-                                </TouchableOpacity>
-                                <Text style={styles.counterValue}>Any</Text>
-                                <TouchableOpacity style={styles.counterButton}>
-                                    <Ionicons name="add" size={18} color={COLORS.text} />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-
-                        {/* Amenities */}
-                        <Text style={styles.sectionTitle}>Amenities</Text>
-                        <View style={styles.amenitiesGrid}>
-                            {['WiFi', 'Laundry', 'Parking', 'Dishwasher', 'AC', 'Gym'].map((amenity) => (
-                                <TouchableOpacity key={amenity} style={styles.amenityItem}>
-                                    <View style={styles.checkbox} />
-                                    <Text style={styles.amenityLabel}>{amenity}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-
                         <View style={{ height: 100 }} />
                     </ScrollView>
 
@@ -301,7 +332,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.showButton}
-                            onPress={() => setShowFilters(false)}
+                            onPress={() => {
+                                setShowFilters(false);
+                                fetchListings();
+                            }}
                         >
                             <Text style={styles.showButtonText}>Show places</Text>
                         </TouchableOpacity>
@@ -319,6 +353,33 @@ const styles = StyleSheet.create({
     },
     safeArea: {
         backgroundColor: COLORS.background,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: SPACING.md,
+        fontSize: FONT_SIZES.md,
+        color: COLORS.textSecondary,
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: 100,
+    },
+    emptyTitle: {
+        fontSize: FONT_SIZES.xl,
+        fontWeight: '600',
+        color: COLORS.text,
+        marginTop: SPACING.md,
+    },
+    emptyText: {
+        fontSize: FONT_SIZES.md,
+        color: COLORS.textSecondary,
+        marginTop: SPACING.xs,
     },
 
     // Search
@@ -356,7 +417,7 @@ const styles = StyleSheet.create({
         borderColor: COLORS.border,
     },
 
-    // Big Filter Pills with orange outline
+    // Filter Pills
     filtersContainer: {
         paddingHorizontal: SPACING.lg,
         paddingBottom: SPACING.md,
@@ -374,7 +435,7 @@ const styles = StyleSheet.create({
         marginRight: SPACING.sm,
     },
     filterPillActive: {
-        borderColor: COLORS.primary,  // Orange outline when active
+        borderColor: COLORS.primary,
         backgroundColor: 'rgba(219, 74, 43, 0.05)',
     },
     filterText: {
@@ -383,7 +444,7 @@ const styles = StyleSheet.create({
         color: COLORS.text,
     },
     filterTextActive: {
-        color: COLORS.primary,  // Orange text when active
+        color: COLORS.primary,
     },
 
     // Listings
@@ -405,6 +466,10 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         position: 'relative',
     },
+    listingImage: {
+        width: '100%',
+        height: '100%',
+    },
     imagePlaceholder: {
         flex: 1,
         justifyContent: 'center',
@@ -421,6 +486,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         ...SHADOWS.md,
+    },
+    verifiedBadge: {
+        position: 'absolute',
+        top: SPACING.md,
+        left: SPACING.md,
+        backgroundColor: COLORS.success,
+        padding: 6,
+        borderRadius: BORDER_RADIUS.sm,
     },
     imageDots: {
         position: 'absolute',
@@ -460,15 +533,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    ratingText: {
-        fontSize: FONT_SIZES.sm,
-        fontWeight: '600',
-        color: COLORS.text,
-        marginLeft: 4,
-    },
     detailText: {
         fontSize: FONT_SIZES.sm,
         color: COLORS.textSecondary,
+    },
+    priceText: {
+        fontSize: FONT_SIZES.sm,
+        fontWeight: '700',
+        color: COLORS.text,
     },
     detailDot: {
         fontSize: FONT_SIZES.sm,
@@ -528,12 +600,6 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: COLORS.text,
         marginTop: SPACING.xl,
-        marginBottom: SPACING.md,
-    },
-    sectionSubtitle: {
-        fontSize: FONT_SIZES.sm,
-        color: COLORS.textSecondary,
-        marginTop: -SPACING.sm,
         marginBottom: SPACING.md,
     },
 
@@ -599,93 +665,6 @@ const styles = StyleSheet.create({
     },
     typeTextActive: {
         color: COLORS.card,
-    },
-
-    // Price inputs
-    priceRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: SPACING.md,
-    },
-    priceInput: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        borderRadius: BORDER_RADIUS.md,
-        padding: SPACING.md,
-    },
-    priceLabel: {
-        fontSize: FONT_SIZES.xs,
-        color: COLORS.textMuted,
-        marginBottom: 4,
-    },
-    priceValue: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '600',
-        color: COLORS.text,
-    },
-    priceDash: {
-        fontSize: FONT_SIZES.lg,
-        color: COLORS.textMuted,
-    },
-
-    // Counter rows
-    counterRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: SPACING.lg,
-        borderBottomWidth: 1,
-        borderBottomColor: COLORS.border,
-    },
-    counterLabel: {
-        fontSize: FONT_SIZES.md,
-        color: COLORS.text,
-    },
-    counterControls: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: SPACING.lg,
-    },
-    counterButton: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    counterValue: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '600',
-        color: COLORS.text,
-        minWidth: 40,
-        textAlign: 'center',
-    },
-
-    // Amenities
-    amenitiesGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-    },
-    amenityItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: '50%',
-        paddingVertical: SPACING.md,
-    },
-    checkbox: {
-        width: 20,
-        height: 20,
-        borderRadius: 4,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        marginRight: SPACING.sm,
-    },
-    amenityLabel: {
-        fontSize: FONT_SIZES.md,
-        color: COLORS.text,
     },
 
     // Modal footer

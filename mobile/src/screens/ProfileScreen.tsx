@@ -6,28 +6,51 @@ import {
     ScrollView,
     TouchableOpacity,
     StatusBar,
+    Image,
+    Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
+import { useAuth } from '../contexts/AuthContext';
 
-// Menu items
-const menuItems = [
-    { icon: 'home-outline', label: 'My Listings' },
-    { icon: 'document-text-outline', label: 'Applications' },
-    { icon: 'star-outline', label: 'Reviews' },
-    { icon: 'shield-checkmark-outline', label: 'Verification' },
-    { icon: 'settings-outline', label: 'Settings' },
-    { icon: 'help-circle-outline', label: 'Help' },
-];
+interface ProfileScreenProps {
+    navigation?: any;
+}
 
-const ProfileScreen = () => {
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
+    const { user, logout } = useAuth();
+
+    const handleLogout = () => {
+        Alert.alert(
+            'Logout',
+            'Are you sure you want to logout?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Logout', style: 'destructive', onPress: logout },
+            ]
+        );
+    };
+
+    const getInitials = (name: string) => {
+        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    };
+
+    const menuItems = [
+        { icon: 'person-outline', label: 'Edit Profile', action: () => { } },
+        { icon: 'home-outline', label: 'My Listings', action: () => { } },
+        { icon: 'heart-outline', label: 'Saved Items', action: () => { } },
+        { icon: 'document-text-outline', label: 'Applications', action: () => { } },
+        { icon: 'people-outline', label: 'Roommate Profile', action: () => { } },
+        { icon: 'settings-outline', label: 'Settings', action: () => { } },
+        { icon: 'help-circle-outline', label: 'Help & Support', action: () => { } },
+    ];
+
     return (
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" />
 
             <SafeAreaView edges={['top']} style={styles.safeArea}>
-                {/* Header */}
                 <View style={styles.header}>
                     <Text style={styles.title}>Profile</Text>
                     <TouchableOpacity style={styles.settingsButton}>
@@ -36,7 +59,6 @@ const ProfileScreen = () => {
                 </View>
             </SafeAreaView>
 
-            {/* Content */}
             <ScrollView
                 style={styles.content}
                 contentContainerStyle={styles.contentContainer}
@@ -44,34 +66,80 @@ const ProfileScreen = () => {
             >
                 {/* Profile Card */}
                 <View style={styles.profileCard}>
-                    <View style={styles.avatar}>
-                        <Ionicons name="person" size={32} color={COLORS.card} />
+                    <View style={styles.avatarContainer}>
+                        {user?.profilePhoto ? (
+                            <Image
+                                source={{ uri: user.profilePhoto }}
+                                style={styles.avatar}
+                            />
+                        ) : (
+                            <View style={styles.avatarPlaceholder}>
+                                <Text style={styles.avatarText}>
+                                    {getInitials(user?.name || 'U')}
+                                </Text>
+                            </View>
+                        )}
+                        <TouchableOpacity style={styles.editAvatarButton}>
+                            <Ionicons name="camera" size={16} color={COLORS.card} />
+                        </TouchableOpacity>
                     </View>
-                    <Text style={styles.profileName}>Sign in to your account</Text>
-                    <Text style={styles.profileSub}>Access saves, messages, and more</Text>
+                    <Text style={styles.userName}>{user?.name || 'User'}</Text>
+                    <Text style={styles.userEmail}>{user?.email || ''}</Text>
+                    {user?.isEmailVerified && (
+                        <View style={styles.verifiedBadge}>
+                            <Ionicons name="checkmark-circle" size={14} color={COLORS.success} />
+                            <Text style={styles.verifiedText}>Verified</Text>
+                        </View>
+                    )}
+                </View>
 
-                    <View style={styles.buttonRow}>
-                        <TouchableOpacity style={styles.signInButton}>
-                            <Text style={styles.signInText}>Sign In</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.signUpButton}>
-                            <Text style={styles.signUpText}>Sign Up</Text>
-                        </TouchableOpacity>
+                {/* Stats */}
+                <View style={styles.statsCard}>
+                    <View style={styles.statItem}>
+                        <Text style={styles.statValue}>0</Text>
+                        <Text style={styles.statLabel}>Listings</Text>
+                    </View>
+                    <View style={styles.statDivider} />
+                    <View style={styles.statItem}>
+                        <Text style={styles.statValue}>0</Text>
+                        <Text style={styles.statLabel}>Saved</Text>
+                    </View>
+                    <View style={styles.statDivider} />
+                    <View style={styles.statItem}>
+                        <Text style={styles.statValue}>0</Text>
+                        <Text style={styles.statLabel}>Applications</Text>
                     </View>
                 </View>
 
                 {/* Menu Items */}
-                <View style={styles.menuContainer}>
+                <View style={styles.menuCard}>
                     {menuItems.map((item, index) => (
-                        <TouchableOpacity key={index} style={styles.menuItem}>
-                            <Ionicons name={item.icon as any} size={22} color={COLORS.text} />
+                        <TouchableOpacity
+                            key={index}
+                            style={[
+                                styles.menuItem,
+                                index === menuItems.length - 1 && styles.menuItemLast
+                            ]}
+                            onPress={item.action}
+                        >
+                            <View style={styles.menuIcon}>
+                                <Ionicons name={item.icon as any} size={22} color={COLORS.text} />
+                            </View>
                             <Text style={styles.menuLabel}>{item.label}</Text>
                             <Ionicons name="chevron-forward" size={20} color={COLORS.textMuted} />
                         </TouchableOpacity>
                     ))}
                 </View>
 
-                {/* Bottom padding */}
+                {/* Logout Button */}
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                    <Ionicons name="log-out-outline" size={20} color={COLORS.primary} />
+                    <Text style={styles.logoutText}>Logout</Text>
+                </TouchableOpacity>
+
+                {/* App Version */}
+                <Text style={styles.versionText}>Collegio v1.0.0</Text>
+
                 <View style={{ height: 120 }} />
             </ScrollView>
         </View>
@@ -81,7 +149,7 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.backgroundSecondary,
+        backgroundColor: COLORS.background,
     },
     safeArea: {
         backgroundColor: COLORS.background,
@@ -94,7 +162,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: SPACING.lg,
         paddingVertical: SPACING.md,
-        backgroundColor: COLORS.background,
     },
     title: {
         fontSize: FONT_SIZES.title,
@@ -107,7 +174,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLORS.backgroundSecondary,
-        borderRadius: BORDER_RADIUS.full,
+        borderRadius: BORDER_RADIUS.md,
         borderWidth: 1,
         borderColor: COLORS.border,
     },
@@ -117,79 +184,113 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     contentContainer: {
-        padding: SPACING.lg,
+        paddingHorizontal: SPACING.lg,
     },
 
     // Profile Card
     profileCard: {
+        alignItems: 'center',
+        paddingVertical: SPACING.xl,
+    },
+    avatarContainer: {
+        position: 'relative',
+        marginBottom: SPACING.md,
+    },
+    avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+    },
+    avatarPlaceholder: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: COLORS.primary,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    avatarText: {
+        fontSize: 36,
+        fontWeight: '700',
+        color: COLORS.card,
+    },
+    editAvatarButton: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: COLORS.primary,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 3,
+        borderColor: COLORS.background,
+    },
+    userName: {
+        fontSize: FONT_SIZES.xxl,
+        fontWeight: '700',
+        color: COLORS.text,
+        marginBottom: 4,
+    },
+    userEmail: {
+        fontSize: FONT_SIZES.md,
+        color: COLORS.textSecondary,
+        marginBottom: SPACING.sm,
+    },
+    verifiedBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        paddingHorizontal: SPACING.md,
+        paddingVertical: SPACING.xs,
+        borderRadius: BORDER_RADIUS.full,
+    },
+    verifiedText: {
+        fontSize: FONT_SIZES.sm,
+        fontWeight: '500',
+        color: COLORS.success,
+    },
+
+    // Stats Card
+    statsCard: {
+        flexDirection: 'row',
         backgroundColor: COLORS.card,
         borderRadius: BORDER_RADIUS.xl,
-        padding: SPACING.xl,
-        alignItems: 'center',
+        padding: SPACING.lg,
         marginBottom: SPACING.lg,
         borderWidth: 1,
         borderColor: COLORS.border,
         ...SHADOWS.sm,
     },
-    avatar: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: COLORS.primary,
-        justifyContent: 'center',
+    statItem: {
+        flex: 1,
         alignItems: 'center',
-        marginBottom: SPACING.lg,
     },
-    profileName: {
-        fontSize: FONT_SIZES.lg,
+    statValue: {
+        fontSize: FONT_SIZES.xxl,
         fontWeight: '700',
         color: COLORS.text,
-        marginBottom: SPACING.xs,
     },
-    profileSub: {
+    statLabel: {
         fontSize: FONT_SIZES.sm,
         color: COLORS.textSecondary,
-        marginBottom: SPACING.lg,
+        marginTop: 2,
     },
-    buttonRow: {
-        flexDirection: 'row',
-        gap: SPACING.md,
-        width: '100%',
-    },
-    signInButton: {
-        flex: 1,
-        backgroundColor: COLORS.primary,
-        paddingVertical: SPACING.md,
-        borderRadius: BORDER_RADIUS.md,
-        alignItems: 'center',
-    },
-    signInText: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '600',
-        color: COLORS.card,
-    },
-    signUpButton: {
-        flex: 1,
-        backgroundColor: 'transparent',
-        paddingVertical: SPACING.md,
-        borderRadius: BORDER_RADIUS.md,
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-    signUpText: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '600',
-        color: COLORS.text,
+    statDivider: {
+        width: 1,
+        backgroundColor: COLORS.border,
+        marginHorizontal: SPACING.md,
     },
 
-    // Menu Items
-    menuContainer: {
+    // Menu Card
+    menuCard: {
         backgroundColor: COLORS.card,
         borderRadius: BORDER_RADIUS.xl,
+        marginBottom: SPACING.lg,
         borderWidth: 1,
         borderColor: COLORS.border,
-        overflow: 'hidden',
         ...SHADOWS.sm,
     },
     menuItem: {
@@ -200,12 +301,45 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: COLORS.border,
     },
+    menuItemLast: {
+        borderBottomWidth: 0,
+    },
+    menuIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        backgroundColor: COLORS.backgroundSecondary,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: SPACING.md,
+    },
     menuLabel: {
         flex: 1,
-        marginLeft: SPACING.md,
         fontSize: FONT_SIZES.md,
         fontWeight: '500',
         color: COLORS.text,
+    },
+
+    // Logout Button
+    logoutButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: SPACING.sm,
+        paddingVertical: SPACING.lg,
+        marginBottom: SPACING.md,
+    },
+    logoutText: {
+        fontSize: FONT_SIZES.md,
+        fontWeight: '600',
+        color: COLORS.primary,
+    },
+
+    // Version
+    versionText: {
+        textAlign: 'center',
+        fontSize: FONT_SIZES.sm,
+        color: COLORS.textMuted,
     },
 });
 

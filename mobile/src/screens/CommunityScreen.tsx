@@ -1,33 +1,81 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     StyleSheet,
     View,
     Text,
     ScrollView,
-    TextInput,
     TouchableOpacity,
     StatusBar,
+    TextInput,
+    ActivityIndicator,
+    RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
+import communityService, { Post } from '../services/communityService';
 
-// Channel pills - matching website
+// Channel tabs
 const channels = [
-    { id: 'all', label: 'All Channels', icon: 'grid' },
+    { id: 'all', label: 'All', icon: 'apps' },
     { id: 'housing', label: 'Housing', icon: 'home' },
-    { id: 'subleases', label: 'Subleases', icon: 'key' },
+    { id: 'subleases', label: 'Subleases', icon: 'calendar' },
     { id: 'roommates', label: 'Roommates', icon: 'people' },
     { id: 'furniture', label: 'Furniture', icon: 'bed' },
 ];
 
-const CommunityScreen = ({ navigation }: { navigation?: any }) => {
-    const [activeChannel, setActiveChannel] = React.useState('all');
-    const [searchQuery, setSearchQuery] = React.useState('');
+interface CommunityScreenProps {
+    navigation?: any;
+}
 
-    const openPostDetail = () => {
-        navigation?.navigate?.('PostDetail');
+const CommunityScreen: React.FC<CommunityScreenProps> = ({ navigation }) => {
+    const [activeChannel, setActiveChannel] = useState('all');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const fetchPosts = useCallback(async (showLoader = true) => {
+        if (showLoader) setIsLoading(true);
+        try {
+            const filters = activeChannel !== 'all' ? { channel: activeChannel } : {};
+            const response = await communityService.getPosts(filters);
+            setPosts(response.posts || []);
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+        } finally {
+            setIsLoading(false);
+            setIsRefreshing(false);
+        }
+    }, [activeChannel]);
+
+    useEffect(() => {
+        fetchPosts();
+    }, [fetchPosts]);
+
+    const onRefresh = () => {
+        setIsRefreshing(true);
+        fetchPosts(false);
+    };
+
+    const openPostDetail = (post: Post) => {
+        navigation?.navigate?.('PostDetail', { postId: post._id });
+    };
+
+    const getInitials = (name: string) => {
+        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    };
+
+    const formatTimeAgo = (dateString: string) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffDays > 0) return `${diffDays}d ago`;
+        if (diffHours > 0) return `${diffHours}h ago`;
+        return 'Just now';
     };
 
     return (
@@ -38,42 +86,10 @@ const CommunityScreen = ({ navigation }: { navigation?: any }) => {
                 {/* Header */}
                 <View style={styles.header}>
                     <Text style={styles.title}>Community</Text>
-                    <TouchableOpacity style={styles.notificationButton}>
+                    <TouchableOpacity style={styles.notifButton}>
                         <Ionicons name="notifications-outline" size={22} color={COLORS.text} />
                     </TouchableOpacity>
                 </View>
-
-                {/* Channel Pills - Like website */}
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.channelsContainer}
-                >
-                    {channels.map((channel) => (
-                        <TouchableOpacity
-                            key={channel.id}
-                            style={[
-                                styles.channelPill,
-                                activeChannel === channel.id && styles.channelPillActive,
-                            ]}
-                            onPress={() => setActiveChannel(channel.id)}
-                        >
-                            <Ionicons
-                                name={channel.icon as any}
-                                size={14}
-                                color={activeChannel === channel.id ? COLORS.card : COLORS.text}
-                            />
-                            <Text
-                                style={[
-                                    styles.channelText,
-                                    activeChannel === channel.id && styles.channelTextActive,
-                                ]}
-                            >
-                                {channel.label}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
 
                 {/* Search */}
                 <View style={styles.searchContainer}>
@@ -87,75 +103,129 @@ const CommunityScreen = ({ navigation }: { navigation?: any }) => {
                             onChangeText={setSearchQuery}
                         />
                     </View>
-                    <TouchableOpacity style={styles.createButton}>
-                        <Ionicons name="add" size={22} color={COLORS.card} />
-                    </TouchableOpacity>
                 </View>
+
+                {/* Channel Pills */}
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.channelContainer}
+                >
+                    {channels.map((channel) => {
+                        const isActive = activeChannel === channel.id;
+                        return (
+                            <TouchableOpacity
+                                key={channel.id}
+                                style={[styles.channelPill, isActive && styles.channelPillActive]}
+                                onPress={() => setActiveChannel(channel.id)}
+                            >
+                                <Ionicons
+                                    name={channel.icon as any}
+                                    size={16}
+                                    color={isActive ? COLORS.card : COLORS.text}
+                                />
+                                <Text style={[styles.channelText, isActive && styles.channelTextActive]}>
+                                    {channel.label}
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </ScrollView>
             </SafeAreaView>
 
-            {/* Posts Feed */}
-            <ScrollView
-                style={styles.content}
-                contentContainerStyle={styles.contentContainer}
-                showsVerticalScrollIndicator={false}
-            >
-                {/* Posts */}
-                {[1, 2, 3, 4].map((item) => (
-                    <TouchableOpacity
-                        key={item}
-                        style={styles.postCard}
-                        activeOpacity={0.95}
-                        onPress={openPostDetail}
-                    >
-                        {/* Post Header */}
-                        <View style={styles.postHeader}>
-                            <View style={styles.avatar}>
-                                <Text style={styles.avatarText}>JD</Text>
-                            </View>
-                            <View style={styles.postMeta}>
-                                <Text style={styles.postAuthor}>John Doe</Text>
-                                <View style={styles.postInfo}>
-                                    <Text style={styles.postTime}>2h ago</Text>
-                                    <Text style={styles.postDot}>·</Text>
-                                    <View style={styles.channelTag}>
-                                        <Ionicons name="home" size={10} color={COLORS.primary} />
-                                        <Text style={styles.channelTagText}>Housing</Text>
+            {/* Posts */}
+            {isLoading ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={COLORS.primary} />
+                </View>
+            ) : (
+                <ScrollView
+                    style={styles.content}
+                    contentContainerStyle={styles.contentContainer}
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={isRefreshing}
+                            onRefresh={onRefresh}
+                            tintColor={COLORS.primary}
+                        />
+                    }
+                >
+                    {posts.length === 0 ? (
+                        <View style={styles.emptyContainer}>
+                            <Ionicons name="chatbubbles-outline" size={60} color={COLORS.textMuted} />
+                            <Text style={styles.emptyText}>No posts yet</Text>
+                        </View>
+                    ) : (
+                        posts.map((post) => (
+                            <TouchableOpacity
+                                key={post._id}
+                                style={styles.postCard}
+                                activeOpacity={0.95}
+                                onPress={() => openPostDetail(post)}
+                            >
+                                {/* Post Header */}
+                                <View style={styles.postHeader}>
+                                    <View style={styles.avatar}>
+                                        <Text style={styles.avatarText}>
+                                            {getInitials(post.author.name)}
+                                        </Text>
                                     </View>
+                                    <View style={styles.postMeta}>
+                                        <Text style={styles.authorName}>{post.author.name}</Text>
+                                        <Text style={styles.postTime}>{formatTimeAgo(post.createdAt)}</Text>
+                                    </View>
+                                    <TouchableOpacity style={styles.moreButton}>
+                                        <Ionicons name="ellipsis-horizontal" size={18} color={COLORS.textMuted} />
+                                    </TouchableOpacity>
                                 </View>
-                            </View>
-                            <View style={styles.intentBadge}>
-                                <Text style={styles.intentText}>Looking for</Text>
-                            </View>
-                        </View>
 
-                        {/* Post Content */}
-                        <Text style={styles.postTitle}>Looking for 2BR apartment near campus</Text>
-                        <Text style={styles.postBody} numberOfLines={2}>
-                            Hi everyone! I'm a junior CS student looking for a 2BR apartment for next semester. Budget is around $800-1000/mo.
-                        </Text>
+                                {/* Post Content */}
+                                <Text style={styles.postTitle}>{post.title}</Text>
+                                <Text style={styles.postContent} numberOfLines={3}>{post.content}</Text>
 
-                        {/* Post Footer */}
-                        <View style={styles.postFooter}>
-                            <TouchableOpacity style={styles.actionButton}>
-                                <Ionicons name="chatbubble-outline" size={18} color={COLORS.textSecondary} />
-                                <Text style={styles.actionText}>5</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.actionButton}>
-                                <Ionicons name="heart-outline" size={18} color={COLORS.textSecondary} />
-                                <Text style={styles.actionText}>12</Text>
-                            </TouchableOpacity>
-                            <View style={{ flex: 1 }} />
-                            <TouchableOpacity style={styles.messageButton}>
-                                <Ionicons name="send" size={14} color={COLORS.primary} />
-                                <Text style={styles.messageButtonText}>Message</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </TouchableOpacity>
-                ))}
+                                {/* Tags */}
+                                {post.tags && post.tags.length > 0 && (
+                                    <View style={styles.tagRow}>
+                                        {post.tags.slice(0, 3).map((tag, index) => (
+                                            <View key={index} style={styles.tag}>
+                                                <Text style={styles.tagText}>{tag}</Text>
+                                            </View>
+                                        ))}
+                                    </View>
+                                )}
 
-                {/* Bottom padding */}
-                <View style={{ height: 120 }} />
-            </ScrollView>
+                                {/* Post Footer */}
+                                <View style={styles.postFooter}>
+                                    <View style={styles.statRow}>
+                                        <View style={styles.stat}>
+                                            <Ionicons name="heart-outline" size={16} color={COLORS.textSecondary} />
+                                            <Text style={styles.statText}>{post.likes}</Text>
+                                        </View>
+                                        <View style={styles.stat}>
+                                            <Ionicons name="chatbubble-outline" size={15} color={COLORS.textSecondary} />
+                                            <Text style={styles.statText}>{post.commentCount}</Text>
+                                        </View>
+                                    </View>
+                                    <TouchableOpacity style={styles.messageButton}>
+                                        <Ionicons name="send" size={14} color={COLORS.primary} />
+                                        <Text style={styles.messageButtonText}>Message</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </TouchableOpacity>
+                        ))
+                    )}
+
+                    <View style={{ height: 120 }} />
+                </ScrollView>
+            )}
+
+            {/* Floating Create Button */}
+            <View style={styles.createButtonContainer}>
+                <TouchableOpacity style={styles.createButton} activeOpacity={0.9}>
+                    <Ionicons name="add" size={24} color={COLORS.card} />
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -163,10 +233,26 @@ const CommunityScreen = ({ navigation }: { navigation?: any }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.backgroundSecondary,
+        backgroundColor: COLORS.background,
     },
     safeArea: {
         backgroundColor: COLORS.background,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: 100,
+    },
+    emptyText: {
+        fontSize: FONT_SIZES.md,
+        color: COLORS.textMuted,
+        marginTop: SPACING.md,
     },
 
     // Header
@@ -182,57 +268,23 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: COLORS.text,
     },
-    notificationButton: {
+    notifButton: {
         width: 40,
         height: 40,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLORS.backgroundSecondary,
-        borderRadius: BORDER_RADIUS.full,
+        borderRadius: BORDER_RADIUS.md,
         borderWidth: 1,
         borderColor: COLORS.border,
-    },
-
-    // Channels
-    channelsContainer: {
-        paddingHorizontal: SPACING.lg,
-        paddingVertical: SPACING.sm,
-        gap: SPACING.sm,
-    },
-    channelPill: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: SPACING.xs,
-        paddingHorizontal: SPACING.md,
-        paddingVertical: SPACING.sm,
-        backgroundColor: COLORS.backgroundSecondary,
-        borderRadius: BORDER_RADIUS.full,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        marginRight: SPACING.sm,
-    },
-    channelPillActive: {
-        backgroundColor: COLORS.primary,
-        borderColor: COLORS.primary,
-    },
-    channelText: {
-        fontSize: FONT_SIZES.sm,
-        fontWeight: '600',
-        color: COLORS.text,
-    },
-    channelTextActive: {
-        color: COLORS.card,
     },
 
     // Search
     searchContainer: {
-        flexDirection: 'row',
         paddingHorizontal: SPACING.lg,
-        paddingVertical: SPACING.md,
-        gap: SPACING.sm,
+        paddingBottom: SPACING.sm,
     },
     searchBar: {
-        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: COLORS.backgroundSecondary,
@@ -248,13 +300,35 @@ const styles = StyleSheet.create({
         fontSize: FONT_SIZES.md,
         color: COLORS.text,
     },
-    createButton: {
-        width: 44,
-        height: 44,
-        justifyContent: 'center',
+
+    // Channel Pills
+    channelContainer: {
+        paddingHorizontal: SPACING.lg,
+        paddingBottom: SPACING.md,
+    },
+    channelPill: {
+        flexDirection: 'row',
         alignItems: 'center',
+        gap: SPACING.xs,
+        paddingHorizontal: SPACING.lg,
+        paddingVertical: SPACING.sm,
+        backgroundColor: COLORS.backgroundSecondary,
+        borderRadius: BORDER_RADIUS.full,
+        marginRight: SPACING.sm,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    channelPillActive: {
         backgroundColor: COLORS.primary,
-        borderRadius: BORDER_RADIUS.lg,
+        borderColor: COLORS.primary,
+    },
+    channelText: {
+        fontSize: FONT_SIZES.sm,
+        fontWeight: '600',
+        color: COLORS.text,
+    },
+    channelTextActive: {
+        color: COLORS.card,
     },
 
     // Content
@@ -262,10 +336,10 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     contentContainer: {
-        padding: SPACING.lg,
+        paddingHorizontal: SPACING.lg,
     },
 
-    // Posts
+    // Post Card
     postCard: {
         backgroundColor: COLORS.card,
         borderRadius: BORDER_RADIUS.xl,
@@ -297,71 +371,65 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: SPACING.sm,
     },
-    postAuthor: {
+    authorName: {
         fontSize: FONT_SIZES.md,
         fontWeight: '600',
         color: COLORS.text,
-    },
-    postInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
     },
     postTime: {
         fontSize: FONT_SIZES.xs,
         color: COLORS.textMuted,
     },
-    postDot: {
-        fontSize: FONT_SIZES.xs,
-        color: COLORS.textMuted,
-        marginHorizontal: SPACING.xs,
-    },
-    channelTag: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-    },
-    channelTagText: {
-        fontSize: FONT_SIZES.xs,
-        color: COLORS.primary,
-        fontWeight: '500',
-    },
-    intentBadge: {
-        backgroundColor: '#DBEAFE',
-        paddingHorizontal: SPACING.sm,
-        paddingVertical: 4,
-        borderRadius: BORDER_RADIUS.sm,
-    },
-    intentText: {
-        fontSize: FONT_SIZES.xs,
-        fontWeight: '600',
-        color: '#1D4ED8',
+    moreButton: {
+        padding: SPACING.xs,
     },
     postTitle: {
         fontSize: FONT_SIZES.lg,
         fontWeight: '700',
         color: COLORS.text,
-        marginBottom: SPACING.sm,
+        marginBottom: SPACING.xs,
     },
-    postBody: {
-        fontSize: FONT_SIZES.sm,
+    postContent: {
+        fontSize: FONT_SIZES.md,
         color: COLORS.textSecondary,
-        lineHeight: 20,
+        lineHeight: 22,
         marginBottom: SPACING.md,
+    },
+    tagRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: SPACING.xs,
+        marginBottom: SPACING.md,
+    },
+    tag: {
+        backgroundColor: COLORS.backgroundSecondary,
+        paddingHorizontal: SPACING.sm,
+        paddingVertical: 4,
+        borderRadius: BORDER_RADIUS.sm,
+    },
+    tagText: {
+        fontSize: FONT_SIZES.xs,
+        color: COLORS.primary,
+        fontWeight: '500',
     },
     postFooter: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingTop: SPACING.md,
+        paddingTop: SPACING.sm,
         borderTopWidth: 1,
         borderTopColor: COLORS.border,
     },
-    actionButton: {
+    statRow: {
+        flexDirection: 'row',
+        gap: SPACING.lg,
+    },
+    stat: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: SPACING.xs,
-        marginRight: SPACING.lg,
+        gap: 4,
     },
-    actionText: {
+    statText: {
         fontSize: FONT_SIZES.sm,
         color: COLORS.textSecondary,
     },
@@ -369,15 +437,31 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: SPACING.xs,
-        backgroundColor: 'rgba(219, 74, 43, 0.1)',
         paddingHorizontal: SPACING.md,
-        paddingVertical: SPACING.sm,
-        borderRadius: BORDER_RADIUS.full,
+        paddingVertical: SPACING.xs,
+        borderRadius: BORDER_RADIUS.md,
+        backgroundColor: 'rgba(219, 74, 43, 0.1)',
     },
     messageButtonText: {
         fontSize: FONT_SIZES.sm,
         fontWeight: '600',
         color: COLORS.primary,
+    },
+
+    // Floating Create Button
+    createButtonContainer: {
+        position: 'absolute',
+        bottom: 100,
+        right: SPACING.lg,
+    },
+    createButton: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: COLORS.primary,
+        justifyContent: 'center',
+        alignItems: 'center',
+        ...SHADOWS.lg,
     },
 });
 
