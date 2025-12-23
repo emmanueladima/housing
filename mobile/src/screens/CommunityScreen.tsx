@@ -222,7 +222,11 @@ const CommunityScreen: React.FC<CommunityScreenProps> = ({ navigation }) => {
 
             {/* Floating Create Button */}
             <View style={styles.createButtonContainer}>
-                <TouchableOpacity style={styles.createButton} activeOpacity={0.9}>
+                <TouchableOpacity
+                    style={styles.createButton}
+                    activeOpacity={0.9}
+                    onPress={() => navigation?.navigate?.('CreatePost', { channel: activeChannel })}
+                >
                     <Ionicons name="add" size={24} color={COLORS.card} />
                 </TouchableOpacity>
             </View>

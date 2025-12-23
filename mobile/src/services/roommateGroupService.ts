@@ -3,7 +3,9 @@ import api from './api';
 export interface GroupMember {
     user: {
         _id: string;
-        name: string;
+        name?: string;
+        firstName?: string;
+        lastName?: string;
         profilePhoto?: string;
     };
     role: 'admin' | 'member';
@@ -21,6 +23,8 @@ export interface RoommateGroup {
         max: number;
     };
     preferredArea?: string;
+    location?: string;
+    vibe?: string[];
     moveInDate?: string;
     preferences?: {
         sleepSchedule?: string;
@@ -35,8 +39,18 @@ export interface RoommateGroup {
 const roommateGroupService = {
     // Get all groups (Discovery)
     async getAllGroups(): Promise<RoommateGroup[]> {
-        const response = await api.get('/roommate-groups');
-        return response.data.groups || response.data;
+        try {
+            const response = await api.get('/roommate-groups');
+            const data = response.data;
+            // Handle different response formats
+            if (Array.isArray(data)) return data;
+            if (Array.isArray(data?.groups)) return data.groups;
+            console.warn('Unexpected getAllGroups response:', data);
+            return [];
+        } catch (error) {
+            console.error('getAllGroups error:', error);
+            return [];
+        }
     },
 
     // Get a single group by ID

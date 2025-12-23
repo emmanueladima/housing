@@ -18,6 +18,8 @@ export interface Listing {
     landlord: {
         _id: string;
         name: string;
+        firstName?: string;
+        lastName?: string;
         profilePhoto?: string;
     };
     isVerified?: boolean;
@@ -26,6 +28,8 @@ export interface Listing {
         lat: number;
         lng: number;
     };
+    latitude?: number;
+    longitude?: number;
     createdAt: string;
 }
 
@@ -81,6 +85,12 @@ const listingService = {
     async getMyListings(): Promise<Listing[]> {
         const response = await api.get('/listings/my/listings');
         return response.data.listings;
+    },
+
+    // Create a new listing
+    async createListing(data: Partial<Listing>): Promise<Listing> {
+        const response = await api.post('/listings', data);
+        return response.data.listing;
     },
 };
 

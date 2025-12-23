@@ -81,8 +81,17 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
         navigation?.navigate?.('GroupDetail', { groupId: group._id });
     };
 
-    const getInitials = (name: string) => {
-        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    // Helper to get user name from different formats
+    const getUserName = (user: any): string => {
+        if (user?.name) return user.name;
+        if (user?.firstName && user?.lastName) return `${user.firstName} ${user.lastName}`;
+        if (user?.firstName) return user.firstName;
+        return 'Unknown';
+    };
+
+    const getInitials = (user: any): string => {
+        const name = getUserName(user);
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     };
 
     const formatBudget = (budget?: { min: number; max: number }) => {
@@ -197,7 +206,7 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                                                 >
                                                     <View style={styles.avatarCircle}>
                                                         <Text style={styles.avatarText}>
-                                                            {getInitials(profile.user.name)}
+                                                            {getInitials(profile.user)}
                                                         </Text>
                                                     </View>
                                                 </LinearGradient>
@@ -225,7 +234,7 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
 
                                         {/* Content */}
                                         <View style={styles.cardContent}>
-                                            <Text style={styles.cardName} numberOfLines={1}>{profile.user.name}</Text>
+                                            <Text style={styles.cardName} numberOfLines={1}>{getUserName(profile.user)}</Text>
                                             <Text style={styles.cardDetails}>{profile.year || 'Student'}</Text>
                                             <Text style={styles.cardMajor} numberOfLines={1}>{profile.major || 'Undeclared'}</Text>
                                         </View>
@@ -287,7 +296,11 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
 
             {/* Floating Create Button */}
             <View style={styles.createButtonContainer}>
-                <TouchableOpacity style={styles.createButton} activeOpacity={0.9}>
+                <TouchableOpacity
+                    style={styles.createButton}
+                    activeOpacity={0.9}
+                    onPress={() => navigation?.navigate?.(activeTab === 'Solo' ? 'CreateProfile' : 'CreateGroup')}
+                >
                     <Ionicons name="add" size={24} color={COLORS.card} />
                 </TouchableOpacity>
             </View>

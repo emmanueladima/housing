@@ -12,12 +12,15 @@ import {
     ActivityIndicator,
     RefreshControl,
     Image,
+    Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient'
+import { LinearGradient } from 'expo-linear-gradient';
+import Mapbox, { MapView, Camera, PointAnnotation, MarkerView } from '@rnmapbox/maps';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
 import listingService, { Listing, ListingFilters } from '../services/listingService';
+import { config } from '../config';
 
 const { width } = Dimensions.get('window');
 
@@ -49,7 +52,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [likedListings, setLikedListings] = useState<string[]>([]);
     const [showFilters, setShowFilters] = useState(false);
+    const [showMap, setShowMap] = useState(false);
     const [placeType, setPlaceType] = useState('any');
+
+    // Advanced filter states
+    const [priceMin, setPriceMin] = useState('');
+    const [priceMax, setPriceMax] = useState('');
+    const [bedrooms, setBedrooms] = useState('');
+    const [bathrooms, setBathrooms] = useState('');
+    const [leaseTerm, setLeaseTerm] = useState('');
+    const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
 
     // Fetch listings from API
     const fetchListings = useCallback(async (showLoader = true) => {
@@ -261,13 +273,92 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 </ScrollView>
             )}
 
-            {/* Floating Map Button */}
-            <View style={styles.mapButtonContainer}>
-                <TouchableOpacity style={styles.mapButton} activeOpacity={0.9}>
+            {/* Floating Buttons */}
+            <View style={styles.fabContainer}>
+                {/* Create Listing FAB */}
+                <TouchableOpacity
+                    style={styles.fabButton}
+                    activeOpacity={0.9}
+                    onPress={() => navigation?.navigate?.('CreateListing')}
+                >
+                    <Ionicons name="add" size={24} color={COLORS.card} />
+                </TouchableOpacity>
+
+                {/* Map Button */}
+                <TouchableOpacity
+                    style={styles.mapButton}
+                    activeOpacity={0.9}
+                    onPress={() => setShowMap(true)}
+                >
                     <Ionicons name="map" size={18} color={COLORS.card} />
                     <Text style={styles.mapButtonText}>Map</Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Map Modal */}
+            <Modal
+                visible={showMap}
+                animationType="slide"
+                presentationStyle="fullScreen"
+            >
+                <View style={styles.mapModalContainer}>
+                    {/* Map Header */}
+                    <SafeAreaView edges={['top']} style={styles.mapHeader}>
+                        <TouchableOpacity
+                            style={styles.mapCloseButton}
+                            onPress={() => setShowMap(false)}
+                        >
+                            <Ionicons name="close" size={24} color={COLORS.text} />
+                        </TouchableOpacity>
+                        <Text style={styles.mapTitle}>Listings Map</Text>
+                        <View style={{ width: 40 }} />
+                    </SafeAreaView>
+
+                    {/* Map View - Mapbox */}
+                    <MapView style={styles.map}>
+                        <Camera
+                            zoomLevel={14}
+                            centerCoordinate={[config.DEFAULT_LONGITUDE, config.DEFAULT_LATITUDE]}
+                        />
+                        {listings
+                            .filter(l => (l.latitude && l.longitude) || (l.coordinates?.lat && l.coordinates?.lng))
+                            .map((listing) => {
+                                const lat = listing.latitude || listing.coordinates?.lat;
+                                const lng = listing.longitude || listing.coordinates?.lng;
+                                if (!lat || !lng) return null;
+                                return (
+                                    <MarkerView
+                                        key={listing._id}
+                                        coordinate={[lng, lat]}
+                                    >
+                                        <TouchableOpacity
+                                            style={styles.mapboxMarker}
+                                            onPress={() => {
+                                                setShowMap(false);
+                                                openListingDetail(listing);
+                                            }}
+                                        >
+                                            <Text style={styles.mapboxMarkerText}>
+                                                ${listing.rent >= 1000 ? `${(listing.rent / 1000).toFixed(1)}k` : listing.rent}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </MarkerView>
+                                );
+                            })}
+                    </MapView>
+
+                    {/* List View Toggle */}
+                    <View style={styles.listToggleContainer}>
+                        <TouchableOpacity
+                            style={styles.listToggleButton}
+                            onPress={() => setShowMap(false)}
+                        >
+                            <Ionicons name="list" size={18} color={COLORS.card} />
+                            <Text style={styles.listToggleText}>List</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
 
             {/* Filter Modal */}
             <Modal
@@ -322,12 +413,154 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                             ))}
                         </View>
 
+                        {/* Price Range */}
+                        <Text style={styles.sectionTitle}>Price Range</Text>
+                        <View style={styles.priceRangeRow}>
+                            <View style={styles.priceInputWrapper}>
+                                <Text style={styles.priceLabel}>Min</Text>
+                                <TextInput
+                                    style={styles.priceInput}
+                                    placeholder="$0"
+                                    keyboardType="numeric"
+                                    value={priceMin}
+                                    onChangeText={setPriceMin}
+                                    placeholderTextColor={COLORS.textMuted}
+                                />
+                            </View>
+                            <Text style={styles.priceDash}>—</Text>
+                            <View style={styles.priceInputWrapper}>
+                                <Text style={styles.priceLabel}>Max</Text>
+                                <TextInput
+                                    style={styles.priceInput}
+                                    placeholder="$5000+"
+                                    keyboardType="numeric"
+                                    value={priceMax}
+                                    onChangeText={setPriceMax}
+                                    placeholderTextColor={COLORS.textMuted}
+                                />
+                            </View>
+                        </View>
+
+                        {/* Bedrooms */}
+                        <Text style={styles.sectionTitle}>Bedrooms</Text>
+                        <View style={styles.optionRow}>
+                            {['Any', '1', '2', '3', '4+'].map((option) => (
+                                <TouchableOpacity
+                                    key={option}
+                                    style={[
+                                        styles.optionButton,
+                                        bedrooms === option && styles.optionButtonActive
+                                    ]}
+                                    onPress={() => setBedrooms(bedrooms === option ? '' : option)}
+                                >
+                                    <Text style={[
+                                        styles.optionText,
+                                        bedrooms === option && styles.optionTextActive
+                                    ]}>{option}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        {/* Bathrooms */}
+                        <Text style={styles.sectionTitle}>Bathrooms</Text>
+                        <View style={styles.optionRow}>
+                            {['Any', '1', '2', '3+'].map((option) => (
+                                <TouchableOpacity
+                                    key={option}
+                                    style={[
+                                        styles.optionButton,
+                                        bathrooms === option && styles.optionButtonActive
+                                    ]}
+                                    onPress={() => setBathrooms(bathrooms === option ? '' : option)}
+                                >
+                                    <Text style={[
+                                        styles.optionText,
+                                        bathrooms === option && styles.optionTextActive
+                                    ]}>{option}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        {/* Lease Term */}
+                        <Text style={styles.sectionTitle}>Lease Term</Text>
+                        <View style={styles.optionRow}>
+                            {[
+                                { value: '', label: 'Any' },
+                                { value: 'month-to-month', label: 'Monthly' },
+                                { value: '6-months', label: '6 mo' },
+                                { value: '1-year', label: '1 year' },
+                            ].map((option) => (
+                                <TouchableOpacity
+                                    key={option.value}
+                                    style={[
+                                        styles.optionButton,
+                                        leaseTerm === option.value && styles.optionButtonActive
+                                    ]}
+                                    onPress={() => setLeaseTerm(leaseTerm === option.value ? '' : option.value)}
+                                >
+                                    <Text style={[
+                                        styles.optionText,
+                                        leaseTerm === option.value && styles.optionTextActive
+                                    ]}>{option.label}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        {/* Amenities */}
+                        <Text style={styles.sectionTitle}>Amenities</Text>
+                        <View style={styles.amenitiesGrid}>
+                            {[
+                                { id: 'WiFi', icon: 'wifi', label: 'WiFi' },
+                                { id: 'parking', icon: 'car', label: 'Parking' },
+                                { id: 'laundry', icon: 'water', label: 'Laundry' },
+                                { id: 'pet-friendly', icon: 'paw', label: 'Pets OK' },
+                                { id: 'furnished', icon: 'bed', label: 'Furnished' },
+                                { id: 'AC', icon: 'snow', label: 'A/C' },
+                                { id: 'gym', icon: 'fitness', label: 'Gym' },
+                                { id: 'pool', icon: 'water', label: 'Pool' },
+                            ].map((amenity) => (
+                                <TouchableOpacity
+                                    key={amenity.id}
+                                    style={[
+                                        styles.amenityButton,
+                                        selectedAmenities.includes(amenity.id) && styles.amenityButtonActive
+                                    ]}
+                                    onPress={() => {
+                                        setSelectedAmenities(prev =>
+                                            prev.includes(amenity.id)
+                                                ? prev.filter(a => a !== amenity.id)
+                                                : [...prev, amenity.id]
+                                        );
+                                    }}
+                                >
+                                    <Ionicons
+                                        name={amenity.icon as any}
+                                        size={20}
+                                        color={selectedAmenities.includes(amenity.id) ? COLORS.card : COLORS.text}
+                                    />
+                                    <Text style={[
+                                        styles.amenityText,
+                                        selectedAmenities.includes(amenity.id) && styles.amenityTextActive
+                                    ]}>{amenity.label}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
                         <View style={{ height: 100 }} />
                     </ScrollView>
 
                     {/* Modal Footer */}
                     <View style={styles.modalFooter}>
-                        <TouchableOpacity onPress={() => setActiveFilters([])}>
+                        <TouchableOpacity onPress={() => {
+                            setActiveFilters([]);
+                            setPriceMin('');
+                            setPriceMax('');
+                            setBedrooms('');
+                            setBathrooms('');
+                            setLeaseTerm('');
+                            setSelectedAmenities([]);
+                            setPlaceType('any');
+                        }}>
                             <Text style={styles.clearText}>Clear all</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -548,13 +781,25 @@ const styles = StyleSheet.create({
         marginHorizontal: SPACING.xs,
     },
 
-    // Map button
-    mapButtonContainer: {
+    // Floating buttons
+    fabContainer: {
         position: 'absolute',
         bottom: 100,
         left: 0,
         right: 0,
+        flexDirection: 'row',
+        justifyContent: 'center',
         alignItems: 'center',
+        gap: SPACING.md,
+    },
+    fabButton: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: COLORS.text,
+        justifyContent: 'center',
+        alignItems: 'center',
+        ...SHADOWS.lg,
     },
     mapButton: {
         flexDirection: 'row',
@@ -692,6 +937,192 @@ const styles = StyleSheet.create({
     showButtonText: {
         fontSize: FONT_SIZES.md,
         fontWeight: '700',
+        color: COLORS.card,
+    },
+
+    // Map Modal
+    mapModalContainer: {
+        flex: 1,
+        backgroundColor: COLORS.background,
+    },
+    mapHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: SPACING.lg,
+        paddingVertical: SPACING.sm,
+        backgroundColor: COLORS.card,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.border,
+    },
+    mapCloseButton: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    mapTitle: {
+        fontSize: FONT_SIZES.lg,
+        fontWeight: '700',
+        color: COLORS.text,
+    },
+    map: {
+        flex: 1,
+    },
+    markerContainer: {
+        alignItems: 'center',
+    },
+    marker: {
+        backgroundColor: COLORS.primary,
+        paddingHorizontal: SPACING.sm,
+        paddingVertical: SPACING.xs,
+        borderRadius: BORDER_RADIUS.md,
+        ...SHADOWS.md,
+    },
+    markerText: {
+        fontSize: FONT_SIZES.sm,
+        fontWeight: '700',
+        color: COLORS.card,
+    },
+    callout: {
+        width: 200,
+        padding: SPACING.sm,
+    },
+    calloutTitle: {
+        fontSize: FONT_SIZES.md,
+        fontWeight: '600',
+        color: COLORS.text,
+        marginBottom: 4,
+    },
+    calloutSubtitle: {
+        fontSize: FONT_SIZES.sm,
+        color: COLORS.textSecondary,
+        marginBottom: 4,
+    },
+    calloutAction: {
+        fontSize: FONT_SIZES.xs,
+        color: COLORS.primary,
+        fontWeight: '500',
+    },
+    listToggleContainer: {
+        position: 'absolute',
+        bottom: 100,
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+    },
+    listToggleButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: SPACING.xs,
+        backgroundColor: COLORS.primary,
+        paddingHorizontal: SPACING.xl,
+        paddingVertical: SPACING.md,
+        borderRadius: BORDER_RADIUS.full,
+        ...SHADOWS.lg,
+    },
+    listToggleText: {
+        fontSize: FONT_SIZES.md,
+        fontWeight: '700',
+        color: COLORS.card,
+    },
+
+    // Mapbox markers
+    mapboxMarker: {
+        backgroundColor: COLORS.primary,
+        paddingHorizontal: SPACING.md,
+        paddingVertical: SPACING.sm,
+        borderRadius: BORDER_RADIUS.md,
+        ...SHADOWS.md,
+    },
+    mapboxMarkerText: {
+        fontSize: FONT_SIZES.sm,
+        fontWeight: '700',
+        color: COLORS.card,
+    },
+
+    // Advanced Filter Styles
+    priceRangeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: SPACING.md,
+        marginBottom: SPACING.md,
+    },
+    priceInputWrapper: {
+        flex: 1,
+        backgroundColor: COLORS.backgroundSecondary,
+        borderRadius: BORDER_RADIUS.lg,
+        padding: SPACING.md,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    priceLabel: {
+        fontSize: FONT_SIZES.xs,
+        color: COLORS.textSecondary,
+        marginBottom: SPACING.xs,
+    },
+    priceInput: {
+        fontSize: FONT_SIZES.lg,
+        fontWeight: '600',
+        color: COLORS.text,
+    },
+    priceDash: {
+        fontSize: FONT_SIZES.lg,
+        color: COLORS.textMuted,
+    },
+    optionRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: SPACING.sm,
+        marginBottom: SPACING.md,
+    },
+    optionButton: {
+        paddingHorizontal: SPACING.lg,
+        paddingVertical: SPACING.sm,
+        borderRadius: BORDER_RADIUS.full,
+        backgroundColor: COLORS.backgroundSecondary,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    optionButtonActive: {
+        backgroundColor: COLORS.text,
+        borderColor: COLORS.text,
+    },
+    optionText: {
+        fontSize: FONT_SIZES.md,
+        fontWeight: '500',
+        color: COLORS.text,
+    },
+    optionTextActive: {
+        color: COLORS.card,
+    },
+    amenitiesGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: SPACING.sm,
+        marginBottom: SPACING.md,
+    },
+    amenityButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: SPACING.xs,
+        paddingHorizontal: SPACING.md,
+        paddingVertical: SPACING.sm,
+        borderRadius: BORDER_RADIUS.lg,
+        backgroundColor: COLORS.backgroundSecondary,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+    },
+    amenityButtonActive: {
+        backgroundColor: COLORS.text,
+        borderColor: COLORS.text,
+    },
+    amenityText: {
+        fontSize: FONT_SIZES.sm,
+        fontWeight: '500',
+        color: COLORS.text,
+    },
+    amenityTextActive: {
         color: COLORS.card,
     },
 });

@@ -13,7 +13,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import Mapbox, { MapView, Camera, MarkerView } from '@rnmapbox/maps';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
+import { config } from '../config';
 
 const { width, height } = Dimensions.get('window');
 const IMAGE_HEIGHT = height * 0.4;
@@ -214,10 +216,28 @@ const ListingDetailScreen: React.FC<ListingDetailScreenProps> = ({ navigation })
                     {/* Location */}
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Location</Text>
-                        <View style={styles.mapPlaceholder}>
-                            <Ionicons name="map" size={40} color={COLORS.textMuted} />
-                            <Text style={styles.mapText}>123 Main St, Corvallis, OR</Text>
+                        <View style={styles.mapContainer}>
+                            <MapView
+                                style={styles.mapView}
+                                scrollEnabled={false}
+                                pitchEnabled={false}
+                                rotateEnabled={false}
+                                zoomEnabled={false}
+                            >
+                                <Camera
+                                    zoomLevel={15}
+                                    centerCoordinate={[config.DEFAULT_LONGITUDE, config.DEFAULT_LATITUDE]}
+                                />
+                                <MarkerView
+                                    coordinate={[config.DEFAULT_LONGITUDE, config.DEFAULT_LATITUDE]}
+                                >
+                                    <View style={styles.mapMarker}>
+                                        <Ionicons name="location" size={24} color={COLORS.card} />
+                                    </View>
+                                </MarkerView>
+                            </MapView>
                         </View>
+                        <Text style={styles.addressText}>123 Main St, Corvallis, OR</Text>
                     </View>
 
                     {/* Bottom padding for footer */}
@@ -510,17 +530,28 @@ const styles = StyleSheet.create({
     },
 
     // Map
-    mapPlaceholder: {
-        height: 150,
-        backgroundColor: COLORS.backgroundSecondary,
+    mapContainer: {
+        height: 180,
         borderRadius: BORDER_RADIUS.xl,
+        overflow: 'hidden',
+        marginBottom: SPACING.sm,
+    },
+    mapView: {
+        flex: 1,
+    },
+    mapMarker: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: COLORS.primary,
         justifyContent: 'center',
         alignItems: 'center',
+        ...SHADOWS.md,
     },
-    mapText: {
+    addressText: {
         fontSize: FONT_SIZES.sm,
         color: COLORS.textSecondary,
-        marginTop: SPACING.sm,
+        textAlign: 'center',
     },
 
     // Footer

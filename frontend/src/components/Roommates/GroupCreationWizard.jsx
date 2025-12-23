@@ -174,7 +174,10 @@ const GroupCreationWizard = ({ isOpen, onClose, onCreate }) => {
                     </div>
                 );
             case 3:
-                const vibes = ['Studious', 'Chill', 'Party', 'Clean', 'Gamers', 'Night Owls', 'Early Birds', 'Fitness', 'Music'];
+                const vibes = [
+                    'Studious', 'Chill', 'Party', 'Clean', 'Gamers', 'Night Owls', 'Early Birds', 'Fitness', 'Music',
+                    'Pet Lovers', 'Eco-Friendly', 'Foodies', 'Movie Nights', 'Quiet', 'Social', 'Outdoorsy', 'Creative'
+                ];
                 return (
                     <div className="text-center">
                         <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-6 text-teal-500">

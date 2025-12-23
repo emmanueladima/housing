@@ -1,9 +1,23 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// API URL - update this to your deployed backend URL
-const API_URL = 'https://housing-1-qm1p.onrender.com/api';
-// For local development: 'http://localhost:5001/api'
+// =================================================================
+// API URL CONFIGURATION
+// =================================================================
+// For LOCAL development (backend running on your computer):
+//   1. Find your computer's local IP: run 'ipconfig getifaddr en0' in terminal
+//   2. Replace 'YOUR_LOCAL_IP' below with that IP (e.g., '192.168.1.100')
+//   3. Make sure backend is running: cd backend && npm run dev
+//
+// For DEPLOYED backend (Render, etc.):
+//   Replace with your deployed URL, e.g., 'https://your-app.onrender.com/api'
+// =================================================================
+
+// CHANGE THIS to your backend URL:
+const API_URL = 'http://172.16.46.110:5001/api'; // Local development
+// const API_URL = 'https://your-deployed-backend.onrender.com/api'; // Production
+
+console.log('📡 Mobile API configured to:', API_URL);
 
 // Create axios instance
 const api: AxiosInstance = axios.create({

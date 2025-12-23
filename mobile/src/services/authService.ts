@@ -2,25 +2,41 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from './api';
 
 export interface User {
-    _id: string;
+    id: string;
+    _id?: string; // Some endpoints return _id
     email: string;
-    name: string;
-    role: string;
-    isEmailVerified: boolean;
+    firstName: string;
+    lastName: string;
+    name?: string; // Computed field
+    userType: string;
+    isVerified: boolean;
     profilePhoto?: string;
     phone?: string;
     bio?: string;
+    favorites?: string[];
+    savedProfiles?: string[];
 }
 
 export interface AuthResponse {
+    success: boolean;
     token: string;
     user: User;
     message?: string;
+    error?: string;
+    needsVerification?: boolean;
 }
 
 const authService = {
     // Sign up
-    async signup(userData: { name: string; email: string; password: string }): Promise<AuthResponse> {
+    async signup(userData: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        password: string;
+        phone: string;
+        school: string;
+        graduationYear: number;
+    }): Promise<AuthResponse> {
         const response = await api.post('/auth/signup', userData);
         // Don't store token yet - user needs to verify email
         return response.data;
@@ -28,11 +44,27 @@ const authService = {
 
     // Login
     async login(credentials: { email: string; password: string }): Promise<AuthResponse> {
+        console.log('🔐 Attempting login for:', credentials.email);
         const response = await api.post('/auth/login', credentials);
-        if (response.data.token) {
+        console.log('📡 Login response:', response.data.success ? 'Success' : 'Failed');
+
+        if (response.data.success && response.data.token) {
+            // Add computed name field
+            const user = {
+                ...response.data.user,
+                name: `${response.data.user.firstName} ${response.data.user.lastName}`,
+                _id: response.data.user.id,
+            };
             await AsyncStorage.setItem('token', response.data.token);
-            await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+            await AsyncStorage.setItem('user', JSON.stringify(user));
+            return { ...response.data, user };
         }
+
+        // Handle error responses
+        if (!response.data.success) {
+            throw new Error(response.data.error || 'Login failed');
+        }
+
         return response.data;
     },
 

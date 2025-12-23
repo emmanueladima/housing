@@ -142,6 +142,9 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
             delete payload.vibes;
             delete payload.guestFrequency;
             delete payload.photoPreview;
+            delete payload.interests; // Not used in backend
+            delete payload.newPhoto; // Handled separately
+            delete payload.photo; // We use newPhoto for updates
 
             const savedProfile = await lifestyleProfileService.saveMyProfile(payload, formData.newPhoto);
             onSaved(savedProfile);
@@ -155,7 +158,12 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
         }
     };
 
-    const VIBES_OPTIONS = ['Chill', 'Social', 'Studious', 'Party', 'Quiet', 'Artsy', 'Outdoorsy', 'Night Owl', 'Early Bird', 'Fitness', 'Gamer', 'Foodie'];
+    const VIBES_OPTIONS = [
+        'Chill', 'Social', 'Studious', 'Party', 'Quiet', 'Artsy',
+        'Outdoorsy', 'Night Owl', 'Early Bird', 'Fitness', 'Gamer', 'Foodie',
+        'Music Lover', 'Movie Buff', 'Pet Lover', 'Traveler', 'Homebody',
+        'Clean Freak', 'Minimalist', 'Eco-Friendly', 'Spiritual', 'Adventurous'
+    ];
 
     const steps = [
         { num: 1, label: 'Basics', icon: FiUser, color: 'orange' },
@@ -301,32 +309,77 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Bedtime</label>
-                                <select
-                                    name="sleepSchedule.bedtime"
-                                    value={formData.sleepSchedule.bedtime}
-                                    onChange={handleChange}
-                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
-                                >
-                                    {Array.from({ length: 24 }, (_, i) => (
-                                        <option key={i} value={i}>{i}:00</option>
-                                    ))}
-                                </select>
+                        {/* Sleep Schedule as Dual Sliders */}
+                        <div className="border border-gray-200 rounded-xl p-4">
+                            <label className="block text-sm font-bold text-gray-700 mb-4">Sleep Schedule</label>
+
+                            {/* Visual display of sleep window */}
+                            <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg">
+                                <div className="flex items-center gap-2">
+                                    <FiMoon className="text-blue-500" />
+                                    <div>
+                                        <p className="text-xs text-gray-500">Bedtime</p>
+                                        <p className="font-bold text-gray-900">{formData.sleepSchedule.bedtime}:00</p>
+                                    </div>
+                                </div>
+                                <div className="flex-1 mx-4 h-2 rounded-full bg-gradient-to-r from-blue-200 via-purple-300 to-orange-200"></div>
+                                <div className="flex items-center gap-2">
+                                    <div className="text-right">
+                                        <p className="text-xs text-gray-500">Wake Up</p>
+                                        <p className="font-bold text-gray-900">{formData.sleepSchedule.wakeup}:00</p>
+                                    </div>
+                                    <FiSun className="text-orange-500" />
+                                </div>
                             </div>
+
+                            {/* Bedtime Slider */}
+                            <div className="mb-4">
+                                <div className="flex justify-between mb-1">
+                                    <span className="text-xs font-medium text-gray-500">Bedtime</span>
+                                    <span className="text-xs font-bold text-blue-600">{formData.sleepSchedule.bedtime}:00</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    name="sleepSchedule.bedtime"
+                                    min="18"
+                                    max="4"
+                                    value={formData.sleepSchedule.bedtime <= 4 ? formData.sleepSchedule.bedtime + 24 : formData.sleepSchedule.bedtime}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            sleepSchedule: { ...prev.sleepSchedule, bedtime: val > 23 ? val - 24 : val }
+                                        }));
+                                    }}
+                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                                />
+                                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>6PM</span>
+                                    <span>Midnight</span>
+                                    <span>4AM</span>
+                                </div>
+                            </div>
+
+                            {/* Wake Up Slider */}
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Wake Up</label>
-                                <select
+                                <div className="flex justify-between mb-1">
+                                    <span className="text-xs font-medium text-gray-500">Wake Up</span>
+                                    <span className="text-xs font-bold text-orange-600">{formData.sleepSchedule.wakeup}:00</span>
+                                </div>
+                                <input
+                                    type="range"
                                     name="sleepSchedule.wakeup"
+                                    min="4"
+                                    max="12"
                                     value={formData.sleepSchedule.wakeup}
                                     onChange={handleChange}
-                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none"
-                                >
-                                    {Array.from({ length: 24 }, (_, i) => (
-                                        <option key={i} value={i}>{i}:00</option>
-                                    ))}
-                                </select>
+                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                                />
+                                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>4AM</span>
+                                    <span>8AM</span>
+                                    <span>Noon</span>
+                                </div>
                             </div>
                         </div>
                     </div>
