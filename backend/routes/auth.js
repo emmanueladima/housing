@@ -14,6 +14,7 @@ import {
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 import { uploadSingleImage } from '../middleware/multer.js';
+import { optimizeProfilePhoto } from '../middleware/imageOptimizer.js';
 import { authLimiter, signupLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
@@ -53,7 +54,7 @@ router.post('/reset-password/:token', resetPassword);
 // Protected routes
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
-router.put('/profile-photo', protect, uploadSingleImage, updateProfilePhoto);
+router.put('/profile-photo', protect, uploadSingleImage, optimizeProfilePhoto, updateProfilePhoto);
 router.post('/resend-verification', protect, resendVerification);
 
 export default router;

@@ -13,6 +13,7 @@ import {
 } from '../controllers/listingController.js';
 import { protect, checkLandlord } from '../middleware/auth.js';
 import { uploadListingImages } from '../middleware/multer.js';
+import { optimizeListingImages } from '../middleware/imageOptimizer.js';
 
 const router = express.Router();
 
@@ -43,8 +44,8 @@ router.get('/favorites', protect, getFavoriteListings);
 router.get('/:id', getListing);
 
 // Other protected routes
-router.post('/', protect, uploadListingImages, listingValidation, createListing);
-router.put('/:id', protect, uploadListingImages, updateListing);
+router.post('/', protect, uploadListingImages, optimizeListingImages, listingValidation, createListing);
+router.put('/:id', protect, uploadListingImages, optimizeListingImages, updateListing);
 router.delete('/:id', protect, deleteListing);
 router.post('/:id/favorite', protect, toggleFavorite);
 router.post('/:id/sublease', protect, convertToSublease);
