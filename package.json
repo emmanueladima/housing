@@ -15,6 +15,9 @@
         "dev:mobile": "cd mobile && npx expo start",
         "install:all": "cd frontend && npm install && cd ../backend && npm install && cd ../mobile && npm install"
     },
+    "devDependencies": {
+        "tailwindcss": "^3.3.6"
+    },
     "overrides": {
         "@heroui/theme": "2.4.17",
         "@heroui/system": "2.4.17",
