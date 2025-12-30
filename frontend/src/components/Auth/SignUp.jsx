@@ -148,22 +148,31 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
         </div>
 
         {/* Role Selection Cards */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-5">
           <button
             onClick={() => handleRoleSelect('student')}
-            className="p-5 border-2 border-gray-200 rounded-xl hover:border-orange-400 hover:bg-orange-50 transition-all text-left group"
+            className="p-6 border-2 border-gray-100 rounded-2xl hover:border-orange-500 hover:bg-orange-50/50 transition-all duration-300 text-left group hover:shadow-xl hover:-translate-y-1 bg-white"
           >
-            <div className="text-3xl mb-2">🎓</div>
-            <h4 className="font-bold text-gray-900 group-hover:text-orange-600">Student</h4>
-            <p className="text-xs text-gray-500 mt-1">Looking for housing or roommates</p>
+            <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+              <span className="text-3xl">🎓</span>
+            </div>
+            <h4 className="text-lg font-black text-gray-900 group-hover:text-orange-600 mb-1">Student</h4>
+            <p className="text-sm font-medium text-gray-500 group-hover:text-gray-600 leading-relaxed">
+              Find housing, roommates, and groups.
+            </p>
           </button>
+
           <button
             onClick={() => handleRoleSelect('landlord')}
-            className="p-5 border-2 border-gray-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all text-left group"
+            className="p-6 border-2 border-gray-100 rounded-2xl hover:border-blue-500 hover:bg-blue-50/50 transition-all duration-300 text-left group hover:shadow-xl hover:-translate-y-1 bg-white"
           >
-            <div className="text-3xl mb-2">🏢</div>
-            <h4 className="font-bold text-gray-900 group-hover:text-blue-600">Landlord</h4>
-            <p className="text-xs text-gray-500 mt-1">List properties for students</p>
+            <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+              <span className="text-3xl">🏢</span>
+            </div>
+            <h4 className="text-lg font-black text-gray-900 group-hover:text-blue-600 mb-1">Landlord</h4>
+            <p className="text-sm font-medium text-gray-500 group-hover:text-gray-600 leading-relaxed">
+              List properties and manage applications.
+            </p>
           </button>
         </div>
 

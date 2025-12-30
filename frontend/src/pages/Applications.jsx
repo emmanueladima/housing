@@ -112,7 +112,7 @@ const ApplicationCard = ({ application, onWithdraw }) => {
             {listing?.rent?.toLocaleString()}
             <span className="text-white/60 text-xs font-normal">/mo</span>
           </span>
-          <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${config?.color} border bg-opacity-50 backdrop-blur-sm`}>
+          <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${config?.color} border backdrop-blur-sm`}>
             <StatusIcon size={10} />
             {config?.label}
           </div>
