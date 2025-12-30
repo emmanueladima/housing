@@ -16,11 +16,6 @@
         "install:all": "cd frontend && npm install && cd ../backend && npm install && cd ../mobile && npm install"
     },
     "dependencies": {
-        "tailwindcss": "^3.4.17"
-    },
-    "overrides": {
-        "@heroui/theme": "2.4.17",
-        "@heroui/system": "2.4.17",
-        "@heroui/system-rsc": "2.4.17"
+        "tailwindcss": "^4.0.0"
     }
 }
