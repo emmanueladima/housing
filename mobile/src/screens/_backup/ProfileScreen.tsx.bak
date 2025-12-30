@@ -1,0 +1,351 @@
+import React from 'react';
+import {
+    StyleSheet,
+    View,
+    Text,
+    ScrollView,
+    TouchableOpacity,
+    StatusBar,
+    Image,
+    Alert,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useColors, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
+import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+
+interface ProfileScreenProps {
+    navigation?: any;
+}
+
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
+    const { user, logout } = useAuth();
+    const colors = useColors();
+    const { isDark } = useTheme();
+
+    const handleLogout = () => {
+        Alert.alert(
+            'Logout',
+            'Are you sure you want to logout?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Logout', style: 'destructive', onPress: logout },
+            ]
+        );
+    };
+
+    const getInitials = (name: string) => {
+        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    };
+
+    // Base menu items for all users
+    const baseMenuItems = [
+        { icon: 'person-outline', label: 'Edit Profile', action: () => navigation?.navigate('CreateProfile') },
+        { icon: 'heart-outline', label: 'Saved Items', action: () => navigation?.navigate('Saved') },
+        { icon: 'chatbubble-ellipses-outline', label: 'Feedback', action: () => navigation?.navigate('Feedback') },
+        { icon: 'document-text-outline', label: 'Applications', action: () => navigation?.navigate('Applications') },
+        { icon: 'sparkles-outline', label: 'Compatibility Test', action: () => navigation?.navigate('CompatibilityTest') },
+        { icon: 'construct-outline', label: 'Toolkit', action: () => navigation?.navigate('Toolkit') },
+        { icon: 'notifications-outline', label: 'Notifications', action: () => navigation?.navigate('Notifications') },
+        { icon: 'settings-outline', label: 'Settings', action: () => navigation?.navigate('Settings') },
+        { icon: 'help-circle-outline', label: 'Help & Support', action: () => navigation?.navigate('Settings') },
+    ];
+
+    // Add landlord-specific items if user is a landlord
+    const isLandlord = user?.userType === 'landlord';
+    const menuItems = isLandlord
+        ? [
+            { icon: 'business-outline', label: 'Landlord Dashboard', action: () => navigation?.navigate('LandlordDashboard') },
+            { icon: 'home-outline', label: 'My Listings', action: () => navigation?.navigate('CreateListing') },
+            ...baseMenuItems,
+        ]
+        : baseMenuItems;
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        safeArea: {
+            backgroundColor: colors.background,
+        },
+        header: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingHorizontal: SPACING.lg,
+            paddingVertical: SPACING.md,
+        },
+        title: {
+            fontSize: FONT_SIZES.title,
+            fontWeight: '700',
+            color: colors.text,
+        },
+        settingsButton: {
+            width: 40,
+            height: 40,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.backgroundSecondary,
+            borderRadius: BORDER_RADIUS.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+        content: {
+            flex: 1,
+        },
+        contentContainer: {
+            paddingHorizontal: SPACING.lg,
+        },
+        profileCard: {
+            alignItems: 'center',
+            paddingVertical: SPACING.xl,
+        },
+        avatarContainer: {
+            position: 'relative',
+            marginBottom: SPACING.md,
+        },
+        avatar: {
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+        },
+        avatarPlaceholder: {
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            backgroundColor: colors.primary,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        avatarText: {
+            fontSize: 36,
+            fontWeight: '700',
+            color: '#FFFFFF',
+        },
+        editAvatarButton: {
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            width: 32,
+            height: 32,
+            borderRadius: 16,
+            backgroundColor: colors.primary,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderWidth: 3,
+            borderColor: colors.background,
+        },
+        userName: {
+            fontSize: FONT_SIZES.xxl,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: 4,
+        },
+        userEmail: {
+            fontSize: FONT_SIZES.md,
+            color: colors.textSecondary,
+            marginBottom: SPACING.sm,
+        },
+        verifiedBadge: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+            backgroundColor: `${colors.success}15`,
+            paddingHorizontal: SPACING.md,
+            paddingVertical: SPACING.xs,
+            borderRadius: BORDER_RADIUS.full,
+        },
+        verifiedText: {
+            fontSize: FONT_SIZES.sm,
+            fontWeight: '500',
+            color: colors.success,
+        },
+        statsCard: {
+            flexDirection: 'row',
+            backgroundColor: colors.card,
+            borderRadius: BORDER_RADIUS.xl,
+            padding: SPACING.lg,
+            marginBottom: SPACING.lg,
+            borderWidth: 1,
+            borderColor: colors.border,
+            ...SHADOWS.sm,
+        },
+        statItem: {
+            flex: 1,
+            alignItems: 'center',
+        },
+        statValue: {
+            fontSize: FONT_SIZES.xxl,
+            fontWeight: '700',
+            color: colors.text,
+        },
+        statLabel: {
+            fontSize: FONT_SIZES.sm,
+            color: colors.textSecondary,
+            marginTop: 2,
+        },
+        statDivider: {
+            width: 1,
+            backgroundColor: colors.border,
+            marginHorizontal: SPACING.md,
+        },
+        menuCard: {
+            backgroundColor: colors.card,
+            borderRadius: BORDER_RADIUS.xl,
+            marginBottom: SPACING.lg,
+            borderWidth: 1,
+            borderColor: colors.border,
+            ...SHADOWS.sm,
+        },
+        menuItem: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: SPACING.lg,
+            paddingHorizontal: SPACING.lg,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+        },
+        menuItemLast: {
+            borderBottomWidth: 0,
+        },
+        menuIcon: {
+            width: 40,
+            height: 40,
+            borderRadius: 12,
+            backgroundColor: colors.backgroundSecondary,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginRight: SPACING.md,
+        },
+        menuLabel: {
+            flex: 1,
+            fontSize: FONT_SIZES.md,
+            fontWeight: '500',
+            color: colors.text,
+        },
+        logoutButton: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: SPACING.sm,
+            paddingVertical: SPACING.lg,
+            marginBottom: SPACING.md,
+        },
+        logoutText: {
+            fontSize: FONT_SIZES.md,
+            fontWeight: '600',
+            color: colors.primary,
+        },
+        versionText: {
+            textAlign: 'center',
+            fontSize: FONT_SIZES.sm,
+            color: colors.textMuted,
+        },
+    });
+
+    return (
+        <View style={styles.container}>
+            <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+
+            <SafeAreaView edges={['top']} style={styles.safeArea}>
+                <View style={styles.header}>
+                    <Text style={styles.title}>Profile</Text>
+                    <TouchableOpacity
+                        style={styles.settingsButton}
+                        onPress={() => navigation?.navigate('Settings')}
+                    >
+                        <Ionicons name="settings-outline" size={22} color={colors.text} />
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+
+            <ScrollView
+                style={styles.content}
+                contentContainerStyle={styles.contentContainer}
+                showsVerticalScrollIndicator={false}
+            >
+                {/* Profile Card */}
+                <View style={styles.profileCard}>
+                    <View style={styles.avatarContainer}>
+                        {user?.profilePhoto ? (
+                            <Image
+                                source={{ uri: user.profilePhoto }}
+                                style={styles.avatar}
+                            />
+                        ) : (
+                            <View style={styles.avatarPlaceholder}>
+                                <Text style={styles.avatarText}>
+                                    {getInitials(user?.name || 'U')}
+                                </Text>
+                            </View>
+                        )}
+                        <TouchableOpacity style={styles.editAvatarButton}>
+                            <Ionicons name="camera" size={16} color="#FFFFFF" />
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={styles.userName}>{user?.name || 'User'}</Text>
+                    <Text style={styles.userEmail}>{user?.email || ''}</Text>
+                    {user?.isVerified && (
+                        <View style={styles.verifiedBadge}>
+                            <Ionicons name="checkmark-circle" size={14} color={colors.success} />
+                            <Text style={styles.verifiedText}>Verified</Text>
+                        </View>
+                    )}
+                </View>
+
+                {/* Stats */}
+                <View style={styles.statsCard}>
+                    <View style={styles.statItem}>
+                        <Text style={styles.statValue}>0</Text>
+                        <Text style={styles.statLabel}>Listings</Text>
+                    </View>
+                    <View style={styles.statDivider} />
+                    <View style={styles.statItem}>
+                        <Text style={styles.statValue}>0</Text>
+                        <Text style={styles.statLabel}>Saved</Text>
+                    </View>
+                    <View style={styles.statDivider} />
+                    <View style={styles.statItem}>
+                        <Text style={styles.statValue}>0</Text>
+                        <Text style={styles.statLabel}>Applications</Text>
+                    </View>
+                </View>
+
+                {/* Menu Items */}
+                <View style={styles.menuCard}>
+                    {menuItems.map((item, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={[
+                                styles.menuItem,
+                                index === menuItems.length - 1 && styles.menuItemLast
+                            ]}
+                            onPress={item.action}
+                        >
+                            <View style={styles.menuIcon}>
+                                <Ionicons name={item.icon as any} size={22} color={colors.text} />
+                            </View>
+                            <Text style={styles.menuLabel}>{item.label}</Text>
+                            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+                        </TouchableOpacity>
+                    ))}
+                </View>
+
+                {/* Logout Button */}
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                    <Ionicons name="log-out-outline" size={20} color={colors.primary} />
+                    <Text style={styles.logoutText}>Logout</Text>
+                </TouchableOpacity>
+
+                {/* App Version */}
+                <Text style={styles.versionText}>Collegio v1.0.0</Text>
+
+                <View style={{ height: 120 }} />
+            </ScrollView>
+        </View>
+    );
+};
+
+export default ProfileScreen;

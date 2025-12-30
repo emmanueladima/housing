@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiSave, FiTrash2, FiImage, FiX, FiHome, FiDollarSign, FiMapPin, FiCheck, FiGrid } from 'react-icons/fi';
 import listingService from '../services/listingService';
-import LoadingSpinner from '../components/shared/LoadingSpinner';
+import loadingSpinner from '../components/shared/LoadingSpinner';
 import ModernBackground from '../components/shared/ModernBackground';
+import { Card } from '@heroui/card';
 
 const EditListing = () => {
     const { id } = useParams();
@@ -188,9 +189,9 @@ const EditListing = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Basic Info */}
-                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-white/50">
+                    <Card isBlurred className="bg-white/60 dark:bg-default-100/50 backdrop-blur-xl rounded-[2rem] p-6 sm:p-8 shadow-lg border-none">
                         <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                            <span className="p-2.5 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl">
+                            <span className="p-2.5 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl shadow-sm">
                                 <FiHome className="text-orange-600" size={20} />
                             </span>
                             Basic Information
@@ -280,12 +281,12 @@ const EditListing = () => {
                                 </select>
                             </div>
                         </div>
-                    </div>
+                    </Card>
 
                     {/* Location */}
-                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-white/50">
+                    <Card isBlurred className="bg-white/60 dark:bg-default-100/50 backdrop-blur-xl rounded-[2rem] p-6 sm:p-8 shadow-lg border-none">
                         <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                            <span className="p-2.5 bg-gradient-to-br from-teal-100 to-teal-200 rounded-xl">
+                            <span className="p-2.5 bg-gradient-to-br from-teal-100 to-teal-200 rounded-xl shadow-sm">
                                 <FiMapPin className="text-teal-600" size={20} />
                             </span>
                             Location
@@ -344,12 +345,12 @@ const EditListing = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </Card>
 
                     {/* Images */}
-                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-white/50">
+                    <Card isBlurred className="bg-white/60 dark:bg-default-100/50 backdrop-blur-xl rounded-[2rem] p-6 sm:p-8 shadow-lg border-none">
                         <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                            <span className="p-2.5 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl">
+                            <span className="p-2.5 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl shadow-sm">
                                 <FiImage className="text-purple-600" size={20} />
                             </span>
                             Photos
@@ -365,7 +366,7 @@ const EditListing = () => {
                                             <img
                                                 src={img}
                                                 alt={`Listing ${idx + 1}`}
-                                                className="w-full h-full object-cover rounded-xl ring-2 ring-gray-100"
+                                                className="w-full h-full object-cover rounded-xl ring-2 ring-gray-100 shadow-sm transition-transform group-hover:scale-105"
                                             />
                                             <button
                                                 type="button"
@@ -390,7 +391,7 @@ const EditListing = () => {
                                             <img
                                                 src={URL.createObjectURL(file)}
                                                 alt={`New ${idx + 1}`}
-                                                className="w-full h-full object-cover rounded-xl ring-2 ring-teal-200"
+                                                className="w-full h-full object-cover rounded-xl ring-2 ring-teal-200 shadow-sm transition-transform group-hover:scale-105"
                                             />
                                             <button
                                                 type="button"
@@ -421,12 +422,12 @@ const EditListing = () => {
                                 className="hidden"
                             />
                         </label>
-                    </div>
+                    </Card>
 
                     {/* Amenities */}
-                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-white/50">
+                    <Card isBlurred className="bg-white/60 dark:bg-default-100/50 backdrop-blur-xl rounded-[2rem] p-6 sm:p-8 shadow-lg border-none">
                         <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                            <span className="p-2.5 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl">
+                            <span className="p-2.5 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl shadow-sm">
                                 <FiGrid className="text-blue-600" size={20} />
                             </span>
                             Amenities
@@ -437,12 +438,12 @@ const EditListing = () => {
                                     key={amenity.value}
                                     type="button"
                                     onClick={() => handleAmenityToggle(amenity.value)}
-                                    className={`p-4 rounded-2xl border-2 text-left transition-all duration-200 ${formData.amenities.includes(amenity.value)
+                                    className={`p-4 rounded-xl border-2 text-left transition-all duration-200 hover:scale-[1.02] active:scale-95 ${formData.amenities.includes(amenity.value)
                                         ? 'border-orange-500 bg-gradient-to-br from-orange-50 to-orange-100 shadow-md'
-                                        : 'border-gray-200 bg-gray-50/50 hover:border-gray-300 hover:bg-gray-100/50'
+                                        : 'border-white/50 bg-white/40 hover:border-orange-200 hover:bg-white/60'
                                         }`}
                                 >
-                                    <span className="text-2xl block mb-1">{amenity.icon}</span>
+                                    <span className="text-2xl block mb-1 drop-shadow-sm">{amenity.icon}</span>
                                     <p className={`text-sm font-medium ${formData.amenities.includes(amenity.value) ? 'text-orange-700' : 'text-gray-700'}`}>
                                         {amenity.label}
                                     </p>
@@ -452,10 +453,10 @@ const EditListing = () => {
                                 </button>
                             ))}
                         </div>
-                    </div>
+                    </Card>
 
                     {/* Status */}
-                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-white/50">
+                    <Card isBlurred className="bg-white/60 dark:bg-default-100/50 backdrop-blur-xl rounded-[2rem] p-6 sm:p-8 shadow-lg border-none">
                         <div className="flex items-center justify-between">
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900">Listing Status</h2>
@@ -469,13 +470,13 @@ const EditListing = () => {
                                     onChange={handleChange}
                                     className="sr-only peer"
                                 />
-                                <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all after:shadow-sm peer-checked:bg-gradient-to-r peer-checked:from-orange-500 peer-checked:to-orange-600"></div>
+                                <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all after:shadow-sm peer-checked:bg-gradient-to-r peer-checked:from-orange-500 peer-checked:to-orange-600 shadow-inner"></div>
                                 <span className={`ml-4 text-sm font-bold ${formData.isActive ? 'text-teal-600' : 'text-gray-400'}`}>
                                     {formData.isActive ? '✓ Active' : 'Inactive'}
                                 </span>
                             </label>
                         </div>
-                    </div>
+                    </Card>
 
                     {/* Actions */}
                     <div className="flex gap-4 pt-2">

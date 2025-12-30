@@ -31,8 +31,8 @@ const HouseRules = ({ rules = [], onAddRule }) => {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-lg font-bold text-gray-900">House Rules</h2>
-                    <p className="text-gray-500 text-sm">Set expectations for a happy home.</p>
+                    <h2 className="text-lg font-bold text-white">House Rules</h2>
+                    <p className="text-white/70 text-sm">Set expectations for a happy home.</p>
                 </div>
                 <button
                     onClick={() => setShowAddModal(true)}
@@ -49,22 +49,22 @@ const HouseRules = ({ rules = [], onAddRule }) => {
                     const Icon = cat.icon;
 
                     return (
-                        <div key={cat.name} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                            <div className={`p-4 border-b border-gray-100 flex items-center gap-2 bg-${cat.color}-50`}>
-                                <Icon className={`text-${cat.color}-600`} />
-                                <h3 className={`font-bold text-${cat.color}-900`}>{cat.name}</h3>
+                        <div key={cat.name} className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-sm overflow-hidden">
+                            <div className={`p-4 border-b border-white/10 flex items-center gap-2 bg-${cat.color}-500/20`}>
+                                <Icon className={`text-${cat.color}-300`} />
+                                <h3 className={`font-bold text-${cat.color}-100`}>{cat.name}</h3>
                             </div>
                             <div className="p-4">
                                 {catRules.length === 0 ? (
-                                    <p className="text-sm text-gray-400 italic">No rules set yet.</p>
+                                    <p className="text-sm text-white/40 italic">No rules set yet.</p>
                                 ) : (
                                     <ul className="space-y-3">
                                         {catRules.map(rule => (
                                             <li key={rule?.id || rule?._id} className="flex items-start justify-between group">
-                                                <span className="text-gray-700 text-sm">{rule.text}</span>
+                                                <span className="text-white/80 text-sm">{rule.text}</span>
                                                 <button
                                                     onClick={() => deleteRule(rule?.id || rule?._id)}
-                                                    className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    className="text-white/40 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
                                                 >
                                                     <FiTrash2 size={14} />
                                                 </button>

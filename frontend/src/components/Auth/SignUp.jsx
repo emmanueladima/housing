@@ -5,6 +5,7 @@ import Select from '../shared/Select';
 import Button from '../shared/Button';
 import LoadingSpinner from '../shared/LoadingSpinner';
 import { isValidEduEmail } from '../../utils/schoolEmailValidator';
+import { FiArrowLeft } from 'react-icons/fi';
 
 const SignUp = ({ onSuccess, onSwitchToLogin }) => {
   const { signup } = useAuth();
@@ -77,7 +78,6 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
 
     setLoading(true);
     setErrors({});
-    console.log('📝 Starting signup process...');
 
     try {
       const payload = {
@@ -99,19 +99,15 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
           contactEmail: formData.contactEmail || formData.email,
           contactPhone: formData.contactPhone || formData.phone,
           propertiesCount: Number(formData.propertiesCount),
-          isVerified: true // Placeholder verification
+          isVerified: true
         };
       }
 
-      console.log('📤 Sending signup request with payload:', payload);
-      const result = await signup(payload);
-      console.log('✅ Signup successful:', result);
+      await signup(payload);
       setSuccess(true);
     } catch (err) {
-      console.error('❌ Signup error:', err);
       setErrors({ submit: err.message || 'Error creating account' });
     } finally {
-      console.log('🏁 Signup process finished, setting loading to false');
       setLoading(false);
     }
   };
@@ -122,73 +118,103 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
   // Success screen
   if (success) {
     return (
-      <div className="text-center space-y-6 py-8">
-        <div className="text-6xl mb-4">🎉</div>
-        <h2 className="text-2xl font-bold text-gray-900">Account Created!</h2>
-        <p className="text-gray-600">
-          Your account has been successfully created. Please check your email to verify your account.
-        </p>
-        <button
-          onClick={onSwitchToLogin}
-          className="w-full py-3 px-4 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition-colors"
-        >
+      <div className="text-center space-y-6 py-4">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+          <span className="text-3xl">🎉</span>
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-xl font-bold text-gray-900">Account Created!</h3>
+          <p className="text-sm text-gray-500">
+            Your account has been successfully created. Please check your email to verify your account.
+          </p>
+        </div>
+        <Button onClick={onSwitchToLogin} variant="primary" className="w-full">
           Log In Now
-        </button>
+        </Button>
       </div>
     );
   }
 
+  // Step 1: Role Selection
   if (step === 1) {
     return (
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-center mb-6">Create your account</h2>
+        {/* Card Header */}
+        <div className="space-y-1">
+          <h3 className="text-xl font-bold text-gray-900">Create your account</h3>
+          <p className="text-sm text-gray-500">
+            Select your account type to get started
+          </p>
+        </div>
+
+        {/* Role Selection Cards */}
         <div className="grid grid-cols-2 gap-4">
           <button
             onClick={() => handleRoleSelect('student')}
-            className="p-6 border-2 border-gray-200 rounded-xl hover:border-orange-500 hover:bg-orange-50 transition-all text-center group"
+            className="p-5 border-2 border-gray-200 rounded-xl hover:border-orange-400 hover:bg-orange-50 transition-all text-left group"
           >
-            <div className="text-4xl mb-3">🎓</div>
-            <h3 className="font-bold text-gray-900 group-hover:text-orange-600">Student</h3>
-            <p className="text-sm text-gray-500 mt-2">I'm looking for housing or roommates</p>
+            <div className="text-3xl mb-2">🎓</div>
+            <h4 className="font-bold text-gray-900 group-hover:text-orange-600">Student</h4>
+            <p className="text-xs text-gray-500 mt-1">Looking for housing or roommates</p>
           </button>
           <button
             onClick={() => handleRoleSelect('landlord')}
-            className="p-6 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-center group"
+            className="p-5 border-2 border-gray-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all text-left group"
           >
-            <div className="text-4xl mb-3">🏢</div>
-            <h3 className="font-bold text-gray-900 group-hover:text-blue-600">Landlord</h3>
-            <p className="text-sm text-gray-500 mt-2">I want to list properties for students</p>
+            <div className="text-3xl mb-2">🏢</div>
+            <h4 className="font-bold text-gray-900 group-hover:text-blue-600">Landlord</h4>
+            <p className="text-xs text-gray-500 mt-1">List properties for students</p>
           </button>
         </div>
-        <div className="text-center">
-          <p className="text-gray-600">
-            Already have an account?{' '}
-            <button onClick={onSwitchToLogin} className="text-orange-600 hover:text-orange-700 font-medium">
-              Log In
-            </button>
-          </p>
-        </div>
+
+        {/* Already have account link */}
+        <p className="text-center text-sm text-gray-600">
+          Already have an account?{' '}
+          <button
+            type="button"
+            onClick={onSwitchToLogin}
+            className="font-medium text-orange-600 hover:text-orange-700 hover:underline"
+          >
+            Log In
+          </button>
+        </p>
       </div>
     );
   }
 
+  // Step 2: Registration Form
   return (
-    <div>
-      <div className="mb-6 flex items-center gap-2">
-        <button onClick={() => setStep(1)} className="text-gray-400 hover:text-gray-600">
-          ← Back
-        </button>
-        <h2 className="text-xl font-bold">
-          {role === 'student' ? 'Student Sign Up' : 'Landlord Registration'}
-        </h2>
+    <div className="space-y-6">
+      {/* Card Header */}
+      <div className="space-y-2">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setStep(1)}
+              className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <FiArrowLeft size={18} />
+            </button>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">
+                {role === 'student' ? 'Student Sign Up' : 'Landlord Registration'}
+              </h3>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Fill in your details below
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
+      {/* Error Message */}
       {errors.submit && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-          {errors.submit}
+        <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+          <p className="text-sm">{errors.submit}</p>
         </div>
       )}
 
+      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <Input
@@ -215,7 +241,7 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
           name="email"
           value={formData.email}
           onChange={handleChange}
-          placeholder={role === 'student' ? "your.email@university.edu" : "name@company.com"}
+          placeholder={role === 'student' ? "you@university.edu" : "name@company.com"}
           error={errors.email}
           required
         />
@@ -284,19 +310,21 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
               error={errors.propertiesCount}
               required
             />
-            <div className="p-4 bg-blue-50 rounded-lg border border-blue-100 text-sm text-blue-800">
-              ℹ️ Quick Verification: Your account will be instantly verified for this demo.
+            <div className="p-3 bg-blue-50 rounded-lg border border-blue-100 text-sm text-blue-700">
+              ℹ️ Your account will be instantly verified for this demo.
             </div>
           </>
         )}
 
-        <Button type="submit" variant="primary" className="w-full" disabled={loading}>
-          {loading ? <LoadingSpinner size="sm" /> : (role === 'student' ? 'Sign Up' : 'Register as Landlord')}
-        </Button>
+        {/* Footer Actions */}
+        <div className="pt-2">
+          <Button type="submit" variant="primary" className="w-full" disabled={loading}>
+            {loading ? <LoadingSpinner size="sm" /> : (role === 'student' ? 'Create Account' : 'Register as Landlord')}
+          </Button>
+        </div>
       </form>
     </div>
   );
 };
 
 export default SignUp;
-

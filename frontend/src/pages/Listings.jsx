@@ -10,6 +10,8 @@ import { FiChevronDown, FiChevronUp, FiMap, FiList, FiSliders } from 'react-icon
 import AdvancedFilterModal from '../components/Listings/AdvancedFilterModal';
 import SortDropdown from '../components/Listings/SortDropdown';
 
+import ListingDetailModal from '../components/Listings/ListingDetailModal';
+
 const Listings = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -18,11 +20,14 @@ const Listings = () => {
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(true);
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'newest');
-  const [selectedListing, setSelectedListing] = useState(null);
+  const [selectedListing, setSelectedListing] = useState(null); // Used for Map Hover
+  const [activeListing, setActiveListing] = useState(null); // Used for Modal
   const [showCommuteLayer, setShowCommuteLayer] = useState(false);
   const [commuteData, setCommuteData] = useState({});
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [mobileView, setMobileView] = useState('list'); // 'map' or 'list'
+
+  // ... (keep existing state/effects) ...
 
   // Initialize filters from URL params
   const [filters, setFilters] = useState({
@@ -152,7 +157,7 @@ const Listings = () => {
 
   const handleMarkerClick = (listing) => {
     setSelectedListing(listing);
-    navigate(`/listings/${listing._id}`);
+    setActiveListing(listing); // Open Modal instead of navigate
   };
 
   const handleCardHover = (listing) => {
@@ -246,10 +251,10 @@ const Listings = () => {
                 {listings.map((listing) => (
                   <div
                     key={listing._id}
-                    onClick={() => navigate(`/listings/${listing._id}`)}
+                    onClick={() => setActiveListing(listing)}
                     className="cursor-pointer"
                   >
-                    <CompactListingCard listing={listing} />
+                    <CompactListingCard listing={listing} onClick={() => setActiveListing(listing)} />
                   </div>
                 ))}
               </div>
@@ -283,9 +288,9 @@ const Listings = () => {
           />
         </div>
 
-        {/* Listings Section - Floating Panel */}
+        {/* Listings Section - Floating Panel with Blur Glass Effect */}
         <div
-          className={`absolute transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-10 bg-white shadow-2xl border border-gray-200 overflow-clip origin-top-right ${showFilters
+          className={`absolute transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-10 bg-white/70 backdrop-blur-xl shadow-2xl border border-white/30 overflow-clip origin-top-right ${showFilters
             ? 'top-24 right-4 w-[800px] h-[calc(100vh-8rem)] rounded-3xl flex flex-col'
             : 'top-24 right-4 w-[200px] h-[56px] rounded-full'
             }`}
@@ -315,12 +320,12 @@ const Listings = () => {
               }`}
           >
             {/* Header */}
-            <div className="bg-white p-4 pl-16 z-20">
+            <div className="bg-transparent p-4 pl-16 z-20">
               <h1 className="text-xl font-black text-gray-900 mb-3">Explore homes</h1>
             </div>
 
             {/* Scrollable Listings */}
-            <div className="flex-1 overflow-y-auto p-4 bg-gray-50 rounded-b-3xl">
+            <div className="flex-1 overflow-y-auto p-4 bg-transparent rounded-b-3xl">
               {/* Results Count and Sort */}
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-gray-700 font-semibold">
@@ -361,7 +366,10 @@ const Listings = () => {
                       onMouseLeave={() => setSelectedListing(null)}
                       className="transition-transform duration-200 hover:scale-[1.02]"
                     >
-                      <CompactListingCard listing={listing} />
+                      <CompactListingCard
+                        listing={listing}
+                        onClick={() => setActiveListing(listing)}
+                      />
                     </div>
                   ))}
                 </div>
@@ -392,6 +400,14 @@ const Listings = () => {
         filters={filters}
         onApply={(newFilters) => setFilters(newFilters)}
       />
+
+      {/* Listing Detail Modal */}
+      {activeListing && (
+        <ListingDetailModal
+          listingId={activeListing._id}
+          onClose={() => setActiveListing(null)}
+        />
+      )}
     </div>
   );
 };

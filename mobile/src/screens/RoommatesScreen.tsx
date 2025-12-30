@@ -15,7 +15,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
+import { useColors, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
+import { useTheme } from '../contexts/ThemeContext';
 import lifestyleProfileService, { LifestyleProfile } from '../services/lifestyleProfileService';
 import roommateGroupService, { RoommateGroup } from '../services/roommateGroupService';
 
@@ -27,6 +28,8 @@ interface RoommatesScreenProps {
 }
 
 const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
+    const colors = useColors();
+    const { isDark } = useTheme();
     const [activeTab, setActiveTab] = useState<'Solo' | 'Groups'>('Solo');
     const [searchQuery, setSearchQuery] = useState('');
     const [likedProfiles, setLikedProfiles] = useState<string[]>([]);
@@ -81,7 +84,6 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
         navigation?.navigate?.('GroupDetail', { groupId: group._id });
     };
 
-    // Helper to get user name from different formats
     const getUserName = (user: any): string => {
         if (user?.name) return user.name;
         if (user?.firstName && user?.lastName) return `${user.firstName} ${user.lastName}`;
@@ -99,20 +101,231 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
         return `$${budget.min}-${budget.max}`;
     };
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        safeArea: {
+            backgroundColor: colors.background,
+        },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        emptyContainer: {
+            flex: 1,
+            width: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: 100,
+        },
+        emptyText: {
+            fontSize: FONT_SIZES.md,
+            color: colors.textMuted,
+            marginTop: SPACING.md,
+        },
+        header: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingHorizontal: SPACING.lg,
+            paddingBottom: SPACING.sm,
+        },
+        title: {
+            fontSize: FONT_SIZES.title,
+            fontWeight: '700',
+            color: colors.text,
+        },
+        filterButton: {
+            width: 40,
+            height: 40,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.backgroundSecondary,
+            borderRadius: BORDER_RADIUS.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+        tabContainer: {
+            alignItems: 'center',
+            paddingVertical: SPACING.md,
+        },
+        tabPill: {
+            flexDirection: 'row',
+            backgroundColor: colors.backgroundSecondary,
+            borderRadius: BORDER_RADIUS.full,
+            padding: 4,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+        tabButton: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: SPACING.xs,
+            paddingHorizontal: SPACING.xl,
+            paddingVertical: SPACING.sm,
+            borderRadius: BORDER_RADIUS.full,
+        },
+        tabButtonActive: {
+            backgroundColor: colors.primary,
+        },
+        tabText: {
+            fontSize: FONT_SIZES.md,
+            fontWeight: '600',
+            color: colors.textMuted,
+        },
+        tabTextActive: {
+            color: '#FFFFFF',
+        },
+        searchContainer: {
+            paddingHorizontal: SPACING.lg,
+            paddingBottom: SPACING.md,
+        },
+        searchBar: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.backgroundSecondary,
+            borderRadius: BORDER_RADIUS.lg,
+            paddingHorizontal: SPACING.md,
+            paddingVertical: SPACING.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+        searchInput: {
+            flex: 1,
+            marginLeft: SPACING.sm,
+            fontSize: FONT_SIZES.md,
+            color: colors.text,
+        },
+        content: {
+            flex: 1,
+        },
+        contentContainer: {
+            paddingHorizontal: SPACING.lg,
+        },
+        grid: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+        },
+        card: {
+            width: CARD_WIDTH,
+            marginBottom: SPACING.md,
+            backgroundColor: colors.card,
+            borderRadius: BORDER_RADIUS.xl,
+            overflow: 'hidden',
+            borderWidth: 1,
+            borderColor: colors.border,
+            ...SHADOWS.sm,
+        },
+        imageContainer: {
+            height: 140,
+            position: 'relative',
+        },
+        profileImage: {
+            width: '100%',
+            height: '100%',
+        },
+        imagePlaceholder: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        avatarCircle: {
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            backgroundColor: colors.primary,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        avatarText: {
+            fontSize: FONT_SIZES.xl,
+            fontWeight: '700',
+            color: '#FFFFFF',
+        },
+        groupIcon: {
+            width: 60,
+            height: 60,
+            borderRadius: 16,
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        heartButton: {
+            position: 'absolute',
+            top: SPACING.sm,
+            right: SPACING.sm,
+            width: 32,
+            height: 32,
+            borderRadius: 16,
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            ...SHADOWS.sm,
+        },
+        matchBadge: {
+            position: 'absolute',
+            bottom: SPACING.sm,
+            left: SPACING.sm,
+            backgroundColor: colors.success,
+            paddingHorizontal: SPACING.sm,
+            paddingVertical: 2,
+            borderRadius: BORDER_RADIUS.sm,
+        },
+        matchText: {
+            fontSize: FONT_SIZES.xs,
+            fontWeight: '700',
+            color: '#FFFFFF',
+        },
+        cardContent: {
+            padding: SPACING.sm,
+        },
+        cardName: {
+            fontSize: FONT_SIZES.md,
+            fontWeight: '600',
+            color: colors.text,
+            marginBottom: 2,
+        },
+        cardDetails: {
+            fontSize: FONT_SIZES.sm,
+            color: colors.textSecondary,
+        },
+        cardMajor: {
+            fontSize: FONT_SIZES.sm,
+            color: colors.primary,
+            fontWeight: '500',
+        },
+        createButtonContainer: {
+            position: 'absolute',
+            bottom: 100,
+            right: SPACING.lg,
+        },
+        createButton: {
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: colors.primary,
+            justifyContent: 'center',
+            alignItems: 'center',
+            ...SHADOWS.lg,
+        },
+    });
+
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" />
+            <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
             <SafeAreaView edges={['top']} style={styles.safeArea}>
-                {/* Header */}
                 <View style={styles.header}>
                     <Text style={styles.title}>Roommates</Text>
                     <TouchableOpacity style={styles.filterButton}>
-                        <Ionicons name="options-outline" size={22} color={COLORS.text} />
+                        <Ionicons name="options-outline" size={22} color={colors.text} />
                     </TouchableOpacity>
                 </View>
 
-                {/* Pill Tab Switcher */}
                 <View style={styles.tabContainer}>
                     <View style={styles.tabPill}>
                         <TouchableOpacity
@@ -122,7 +335,7 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                             <Ionicons
                                 name="person"
                                 size={16}
-                                color={activeTab === 'Solo' ? COLORS.card : COLORS.textMuted}
+                                color={activeTab === 'Solo' ? '#FFFFFF' : colors.textMuted}
                             />
                             <Text style={[styles.tabText, activeTab === 'Solo' && styles.tabTextActive]}>
                                 Solo
@@ -135,7 +348,7 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                             <Ionicons
                                 name="people"
                                 size={16}
-                                color={activeTab === 'Groups' ? COLORS.card : COLORS.textMuted}
+                                color={activeTab === 'Groups' ? '#FFFFFF' : colors.textMuted}
                             />
                             <Text style={[styles.tabText, activeTab === 'Groups' && styles.tabTextActive]}>
                                 Groups
@@ -144,14 +357,13 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                     </View>
                 </View>
 
-                {/* Search */}
                 <View style={styles.searchContainer}>
                     <View style={styles.searchBar}>
-                        <Ionicons name="search" size={18} color={COLORS.textMuted} />
+                        <Ionicons name="search" size={18} color={colors.textMuted} />
                         <TextInput
                             style={styles.searchInput}
                             placeholder={activeTab === 'Solo' ? 'Search roommates...' : 'Search groups...'}
-                            placeholderTextColor={COLORS.textMuted}
+                            placeholderTextColor={colors.textMuted}
                             value={searchQuery}
                             onChangeText={setSearchQuery}
                         />
@@ -159,10 +371,9 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                 </View>
             </SafeAreaView>
 
-            {/* Content */}
             {isLoading ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={COLORS.primary} />
+                    <ActivityIndicator size="large" color={colors.primary} />
                 </View>
             ) : (
                 <ScrollView
@@ -173,7 +384,7 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                         <RefreshControl
                             refreshing={isRefreshing}
                             onRefresh={onRefresh}
-                            tintColor={COLORS.primary}
+                            tintColor={colors.primary}
                         />
                     }
                 >
@@ -181,7 +392,7 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                         {activeTab === 'Solo' ? (
                             profiles.length === 0 ? (
                                 <View style={styles.emptyContainer}>
-                                    <Ionicons name="person-outline" size={60} color={COLORS.textMuted} />
+                                    <Ionicons name="person-outline" size={60} color={colors.textMuted} />
                                     <Text style={styles.emptyText}>No roommates found</Text>
                                 </View>
                             ) : (
@@ -192,7 +403,6 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                                         activeOpacity={0.95}
                                         onPress={() => openRoommateDetail(profile)}
                                     >
-                                        {/* Image */}
                                         <View style={styles.imageContainer}>
                                             {profile.user.profilePhoto ? (
                                                 <Image
@@ -201,7 +411,7 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                                                 />
                                             ) : (
                                                 <LinearGradient
-                                                    colors={['#E5E7EB', '#D1D5DB']}
+                                                    colors={isDark ? ['#333', '#444'] : ['#E5E7EB', '#D1D5DB']}
                                                     style={styles.imagePlaceholder}
                                                 >
                                                     <View style={styles.avatarCircle}>
@@ -212,7 +422,6 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                                                 </LinearGradient>
                                             )}
 
-                                            {/* Heart */}
                                             <TouchableOpacity
                                                 style={styles.heartButton}
                                                 onPress={() => toggleLike(profile._id)}
@@ -220,11 +429,10 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                                                 <Ionicons
                                                     name={likedProfiles.includes(profile._id) ? "heart" : "heart-outline"}
                                                     size={18}
-                                                    color={likedProfiles.includes(profile._id) ? COLORS.primary : COLORS.text}
+                                                    color={likedProfiles.includes(profile._id) ? colors.primary : colors.text}
                                                 />
                                             </TouchableOpacity>
 
-                                            {/* Match Badge */}
                                             {profile.matchScore && (
                                                 <View style={styles.matchBadge}>
                                                     <Text style={styles.matchText}>{profile.matchScore}%</Text>
@@ -232,7 +440,6 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                                             )}
                                         </View>
 
-                                        {/* Content */}
                                         <View style={styles.cardContent}>
                                             <Text style={styles.cardName} numberOfLines={1}>{getUserName(profile.user)}</Text>
                                             <Text style={styles.cardDetails}>{profile.year || 'Student'}</Text>
@@ -244,7 +451,7 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                         ) : (
                             groups.length === 0 ? (
                                 <View style={styles.emptyContainer}>
-                                    <Ionicons name="people-outline" size={60} color={COLORS.textMuted} />
+                                    <Ionicons name="people-outline" size={60} color={colors.textMuted} />
                                     <Text style={styles.emptyText}>No groups found</Text>
                                 </View>
                             ) : (
@@ -255,21 +462,19 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                                         activeOpacity={0.95}
                                         onPress={() => openGroupDetail(group)}
                                     >
-                                        {/* Image */}
                                         <View style={styles.imageContainer}>
                                             <LinearGradient
-                                                colors={['#E5E7EB', '#D1D5DB']}
+                                                colors={isDark ? ['#333', '#444'] : ['#E5E7EB', '#D1D5DB']}
                                                 style={styles.imagePlaceholder}
                                             >
                                                 <View style={styles.groupIcon}>
-                                                    <Ionicons name="people" size={30} color={COLORS.primary} />
+                                                    <Ionicons name="people" size={30} color={colors.primary} />
                                                 </View>
                                             </LinearGradient>
 
-                                            {/* Spots Badge */}
                                             <View style={[
                                                 styles.matchBadge,
-                                                { backgroundColor: group.spotsAvailable > 0 ? COLORS.success : COLORS.textMuted }
+                                                { backgroundColor: group.spotsAvailable > 0 ? colors.success : colors.textMuted }
                                             ]}>
                                                 <Text style={styles.matchText}>
                                                     {group.spotsAvailable > 0 ? `${group.spotsAvailable} spot${group.spotsAvailable > 1 ? 's' : ''}` : 'Full'}
@@ -277,7 +482,6 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                                             </View>
                                         </View>
 
-                                        {/* Content */}
                                         <View style={styles.cardContent}>
                                             <Text style={styles.cardName} numberOfLines={1}>{group.name}</Text>
                                             <Text style={styles.cardDetails}>{group.members.length} members</Text>
@@ -289,252 +493,21 @@ const RoommatesScreen: React.FC<RoommatesScreenProps> = ({ navigation }) => {
                         )}
                     </View>
 
-                    {/* Bottom padding */}
                     <View style={{ height: 120 }} />
                 </ScrollView>
             )}
 
-            {/* Floating Create Button */}
             <View style={styles.createButtonContainer}>
                 <TouchableOpacity
                     style={styles.createButton}
                     activeOpacity={0.9}
                     onPress={() => navigation?.navigate?.(activeTab === 'Solo' ? 'CreateProfile' : 'CreateGroup')}
                 >
-                    <Ionicons name="add" size={24} color={COLORS.card} />
+                    <Ionicons name="add" size={24} color="#FFFFFF" />
                 </TouchableOpacity>
             </View>
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.background,
-    },
-    safeArea: {
-        backgroundColor: COLORS.background,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    emptyContainer: {
-        flex: 1,
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: 100,
-    },
-    emptyText: {
-        fontSize: FONT_SIZES.md,
-        color: COLORS.textMuted,
-        marginTop: SPACING.md,
-    },
-
-    // Header
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: SPACING.lg,
-        paddingBottom: SPACING.sm,
-    },
-    title: {
-        fontSize: FONT_SIZES.title,
-        fontWeight: '700',
-        color: COLORS.text,
-    },
-    filterButton: {
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: COLORS.backgroundSecondary,
-        borderRadius: BORDER_RADIUS.md,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-
-    // Tab Pill
-    tabContainer: {
-        alignItems: 'center',
-        paddingVertical: SPACING.md,
-    },
-    tabPill: {
-        flexDirection: 'row',
-        backgroundColor: COLORS.backgroundSecondary,
-        borderRadius: BORDER_RADIUS.full,
-        padding: 4,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-    tabButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: SPACING.xs,
-        paddingHorizontal: SPACING.xl,
-        paddingVertical: SPACING.sm,
-        borderRadius: BORDER_RADIUS.full,
-    },
-    tabButtonActive: {
-        backgroundColor: COLORS.primary,
-    },
-    tabText: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '600',
-        color: COLORS.textMuted,
-    },
-    tabTextActive: {
-        color: COLORS.card,
-    },
-
-    // Search
-    searchContainer: {
-        paddingHorizontal: SPACING.lg,
-        paddingBottom: SPACING.md,
-    },
-    searchBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: COLORS.backgroundSecondary,
-        borderRadius: BORDER_RADIUS.lg,
-        paddingHorizontal: SPACING.md,
-        paddingVertical: SPACING.md,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-    searchInput: {
-        flex: 1,
-        marginLeft: SPACING.sm,
-        fontSize: FONT_SIZES.md,
-        color: COLORS.text,
-    },
-
-    // Content
-    content: {
-        flex: 1,
-    },
-    contentContainer: {
-        paddingHorizontal: SPACING.lg,
-    },
-
-    // Grid
-    grid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-    },
-
-    // Cards
-    card: {
-        width: CARD_WIDTH,
-        marginBottom: SPACING.md,
-        backgroundColor: COLORS.card,
-        borderRadius: BORDER_RADIUS.xl,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        ...SHADOWS.sm,
-    },
-    imageContainer: {
-        height: 140,
-        position: 'relative',
-    },
-    profileImage: {
-        width: '100%',
-        height: '100%',
-    },
-    imagePlaceholder: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    avatarCircle: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: COLORS.primary,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    avatarText: {
-        fontSize: FONT_SIZES.xl,
-        fontWeight: '700',
-        color: COLORS.card,
-    },
-    groupIcon: {
-        width: 60,
-        height: 60,
-        borderRadius: 16,
-        backgroundColor: COLORS.white80,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    heartButton: {
-        position: 'absolute',
-        top: SPACING.sm,
-        right: SPACING.sm,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: COLORS.white90,
-        justifyContent: 'center',
-        alignItems: 'center',
-        ...SHADOWS.sm,
-    },
-    matchBadge: {
-        position: 'absolute',
-        bottom: SPACING.sm,
-        left: SPACING.sm,
-        backgroundColor: COLORS.success,
-        paddingHorizontal: SPACING.sm,
-        paddingVertical: 2,
-        borderRadius: BORDER_RADIUS.sm,
-    },
-    matchText: {
-        fontSize: FONT_SIZES.xs,
-        fontWeight: '700',
-        color: COLORS.card,
-    },
-
-    // Card content
-    cardContent: {
-        padding: SPACING.sm,
-    },
-    cardName: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '600',
-        color: COLORS.text,
-        marginBottom: 2,
-    },
-    cardDetails: {
-        fontSize: FONT_SIZES.sm,
-        color: COLORS.textSecondary,
-    },
-    cardMajor: {
-        fontSize: FONT_SIZES.sm,
-        color: COLORS.primary,
-        fontWeight: '500',
-    },
-
-    // Floating Create Button
-    createButtonContainer: {
-        position: 'absolute',
-        bottom: 100,
-        right: SPACING.lg,
-    },
-    createButton: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: COLORS.primary,
-        justifyContent: 'center',
-        alignItems: 'center',
-        ...SHADOWS.lg,
-    },
-});
 
 export default RoommatesScreen;

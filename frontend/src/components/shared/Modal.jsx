@@ -42,19 +42,29 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
           className={`relative w-full ${sizes[size]} bg-white rounded-2xl shadow-2xl transform transition-all animate-fadeIn`}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          {/* Header - Only show if title is provided */}
+          {title ? (
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
+          ) : (
+            /* Close button for headerless modals */
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
             >
               <FiX size={24} />
             </button>
-          </div>
+          )}
 
           {/* Content */}
-          <div className="p-6">{children}</div>
+          <div className={title ? "p-6" : "p-6 pt-10"}>{children}</div>
         </div>
       </div>
     </div>
@@ -62,4 +72,3 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
 };
 
 export default Modal;
-

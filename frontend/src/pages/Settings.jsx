@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiUser, FiBell, FiChevronRight, FiLogOut, FiX, FiCheck } from 'react-icons/fi';
+import { Accordion, AccordionItem } from "@heroui/accordion";
 import { useAuth } from '../contexts/AuthContext';
-import ModernBackground from '../components/shared/ModernBackground';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
 
@@ -138,67 +138,85 @@ const Settings = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 transition-colors duration-300">
+        <div className="min-h-screen relative pb-24 transition-colors duration-300">
             {/* Header */}
-            <div className="relative h-40 sm:h-48 overflow-hidden mb-6 sm:mb-8">
-                <ModernBackground />
-                <div className="absolute inset-0 flex items-end sm:items-center justify-center pb-4 sm:pb-0">
+            <div className="relative pt-32 pb-8">
+                <div className="relative z-10 flex items-center justify-center">
                     <h1 className="text-2xl sm:text-3xl font-black text-white">Settings</h1>
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto px-4 -mt-8 sm:-mt-12 space-y-4 sm:space-y-6 relative z-10">
+            <div className="max-w-2xl mx-auto px-4 relative z-10 space-y-4 sm:space-y-6">
                 {/* User Card */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg flex items-center gap-3 sm:gap-4 transition-colors duration-300">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-lg sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
+                <div className="bg-white/20 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg border border-white/30 flex items-center gap-3 sm:gap-4 transition-colors duration-300">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center text-lg sm:text-2xl font-bold text-white">
                         {user?.firstName?.[0]}{user?.lastName?.[0]}
                     </div>
                     <div className="min-w-0 flex-1">
-                        <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">{user?.firstName} {user?.lastName}</h2>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base truncate">{user?.email}</p>
+                        <h2 className="text-lg sm:text-xl font-bold text-white truncate">{user?.firstName} {user?.lastName}</h2>
+                        <p className="text-white/70 text-sm sm:text-base truncate">{user?.email}</p>
                     </div>
                 </div>
 
-                {/* Settings Sections */}
-                {sections.map((section) => (
-                    <div key={section.title} className="bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl shadow-lg overflow-hidden transition-colors duration-300">
-                        <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2 sm:gap-3">
-                            <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg sm:rounded-xl text-gray-600 dark:text-gray-300">
-                                <section.icon size={18} />
-                            </div>
-                            <h3 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base">{section.title}</h3>
-                        </div>
-                        <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                            {section.items.map((item, i) => (
-                                <div
-                                    key={i}
-                                    onClick={item.action}
-                                    className={`p-3 sm:p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${item.action && item.type !== 'toggle' ? 'cursor-pointer' : ''}`}
-                                >
-                                    <span className="font-medium text-gray-700 dark:text-gray-200 text-sm sm:text-base">{item.label}</span>
-                                    {item.type === 'toggle' ? (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                item.onChange();
-                                            }}
-                                            className={`w-12 h-6 rounded-full transition-colors relative ${item.value ? 'bg-orange-500' : 'bg-gray-200 dark:bg-gray-600'
-                                                }`}
-                                        >
-                                            <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${item.value ? 'left-7' : 'left-1'
-                                                }`} />
-                                        </button>
-                                    ) : (
-                                        <div className="flex items-center gap-2 text-gray-400">
-                                            {item.value && <span className="text-sm">{item.value}</span>}
-                                            <FiChevronRight />
-                                        </div>
-                                    )}
+                {/* Settings Sections - Accordion */}
+                <Accordion
+                    variant="splitted"
+                    selectionMode="multiple"
+                    defaultExpandedKeys={["0", "1", "2"]}
+                    className="px-0 gap-4"
+                    itemClasses={{
+                        base: "bg-white/20 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-lg border border-white/30 transition-colors duration-300 group",
+                        title: "font-bold text-white",
+                        trigger: "py-4 sm:py-6 px-4 sm:px-6 data-[hover=true]:bg-white/5",
+                        content: "pb-4 sm:pb-6 px-4 sm:px-6 pt-0 border-t border-white/20",
+                    }}
+                >
+                    {sections.map((section, idx) => (
+                        <AccordionItem
+                            key={idx}
+                            aria-label={section.title}
+                            hideIndicator
+                            title={
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <div className="p-1.5 sm:p-2 bg-white/20 rounded-lg sm:rounded-xl text-white">
+                                        <section.icon size={18} />
+                                    </div>
+                                    <span className="text-sm sm:text-base">{section.title}</span>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                ))}
+                            }
+                        >
+                            <div className="divide-y divide-white/20">
+                                {section.items.map((item, i) => (
+                                    <div
+                                        key={i}
+                                        onClick={item.action}
+                                        className={`py-3 sm:py-4 flex items-center justify-between hover:bg-white/10 transition-colors rounded-lg px-2 -mx-2 ${item.action && item.type !== 'toggle' ? 'cursor-pointer' : ''}`}
+                                    >
+                                        <span className="font-medium text-white/90 text-sm sm:text-base">{item.label}</span>
+                                        {item.type === 'toggle' ? (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    item.onChange();
+                                                }}
+                                                className={`w-12 h-6 rounded-full transition-colors relative ${item.value ? 'bg-orange-500' : 'bg-gray-200 dark:bg-gray-600'
+                                                    }`}
+                                            >
+                                                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${item.value ? 'left-7' : 'left-1'
+                                                    }`} />
+                                            </button>
+                                        ) : (
+                                            <div className="flex items-center gap-2 text-gray-400">
+                                                {item.value && <span className="text-sm">{item.value}</span>}
+                                                <FiChevronRight />
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </AccordionItem>
+                    ))}
+                </Accordion>
 
                 {/* Logout Button */}
                 <button

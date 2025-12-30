@@ -9,8 +9,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroui/accordion": "^2.2.26",
+    "@heroui/autocomplete": "^2.3.31",
+    "@heroui/card": "^2.2.27",
+    "@heroui/dropdown": "^2.3.29",
+    "@heroui/input": "^2.4.30",
+    "@heroui/react": "^2.8.7",
+    "@heroui/slider": "^2.4.26",
+    "@heroui/system": "^2.4.25",
+    "@heroui/theme": "^2.4.25",
     "axios": "^1.6.2",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.23.26",
     "leaflet": "^1.9.4",
     "mapbox-gl": "^3.16.0",
     "react": "^18.2.0",

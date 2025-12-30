@@ -171,29 +171,29 @@ const ChatWindow = ({ onBack }) => {
   const otherUser = activeThread?.participants?.find(p => p._id !== user?._id);
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-transparent">
       {/* Chat Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white shadow-sm">
+      <div className="flex items-center justify-between p-4 border-b border-white/20 bg-white/10 backdrop-blur-md shadow-sm">
         <div className="flex items-center space-x-3">
           {/* Back Button (Mobile) */}
           <button
             onClick={onBack}
-            className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="md:hidden p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
           >
             <FiArrowLeft size={20} />
           </button>
 
           {/* Avatar/Icon */}
-          <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center overflow-hidden">
+          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center overflow-hidden border border-white/20">
             {headerInfo.icon}
           </div>
 
           {/* Thread Info */}
           <div>
-            <h3 className="font-semibold text-gray-900">
+            <h3 className="font-bold text-white">
               {headerInfo.name}
             </h3>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-white/60">
               {headerInfo.subtext}
             </p>
           </div>
@@ -203,34 +203,34 @@ const ChatWindow = ({ onBack }) => {
         <div className="relative">
           <button
             onClick={() => setShowMenu(!showMenu)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
           >
-            <FiMoreVertical size={20} className="text-gray-600" />
+            <FiMoreVertical size={20} className="text-white/70" />
           </button>
 
           {showMenu && (
-            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-10 border border-gray-100">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-gray-900/90 backdrop-blur-xl rounded-lg shadow-xl py-1 z-10 border border-white/20">
               <button
                 onClick={() => {
                   setShowMenu(false);
                   // TODO: Implement view profile navigation
                   // navigate(`/profile/${otherUser?._id}`);
                 }}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                className="w-full text-left px-4 py-2 text-sm text-white/90 hover:bg-white/10 flex items-center gap-2"
               >
                 <FiUser size={16} />
                 View Profile
               </button>
               <button
                 onClick={() => handleBlockUser(otherUser?._id)}
-                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
               >
                 <FiSlash size={16} />
                 Block User
               </button>
               <button
                 onClick={() => handleReportUser(otherUser?._id)}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                className="w-full text-left px-4 py-2 text-sm text-white/90 hover:bg-white/10 flex items-center gap-2"
               >
                 <FiFlag size={16} />
                 Report User
@@ -241,12 +241,12 @@ const ChatWindow = ({ onBack }) => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-4 bg-transparent custom-scrollbar">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <FiUser className="text-gray-400 mb-4" size={48} />
-            <p className="text-gray-600">No messages yet</p>
-            <p className="text-sm text-gray-500 mt-2">
+            <FiUser className="text-white/30 mb-4" size={48} />
+            <p className="text-white/70">No messages yet</p>
+            <p className="text-sm text-white/50 mt-2">
               Send a message to start the conversation
             </p>
           </div>
@@ -271,7 +271,7 @@ const ChatWindow = ({ onBack }) => {
                   {/* Timestamp Divider */}
                   {showTimestamp && (
                     <div className="flex justify-center mb-2">
-                      <span className="text-xs text-gray-500 bg-white px-3 py-1 rounded-full shadow-sm">
+                      <span className="text-xs text-white/60 bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full border border-white/5">
                         {formatTimestamp(message.createdAt)}
                       </span>
                     </div>
@@ -282,13 +282,13 @@ const ChatWindow = ({ onBack }) => {
                     <div className={`max-w-xs md:max-w-md lg:max-w-lg relative ${isOwnMessage ? 'order-2' : 'order-1'
                       }`}>
                       <div className={`px-4 py-2 rounded-2xl ${isOwnMessage
-                        ? 'bg-orange-600 text-white rounded-br-sm'
-                        : 'bg-white text-gray-900 rounded-bl-sm shadow-sm'
+                        ? 'bg-orange-600 text-white rounded-br-sm shadow-lg'
+                        : 'bg-white/10 text-white rounded-bl-sm backdrop-blur-md border border-white/10'
                         }`}>
                         {message.attachments && message.attachments.length > 0 && (
                           <div className="mb-2 space-y-2">
                             {message.attachments.map(att => (
-                              <div key={att._id} className="bg-black/10 rounded p-2">
+                              <div key={att._id} className="bg-black/20 rounded p-2">
                                 {att.type.startsWith('image/') ? (
                                   <img
                                     src={att.url}
@@ -301,7 +301,7 @@ const ChatWindow = ({ onBack }) => {
                                     href={att.url}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 text-sm hover:underline"
+                                    className="flex items-center gap-2 text-sm hover:underline text-white"
                                   >
                                     <FiPaperclip size={14} />
                                     {att.filename}
@@ -311,7 +311,7 @@ const ChatWindow = ({ onBack }) => {
                             ))}
                           </div>
                         )}
-                        <p className="text-sm break-words">{message.content}</p>
+                        <p className="text-sm break-words leading-relaxed opacity-95 text-shadow-sm">{message.content}</p>
                       </div>
 
                       {/* Read Receipts */}
@@ -321,16 +321,16 @@ const ChatWindow = ({ onBack }) => {
                             .filter(p => p?.user?._id && p.user._id !== user._id && p.lastReadAt && new Date(p.lastReadAt) >= new Date(message.createdAt))
                             .map(p => (
                               <div key={p.user._id} className="relative group/tooltip">
-                                <div className="w-4 h-4 rounded-full bg-gray-300 overflow-hidden border border-white">
+                                <div className="w-4 h-4 rounded-full bg-white/20 overflow-hidden border border-white/40">
                                   {p.user.avatarUrl ? (
                                     <img src={p.user.avatarUrl} alt={p.user.firstName} className="w-full h-full object-cover" />
                                   ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-orange-100 text-[8px] font-bold text-orange-600">
+                                    <div className="w-full h-full flex items-center justify-center bg-orange-500/20 text-[8px] font-bold text-orange-200">
                                       {p.user.firstName?.[0] || '?'}
                                     </div>
                                   )}
                                 </div>
-                                <div className="absolute bottom-full right-0 mb-1 hidden group-hover/tooltip:block whitespace-nowrap bg-gray-800 text-white text-xs px-2 py-1 rounded">
+                                <div className="absolute bottom-full right-0 mb-1 hidden group-hover/tooltip:block whitespace-nowrap bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg border border-white/10">
                                   Read by {p.user.firstName}
                                 </div>
                               </div>
@@ -347,8 +347,8 @@ const ChatWindow = ({ onBack }) => {
             {/* Typing Indicator */}
             {Object.keys(typingUsers).length > 0 && (
               <div className="flex justify-start animate-pulse">
-                <div className="bg-gray-200 rounded-full px-4 py-2 rounded-bl-sm">
-                  <p className="text-xs text-gray-500">
+                <div className="bg-white/10 backdrop-blur-md rounded-full px-4 py-2 rounded-bl-sm border border-white/10">
+                  <p className="text-xs text-white/70">
                     {Object.values(typingUsers).map(u => u.firstName).join(', ')} is typing...
                   </p>
                 </div>
@@ -361,16 +361,16 @@ const ChatWindow = ({ onBack }) => {
       </div>
 
       {/* Message Input */}
-      <div className="p-4 bg-white border-t border-gray-200">
+      <div className="p-4 bg-white/10 backdrop-blur-md border-t border-white/20">
         {/* Attachments Preview */}
         {attachments.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2">
             {attachments.map((att, index) => (
-              <div key={att._id} className="relative bg-gray-100 rounded-lg p-2 flex items-center gap-2">
-                <span className="text-xs text-gray-600 truncate max-w-[150px]">{att.filename}</span>
+              <div key={att._id} className="relative bg-white/20 border border-white/20 rounded-lg p-2 flex items-center gap-2">
+                <span className="text-xs text-white truncate max-w-[150px]">{att.filename}</span>
                 <button
                   onClick={() => removeAttachment(index)}
-                  className="text-gray-400 hover:text-red-500"
+                  className="text-white/60 hover:text-red-400"
                 >
                   <FiX size={14} />
                 </button>
@@ -391,7 +391,7 @@ const ChatWindow = ({ onBack }) => {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading || sending}
-            className="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded-full transition-colors"
+            className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors"
             title="Attach file"
           >
             <FiPaperclip size={20} />
@@ -407,14 +407,14 @@ const ChatWindow = ({ onBack }) => {
             onBlur={() => sendTyping(false)}
             placeholder={uploading ? "Uploading..." : "Type a message..."}
             disabled={sending || uploading}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100"
+            className="flex-1 px-4 py-2 border border-white/20 bg-white/10 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent disabled:bg-white/5 text-white placeholder-white/50 transition-all font-medium"
           />
           <button
             type="submit"
             disabled={(!newMessage.trim() && attachments.length === 0) || sending || uploading}
             className={`p-2 rounded-full ${(!newMessage.trim() && attachments.length === 0) || sending || uploading
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-orange-600 text-white hover:bg-orange-700 shadow-md'
+              ? 'bg-white/10 text-white/30 cursor-not-allowed'
+              : 'bg-orange-600 text-white hover:bg-orange-700 shadow-md hover:scale-105 active:scale-95'
               } transition-all duration-200`}
           >
             {sending ? (

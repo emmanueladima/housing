@@ -125,6 +125,14 @@ const lifestyleProfileService = {
             return [];
         }
     },
+
+    // Update compatibility preferences from test
+    async updateCompatibility(answers: Record<string, any>): Promise<LifestyleProfile> {
+        const response = await api.post('/lifestyle-profiles/me', {
+            compatibility: answers,
+        });
+        return response.data.profile;
+    },
 };
 
 export default lifestyleProfileService;

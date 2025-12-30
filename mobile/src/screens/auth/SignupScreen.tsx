@@ -10,10 +10,12 @@ import {
     ScrollView,
     ActivityIndicator,
     Alert,
+    StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../../constants/theme';
+import { useColors, SPACING, BORDER_RADIUS, FONT_SIZES } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface SignupScreenProps {
@@ -21,6 +23,8 @@ interface SignupScreenProps {
 }
 
 const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
+    const colors = useColors();
+    const { isDark } = useTheme();
     const { signup } = useAuth();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -77,8 +81,122 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
         }
     };
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        keyboardView: {
+            flex: 1,
+        },
+        scrollContent: {
+            flexGrow: 1,
+            padding: SPACING.lg,
+            justifyContent: 'center',
+        },
+        header: {
+            alignItems: 'center',
+            marginBottom: SPACING.xl,
+        },
+        logoContainer: {
+            width: 80,
+            height: 80,
+            borderRadius: 20,
+            backgroundColor: `${colors.primary}15`,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: SPACING.lg,
+        },
+        title: {
+            fontSize: FONT_SIZES.xxxl,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: SPACING.xs,
+        },
+        subtitle: {
+            fontSize: FONT_SIZES.md,
+            color: colors.textSecondary,
+            textAlign: 'center',
+        },
+        form: {
+            marginBottom: SPACING.lg,
+        },
+        inputGroup: {
+            marginBottom: SPACING.md,
+        },
+        label: {
+            fontSize: FONT_SIZES.sm,
+            fontWeight: '600',
+            color: colors.text,
+            marginBottom: SPACING.sm,
+        },
+        inputContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.backgroundSecondary,
+            borderRadius: BORDER_RADIUS.lg,
+            paddingHorizontal: SPACING.md,
+            paddingVertical: SPACING.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+        inputError: {
+            borderColor: '#EF4444',
+        },
+        input: {
+            flex: 1,
+            marginLeft: SPACING.sm,
+            fontSize: FONT_SIZES.md,
+            color: colors.text,
+        },
+        errorText: {
+            fontSize: FONT_SIZES.sm,
+            color: '#EF4444',
+            marginTop: SPACING.xs,
+        },
+        signupButton: {
+            backgroundColor: colors.primary,
+            paddingVertical: SPACING.lg,
+            borderRadius: BORDER_RADIUS.lg,
+            alignItems: 'center',
+            marginTop: SPACING.sm,
+        },
+        signupButtonDisabled: {
+            opacity: 0.7,
+        },
+        signupButtonText: {
+            fontSize: FONT_SIZES.md,
+            fontWeight: '700',
+            color: '#FFFFFF',
+        },
+        termsText: {
+            fontSize: FONT_SIZES.sm,
+            color: colors.textMuted,
+            textAlign: 'center',
+            marginBottom: SPACING.lg,
+        },
+        termsLink: {
+            color: colors.primary,
+            fontWeight: '500',
+        },
+        loginLink: {
+            flexDirection: 'row',
+            justifyContent: 'center',
+        },
+        loginText: {
+            fontSize: FONT_SIZES.md,
+            color: colors.textSecondary,
+        },
+        loginLinkText: {
+            fontSize: FONT_SIZES.md,
+            fontWeight: '600',
+            color: colors.primary,
+        },
+    });
+
     return (
         <SafeAreaView style={styles.container}>
+            <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}
@@ -91,7 +209,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                     {/* Header */}
                     <View style={styles.header}>
                         <View style={styles.logoContainer}>
-                            <Ionicons name="home" size={40} color={COLORS.primary} />
+                            <Ionicons name="home" size={40} color={colors.primary} />
                         </View>
                         <Text style={styles.title}>Create Account</Text>
                         <Text style={styles.subtitle}>Join Collegio to find your perfect home</Text>
@@ -103,11 +221,11 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Full Name</Text>
                             <View style={[styles.inputContainer, errors.name && styles.inputError]}>
-                                <Ionicons name="person-outline" size={20} color={COLORS.textMuted} />
+                                <Ionicons name="person-outline" size={20} color={colors.textMuted} />
                                 <TextInput
                                     style={styles.input}
                                     placeholder="Enter your full name"
-                                    placeholderTextColor={COLORS.textMuted}
+                                    placeholderTextColor={colors.textMuted}
                                     value={name}
                                     onChangeText={(text) => {
                                         setName(text);
@@ -123,11 +241,11 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Email</Text>
                             <View style={[styles.inputContainer, errors.email && styles.inputError]}>
-                                <Ionicons name="mail-outline" size={20} color={COLORS.textMuted} />
+                                <Ionicons name="mail-outline" size={20} color={colors.textMuted} />
                                 <TextInput
                                     style={styles.input}
                                     placeholder="Enter your .edu email"
-                                    placeholderTextColor={COLORS.textMuted}
+                                    placeholderTextColor={colors.textMuted}
                                     value={email}
                                     onChangeText={(text) => {
                                         setEmail(text);
@@ -145,11 +263,11 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Password</Text>
                             <View style={[styles.inputContainer, errors.password && styles.inputError]}>
-                                <Ionicons name="lock-closed-outline" size={20} color={COLORS.textMuted} />
+                                <Ionicons name="lock-closed-outline" size={20} color={colors.textMuted} />
                                 <TextInput
                                     style={styles.input}
                                     placeholder="Create a password"
-                                    placeholderTextColor={COLORS.textMuted}
+                                    placeholderTextColor={colors.textMuted}
                                     value={password}
                                     onChangeText={(text) => {
                                         setPassword(text);
@@ -161,7 +279,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                                     <Ionicons
                                         name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                                         size={20}
-                                        color={COLORS.textMuted}
+                                        color={colors.textMuted}
                                     />
                                 </TouchableOpacity>
                             </View>
@@ -172,11 +290,11 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Confirm Password</Text>
                             <View style={[styles.inputContainer, errors.confirmPassword && styles.inputError]}>
-                                <Ionicons name="lock-closed-outline" size={20} color={COLORS.textMuted} />
+                                <Ionicons name="lock-closed-outline" size={20} color={colors.textMuted} />
                                 <TextInput
                                     style={styles.input}
                                     placeholder="Confirm your password"
-                                    placeholderTextColor={COLORS.textMuted}
+                                    placeholderTextColor={colors.textMuted}
                                     value={confirmPassword}
                                     onChangeText={(text) => {
                                         setConfirmPassword(text);
@@ -195,7 +313,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                             disabled={isLoading}
                         >
                             {isLoading ? (
-                                <ActivityIndicator color={COLORS.card} />
+                                <ActivityIndicator color="#FFFFFF" />
                             ) : (
                                 <Text style={styles.signupButtonText}>Create Account</Text>
                             )}
@@ -221,118 +339,5 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
         </SafeAreaView>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.background,
-    },
-    keyboardView: {
-        flex: 1,
-    },
-    scrollContent: {
-        flexGrow: 1,
-        padding: SPACING.lg,
-        justifyContent: 'center',
-    },
-    header: {
-        alignItems: 'center',
-        marginBottom: SPACING.xl,
-    },
-    logoContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 20,
-        backgroundColor: 'rgba(219, 74, 43, 0.1)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: SPACING.lg,
-    },
-    title: {
-        fontSize: FONT_SIZES.xxxl,
-        fontWeight: '700',
-        color: COLORS.text,
-        marginBottom: SPACING.xs,
-    },
-    subtitle: {
-        fontSize: FONT_SIZES.md,
-        color: COLORS.textSecondary,
-        textAlign: 'center',
-    },
-    form: {
-        marginBottom: SPACING.lg,
-    },
-    inputGroup: {
-        marginBottom: SPACING.md,
-    },
-    label: {
-        fontSize: FONT_SIZES.sm,
-        fontWeight: '600',
-        color: COLORS.text,
-        marginBottom: SPACING.sm,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: COLORS.backgroundSecondary,
-        borderRadius: BORDER_RADIUS.lg,
-        paddingHorizontal: SPACING.md,
-        paddingVertical: SPACING.md,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-    inputError: {
-        borderColor: COLORS.primary,
-    },
-    input: {
-        flex: 1,
-        marginLeft: SPACING.sm,
-        fontSize: FONT_SIZES.md,
-        color: COLORS.text,
-    },
-    errorText: {
-        fontSize: FONT_SIZES.sm,
-        color: COLORS.primary,
-        marginTop: SPACING.xs,
-    },
-    signupButton: {
-        backgroundColor: COLORS.primary,
-        paddingVertical: SPACING.lg,
-        borderRadius: BORDER_RADIUS.lg,
-        alignItems: 'center',
-        marginTop: SPACING.sm,
-    },
-    signupButtonDisabled: {
-        opacity: 0.7,
-    },
-    signupButtonText: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '700',
-        color: COLORS.card,
-    },
-    termsText: {
-        fontSize: FONT_SIZES.sm,
-        color: COLORS.textMuted,
-        textAlign: 'center',
-        marginBottom: SPACING.lg,
-    },
-    termsLink: {
-        color: COLORS.primary,
-        fontWeight: '500',
-    },
-    loginLink: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-    },
-    loginText: {
-        fontSize: FONT_SIZES.md,
-        color: COLORS.textSecondary,
-    },
-    loginLinkText: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '600',
-        color: COLORS.primary,
-    },
-});
 
 export default SignupScreen;

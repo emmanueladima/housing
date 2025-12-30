@@ -1,0 +1,330 @@
+import React, { useEffect } from 'react';
+import { StyleSheet, View, Platform, Text, Pressable, Dimensions } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { BlurView } from 'expo-blur';
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withSpring,
+} from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+
+import HomeScreen from '../screens/HomeScreen';
+import RoommatesScreen from '../screens/RoommatesScreen';
+import CommunityScreen from '../screens/CommunityScreen';
+import MessagesScreen from '../screens/MessagesScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import { useColors, SPACING } from '../constants/theme';
+import { useTheme } from '../contexts/ThemeContext';
+
+const Tab = createBottomTabNavigator();
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const TAB_COUNT = 5;
+const TAB_BAR_MARGIN = SPACING.md;
+const TAB_BAR_PADDING = 6;
+const TAB_BAR_WIDTH = SCREEN_WIDTH - TAB_BAR_MARGIN * 2;
+const TAB_WIDTH = (TAB_BAR_WIDTH - TAB_BAR_PADDING * 2) / TAB_COUNT;
+const BUBBLE_WIDTH = TAB_WIDTH - 6;
+const BUBBLE_HEIGHT = 50;
+
+// Animated Tab Item
+const AnimatedTabItem = ({
+    route,
+    isFocused,
+    onPress,
+    colors,
+    isDark,
+}: any) => {
+    const scale = useSharedValue(1);
+    const iconY = useSharedValue(0);
+    const icon = getIcon(route.name, isFocused);
+
+    useEffect(() => {
+        iconY.value = withSpring(isFocused ? -1 : 0, { damping: 15 });
+    }, [isFocused]);
+
+    const handlePress = () => {
+        scale.value = withSpring(0.9, { damping: 15 }, () => {
+            scale.value = withSpring(1, { damping: 10 });
+        });
+        onPress();
+    };
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [
+            { scale: scale.value },
+            { translateY: iconY.value }
+        ],
+    }));
+
+    return (
+        <Pressable onPress={handlePress} style={styles.tabItem}>
+            <Animated.View style={[styles.tabItemInner, animatedStyle]}>
+                <Ionicons
+                    name={icon}
+                    size={22}
+                    color={isFocused ? '#ffffff' : (isDark ? 'rgba(255,255,255,0.5)' : 'rgba(60,60,67,0.6)')}
+                />
+                <Text style={[
+                    styles.tabLabel,
+                    { color: isDark ? 'rgba(255,255,255,0.45)' : 'rgba(60,60,67,0.5)' },
+                    isFocused && { color: '#ffffff', fontWeight: '600' }
+                ]}>
+                    {route.name}
+                </Text>
+            </Animated.View>
+        </Pressable>
+    );
+};
+
+// Animated Bubble Indicator - centered on each tab
+const BubbleIndicator = ({ position, colors, isDark }: any) => {
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: position.value }],
+    }));
+
+    return (
+        <Animated.View style={[styles.bubbleContainer, animatedStyle]}>
+            <LinearGradient
+                colors={[colors.primary, `${colors.primary}dd`]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.bubble}
+            >
+                {/* Inner glass shine */}
+                <View style={styles.bubbleShine} />
+            </LinearGradient>
+        </Animated.View>
+    );
+};
+
+// Liquid Glass Tab Bar
+const TabBar = ({ state, navigation }: any) => {
+    const colors = useColors();
+    const { isDark } = useTheme();
+
+    // Calculate bubble center position: (tab index * tab width) + (tab width / 2) - (bubble width / 2)
+    const getBubblePosition = (index: number) => {
+        return index * TAB_WIDTH + (TAB_WIDTH - BUBBLE_WIDTH) / 2;
+    };
+
+    const bubblePosition = useSharedValue(getBubblePosition(state.index));
+
+    useEffect(() => {
+        bubblePosition.value = withSpring(getBubblePosition(state.index), {
+            damping: 18,
+            stiffness: 180,
+            mass: 0.8,
+        });
+    }, [state.index]);
+
+    const dynamicStyles = StyleSheet.create({
+        tabBarContainer: {
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            paddingHorizontal: TAB_BAR_MARGIN,
+            paddingBottom: Platform.OS === 'ios' ? 28 : 16,
+        },
+        glassContainer: {
+            borderRadius: 32,
+            overflow: 'hidden',
+            // Stronger shadow for visibility
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: isDark ? 0.5 : 0.15,
+            shadowRadius: 20,
+            elevation: 16,
+        },
+        glassBorder: {
+            borderRadius: 32,
+            borderWidth: 1,
+            borderColor: isDark
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.06)',
+            overflow: 'hidden',
+        },
+        blurContainer: {
+            borderRadius: 31,
+            overflow: 'hidden',
+        },
+        // More visible glass overlay with better contrast
+        glassOverlay: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: isDark
+                ? 'rgba(28, 28, 35, 0.85)'
+                : 'rgba(245, 245, 248, 0.88)',
+        },
+        innerHighlight: {
+            position: 'absolute',
+            top: 0,
+            left: 20,
+            right: 20,
+            height: 0.5,
+            backgroundColor: isDark
+                ? 'rgba(255, 255, 255, 0.12)'
+                : 'rgba(255, 255, 255, 0.9)',
+        },
+        tabBarInner: {
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            paddingVertical: 8,
+            paddingHorizontal: TAB_BAR_PADDING,
+        },
+        androidFallback: {
+            backgroundColor: isDark
+                ? 'rgba(28, 28, 35, 0.98)'
+                : 'rgba(245, 245, 248, 0.98)',
+            borderRadius: 26,
+        },
+    });
+
+    const TabBarContent = () => (
+        <View style={dynamicStyles.tabBarInner}>
+            {/* Animated bubble behind active tab */}
+            <BubbleIndicator
+                position={bubblePosition}
+                colors={colors}
+                isDark={isDark}
+            />
+
+            {state.routes.map((route: any, index: number) => {
+                const isFocused = state.index === index;
+
+                const onPress = () => {
+                    if (!isFocused) {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        navigation.navigate(route.name);
+                    }
+                };
+
+                return (
+                    <AnimatedTabItem
+                        key={route.key}
+                        route={route}
+                        isFocused={isFocused}
+                        onPress={onPress}
+                        colors={colors}
+                        isDark={isDark}
+                    />
+                );
+            })}
+        </View>
+    );
+
+    // iOS with native blur
+    if (Platform.OS === 'ios') {
+        return (
+            <View style={dynamicStyles.tabBarContainer}>
+                <View style={dynamicStyles.glassContainer}>
+                    <View style={dynamicStyles.glassBorder}>
+                        <BlurView
+                            intensity={isDark ? 50 : 80}
+                            tint={isDark ? 'dark' : 'light'}
+                            style={dynamicStyles.blurContainer}
+                        >
+                            {/* Glass color overlay for better contrast */}
+                            <View style={dynamicStyles.glassOverlay} />
+                            {/* Top edge shine */}
+                            <View style={dynamicStyles.innerHighlight} />
+                            <TabBarContent />
+                        </BlurView>
+                    </View>
+                </View>
+            </View>
+        );
+    }
+
+    // Android fallback
+    return (
+        <View style={dynamicStyles.tabBarContainer}>
+            <View style={dynamicStyles.glassContainer}>
+                <View style={[dynamicStyles.glassBorder, dynamicStyles.androidFallback]}>
+                    <View style={dynamicStyles.innerHighlight} />
+                    <TabBarContent />
+                </View>
+            </View>
+        </View>
+    );
+};
+
+const getIcon = (name: string, focused: boolean): any => {
+    const icons: Record<string, { active: string; inactive: string }> = {
+        Listings: { active: 'home', inactive: 'home-outline' },
+        Roommates: { active: 'people', inactive: 'people-outline' },
+        Community: { active: 'chatbubbles', inactive: 'chatbubbles-outline' },
+        Messages: { active: 'mail', inactive: 'mail-outline' },
+        Profile: { active: 'person', inactive: 'person-outline' },
+    };
+    const icon = icons[name] || { active: 'ellipse', inactive: 'ellipse-outline' };
+    return focused ? icon.active : icon.inactive;
+};
+
+// Shared styles
+const styles = StyleSheet.create({
+    tabItem: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 4,
+        zIndex: 10,
+        height: BUBBLE_HEIGHT,
+    },
+    tabItemInner: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    tabLabel: {
+        fontSize: 9,
+        fontWeight: '500',
+        marginTop: 2,
+        letterSpacing: 0.1,
+    },
+    bubbleContainer: {
+        position: 'absolute',
+        top: 8,
+        left: TAB_BAR_PADDING,
+        width: BUBBLE_WIDTH,
+        height: BUBBLE_HEIGHT,
+        zIndex: 1,
+    },
+    bubble: {
+        flex: 1,
+        borderRadius: 16,
+        overflow: 'hidden',
+    },
+    bubbleShine: {
+        position: 'absolute',
+        top: 0,
+        left: 10,
+        right: 10,
+        height: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.35)',
+        borderRadius: 1,
+    },
+});
+
+export const TabNavigator = () => {
+    return (
+        <Tab.Navigator
+            tabBar={(props) => <TabBar {...props} />}
+            screenOptions={{ headerShown: false }}
+        >
+            <Tab.Screen name="Listings" component={HomeScreen} />
+            <Tab.Screen name="Roommates" component={RoommatesScreen} />
+            <Tab.Screen name="Community" component={CommunityScreen} />
+            <Tab.Screen name="Messages" component={MessagesScreen} />
+            <Tab.Screen name="Profile" component={ProfileScreen} />
+        </Tab.Navigator>
+    );
+};
+
+export default TabNavigator;

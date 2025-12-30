@@ -9,9 +9,12 @@ import {
   resendVerification,
   resendVerificationPublic,
   updateProfilePhoto,
+  forgotPassword,
+  resetPassword,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 import { uploadSingleImage } from '../middleware/multer.js';
+import { authLimiter, signupLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
@@ -39,11 +42,13 @@ const loginValidation = [
   body('password').notEmpty().withMessage('Password is required'),
 ];
 
-// Public routes
-router.post('/signup', signupValidation, signup);
-router.post('/login', loginValidation, login);
+// Public routes (with rate limiting for security)
+router.post('/signup', signupLimiter, signupValidation, signup);
+router.post('/login', authLimiter, loginValidation, login);
 router.get('/verify-email/:token', verifyEmail);
-router.post('/resend-verification-public', resendVerificationPublic);
+router.post('/resend-verification-public', authLimiter, resendVerificationPublic);
+router.post('/forgot-password', authLimiter, forgotPassword);
+router.post('/reset-password/:token', resetPassword);
 
 // Protected routes
 router.get('/me', protect, getMe);
@@ -52,4 +57,3 @@ router.put('/profile-photo', protect, uploadSingleImage, updateProfilePhoto);
 router.post('/resend-verification', protect, resendVerification);
 
 export default router;
-

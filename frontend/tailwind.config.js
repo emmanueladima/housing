@@ -1,9 +1,12 @@
 /** @type {import('tailwindcss').Config} */
+import { heroui } from "@heroui/react";
+
 // Cache bust v3 - Force Tailwind rebuild
 export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: 'class',
   theme: {
@@ -132,6 +135,29 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    heroui({
+      themes: {
+        light: {
+          colors: {
+            primary: {
+              50: '#FFF7ED',
+              100: '#FFEDD5',
+              200: '#FED7AA',
+              300: '#FDBA74',
+              400: '#FB923C',
+              500: '#E85D3F',
+              600: '#DB4A2B',
+              700: '#B0361C',
+              800: '#9A3412',
+              900: '#7C2D12',
+              DEFAULT: '#DB4A2B',
+              foreground: '#FFFFFF',
+            },
+            focus: '#DB4A2B',
+          },
+        },
+      },
+    }),
+  ],
 };
-

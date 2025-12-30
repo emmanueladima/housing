@@ -7,7 +7,6 @@ import SplitExpenses from '../components/RoommateToolkit/SplitExpenses';
 import HouseRules from '../components/RoommateToolkit/HouseRules';
 import SharedTimeline from '../components/RoommateToolkit/SharedTimeline';
 import MoveInChecklist from '../components/RoommateToolkit/MoveInChecklist';
-import ModernBackground from '../components/shared/ModernBackground';
 import { useNavigate } from 'react-router-dom';
 
 const RoommateToolkit = () => {
@@ -48,6 +47,72 @@ const RoommateToolkit = () => {
         }
     };
 
+    // ==============================
+    // Timeline Event Handlers
+    // ==============================
+    const handleAddEvent = async (eventData) => {
+        if (!group) return;
+        await roommateGroupService.addEvent(group._id, eventData);
+        await refreshGroupData();
+    };
+
+    const handleDeleteEvent = async (eventId) => {
+        if (!group) return;
+        await roommateGroupService.deleteEvent(group._id, eventId);
+        await refreshGroupData();
+    };
+
+    // ==============================
+    // Chore Handlers
+    // ==============================
+    const handleAddChore = async (choreData) => {
+        if (!group) return;
+        await roommateGroupService.addChore(group._id, choreData);
+        await refreshGroupData();
+    };
+
+    const handleToggleChore = async (choreId, completed) => {
+        if (!group) return;
+        await roommateGroupService.updateChore(group._id, choreId, { completed });
+        await refreshGroupData();
+    };
+
+    const handleDeleteChore = async (choreId) => {
+        if (!group) return;
+        await roommateGroupService.deleteChore(group._id, choreId);
+        await refreshGroupData();
+    };
+
+    // ==============================
+    // Expense Handlers
+    // ==============================
+    const handleAddExpense = async (expenseData) => {
+        if (!group) return;
+        await roommateGroupService.addExpense(group._id, expenseData);
+        await refreshGroupData();
+    };
+
+    const handleSettleExpense = async (expenseId) => {
+        if (!group) return;
+        await roommateGroupService.updateExpense(group._id, expenseId, { status: 'settled' });
+        await refreshGroupData();
+    };
+
+    const handleDeleteExpense = async (expenseId) => {
+        if (!group) return;
+        await roommateGroupService.deleteExpense(group._id, expenseId);
+        await refreshGroupData();
+    };
+
+    // ==============================
+    // Rule Handler
+    // ==============================
+    const handleAddRule = async (ruleData) => {
+        if (!group) return;
+        await roommateGroupService.addRule(group._id, ruleData);
+        await refreshGroupData();
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -69,11 +134,9 @@ const RoommateToolkit = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* Hero Header with Orange Gradient & Orbs */}
-            <div className="relative overflow-hidden pt-32 pb-16">
-                <ModernBackground />
-
+        <div className="min-h-screen relative">
+            {/* Hero Header */}
+            <div className="relative pt-32 pb-16">
                 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Title & Subtitle */}
                     <div className="text-center mb-10">
@@ -135,66 +198,73 @@ const RoommateToolkit = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="bg-gray-50 min-h-screen">
+            <div className="relative z-10 pb-16">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     {/* Info Banner for Non-Group Users */}
                     {!group && (
-                        <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-2xl flex items-start gap-3">
-                            <FiInfo className="text-orange-500 shrink-0 mt-0.5" size={20} />
+                        <div className="mb-6 p-4 bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl flex items-start gap-3">
+                            <FiInfo className="text-yellow-200 shrink-0 mt-0.5" size={20} />
                             <div>
-                                <p className="text-orange-800 font-medium">You're using the personal toolkit</p>
-                                <p className="text-orange-600 text-sm">Join or create a roommate group to access shared chores, house rules, and group expense splitting.</p>
+                                <p className="text-white font-medium">You're using the personal toolkit</p>
+                                <p className="text-white/70 text-sm">Join or create a roommate group to access shared chores, house rules, and group expense splitting.</p>
                             </div>
                         </div>
                     )}
 
                     {/* Content Card */}
-                    <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden min-h-[500px]">
+                    <div className="bg-white/20 backdrop-blur-xl rounded-3xl border border-white/30 shadow-lg overflow-hidden min-h-[500px]">
                         <div className="p-6 md:p-8">
                             {activeTab === 'checklist' && <MoveInChecklist />}
                             {activeTab === 'chores' && group && (
                                 <ChoreRotation
                                     members={group.members}
                                     chores={group.chores}
-                                    onAddChore={(chore) => roommateGroupService.addChore(group._id, chore).then(() => refreshGroupData())}
+                                    onAddChore={handleAddChore}
+                                    onToggleChore={handleToggleChore}
+                                    onDeleteChore={handleDeleteChore}
                                 />
                             )}
                             {activeTab === 'expenses' && (
                                 <SplitExpenses
                                     members={group?.members || []}
                                     expenses={group?.expenses || []}
-                                    onAddExpense={(expense) => {
-                                        if (group) {
-                                            roommateGroupService.addExpense(group._id, expense).then(() => refreshGroupData());
-                                        }
-                                    }}
+                                    onAddExpense={handleAddExpense}
+                                    onSettleExpense={handleSettleExpense}
+                                    onDeleteExpense={handleDeleteExpense}
                                     isPersonal={!group}
                                 />
                             )}
                             {activeTab === 'rules' && group && (
                                 <HouseRules
                                     rules={group.houseRules}
-                                    onAddRule={(rule) => roommateGroupService.addRule(group._id, rule).then(() => refreshGroupData())}
+                                    onAddRule={handleAddRule}
                                 />
                             )}
-                            {activeTab === 'timeline' && <SharedTimeline />}
+                            {activeTab === 'timeline' && (
+                                <SharedTimeline
+                                    events={group?.sharedEvents || []}
+                                    onAddEvent={group ? handleAddEvent : undefined}
+                                    onDeleteEvent={group ? handleDeleteEvent : undefined}
+                                    isPersonal={!group}
+                                />
+                            )}
                         </div>
                     </div>
 
                     {/* Group Members Card */}
                     {group?.members && group.members.length > 0 && (
-                        <div className="mt-6 bg-white rounded-3xl shadow-sm border border-gray-200 p-6">
-                            <h3 className="text-lg font-bold text-gray-900 mb-4">Group Members</h3>
+                        <div className="mt-6 bg-white/20 backdrop-blur-xl rounded-3xl border border-white/30 p-6 shadow-lg">
+                            <h3 className="text-lg font-bold text-white mb-4">Group Members</h3>
                             <div className="flex flex-wrap gap-3">
                                 {group.members.map((member, index) => (
                                     <div
                                         key={member._id || index}
-                                        className="flex items-center gap-3 px-4 py-2 bg-orange-50 rounded-full border border-orange-100"
+                                        className="flex items-center gap-3 px-4 py-2 bg-white/20 rounded-full border border-white/30"
                                     >
-                                        <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                        <div className="w-8 h-8 bg-white/30 rounded-full flex items-center justify-center text-white font-bold text-sm">
                                             {member.user?.firstName?.[0] || member.firstName?.[0] || '?'}
                                         </div>
-                                        <span className="font-medium text-gray-700">
+                                        <span className="font-medium text-white">
                                             {member.user?.firstName || member.firstName || 'Member'} {member.user?.lastName?.[0] || member.lastName?.[0] || ''}.
                                         </span>
                                     </div>

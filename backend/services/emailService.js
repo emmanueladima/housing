@@ -1,94 +1,130 @@
 import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 /**
  * Email Service - handles all email sending
- * Supports DEV_MODE (console.log) and PROD_MODE (real SMTP)
+ * Priority: Resend API > SMTP > Console logging
  * Always logs verification links to console as backup
  */
 
 class EmailService {
   constructor() {
     this.isDev = process.env.DEV_MODE === 'true';
-    this.isConfigured = false;
+    this.provider = 'console'; // Default fallback
 
-    if (!this.isDev) {
-      // Check if SMTP is properly configured
-      const hasValidConfig =
-        process.env.EMAIL_HOST &&
-        process.env.EMAIL_USER &&
-        process.env.EMAIL_PASS &&
-        !process.env.EMAIL_USER.includes('your-email') &&
-        !process.env.EMAIL_PASS.includes('your-app-password');
-
-      if (hasValidConfig) {
-        // Create reusable transporter for production
-        this.transporter = nodemailer.createTransport({
-          host: process.env.EMAIL_HOST,
-          port: parseInt(process.env.EMAIL_PORT || '587'),
-          secure: process.env.EMAIL_PORT === '465', // true for 465, false for other ports
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-          },
-        });
-        this.isConfigured = true;
-        console.log('📧 Email service configured with SMTP');
-
-        // Verify connection configuration
-        this.transporter.verify((error, success) => {
-          if (error) {
-            console.error('❌ SMTP Connection Error:', error);
-            console.error('SMTP Error Details:', JSON.stringify(error, null, 2));
-          } else {
-            console.log('✅ SMTP Connection Verified');
-          }
-        });
-      } else {
-        console.log('⚠️ Email service: SMTP not configured, emails will be logged to console');
-      }
+    if (this.isDev) {
+      console.log('📧 Email service in DEV MODE (console only)');
+      return;
     }
+
+    // Priority 1: Resend API (most reliable)
+    if (process.env.RESEND_API_KEY) {
+      this.resend = new Resend(process.env.RESEND_API_KEY);
+      this.provider = 'resend';
+      this.fromEmail = process.env.RESEND_FROM_EMAIL || 'Collegio <noreply@collegio.us>';
+      console.log('📧 Email service configured with Resend API');
+      return;
+    }
+
+    // Priority 2: SMTP (fallback)
+    const hasValidSMTP =
+      process.env.EMAIL_HOST &&
+      process.env.EMAIL_USER &&
+      process.env.EMAIL_PASS &&
+      !process.env.EMAIL_USER.includes('your-email') &&
+      !process.env.EMAIL_PASS.includes('your-app-password');
+
+    if (hasValidSMTP) {
+      this.transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: parseInt(process.env.EMAIL_PORT || '587'),
+        secure: process.env.EMAIL_PORT === '465',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+      this.provider = 'smtp';
+      this.fromEmail = `Collegio <${process.env.EMAIL_USER}>`;
+      console.log('📧 Email service configured with SMTP');
+
+      // Verify SMTP connection
+      this.transporter.verify((error, success) => {
+        if (error) {
+          console.error('❌ SMTP Connection Error:', error.message);
+        } else {
+          console.log('✅ SMTP Connection Verified');
+        }
+      });
+      return;
+    }
+
+    console.log('⚠️ Email service: No provider configured, emails will be logged to console');
   }
 
   /**
-   * Send an email
+   * Send an email using the best available provider
    */
   async sendEmail({ to, subject, html, text }) {
-    const mailOptions = {
-      from: `Collegio <${process.env.EMAIL_USER || 'noreply@collegio.com'}>`, // Updated sender name
-      to,
-      subject,
-      html,
-      text,
-    };
-
-    // Always log email details in dev mode or if SMTP is not configured
-    if (this.isDev || !this.isConfigured) {
-      console.log('\n📧 ===== EMAIL (CONSOLE MODE) =====');
+    // Always log in dev mode
+    if (this.isDev) {
+      console.log('\n📧 ===== EMAIL (DEV MODE) =====');
       console.log('To:', to);
       console.log('Subject:', subject);
-      console.log('Content:', text || 'See HTML version');
       console.log('================================\n');
-      return { success: true, mode: 'console' };
+      return { success: true, mode: 'dev' };
     }
 
-    // Production mode with configured SMTP
-    try {
-      const info = await this.transporter.sendMail(mailOptions);
-      console.log('✅ Email sent:', info.messageId);
-      return { success: true, messageId: info.messageId };
-    } catch (error) {
-      console.error('❌ Email send error:', error.message);
-      console.error('Full Error:', error);
-      // Log email content as fallback
-      console.log('\n📧 ===== EMAIL FAILED - LOGGING CONTENT =====');
-      console.log('To:', to);
-      console.log('Subject:', subject);
-      console.log('Content:', text || 'See HTML version');
-      console.log('==============================================\n');
-      // Don't throw - return gracefully
-      return { success: false, error: error.message };
+    // Try Resend API first
+    if (this.provider === 'resend' && this.resend) {
+      try {
+        const { data, error } = await this.resend.emails.send({
+          from: this.fromEmail,
+          to: Array.isArray(to) ? to : [to],
+          subject,
+          html,
+          text,
+        });
+
+        if (error) {
+          console.error('❌ Resend error:', error);
+          throw new Error(error.message);
+        }
+
+        console.log('✅ Email sent via Resend:', data.id);
+        return { success: true, provider: 'resend', id: data.id };
+      } catch (error) {
+        console.error('❌ Resend failed, trying fallback:', error.message);
+        // Fall through to SMTP fallback
+      }
     }
+
+    // Try SMTP fallback
+    if (this.transporter) {
+      try {
+        const info = await this.transporter.sendMail({
+          from: this.fromEmail,
+          to,
+          subject,
+          html,
+          text,
+        });
+        console.log('✅ Email sent via SMTP:', info.messageId);
+        return { success: true, provider: 'smtp', messageId: info.messageId };
+      } catch (error) {
+        console.error('❌ SMTP failed:', error.message);
+      }
+    }
+
+    // Ultimate fallback: log to console
+    console.log('\n📧 ===== EMAIL LOGGED (NO PROVIDER) =====');
+    console.log('To:', to);
+    console.log('Subject:', subject);
+    console.log('Content:', text || 'See HTML version');
+    console.log('==========================================\n');
+    return { success: false, fallback: true };
   }
+
 
   /**
    * Send verification email
@@ -142,7 +178,7 @@ class EmailService {
           </div>
           <div class="footer">
             <p>If you didn't create an account with collegio, please ignore this email.</p>
-            <p>&copy; 2024 collegio. All rights reserved.</p>
+            <p>&copy; 2025 collegio. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -353,7 +389,7 @@ class EmailService {
           </div>
           <div class="footer">
             <p>If you don't know ${inviterName} or didn't expect this invite, you can safely ignore this email.</p>
-            <p>&copy; 2024 collegio. All rights reserved.</p>
+            <p>&copy; 2025 collegio. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -468,6 +504,80 @@ class EmailService {
       subject: `Application ${newStatus.replace('_', ' ')} - ${listing.title}`,
       html,
       text: `Your application for ${listing.title} has been updated to: ${newStatus}`,
+    });
+  }
+
+  /**
+   * Send password reset email
+   */
+  async sendPasswordResetEmail(user, token) {
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+
+    // ALWAYS log reset URL for debugging
+    console.log('\n🔗 ===== PASSWORD RESET LINK =====');
+    console.log(`User: ${user.email}`);
+    console.log(`Link: ${resetUrl}`);
+    console.log('==================================\n');
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; font-family: 'Arial', sans-serif; }
+          .header { padding: 0; text-align: center; border-radius: 10px 10px 0 0; overflow: hidden; background: #E4E2DD; height: 150px; }
+          .header img { width: 100%; height: 150px; object-fit: cover; object-position: center; display: block; }
+          .content { background: #ffffff; padding: 40px 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+          .button { display: inline-block; background: linear-gradient(135deg, #db4a2b 0%, #c43d20 100%); color: #ffffff !important; padding: 16px 40px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; margin: 20px 0; box-shadow: 0 4px 14px rgba(219, 74, 43, 0.4); }
+          .footer { text-align: center; padding: 20px; color: #9ca3af; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <img src="${process.env.FRONTEND_URL}/assets/beige-cover.png" alt="Collegio">
+          </div>
+          <div class="content">
+            <h2>Reset Your Password</h2>
+            <p>Hi ${user.firstName},</p>
+            <p>We received a request to reset the password for your collegio account. Click the button below to set a new password:</p>
+            <p style="text-align: center; margin: 30px 0;">
+              <a href="${resetUrl}" class="button" style="color: #ffffff !important; text-decoration: none;">Reset Password</a>
+            </p>
+            <p>Or copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; color: #666;">${resetUrl}</p>
+            <p><strong>This link will expire in 1 hour.</strong></p>
+            <p style="color: #888; font-size: 14px; margin-top: 30px;">If you didn't request this password reset, you can safely ignore this email. Your password will remain unchanged.</p>
+          </div>
+          <div class="footer">
+            <p>&copy; 2025 collegio. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const text = `
+      Reset Your Password
+      
+      Hi ${user.firstName},
+      
+      We received a request to reset the password for your collegio account.
+      
+      Reset your password by visiting:
+      ${resetUrl}
+      
+      This link will expire in 1 hour.
+      
+      If you didn't request this password reset, you can safely ignore this email.
+    `;
+
+    return await this.sendEmail({
+      to: user.email,
+      subject: 'Reset Your collegio Password',
+      html,
+      text,
     });
   }
 }

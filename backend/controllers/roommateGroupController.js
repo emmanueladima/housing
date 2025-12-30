@@ -279,3 +279,183 @@ export const deleteMyGroup = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// ==============================
+// SHARED EVENTS (Timeline)
+// ==============================
+
+// @desc    Add a shared event
+// @route   POST /api/roommate-groups/:id/events
+// @access  Private
+export const addEvent = async (req, res) => {
+    try {
+        const group = await RoommateGroup.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Verify user is a member
+        if (!group.members.includes(req.user._id)) {
+            return res.status(403).json({ message: 'You must be a group member to add events' });
+        }
+
+        const eventData = {
+            ...req.body,
+            createdBy: req.user._id
+        };
+
+        group.sharedEvents.push(eventData);
+        await group.save();
+
+        await group.populate('sharedEvents.createdBy', 'firstName lastName profilePhoto');
+
+        res.status(201).json(group.sharedEvents);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Delete a shared event
+// @route   DELETE /api/roommate-groups/:id/events/:eventId
+// @access  Private
+export const deleteEvent = async (req, res) => {
+    try {
+        const group = await RoommateGroup.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Verify user is a member
+        if (!group.members.includes(req.user._id)) {
+            return res.status(403).json({ message: 'You must be a group member to delete events' });
+        }
+
+        const event = group.sharedEvents.id(req.params.eventId);
+        if (!event) return res.status(404).json({ message: 'Event not found' });
+
+        group.sharedEvents.pull(req.params.eventId);
+        await group.save();
+
+        res.json({ success: true, message: 'Event deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// ==============================
+// CHORES - Update & Delete
+// ==============================
+
+// @desc    Update a chore (toggle completed, etc.)
+// @route   PUT /api/roommate-groups/:id/chores/:choreId
+// @access  Private
+export const updateChore = async (req, res) => {
+    try {
+        const group = await RoommateGroup.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Verify user is a member
+        if (!group.members.includes(req.user._id)) {
+            return res.status(403).json({ message: 'You must be a group member to update chores' });
+        }
+
+        const chore = group.chores.id(req.params.choreId);
+        if (!chore) return res.status(404).json({ message: 'Chore not found' });
+
+        // Update allowed fields
+        if (req.body.completed !== undefined) chore.completed = req.body.completed;
+        if (req.body.title) chore.title = req.body.title;
+        if (req.body.assignedTo) chore.assignedTo = req.body.assignedTo;
+        if (req.body.dueDate) chore.dueDate = req.body.dueDate;
+        if (req.body.frequency) chore.frequency = req.body.frequency;
+
+        await group.save();
+        await group.populate('chores.assignedTo', 'firstName lastName profilePhoto');
+
+        res.json(group.chores);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Delete a chore
+// @route   DELETE /api/roommate-groups/:id/chores/:choreId
+// @access  Private
+export const deleteChore = async (req, res) => {
+    try {
+        const group = await RoommateGroup.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Verify user is a member
+        if (!group.members.includes(req.user._id)) {
+            return res.status(403).json({ message: 'You must be a group member to delete chores' });
+        }
+
+        const chore = group.chores.id(req.params.choreId);
+        if (!chore) return res.status(404).json({ message: 'Chore not found' });
+
+        group.chores.pull(req.params.choreId);
+        await group.save();
+
+        res.json({ success: true, message: 'Chore deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// ==============================
+// EXPENSES - Update & Delete
+// ==============================
+
+// @desc    Update an expense (settle, etc.)
+// @route   PUT /api/roommate-groups/:id/expenses/:expenseId
+// @access  Private
+export const updateExpense = async (req, res) => {
+    try {
+        const group = await RoommateGroup.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Verify user is a member
+        if (!group.members.includes(req.user._id)) {
+            return res.status(403).json({ message: 'You must be a group member to update expenses' });
+        }
+
+        const expense = group.expenses.id(req.params.expenseId);
+        if (!expense) return res.status(404).json({ message: 'Expense not found' });
+
+        // Update allowed fields
+        if (req.body.status) expense.status = req.body.status;
+        if (req.body.title) expense.title = req.body.title;
+        if (req.body.amount) expense.amount = req.body.amount;
+        if (req.body.category) expense.category = req.body.category;
+
+        await group.save();
+        await group.populate('expenses.paidBy', 'firstName lastName profilePhoto');
+        await group.populate('expenses.splitAmong', 'firstName lastName profilePhoto');
+
+        res.json(group.expenses);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Delete an expense
+// @route   DELETE /api/roommate-groups/:id/expenses/:expenseId
+// @access  Private
+export const deleteExpense = async (req, res) => {
+    try {
+        const group = await RoommateGroup.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Verify user is a member
+        if (!group.members.includes(req.user._id)) {
+            return res.status(403).json({ message: 'You must be a group member to delete expenses' });
+        }
+
+        const expense = group.expenses.id(req.params.expenseId);
+        if (!expense) return res.status(404).json({ message: 'Expense not found' });
+
+        group.expenses.pull(req.params.expenseId);
+        await group.save();
+
+        res.json({ success: true, message: 'Expense deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

@@ -10,10 +10,12 @@ import {
     ScrollView,
     ActivityIndicator,
     Alert,
+    StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../../constants/theme';
+import { useColors, SPACING, BORDER_RADIUS, FONT_SIZES } from '../../constants/theme';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface LoginScreenProps {
@@ -21,6 +23,8 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+    const colors = useColors();
+    const { isDark } = useTheme();
     const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -53,7 +57,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         setIsLoading(true);
         try {
             await login(email.trim().toLowerCase(), password);
-            // Navigation will happen automatically via AuthContext
         } catch (error: any) {
             Alert.alert('Login Failed', error.message || 'Please check your credentials and try again.');
         } finally {
@@ -61,8 +64,156 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         }
     };
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        keyboardView: {
+            flex: 1,
+        },
+        scrollContent: {
+            flexGrow: 1,
+            padding: SPACING.lg,
+            justifyContent: 'center',
+        },
+        header: {
+            alignItems: 'center',
+            marginBottom: SPACING.xxl,
+        },
+        logoContainer: {
+            width: 80,
+            height: 80,
+            borderRadius: 20,
+            backgroundColor: `${colors.primary}15`,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: SPACING.lg,
+        },
+        title: {
+            fontSize: FONT_SIZES.xxxl,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: SPACING.xs,
+        },
+        subtitle: {
+            fontSize: FONT_SIZES.md,
+            color: colors.textSecondary,
+        },
+        form: {
+            marginBottom: SPACING.xl,
+        },
+        inputGroup: {
+            marginBottom: SPACING.lg,
+        },
+        label: {
+            fontSize: FONT_SIZES.sm,
+            fontWeight: '600',
+            color: colors.text,
+            marginBottom: SPACING.sm,
+        },
+        inputContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.backgroundSecondary,
+            borderRadius: BORDER_RADIUS.lg,
+            paddingHorizontal: SPACING.md,
+            paddingVertical: SPACING.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+        inputError: {
+            borderColor: '#EF4444',
+        },
+        input: {
+            flex: 1,
+            marginLeft: SPACING.sm,
+            fontSize: FONT_SIZES.md,
+            color: colors.text,
+        },
+        errorText: {
+            fontSize: FONT_SIZES.sm,
+            color: '#EF4444',
+            marginTop: SPACING.xs,
+        },
+        forgotPassword: {
+            alignSelf: 'flex-end',
+            marginBottom: SPACING.lg,
+        },
+        forgotPasswordText: {
+            fontSize: FONT_SIZES.sm,
+            color: colors.primary,
+            fontWeight: '500',
+        },
+        loginButton: {
+            backgroundColor: colors.primary,
+            paddingVertical: SPACING.lg,
+            borderRadius: BORDER_RADIUS.lg,
+            alignItems: 'center',
+        },
+        loginButtonDisabled: {
+            opacity: 0.7,
+        },
+        loginButtonText: {
+            fontSize: FONT_SIZES.md,
+            fontWeight: '700',
+            color: '#FFFFFF',
+        },
+        divider: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: SPACING.xl,
+        },
+        dividerLine: {
+            flex: 1,
+            height: 1,
+            backgroundColor: colors.border,
+        },
+        dividerText: {
+            marginHorizontal: SPACING.md,
+            fontSize: FONT_SIZES.sm,
+            color: colors.textMuted,
+        },
+        socialButtons: {
+            flexDirection: 'row',
+            gap: SPACING.md,
+            marginBottom: SPACING.xl,
+        },
+        socialButton: {
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: SPACING.sm,
+            backgroundColor: colors.backgroundSecondary,
+            paddingVertical: SPACING.md,
+            borderRadius: BORDER_RADIUS.lg,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+        socialButtonText: {
+            fontSize: FONT_SIZES.md,
+            fontWeight: '500',
+            color: colors.text,
+        },
+        signupLink: {
+            flexDirection: 'row',
+            justifyContent: 'center',
+        },
+        signupText: {
+            fontSize: FONT_SIZES.md,
+            color: colors.textSecondary,
+        },
+        signupLinkText: {
+            fontSize: FONT_SIZES.md,
+            fontWeight: '600',
+            color: colors.primary,
+        },
+    });
+
     return (
         <SafeAreaView style={styles.container}>
+            <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}
@@ -75,7 +226,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                     {/* Header */}
                     <View style={styles.header}>
                         <View style={styles.logoContainer}>
-                            <Ionicons name="home" size={40} color={COLORS.primary} />
+                            <Ionicons name="home" size={40} color={colors.primary} />
                         </View>
                         <Text style={styles.title}>Welcome Back</Text>
                         <Text style={styles.subtitle}>Sign in to continue to Collegio</Text>
@@ -87,11 +238,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Email</Text>
                             <View style={[styles.inputContainer, errors.email && styles.inputError]}>
-                                <Ionicons name="mail-outline" size={20} color={COLORS.textMuted} />
+                                <Ionicons name="mail-outline" size={20} color={colors.textMuted} />
                                 <TextInput
                                     style={styles.input}
                                     placeholder="Enter your email"
-                                    placeholderTextColor={COLORS.textMuted}
+                                    placeholderTextColor={colors.textMuted}
                                     value={email}
                                     onChangeText={(text) => {
                                         setEmail(text);
@@ -109,11 +260,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Password</Text>
                             <View style={[styles.inputContainer, errors.password && styles.inputError]}>
-                                <Ionicons name="lock-closed-outline" size={20} color={COLORS.textMuted} />
+                                <Ionicons name="lock-closed-outline" size={20} color={colors.textMuted} />
                                 <TextInput
                                     style={styles.input}
                                     placeholder="Enter your password"
-                                    placeholderTextColor={COLORS.textMuted}
+                                    placeholderTextColor={colors.textMuted}
                                     value={password}
                                     onChangeText={(text) => {
                                         setPassword(text);
@@ -125,7 +276,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                                     <Ionicons
                                         name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                                         size={20}
-                                        color={COLORS.textMuted}
+                                        color={colors.textMuted}
                                     />
                                 </TouchableOpacity>
                             </View>
@@ -144,7 +295,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                             disabled={isLoading}
                         >
                             {isLoading ? (
-                                <ActivityIndicator color={COLORS.card} />
+                                <ActivityIndicator color="#FFFFFF" />
                             ) : (
                                 <Text style={styles.loginButtonText}>Sign In</Text>
                             )}
@@ -161,11 +312,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                     {/* Social Login */}
                     <View style={styles.socialButtons}>
                         <TouchableOpacity style={styles.socialButton}>
-                            <Ionicons name="logo-google" size={20} color={COLORS.text} />
+                            <Ionicons name="logo-google" size={20} color={colors.text} />
                             <Text style={styles.socialButtonText}>Google</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.socialButton}>
-                            <Ionicons name="logo-apple" size={20} color={COLORS.text} />
+                            <Ionicons name="logo-apple" size={20} color={colors.text} />
                             <Text style={styles.socialButtonText}>Apple</Text>
                         </TouchableOpacity>
                     </View>
@@ -182,152 +333,5 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         </SafeAreaView>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.background,
-    },
-    keyboardView: {
-        flex: 1,
-    },
-    scrollContent: {
-        flexGrow: 1,
-        padding: SPACING.lg,
-        justifyContent: 'center',
-    },
-    header: {
-        alignItems: 'center',
-        marginBottom: SPACING.xxl,
-    },
-    logoContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 20,
-        backgroundColor: 'rgba(219, 74, 43, 0.1)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: SPACING.lg,
-    },
-    title: {
-        fontSize: FONT_SIZES.xxxl,
-        fontWeight: '700',
-        color: COLORS.text,
-        marginBottom: SPACING.xs,
-    },
-    subtitle: {
-        fontSize: FONT_SIZES.md,
-        color: COLORS.textSecondary,
-    },
-    form: {
-        marginBottom: SPACING.xl,
-    },
-    inputGroup: {
-        marginBottom: SPACING.lg,
-    },
-    label: {
-        fontSize: FONT_SIZES.sm,
-        fontWeight: '600',
-        color: COLORS.text,
-        marginBottom: SPACING.sm,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: COLORS.backgroundSecondary,
-        borderRadius: BORDER_RADIUS.lg,
-        paddingHorizontal: SPACING.md,
-        paddingVertical: SPACING.md,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-    inputError: {
-        borderColor: COLORS.primary,
-    },
-    input: {
-        flex: 1,
-        marginLeft: SPACING.sm,
-        fontSize: FONT_SIZES.md,
-        color: COLORS.text,
-    },
-    errorText: {
-        fontSize: FONT_SIZES.sm,
-        color: COLORS.primary,
-        marginTop: SPACING.xs,
-    },
-    forgotPassword: {
-        alignSelf: 'flex-end',
-        marginBottom: SPACING.lg,
-    },
-    forgotPasswordText: {
-        fontSize: FONT_SIZES.sm,
-        color: COLORS.primary,
-        fontWeight: '500',
-    },
-    loginButton: {
-        backgroundColor: COLORS.primary,
-        paddingVertical: SPACING.lg,
-        borderRadius: BORDER_RADIUS.lg,
-        alignItems: 'center',
-    },
-    loginButtonDisabled: {
-        opacity: 0.7,
-    },
-    loginButtonText: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '700',
-        color: COLORS.card,
-    },
-    divider: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: SPACING.xl,
-    },
-    dividerLine: {
-        flex: 1,
-        height: 1,
-        backgroundColor: COLORS.border,
-    },
-    dividerText: {
-        marginHorizontal: SPACING.md,
-        fontSize: FONT_SIZES.sm,
-        color: COLORS.textMuted,
-    },
-    socialButtons: {
-        flexDirection: 'row',
-        gap: SPACING.md,
-        marginBottom: SPACING.xl,
-    },
-    socialButton: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: SPACING.sm,
-        backgroundColor: COLORS.backgroundSecondary,
-        paddingVertical: SPACING.md,
-        borderRadius: BORDER_RADIUS.lg,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-    socialButtonText: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '500',
-        color: COLORS.text,
-    },
-    signupLink: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-    },
-    signupText: {
-        fontSize: FONT_SIZES.md,
-        color: COLORS.textSecondary,
-    },
-    signupLinkText: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '600',
-        color: COLORS.primary,
-    },
-});
 
 export default LoginScreen;

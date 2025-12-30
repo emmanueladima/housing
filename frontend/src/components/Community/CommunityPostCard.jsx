@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FiMessageCircle, FiMoreHorizontal, FiHome, FiKey, FiUsers, FiShoppingBag, FiBook, FiHash, FiEdit2, FiTrash2, FiFlag, FiHeart, FiSend } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
+import { CardBody, CardFooter } from '@heroui/card';
+import GlassCard from '../shared/GlassCard';
 
 // Channel icons mapping
 const channelIcons = {
@@ -23,11 +26,12 @@ const channelLabels = {
 };
 
 // Intent styles - softer colors
+// Intent styles - translucent colors
 const intentStyles = {
-    'looking-for': { bg: 'bg-blue-50', text: 'text-blue-600', label: 'Looking for' },
-    'offering': { bg: 'bg-green-50', text: 'text-green-600', label: 'Offering' },
-    'selling': { bg: 'bg-amber-50', text: 'text-amber-600', label: 'Selling' },
-    'announcement': { bg: 'bg-purple-50', text: 'text-purple-600', label: 'Announcement' },
+    'looking-for': { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Looking for' },
+    'offering': { bg: 'bg-green-100', text: 'text-green-700', label: 'Offering' },
+    'selling': { bg: 'bg-amber-100', text: 'text-amber-700', label: 'Selling' },
+    'announcement': { bg: 'bg-purple-100', text: 'text-purple-700', label: 'Announcement' },
 };
 
 const formatTimeAgo = (date) => {
@@ -45,8 +49,10 @@ const formatTimeAgo = (date) => {
 const CommunityPostCard = ({ post, onViewDetails, onMessage, onEdit, onDelete, onReport, channelColor = '#6B7280' }) => {
     const { user } = useAuth();
     const [showMenu, setShowMenu] = useState(false);
+    const menuButtonRef = useRef(null);
+    const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
 
-    const intentStyle = intentStyles[post.intent] || { bg: 'bg-gray-50', text: 'text-gray-600', label: 'Post' };
+    const intentStyle = intentStyles[post.intent] || { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Post' };
     const ChannelIcon = channelIcons[post.channel] || FiHash;
     const channelLabel = channelLabels[post.channel] || 'Community';
 
@@ -64,15 +70,18 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage, onEdit, onDelete, o
     const isOwner = user && authorId && authorId === userId;
 
     return (
-        <div
-            onClick={() => onViewDetails(post)}
-            className="group bg-white rounded-2xl border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden"
+        <GlassCard
+            isPressable
+            onPress={() => onViewDetails(post)}
+            padding="none"
+            allowOverflow={true}
+            className="group w-full transition-all duration-300 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm hover:shadow-md hover:bg-white/70"
         >
-            <div className="p-5">
+            <CardBody className="p-6">
                 {/* Header: Avatar, Author, Time, Intent */}
                 <div className="flex items-center gap-3 mb-4">
                     {/* Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0 shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0 shadow-sm ring-2 ring-white">
                         {post.author?.profilePhoto ? (
                             <img src={post.author.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" />
                         ) : (
@@ -98,7 +107,7 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage, onEdit, onDelete, o
                     </div>
 
                     {/* Intent Badge */}
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${intentStyle.bg} ${intentStyle.text}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${intentStyle.bg} ${intentStyle.text}`}>
                         {intentStyle.label}
                     </span>
                 </div>
@@ -118,7 +127,7 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage, onEdit, onDelete, o
                     <div className="flex flex-wrap items-center gap-2 mb-4">
                         {/* Price */}
                         {(post.price || post.budgetMin || post.budgetMax) && (
-                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 backdrop-blur-sm border border-green-200">
                                 {post.price ? `$${post.price}` : `$${post.budgetMin || 0} – $${post.budgetMax || '∞'}`}
                             </span>
                         )}
@@ -127,21 +136,21 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage, onEdit, onDelete, o
                         {post.tags && post.tags.slice(0, 2).map((tag, i) => (
                             <span
                                 key={i}
-                                className="px-2.5 py-1 rounded-full text-xs bg-gray-100 text-gray-600"
+                                className="px-2.5 py-1 rounded-full text-xs bg-white/50 text-gray-600 backdrop-blur-sm border border-white/40 font-medium"
                             >
                                 #{tag}
                             </span>
                         ))}
                     </div>
                 )}
-            </div>
+            </CardBody>
 
             {/* Footer Actions */}
-            <div className="px-5 py-3 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+            <CardFooter className="px-5 py-3 bg-white/40 border-t border-white/30 flex items-center justify-between backdrop-blur-md">
                 {/* Left: Comments */}
                 <button
                     onClick={(e) => { e.stopPropagation(); onViewDetails(post); }}
-                    className="flex items-center gap-2 text-gray-500 hover:text-orange-600 transition-colors text-sm"
+                    className="flex items-center gap-2 text-gray-500 hover:text-orange-600 transition-colors text-sm font-medium"
                 >
                     <FiMessageCircle size={16} />
                     <span>{post.commentCount || 0} {post.commentCount === 1 ? 'reply' : 'replies'}</span>
@@ -153,7 +162,7 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage, onEdit, onDelete, o
                     {canMessage && (
                         <button
                             onClick={handleMessageClick}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white text-gray-700 border border-gray-200 hover:border-orange-300 hover:text-orange-600 transition-colors shadow-sm"
                         >
                             <FiSend size={12} />
                             Message
@@ -163,46 +172,69 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage, onEdit, onDelete, o
                     {/* More Menu */}
                     <div className="relative">
                         <button
-                            onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
-                            className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                            ref={menuButtonRef}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (!showMenu && menuButtonRef.current) {
+                                    const rect = menuButtonRef.current.getBoundingClientRect();
+                                    setMenuPosition({
+                                        top: rect.bottom + 4,
+                                        left: rect.right - 160 // 160 = menu width (w-40)
+                                    });
+                                }
+                                setShowMenu(!showMenu);
+                            }}
+                            className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-white/50 transition-colors"
                         >
                             <FiMoreHorizontal size={16} />
                         </button>
 
-                        {showMenu && (
-                            <div className="absolute right-0 bottom-full mb-1 w-40 rounded-xl shadow-xl bg-white border border-gray-100 overflow-hidden z-10">
-                                {isOwner ? (
-                                    <>
+                        {showMenu && createPortal(
+                            <>
+                                {/* Backdrop to close menu */}
+                                <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={(e) => { e.stopPropagation(); setShowMenu(false); }}
+                                />
+                                <div
+                                    className="fixed w-40 rounded-xl shadow-xl bg-white border border-gray-100 overflow-hidden z-50"
+                                    style={{ top: menuPosition.top, left: menuPosition.left }}
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    {isOwner ? (
+                                        <>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setShowMenu(false); onEdit && onEdit(post); }}
+                                                className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"
+                                            >
+                                                <FiEdit2 size={14} />
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setShowMenu(false); onDelete && onDelete(post); }}
+                                                className="w-full text-left px-4 py-2.5 text-sm hover:bg-red-50 flex items-center gap-2 text-red-600"
+                                            >
+                                                <FiTrash2 size={14} />
+                                                Delete
+                                            </button>
+                                        </>
+                                    ) : (
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); setShowMenu(false); onEdit && onEdit(post); }}
-                                            className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"
-                                        >
-                                            <FiEdit2 size={14} />
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); setShowMenu(false); onDelete && onDelete(post); }}
+                                            onClick={(e) => { e.stopPropagation(); setShowMenu(false); onReport && onReport(post); }}
                                             className="w-full text-left px-4 py-2.5 text-sm hover:bg-red-50 flex items-center gap-2 text-red-600"
                                         >
-                                            <FiTrash2 size={14} />
-                                            Delete
+                                            <FiFlag size={14} />
+                                            Report
                                         </button>
-                                    </>
-                                ) : (
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); setShowMenu(false); onReport && onReport(post); }}
-                                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-red-50 flex items-center gap-2 text-red-600"
-                                    >
-                                        <FiFlag size={14} />
-                                        Report
-                                    </button>
-                                )}
-                            </div>
+                                    )}
+                                </div>
+                            </>,
+                            document.body
                         )}
                     </div>
                 </div>
-            </div>
-        </div>
+            </CardFooter>
+        </GlassCard >
     );
 };
 

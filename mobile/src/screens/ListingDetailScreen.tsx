@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { GlassView } from 'expo-glass-effect';
 import Mapbox, { MapView, Camera, MarkerView } from '@rnmapbox/maps';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
 import { config } from '../config';
@@ -78,27 +79,36 @@ const ListingDetailScreen: React.FC<ListingDetailScreenProps> = ({ navigation })
 
             {/* Header overlay */}
             <SafeAreaView edges={['top']} style={styles.header}>
+                {/* Back Button - Glass Circle */}
                 <TouchableOpacity
-                    style={styles.backButton}
+                    style={styles.glassButtonWrapper}
                     onPress={() => navigation?.goBack?.()}
                 >
-                    <Ionicons name="chevron-back" size={24} color={COLORS.text} />
+                    <GlassView style={styles.glassButton} glassType="regular">
+                        <Ionicons name="chevron-back" size={22} color="#db4a2b" />
+                    </GlassView>
                 </TouchableOpacity>
 
-                <View style={styles.headerActions}>
-                    <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
-                        <Ionicons name="share-outline" size={20} color={COLORS.text} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.actionButton}
-                        onPress={() => setIsSaved(!isSaved)}
-                    >
-                        <Ionicons
-                            name={isSaved ? "heart" : "heart-outline"}
-                            size={20}
-                            color={isSaved ? COLORS.primary : COLORS.text}
-                        />
-                    </TouchableOpacity>
+                {/* Action Buttons - Glass Pill */}
+                <View style={styles.glassActionsPillWrapper}>
+                    <GlassView style={styles.glassActionsPill} glassType="regular">
+                        <TouchableOpacity style={styles.glassAction} onPress={handleShare}>
+                            <Ionicons name="arrow-redo-outline" size={20} color="#db4a2b" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.glassAction}
+                            onPress={() => setIsSaved(!isSaved)}
+                        >
+                            <Ionicons
+                                name={isSaved ? "bookmark" : "bookmark-outline"}
+                                size={20}
+                                color="#db4a2b"
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.glassAction}>
+                            <Ionicons name="ellipsis-horizontal" size={20} color="#db4a2b" />
+                        </TouchableOpacity>
+                    </GlassView>
                 </View>
             </SafeAreaView>
 
@@ -207,7 +217,13 @@ const ListingDetailScreen: React.FC<ListingDetailScreenProps> = ({ navigation })
                                 <Text style={styles.landlordName}>John Doe</Text>
                                 <Text style={styles.landlordMeta}>Usually responds in 1 hour</Text>
                             </View>
-                            <TouchableOpacity style={styles.messageBtn}>
+                            <TouchableOpacity
+                                style={styles.messageBtn}
+                                onPress={() => navigation?.navigate('Chat', {
+                                    threadId: 'landlord-thread',
+                                    otherUserName: 'John Doe',
+                                })}
+                            >
                                 <Ionicons name="chatbubble" size={18} color={COLORS.primary} />
                             </TouchableOpacity>
                         </View>
@@ -225,8 +241,10 @@ const ListingDetailScreen: React.FC<ListingDetailScreenProps> = ({ navigation })
                                 zoomEnabled={false}
                             >
                                 <Camera
-                                    zoomLevel={15}
+                                    zoomLevel={13}
                                     centerCoordinate={[config.DEFAULT_LONGITUDE, config.DEFAULT_LATITUDE]}
+                                    animationMode="none"
+                                    animationDuration={0}
                                 />
                                 <MarkerView
                                     coordinate={[config.DEFAULT_LONGITUDE, config.DEFAULT_LATITUDE]}
@@ -250,7 +268,14 @@ const ListingDetailScreen: React.FC<ListingDetailScreenProps> = ({ navigation })
                 <View style={styles.priceFooter}>
                     <Text style={styles.priceText}>$1,200<Text style={styles.priceUnit}>/mo</Text></Text>
                 </View>
-                <TouchableOpacity style={styles.applyButton}>
+                <TouchableOpacity
+                    style={styles.applyButton}
+                    onPress={() => navigation?.navigate('Apply', {
+                        listingId: 'listing-id',
+                        listingTitle: 'Modern 2BR Near Campus',
+                        listingPrice: 1200,
+                    })}
+                >
                     <Text style={styles.applyButtonText}>Apply Now</Text>
                 </TouchableOpacity>
             </View>
@@ -307,29 +332,42 @@ const styles = StyleSheet.create({
         zIndex: 10,
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'flex-start',
         paddingHorizontal: SPACING.lg,
     },
-    backButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: COLORS.white90,
+    // Glass circular button wrapper
+    glassButtonWrapper: {
+        borderRadius: 24,
+        overflow: 'hidden',
+    },
+    glassButton: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
-        ...SHADOWS.md,
+        backgroundColor: 'transparent',
     },
-    headerActions: {
+    // Glass pill for action buttons
+    glassActionsPillWrapper: {
+        borderRadius: 28,
+        overflow: 'hidden',
+    },
+    glassActionsPill: {
         flexDirection: 'row',
-        gap: SPACING.sm,
+        alignItems: 'center',
+        paddingHorizontal: SPACING.sm,
+        paddingVertical: SPACING.sm,
+        backgroundColor: 'transparent',
+        borderRadius: 28,
+        gap: SPACING.xs,
     },
-    actionButton: {
+    glassAction: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: COLORS.white90,
         justifyContent: 'center',
         alignItems: 'center',
-        ...SHADOWS.md,
     },
 
     // Scrollable content

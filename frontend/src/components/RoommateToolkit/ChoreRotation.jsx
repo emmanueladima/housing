@@ -1,26 +1,57 @@
 import React, { useState } from 'react';
-import { FiCheckCircle, FiCircle, FiPlus, FiClock, FiUser, FiX } from 'react-icons/fi';
+import { FiCheckCircle, FiCircle, FiPlus, FiClock, FiUser, FiX, FiTrash2 } from 'react-icons/fi';
 
-const ChoreRotation = ({ members = [], chores = [], onAddChore }) => {
-    // Use props instead of mock data
-    // Note: chores are passed from parent now
-
+const ChoreRotation = ({
+    members = [],
+    chores = [],
+    onAddChore,
+    onToggleChore,
+    onDeleteChore
+}) => {
     const [showAddModal, setShowAddModal] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [newChore, setNewChore] = useState({ title: '', frequency: 'Weekly', assignedTo: '' });
 
-    const handleAddChore = (e) => {
+    const handleAddChore = async (e) => {
         e.preventDefault();
-        onAddChore({
-            ...newChore,
-            dueDate: new Date() // Simplified due date for now
-        });
-        setShowAddModal(false);
-        setNewChore({ title: '', frequency: 'Weekly', assignedTo: '' });
+        if (!newChore.title) return;
+
+        setIsSubmitting(true);
+        try {
+            await onAddChore({
+                ...newChore,
+                dueDate: new Date() // Simplified due date for now
+            });
+            setShowAddModal(false);
+            setNewChore({ title: '', frequency: 'Weekly', assignedTo: '' });
+        } catch (error) {
+            console.error('Failed to add chore:', error);
+            alert('Failed to add chore. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    const toggleChore = (id) => {
-        // TODO: Implement toggle API
-        console.log('Toggle chore', id);
+    const handleToggleChore = async (choreId, currentCompleted) => {
+        if (!onToggleChore) return;
+
+        try {
+            await onToggleChore(choreId, !currentCompleted);
+        } catch (error) {
+            console.error('Failed to toggle chore:', error);
+            alert('Failed to update chore. Please try again.');
+        }
+    };
+
+    const handleDeleteChore = async (choreId) => {
+        if (!onDeleteChore) return;
+
+        try {
+            await onDeleteChore(choreId);
+        } catch (error) {
+            console.error('Failed to delete chore:', error);
+            alert('Failed to delete chore. Please try again.');
+        }
     };
 
     const completedCount = chores ? chores.filter(c => c.completed).length : 0;
@@ -32,8 +63,8 @@ const ChoreRotation = ({ members = [], chores = [], onAddChore }) => {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-lg font-bold text-gray-900">Weekly Chores</h2>
-                    <p className="text-gray-500 text-sm">Keep the house clean and happy!</p>
+                    <h2 className="text-lg font-bold text-white">Weekly Chores</h2>
+                    <p className="text-white/70 text-sm">Keep the house clean and happy!</p>
                 </div>
                 <button
                     onClick={() => setShowAddModal(true)}
@@ -44,12 +75,12 @@ const ChoreRotation = ({ members = [], chores = [], onAddChore }) => {
             </div>
 
             {/* Progress Bar */}
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+            <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 shadow-sm">
                 <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-bold text-gray-700">Weekly Progress</span>
-                    <span className="text-sm font-bold text-orange-600">{completedCount}/{totalCount} Done</span>
+                    <span className="text-sm font-bold text-white">Weekly Progress</span>
+                    <span className="text-sm font-bold text-orange-300">{completedCount}/{totalCount} Done</span>
                 </div>
-                <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-3 bg-white/10 rounded-full overflow-hidden">
                     <div
                         className="h-full bg-gradient-to-r from-orange-500 to-pink-500 transition-all duration-500 ease-out"
                         style={{ width: `${progress}%` }}
@@ -58,49 +89,60 @@ const ChoreRotation = ({ members = [], chores = [], onAddChore }) => {
             </div>
 
             {/* Chores List */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-sm overflow-hidden">
                 {chores.length === 0 ? (
                     <div className="p-8 text-center">
-                        <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500">
+                        <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 text-green-400">
                             <FiCheckCircle size={32} />
                         </div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">All Caught Up!</h3>
-                        <p className="text-gray-500">No chores scheduled for this week.</p>
+                        <h3 className="text-lg font-bold text-white mb-2">All Caught Up!</h3>
+                        <p className="text-white/60">No chores scheduled for this week.</p>
                     </div>
                 ) : (
-                    <div className="divide-y divide-gray-100">
-                        {chores.map(chore => (
-                            <div key={chore.id || chore._id} className={`p-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${chore.completed ? 'bg-gray-50/50' : ''}`}>
-                                <div className="flex items-center gap-4">
-                                    <button
-                                        onClick={() => toggleChore(chore._id)}
-                                        className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${chore.completed
-                                            ? 'bg-green-500 border-green-500 text-white'
-                                            : 'border-gray-300 text-transparent hover:border-orange-500'
-                                            }`}
-                                    >
-                                        <FiCheckCircle size={16} />
-                                    </button>
-                                    <div>
-                                        <h3 className={`font-bold text-gray-900 ${chore.completed ? 'line-through text-gray-400' : ''}`}>
-                                            {chore.title}
-                                        </h3>
-                                        <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
-                                            <span className="flex items-center gap-1">
-                                                <FiUser size={12} /> {chore.assignedTo?.firstName || 'Unassigned'}
-                                            </span>
-                                            <span className="flex items-center gap-1">
-                                                <FiClock size={12} /> {chore.frequency}
-                                            </span>
-                                            <span className={`px-2 py-0.5 rounded-full ${chore.completed ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
-                                                }`}>
-                                                Due {new Date(chore.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                            </span>
+                    <div className="divide-y divide-white/10">
+                        {chores.map(chore => {
+                            const choreId = chore._id || chore.id;
+                            return (
+                                <div key={choreId} className={`p-4 flex items-center justify-between hover:bg-white/5 transition-colors ${chore.completed ? 'bg-white/5' : ''}`}>
+                                    <div className="flex items-center gap-4">
+                                        <button
+                                            onClick={() => handleToggleChore(choreId, chore.completed)}
+                                            className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${chore.completed
+                                                ? 'bg-green-500 border-green-500 text-white'
+                                                : 'border-white/30 text-transparent hover:border-orange-500'
+                                                }`}
+                                        >
+                                            <FiCheckCircle size={16} />
+                                        </button>
+                                        <div>
+                                            <h3 className={`font-bold text-white ${chore.completed ? 'line-through text-white/40' : ''}`}>
+                                                {chore.title}
+                                            </h3>
+                                            <div className="flex items-center gap-3 text-xs text-white/60 mt-1">
+                                                <span className="flex items-center gap-1">
+                                                    <FiUser size={12} /> {chore.assignedTo?.firstName || 'Unassigned'}
+                                                </span>
+                                                <span className="flex items-center gap-1">
+                                                    <FiClock size={12} /> {chore.frequency}
+                                                </span>
+                                                {chore.dueDate && (
+                                                    <span className={`px-2 py-0.5 rounded-full ${chore.completed ? 'bg-green-500/20 text-green-300' : 'bg-orange-500/20 text-orange-300'
+                                                        }`}>
+                                                        Due {new Date(chore.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
+                                    <button
+                                        onClick={() => handleDeleteChore(choreId)}
+                                        className="p-2 text-white/40 hover:text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                                    >
+                                        <FiTrash2 size={16} />
+                                    </button>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>
@@ -165,9 +207,10 @@ const ChoreRotation = ({ members = [], chores = [], onAddChore }) => {
                                     </button>
                                     <button
                                         type="submit"
-                                        className="flex-1 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-colors"
+                                        disabled={isSubmitting || !newChore.title}
+                                        className="flex-1 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        Add Chore
+                                        {isSubmitting ? 'Adding...' : 'Add Chore'}
                                     </button>
                                 </div>
                             </form>

@@ -12,14 +12,17 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
+import { useColors, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
 import messageService, { Thread } from '../services/messageService';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface MessagesScreenProps {
     navigation?: any;
 }
 
 const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
+    const colors = useColors();
+    const { isDark } = useTheme();
     const [threads, setThreads] = useState<Thread[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -47,8 +50,12 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
     };
 
     const openThread = (thread: Thread) => {
-        // Navigate to thread detail (would need to be implemented)
-        console.log('Opening thread:', thread._id);
+        const otherUser = getOtherParticipant(thread);
+        navigation.navigate('Chat', {
+            threadId: thread._id,
+            thread: thread,
+            otherUserName: otherUser?.name || 'Chat',
+        });
     };
 
     const getInitials = (name: string) => {
@@ -70,26 +77,200 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
     };
 
     const getOtherParticipant = (thread: Thread) => {
-        // Get the first participant that's not the current user
         return thread.participants[0];
     };
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        safeArea: {
+            backgroundColor: colors.background,
+        },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        emptyContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: 100,
+        },
+        emptyIcon: {
+            width: 80,
+            height: 80,
+            borderRadius: 40,
+            backgroundColor: colors.backgroundSecondary,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: SPACING.lg,
+        },
+        emptyTitle: {
+            fontSize: FONT_SIZES.xl,
+            fontWeight: '600',
+            color: colors.text,
+            marginBottom: SPACING.xs,
+        },
+        emptyText: {
+            fontSize: FONT_SIZES.md,
+            color: colors.textSecondary,
+            textAlign: 'center',
+            paddingHorizontal: SPACING.xl,
+        },
+        header: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingHorizontal: SPACING.lg,
+            paddingVertical: SPACING.md,
+        },
+        title: {
+            fontSize: FONT_SIZES.title,
+            fontWeight: '700',
+            color: colors.text,
+        },
+        newButton: {
+            width: 40,
+            height: 40,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.backgroundSecondary,
+            borderRadius: BORDER_RADIUS.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+        content: {
+            flex: 1,
+        },
+        contentContainer: {
+            paddingHorizontal: SPACING.lg,
+        },
+        threadCard: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: SPACING.md,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+        },
+        avatarContainer: {
+            position: 'relative',
+        },
+        avatar: {
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+        },
+        avatarPlaceholder: {
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: colors.primary,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        avatarText: {
+            fontSize: FONT_SIZES.lg,
+            fontWeight: '700',
+            color: '#FFFFFF',
+        },
+        unreadDot: {
+            position: 'absolute',
+            bottom: 2,
+            right: 2,
+            width: 14,
+            height: 14,
+            borderRadius: 7,
+            backgroundColor: colors.success,
+            borderWidth: 2,
+            borderColor: colors.background,
+        },
+        threadContent: {
+            flex: 1,
+            marginLeft: SPACING.md,
+        },
+        threadHeader: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 2,
+        },
+        threadName: {
+            fontSize: FONT_SIZES.md,
+            fontWeight: '500',
+            color: colors.text,
+            flex: 1,
+        },
+        threadNameUnread: {
+            fontWeight: '700',
+        },
+        threadTime: {
+            fontSize: FONT_SIZES.xs,
+            color: colors.textMuted,
+            marginLeft: SPACING.sm,
+        },
+        threadPreview: {
+            fontSize: FONT_SIZES.sm,
+            color: colors.textSecondary,
+            marginBottom: 4,
+        },
+        threadPreviewUnread: {
+            color: colors.text,
+            fontWeight: '500',
+        },
+        contextBadge: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+            backgroundColor: `${colors.primary}15`,
+            paddingHorizontal: SPACING.sm,
+            paddingVertical: 2,
+            borderRadius: BORDER_RADIUS.sm,
+            alignSelf: 'flex-start',
+        },
+        contextText: {
+            fontSize: FONT_SIZES.xs,
+            color: colors.primary,
+            fontWeight: '500',
+        },
+        unreadBadge: {
+            backgroundColor: colors.primary,
+            paddingHorizontal: SPACING.sm,
+            paddingVertical: 4,
+            borderRadius: BORDER_RADIUS.full,
+            minWidth: 24,
+            alignItems: 'center',
+        },
+        unreadCount: {
+            fontSize: FONT_SIZES.xs,
+            fontWeight: '700',
+            color: '#FFFFFF',
+        },
+    });
+
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" />
+            <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
             <SafeAreaView edges={['top']} style={styles.safeArea}>
                 <View style={styles.header}>
                     <Text style={styles.title}>Messages</Text>
-                    <TouchableOpacity style={styles.newButton}>
-                        <Ionicons name="create-outline" size={22} color={COLORS.text} />
+                    <TouchableOpacity
+                        style={styles.newButton}
+                        onPress={() => {
+                            navigation?.navigate('Main', { screen: 'Roommates' });
+                        }}
+                    >
+                        <Ionicons name="create-outline" size={22} color={colors.text} />
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
 
             {isLoading ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={COLORS.primary} />
+                    <ActivityIndicator size="large" color={colors.primary} />
                 </View>
             ) : (
                 <ScrollView
@@ -100,14 +281,14 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
                         <RefreshControl
                             refreshing={isRefreshing}
                             onRefresh={onRefresh}
-                            tintColor={COLORS.primary}
+                            tintColor={colors.primary}
                         />
                     }
                 >
                     {threads.length === 0 ? (
                         <View style={styles.emptyContainer}>
                             <View style={styles.emptyIcon}>
-                                <Ionicons name="chatbubbles-outline" size={40} color={COLORS.textMuted} />
+                                <Ionicons name="chatbubbles-outline" size={40} color={colors.textMuted} />
                             </View>
                             <Text style={styles.emptyTitle}>No messages yet</Text>
                             <Text style={styles.emptyText}>Start a conversation with a roommate or landlord</Text>
@@ -122,7 +303,6 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
                                     onPress={() => openThread(thread)}
                                     activeOpacity={0.7}
                                 >
-                                    {/* Avatar */}
                                     <View style={styles.avatarContainer}>
                                         {otherUser?.profilePhoto ? (
                                             <Image
@@ -141,7 +321,6 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
                                         )}
                                     </View>
 
-                                    {/* Content */}
                                     <View style={styles.threadContent}>
                                         <View style={styles.threadHeader}>
                                             <Text style={[
@@ -162,7 +341,7 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
                                         </Text>
                                         {thread.listing && (
                                             <View style={styles.contextBadge}>
-                                                <Ionicons name="home" size={12} color={COLORS.primary} />
+                                                <Ionicons name="home" size={12} color={colors.primary} />
                                                 <Text style={styles.contextText} numberOfLines={1}>
                                                     {thread.listing.title}
                                                 </Text>
@@ -170,7 +349,6 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
                                         )}
                                     </View>
 
-                                    {/* Unread count */}
                                     {thread.unreadCount > 0 && (
                                         <View style={styles.unreadBadge}>
                                             <Text style={styles.unreadCount}>{thread.unreadCount}</Text>
@@ -187,181 +365,5 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.background,
-    },
-    safeArea: {
-        backgroundColor: COLORS.background,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    emptyContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: 100,
-    },
-    emptyIcon: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: COLORS.backgroundSecondary,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: SPACING.lg,
-    },
-    emptyTitle: {
-        fontSize: FONT_SIZES.xl,
-        fontWeight: '600',
-        color: COLORS.text,
-        marginBottom: SPACING.xs,
-    },
-    emptyText: {
-        fontSize: FONT_SIZES.md,
-        color: COLORS.textSecondary,
-        textAlign: 'center',
-        paddingHorizontal: SPACING.xl,
-    },
-
-    // Header
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: SPACING.lg,
-        paddingVertical: SPACING.md,
-    },
-    title: {
-        fontSize: FONT_SIZES.title,
-        fontWeight: '700',
-        color: COLORS.text,
-    },
-    newButton: {
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: COLORS.backgroundSecondary,
-        borderRadius: BORDER_RADIUS.md,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-
-    // Content
-    content: {
-        flex: 1,
-    },
-    contentContainer: {
-        paddingHorizontal: SPACING.lg,
-    },
-
-    // Thread Card
-    threadCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: SPACING.md,
-        borderBottomWidth: 1,
-        borderBottomColor: COLORS.border,
-    },
-    avatarContainer: {
-        position: 'relative',
-    },
-    avatar: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-    },
-    avatarPlaceholder: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: COLORS.primary,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    avatarText: {
-        fontSize: FONT_SIZES.lg,
-        fontWeight: '700',
-        color: COLORS.card,
-    },
-    unreadDot: {
-        position: 'absolute',
-        bottom: 2,
-        right: 2,
-        width: 14,
-        height: 14,
-        borderRadius: 7,
-        backgroundColor: COLORS.success,
-        borderWidth: 2,
-        borderColor: COLORS.background,
-    },
-    threadContent: {
-        flex: 1,
-        marginLeft: SPACING.md,
-    },
-    threadHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 2,
-    },
-    threadName: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '500',
-        color: COLORS.text,
-        flex: 1,
-    },
-    threadNameUnread: {
-        fontWeight: '700',
-    },
-    threadTime: {
-        fontSize: FONT_SIZES.xs,
-        color: COLORS.textMuted,
-        marginLeft: SPACING.sm,
-    },
-    threadPreview: {
-        fontSize: FONT_SIZES.sm,
-        color: COLORS.textSecondary,
-        marginBottom: 4,
-    },
-    threadPreviewUnread: {
-        color: COLORS.text,
-        fontWeight: '500',
-    },
-    contextBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        backgroundColor: 'rgba(219, 74, 43, 0.1)',
-        paddingHorizontal: SPACING.sm,
-        paddingVertical: 2,
-        borderRadius: BORDER_RADIUS.sm,
-        alignSelf: 'flex-start',
-    },
-    contextText: {
-        fontSize: FONT_SIZES.xs,
-        color: COLORS.primary,
-        fontWeight: '500',
-    },
-    unreadBadge: {
-        backgroundColor: COLORS.primary,
-        paddingHorizontal: SPACING.sm,
-        paddingVertical: 4,
-        borderRadius: BORDER_RADIUS.full,
-        minWidth: 24,
-        alignItems: 'center',
-    },
-    unreadCount: {
-        fontSize: FONT_SIZES.xs,
-        fontWeight: '700',
-        color: COLORS.card,
-    },
-});
 
 export default MessagesScreen;

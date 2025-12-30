@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FiX, FiSave, FiCheck, FiCamera, FiUsers } from 'react-icons/fi';
 import lifestyleProfileService from '../../services/lifestyleProfileService';
 import { useAuth } from '../../contexts/AuthContext';
+import BioTextarea from '../ui/BioTextarea';
+import SleepScheduleSlider from '../ui/SleepScheduleSlider';
 
 const LifestyleProfileEditor = ({ onClose, onSaved }) => {
     const { user } = useAuth();
@@ -110,7 +112,21 @@ const LifestyleProfileEditor = ({ onClose, onSaved }) => {
     };
 
     const INTERESTS_OPTIONS = ['Sports', 'Gaming', 'Music', 'Reading', 'Cooking', 'Travel', 'Art', 'Movies', 'Fitness', 'Tech'];
-    const VIBES_OPTIONS = ['Chill', 'Social', 'Studious', 'Party', 'Quiet', 'Artsy', 'Outdoorsy', 'Night Owl', 'Early Bird'];
+    const VIBES_OPTIONS = [
+        // Personality & Social
+        'Chill', 'Social', 'Introvert', 'Extrovert', 'Quiet', 'Adventurous', 'Homebody', 'Spontaneous',
+        // Schedule & Habits
+        'Night Owl', 'Early Bird', 'Studious', 'Workaholic', 'Organized', 'Laid-back',
+        // Activities & Hobbies
+        'Fitness', 'Outdoorsy', 'Gamer', 'Foodie', 'Creative', 'Music Lover', 'Film Buff', 'Bookworm',
+        'Sports Fan', 'Yoga', 'Hiker', 'Coffee Addict', 'Plant Parent', 'Photographer',
+        // Lifestyle
+        'Vegetarian', 'Vegan', 'Minimalist', 'Eco-Friendly', 'Pet Lover', 'Spiritual', 'Health Conscious',
+        // Tech & Career
+        'Remote Worker', 'Tech Savvy', 'Entrepreneur', 'STEM',
+        // Social & Fun
+        'Party', 'Board Games', 'Podcast Fan', 'Anime', 'K-Pop', 'Artsy'
+    ];
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -221,14 +237,12 @@ const LifestyleProfileEditor = ({ onClose, onSaved }) => {
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                            <textarea
-                                name="bio"
+                            <BioTextarea
                                 value={formData.bio}
-                                onChange={handleChange}
-                                rows={3}
+                                onChange={(value) => setFormData(prev => ({ ...prev, bio: value }))}
+                                label="Bio"
                                 placeholder="Tell potential roommates about yourself..."
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                                maxLength={500}
                             />
                         </div>
                     </section>
@@ -276,6 +290,20 @@ const LifestyleProfileEditor = ({ onClose, onSaved }) => {
                                     <span>Quiet</span>
                                     <span>Loud</span>
                                 </div>
+                            </div>
+
+                            {/* Sleep Schedule */}
+                            <div>
+                                <SleepScheduleSlider
+                                    bedtime={formData.sleepSchedule.bedtime}
+                                    wakeup={formData.sleepSchedule.wakeup}
+                                    onChange={({ bedtime, wakeup }) => {
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            sleepSchedule: { bedtime, wakeup }
+                                        }));
+                                    }}
+                                />
                             </div>
                         </div>
                     </section>

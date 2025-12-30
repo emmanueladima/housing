@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import authService, { User } from '../services/authService';
+import lifestyleProfileService from '../services/lifestyleProfileService';
 
 interface SignupData {
     firstName: string;
@@ -15,10 +16,12 @@ interface AuthContextType {
     user: User | null;
     isLoading: boolean;
     isAuthenticated: boolean;
+    needsOnboarding: boolean;
     login: (email: string, password: string) => Promise<void>;
     signup: (data: SignupData) => Promise<{ needsVerification: boolean }>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
+    completeOnboarding: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,6 +29,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [needsOnboarding, setNeedsOnboarding] = useState(false);
+
+    // Check if user needs onboarding (only for new users after first login)
+    const checkOnboardingStatus = async () => {
+        try {
+            const profile = await lifestyleProfileService.getMyProfile();
+            // User needs onboarding if they don't have a profile at all
+            return !profile;
+        } catch {
+            return true;
+        }
+    };
 
     // Restore session on app load
     useEffect(() => {
@@ -39,9 +54,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 console.log('🎫 Token exists:', !!token);
 
                 if (storedUser && token) {
-                    // Use stored user immediately for fast app load
                     setUser(storedUser);
                     console.log('✅ Session restored for:', storedUser.email);
+                    // TEMPORARY: Force onboarding to show for testing
+                    setNeedsOnboarding(true);
                 }
             } catch (error) {
                 console.error('Error restoring session:', error);
@@ -58,17 +74,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const response = await authService.login({ email, password });
         console.log('✅ Login successful, setting user');
         setUser(response.user);
+        // Check if user needs onboarding after login
+        const needsIt = await checkOnboardingStatus();
+        setNeedsOnboarding(needsIt);
     };
 
     const signup = async (data: SignupData) => {
         await authService.signup(data);
-        // User needs to verify email before logging in
+        // New users will need onboarding after they verify email and login
         return { needsVerification: true };
     };
 
     const logout = async () => {
         await authService.logout();
         setUser(null);
+        setNeedsOnboarding(false);
     };
 
     const refreshUser = async () => {
@@ -80,16 +100,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
+    const completeOnboarding = () => {
+        setNeedsOnboarding(false);
+    };
+
     return (
         <AuthContext.Provider
             value={{
                 user,
                 isLoading,
                 isAuthenticated: !!user,
+                needsOnboarding,
                 login,
                 signup,
                 logout,
                 refreshUser,
+                completeOnboarding,
             }}
         >
             {children}

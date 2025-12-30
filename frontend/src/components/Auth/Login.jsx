@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import Input from '../shared/Input';
+import EmailInput from '../ui/EmailInput';
+import PasswordInput from '../ui/PasswordInput';
 import Button from '../shared/Button';
 import LoadingSpinner from '../shared/LoadingSpinner';
 import api from '../../services/api';
 
-const Login = ({ onSuccess, onSwitchToSignUp }) => {
+const Login = ({ onSuccess, onSwitchToSignUp, onForgotPassword }) => {
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
@@ -37,7 +38,6 @@ const Login = ({ onSuccess, onSwitchToSignUp }) => {
       await login(formData);
       onSuccess();
     } catch (err) {
-      // Check if it's a verification error
       if (err.message?.includes('verify your email')) {
         setNeedsVerification(true);
       }
@@ -50,15 +50,12 @@ const Login = ({ onSuccess, onSwitchToSignUp }) => {
   const handleResendVerification = async () => {
     setResendLoading(true);
     try {
-      // First login to get a temporary token, then resend
-      const loginRes = await api.post('/auth/login', formData);
-      // This will fail with 403, but we can use the email to resend
+      await api.post('/auth/login', formData);
     } catch (err) {
-      // Expected to fail, but we still try to resend
+      // Expected to fail
     }
 
     try {
-      // Try resending without auth (we'll need a public endpoint)
       await api.post('/auth/resend-verification-public', { email: formData.email });
       setResendSuccess(true);
       setError('');
@@ -70,10 +67,19 @@ const Login = ({ onSuccess, onSwitchToSignUp }) => {
   };
 
   return (
-    <div>
+    <div className="space-y-6">
+      {/* Card Header */}
+      <div className="space-y-1">
+        <h3 className="text-xl font-bold text-gray-900">Login to your account</h3>
+        <p className="text-sm text-gray-500">
+          Enter your email below to login to your account
+        </p>
+      </div>
+
+      {/* Error/Success Messages */}
       {error && (
-        <div className={`mb-4 p-3 rounded-lg border ${needsVerification ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-red-50 border-red-200 text-red-700'}`}>
-          <p>{error}</p>
+        <div className={`p-3 rounded-lg border ${needsVerification ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-red-50 border-red-200 text-red-700'}`}>
+          <p className="text-sm">{error}</p>
           {needsVerification && !resendSuccess && (
             <button
               onClick={handleResendVerification}
@@ -87,51 +93,61 @@ const Login = ({ onSuccess, onSwitchToSignUp }) => {
       )}
 
       {resendSuccess && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg">
-          Verification email sent! Please check your inbox.
+        <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg">
+          <p className="text-sm">Verification email sent! Please check your inbox.</p>
         </div>
       )}
 
+      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Email"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="your.email@university.edu"
-          required
-        />
+        <div className="space-y-4">
+          <EmailInput
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="m@example.com"
+            required
+          />
 
-        <Input
-          label="Password"
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          placeholder="Enter your password"
-          required
-        />
+          <div className="space-y-2">
+            <div className="flex items-center justify-end mb-1">
+              <button
+                type="button"
+                onClick={onForgotPassword}
+                className="text-sm text-gray-500 hover:text-orange-600 underline-offset-4 hover:underline"
+              >
+                Forgot your password?
+              </button>
+            </div>
+            <PasswordInput
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        </div>
 
-        <Button type="submit" variant="primary" className="w-full" disabled={loading}>
-          {loading ? <LoadingSpinner size="sm" /> : 'Log In'}
-        </Button>
+        {/* Footer Actions */}
+        <div className="space-y-4 pt-2">
+          <Button type="submit" variant="primary" className="w-full" disabled={loading}>
+            {loading ? <LoadingSpinner size="sm" /> : 'Login'}
+          </Button>
+
+          <p className="text-center text-sm text-gray-600">
+            Don't have an account?{' '}
+            <button
+              type="button"
+              onClick={onSwitchToSignUp}
+              className="font-medium text-orange-600 hover:text-orange-700 hover:underline"
+            >
+              Sign Up
+            </button>
+          </p>
+        </div>
       </form>
-
-      <div className="mt-6 text-center">
-        <p className="text-gray-600">
-          Don't have an account?{' '}
-          <button
-            onClick={onSwitchToSignUp}
-            className="text-orange-600 hover:text-orange-700 font-medium"
-          >
-            Sign Up
-          </button>
-        </p>
-      </div>
     </div>
   );
 };
 
 export default Login;
-

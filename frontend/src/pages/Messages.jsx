@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { ThreadProvider, useThreads } from '../contexts/ThreadContext';
 import messageService from '../services/messageService';
 import { FiMessageSquare, FiInbox, FiSend } from 'react-icons/fi';
-import ModernBackground from '../components/shared/ModernBackground';
+
 
 const MessagesContent = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -66,17 +66,18 @@ const MessagesContent = () => {
   // Mobile view
   if (isMobileView) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen relative pb-10">
         {activeThreadId ? (
-          <ChatWindow onBack={handleBackToList} />
+          <div className="pt-20 h-screen">
+            <ChatWindow onBack={handleBackToList} />
+          </div>
         ) : (
           <div className="h-full">
             {/* Mobile Header */}
-            <div className="relative overflow-hidden pt-24 pb-8">
-              <ModernBackground />
+            <div className="relative pt-24 pb-8">
               <div className="relative z-10 max-w-7xl mx-auto px-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 bg-white/20 backdrop-blur-md rounded-2xl">
+                  <div className="p-3 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30">
                     <FiMessageSquare className="text-white" size={28} />
                   </div>
                   <div>
@@ -86,8 +87,8 @@ const MessagesContent = () => {
                 </div>
               </div>
             </div>
-            <div className="px-4 -mt-4">
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="px-4 -mt-4 relative z-10">
+              <div className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg overflow-hidden h-[calc(100vh-200px)]">
                 <ConversationList />
               </div>
             </div>
@@ -99,13 +100,12 @@ const MessagesContent = () => {
 
   // Desktop view
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen relative pb-10">
       {/* Hero Header */}
-      <div className="relative overflow-hidden pt-28 pb-16">
-        <ModernBackground />
+      <div className="relative pt-28 pb-16">
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4">
-            <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl shadow-lg">
+            <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl shadow-lg border border-white/30">
               <FiMessageSquare className="text-white" size={32} />
             </div>
             <div>
@@ -118,24 +118,24 @@ const MessagesContent = () => {
 
       {/* Messages Container */}
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-12">
-        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden" style={{ height: 'calc(100vh - 280px)', minHeight: '500px' }}>
+        <div className="bg-white/20 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 overflow-hidden" style={{ height: 'calc(100vh - 280px)', minHeight: '500px' }}>
           <div className="grid grid-cols-12 h-full">
             {/* Conversation List */}
-            <div className="col-span-4 border-r border-gray-100 overflow-hidden">
+            <div className="col-span-4 border-r border-white/20 overflow-hidden">
               <ConversationList />
             </div>
 
             {/* Chat Window */}
-            <div className="col-span-8 overflow-hidden bg-gray-50/50">
+            <div className="col-span-8 overflow-hidden bg-black/10">
               {activeThreadId ? (
                 <ChatWindow onBack={handleBackToList} />
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-center p-8">
-                  <div className="p-6 bg-gradient-to-br from-orange-100 to-red-100 rounded-3xl mb-6">
-                    <FiInbox className="text-orange-500" size={48} />
+                  <div className="p-6 bg-white/10 rounded-3xl mb-6 backdrop-blur-sm border border-white/20">
+                    <FiInbox className="text-white/70" size={48} />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Select a Conversation</h3>
-                  <p className="text-gray-500 max-w-sm">
+                  <h3 className="text-xl font-bold text-white mb-2">Select a Conversation</h3>
+                  <p className="text-white/60 max-w-sm">
                     Choose a conversation from the list to start messaging, or reach out from a listing or roommate profile.
                   </p>
                 </div>

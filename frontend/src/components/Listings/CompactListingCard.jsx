@@ -1,11 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { FiMapPin, FiHeart, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { Card, CardBody, CardFooter } from '@heroui/card';
 import { formatPrice } from '../../utils/priceFormatter';
 import { useAuth } from '../../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import listingService from '../../services/listingService';
 
-const CompactListingCard = ({ listing }) => {
+const CompactListingCard = ({ listing, onClick }) => {
     const { user, isAuthenticated, refreshUser } = useAuth();
     const navigate = useNavigate();
     const [isFavorite, setIsFavorite] = useState(false);
@@ -61,47 +62,56 @@ const CompactListingCard = ({ listing }) => {
 
     const currentImage = images[currentImageIndex];
 
+    const handleCardClick = (e) => {
+        if (onClick) {
+            e.preventDefault();
+            onClick(listing);
+        }
+    };
+
     return (
-        <Link
-            to={`/listings/${listing._id}`}
-            className="group bg-white rounded-2xl overflow-hidden border-2 border-gray-100 hover:border-orange-300 shadow-md hover:shadow-2xl transition-all duration-300 block h-full flex flex-col transform hover:-translate-y-1"
-        >
-            {/* Image Section - Carousel */}
-            <div className="relative h-48 bg-gray-100 flex-shrink-0 group/image overflow-hidden">
-                <img
-                    src={currentImage}
-                    alt={listing.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                        e.target.src = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800';
-                    }}
-                />
+        <Link to={`/listings/${listing._id}`} onClick={handleCardClick} className="block h-full">
+            <Card
+                isBlurred
+                isFooterBlurred
+                className="w-full h-full col-span-12 sm:col-span-5 border-none overflow-clip group rounded-3xl isolate transform-gpu"
+            >
+                {/* Full-size background image */}
+                <div className="absolute inset-0 overflow-clip rounded-3xl">
+                    <img
+                        src={currentImage}
+                        alt={listing.title}
+                        className="w-full h-full object-cover transition-all duration-500 group-hover:brightness-110 group-hover:contrast-105"
+                        onError={(e) => {
+                            e.target.src = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800';
+                        }}
+                    />
+                    {/* Gradient overlay for text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent rounded-3xl" />
+                </div>
 
-                {/* Gradient overlay for better text contrast */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-
-                {/* Navigation Arrows */}
+                {/* Navigation Arrows - Show on hover */}
                 {images.length > 1 && (
                     <>
                         <button
                             onClick={handlePrevImage}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/90 rounded-full shadow-lg hover:bg-white text-gray-800 transition-all hover:scale-110 z-10"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 transition-all opacity-0 group-hover:opacity-100 z-20"
                         >
-                            <FiChevronLeft size={16} />
+                            <FiChevronLeft size={20} />
                         </button>
                         <button
                             onClick={handleNextImage}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-white/90 rounded-full shadow-lg hover:bg-white text-gray-800 transition-all hover:scale-110 z-10"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 transition-all opacity-0 group-hover:opacity-100 z-20"
                         >
-                            <FiChevronRight size={16} />
+                            <FiChevronRight size={20} />
                         </button>
 
                         {/* Dots Indicator */}
-                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
                             {images.slice(0, 5).map((_, idx) => (
                                 <div
                                     key={idx}
-                                    className={`w-2 h-2 rounded-full shadow-sm transition-all ${idx === currentImageIndex ? 'bg-white scale-110' : 'bg-white/60'}`}
+                                    className={`w-2 h-2 rounded-full transition-all ${idx === currentImageIndex ? 'bg-white w-5' : 'bg-white/50'}`}
                                 />
                             ))}
                         </div>
@@ -112,79 +122,70 @@ const CompactListingCard = ({ listing }) => {
                 <button
                     onClick={handleFavoriteClick}
                     disabled={favoriteLoading}
-                    className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all ${isFavorite
-                        ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'
-                        : 'bg-white text-gray-900 hover:bg-gray-100 shadow-lg'
-                        } z-10`}
+                    className={`absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-all z-20 ${isFavorite
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-white/20 backdrop-blur-md text-white hover:bg-white/40'
+                        }`}
                     aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                 >
                     <FiHeart
                         className={`${isFavorite ? 'fill-current' : ''}`}
-                        size={16}
+                        size={18}
                     />
                 </button>
 
                 {/* Badges */}
-                <div className="absolute top-3 left-3 flex flex-wrap gap-1 z-10">
+                <div className="absolute top-4 left-4 flex flex-wrap gap-2 z-20">
                     {listing.isSublease && (
-                        <span className="inline-block px-2.5 py-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-bold rounded-full shadow-lg">
+                        <span className="px-3 py-1 bg-orange-500/80 backdrop-blur-md text-white text-xs font-bold rounded-full">
                             Sublease
                         </span>
                     )}
                     {listing.landlord?.landlordProfile?.isVerified && (
-                        <span className="inline-block px-2.5 py-1 bg-gradient-to-r from-gray-700 to-gray-800 text-white text-xs font-bold rounded-full shadow-lg">
-                            Verified
+                        <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-bold rounded-full">
+                            ✓ Verified
                         </span>
                     )}
                     {listing.createdAt && new Date(listing.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
-                        <span className="inline-block px-2.5 py-1 bg-gradient-to-r from-teal-500 to-teal-600 text-white text-xs font-bold rounded-full shadow-lg">
+                        <span className="px-3 py-1 bg-teal-500/80 backdrop-blur-md text-white text-xs font-bold rounded-full">
                             New
                         </span>
                     )}
                 </div>
-            </div>
 
-            {/* Details Section */}
-            <div className="p-4 flex flex-col flex-grow bg-gradient-to-b from-white to-gray-50/50">
-                {/* Title & Rating */}
-                <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-gray-900 truncate pr-2 text-base group-hover:text-orange-600 transition-colors">
-                        {listing.title}
-                    </h3>
-                    {listing.rating && (
-                        <div className="flex items-center text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded-lg">
-                            ★ {listing.rating}
+                {/* Frosted Glass Footer */}
+                <CardFooter className="absolute bottom-0 left-0 right-0 bg-white/10 backdrop-blur-xl border-t border-white/20 px-4 py-4 z-10">
+                    <div className="w-full">
+                        {/* Title */}
+                        <h3 className="font-bold text-white text-lg truncate group-hover:text-orange-500 transition-colors">
+                            {listing.title}
+                        </h3>
+
+                        {/* Location */}
+                        <div className="flex items-center text-white/80 text-sm mt-1">
+                            <FiMapPin className="mr-1" size={14} />
+                            <span className="truncate">{listing.city}, {listing.state}</span>
                         </div>
-                    )}
-                </div>
 
-                {/* Location */}
-                <div className="flex items-center text-sm text-gray-500 mb-2">
-                    <FiMapPin className="mr-1 text-orange-500" size={14} />
-                    <span className="truncate">{listing.city}, {listing.state}</span>
-                </div>
-
-                {/* Stats */}
-                <div className="text-sm text-gray-500 mb-3">
-                    {listing.bedrooms === 0 ? 'Studio' : `${listing.bedrooms} Bed`} • {listing.bathrooms} Bath • {listing.sqft?.toLocaleString()} sqft
-                </div>
-
-                {/* Price - Bottom */}
-                <div className="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between">
-                    <div className="flex items-baseline gap-1">
-                        <span className="text-xl font-black text-gray-900">
-                            {formatPrice(listing.rent)}
-                        </span>
-                        <span className="text-xs text-gray-500">/mo</span>
+                        {/* Stats & Price Row */}
+                        <div className="flex items-center justify-between mt-3">
+                            <div className="text-white/60 text-sm">
+                                {listing.bedrooms === 0 ? 'Studio' : `${listing.bedrooms} Bed`} • {listing.bathrooms} Bath
+                                {listing.sqft && ` • ${listing.sqft.toLocaleString()} sqft`}
+                            </div>
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-2xl font-black text-white">
+                                    {formatPrice(listing.rent)}
+                                </span>
+                                <span className="text-white/60 text-sm">/mo</span>
+                            </div>
+                        </div>
                     </div>
+                </CardFooter>
 
-                    {listing.isSublease && (
-                        <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-100">
-                            Sublease
-                        </span>
-                    )}
-                </div>
-            </div>
+                {/* Card needs minimum height for the design to work */}
+                <div className="h-80" />
+            </Card>
         </Link>
     );
 };

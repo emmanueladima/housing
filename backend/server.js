@@ -1,6 +1,9 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
@@ -8,6 +11,7 @@ import { fileURLToPath } from 'url';
 import connectDB from './config/database.js';
 import seedDevUser from './scripts/seedDevUser.js';
 import seedFeatureFlags from './scripts/seedFeatureFlags.js';
+import { globalLimiter } from './middleware/rateLimiter.js';
 
 // Get __dirname equivalent in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -57,10 +61,16 @@ connectDB().then(() => {
   }
 });
 
-// Middleware
+// Security Middleware
+app.use(helmet());           // Security headers
+app.use(mongoSanitize());    // Prevent NoSQL injection
+app.use(xss());              // Sanitize user input from XSS
+app.use(globalLimiter);      // Global rate limiting
+
+// Body Parser Middleware
 app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -114,6 +124,7 @@ import landlordRoutes from './routes/landlord.js';
 import communityRoutes from './routes/community.js';
 import applicationTemplateRoutes from './routes/applicationTemplates.js';
 import coApplicantRoutes from './routes/coApplicants.js';
+import feedbackRoutes from './routes/feedback.js';
 
 import uploadRoutes from './routes/uploads.js';
 
@@ -145,6 +156,7 @@ app.get('/', (req, res) => {
       community: '/api/community',
       applicationTemplates: '/api/application-templates',
       coApplicants: '/api/co-applicants',
+      feedback: '/api/feedback',
     },
   });
 });
@@ -171,6 +183,7 @@ app.use('/api/landlord', landlordRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/application-templates', applicationTemplateRoutes);
 app.use('/api/co-applicants', coApplicantRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

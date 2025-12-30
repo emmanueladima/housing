@@ -6,7 +6,7 @@ import CommunityPostCard from '../components/Community/CommunityPostCard';
 import CreatePostModal from '../components/Community/CreatePostModal';
 import CommunityPostDetailModal from '../components/Community/CommunityPostDetailModal';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
-import ModernBackground from '../components/shared/ModernBackground';
+import GlassCard from '../components/shared/GlassCard';
 import { useAuth } from '../contexts/AuthContext';
 
 // Brand colors
@@ -140,218 +140,218 @@ const Community = () => {
     const getActiveChannelData = () => channels.find(c => c.id === activeChannel) || channels[0];
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* Hero Header with Orange Gradient - same as Roommates page */}
-            <div className="relative overflow-hidden">
-                {/* Orange Gradient Background */}
-                <div className="absolute inset-0">
-                    <ModernBackground />
-                </div>
-
-                {/* Hero Content */}
-                <div className="relative z-10 pt-24 sm:pt-32 pb-12 sm:pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {/* Title & Subtitle */}
-                    <div className="text-center mb-6 sm:mb-8">
-                        <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white mb-2 sm:mb-4 tracking-tight">
-                            Community
-                        </h1>
-                        <p className="text-white/80 text-sm sm:text-lg max-w-2xl mx-auto">
-                            Connect with fellow students. Share tips, find subleases, and build your network.
-                        </p>
-                    </div>
-
-                    {/* Channel Pills */}
-                    <div className="flex justify-center mb-6">
-                        <div className="flex items-center gap-2 p-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/20 overflow-x-auto max-w-full">
-                            {channels.slice(0, 5).map(channel => {
-                                const Icon = channel.icon;
-                                const isActive = activeChannel === channel.id;
-                                return (
-                                    <button
-                                        key={channel.id}
-                                        onClick={() => setActiveChannel(channel.id)}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 text-sm whitespace-nowrap ${isActive
-                                            ? 'bg-white text-orange-600 shadow-lg font-bold'
-                                            : 'text-white hover:bg-white/10 font-bold'
-                                            }`}
-                                    >
-                                        <Icon size={14} />
-                                        <span className="hidden sm:inline">{channel.label}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Search Bar & Create Button */}
-                    <div className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto">
-                        <div className="relative flex-1">
-                            <div className="relative flex items-center bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden">
-                                <div className="flex items-center pl-4 sm:pl-5 pr-2 sm:pr-3">
-                                    <FiSearch className="text-gray-400" size={18} />
-                                </div>
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Search discussions..."
-                                    className="flex-1 py-3 sm:py-4 px-2 text-gray-900 placeholder-gray-400 focus:outline-none text-sm sm:text-base"
-                                />
+        <div className="min-h-screen relative pb-10">
+            {/* Header */}
+            <div className="relative pt-32 pb-8">
+                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 border border-white/30 rounded-full mb-3 backdrop-blur-md">
+                                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                                <span className="text-white/90 text-xs font-bold uppercase tracking-wider">Community Hub</span>
                             </div>
+                            <h1 className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight">
+                                Campus Feed
+                            </h1>
+                            <p className="text-white/80 text-lg max-w-xl">
+                                Connect with students, find everything you need, and stay in the loop.
+                            </p>
                         </div>
+
                         <button
                             onClick={() => setShowCreateModal(true)}
-                            className="flex items-center justify-center gap-2 px-6 py-3 sm:py-4 bg-white text-gray-900 rounded-xl sm:rounded-2xl font-bold hover:bg-gray-100 transition-all shadow-2xl hover:-translate-y-0.5 text-sm sm:text-base whitespace-nowrap"
+                            className="group flex items-center justify-center gap-3 px-6 py-4 bg-white text-gray-900 rounded-2xl font-bold shadow-lg hover:shadow-xl hover:bg-gray-50 hover:scale-[1.02] transition-all duration-200"
                         >
-                            <FiPlus size={16} />
-                            <span>Create Post</span>
+                            <div className="p-1.5 bg-gray-900 rounded-lg group-hover:bg-gray-800 transition-colors">
+                                <FiPlus className="text-white" size={18} />
+                            </div>
+                            <span className="text-lg">Create Post</span>
                         </button>
                     </div>
                 </div>
             </div>
 
+            {/* Channels Scroll (Mobile/Tablet) */}
+            <div className="alert-box md:hidden px-4 mb-6 relative z-10">
+                <div className="flex items-center gap-2 p-1.5 bg-white/20 backdrop-blur-md rounded-full border border-white/20 overflow-x-auto max-w-full">
+                    {channels.slice(0, 5).map(channel => {
+                        const Icon = channel.icon;
+                        const isActive = activeChannel === channel.id;
+                        return (
+                            <button
+                                key={channel.id}
+                                onClick={() => setActiveChannel(channel.id)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 text-sm whitespace-nowrap ${isActive
+                                    ? 'bg-white text-gray-900 shadow-lg font-bold'
+                                    : 'text-white hover:bg-white/10 font-bold'
+                                    }`}
+                            >
+                                <Icon size={14} />
+                                <span className="hidden sm:inline">{channel.label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
             {/* Main Content Area */}
-            <div className="bg-gray-50 min-h-screen">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-                    <div className="flex gap-6">
-
-                        {/* CENTER - Feed */}
-                        <div className="flex-1 min-w-0">
-
-                            {/* Filter Bar */}
-                            <div className="rounded-2xl p-3 mb-4 flex items-center justify-between gap-4 bg-white border border-gray-100">
-                                {/* Filter Chips */}
-                                <div className="flex items-center gap-2 overflow-x-auto">
-                                    {filterOptions.map(filter => {
-                                        const isActive = activeFilter === filter.id;
-                                        return (
-                                            <button
-                                                key={filter.id}
-                                                onClick={() => setActiveFilter(filter.id)}
-                                                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${isActive
-                                                    ? 'bg-orange-600 text-white'
-                                                    : 'bg-white text-gray-700 border border-gray-200 hover:border-orange-300'
-                                                    }`}
-                                            >
-                                                {filter.label}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* Sort Dropdown */}
-                                <div className="relative shrink-0">
-                                    <select
-                                        value={sortBy}
-                                        onChange={(e) => setSortBy(e.target.value)}
-                                        className="appearance-none px-4 py-2 pr-8 rounded-lg text-sm font-medium cursor-pointer bg-gray-50 text-gray-700 border border-gray-200"
-                                    >
-                                        {sortOptions.map(opt => (
-                                            <option key={opt.id} value={opt.id}>{opt.label}</option>
-                                        ))}
-                                    </select>
-                                    <FiChevronDown
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500"
-                                        size={14}
-                                    />
-                                </div>
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4">
+                <div className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto md:hidden mb-6">
+                    <div className="relative flex-1">
+                        <div className="relative flex items-center bg-white/20 backdrop-blur-xl border border-white/30 rounded-xl overflow-hidden">
+                            <div className="flex items-center pl-4 pr-2">
+                                <FiSearch className="text-white/70" size={18} />
                             </div>
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search discussions..."
+                                className="flex-1 py-3 px-2 bg-transparent text-white placeholder-white/50 focus:outline-none text-sm"
+                            />
+                        </div>
+                    </div>
+                </div>
 
-                            {/* Posts List */}
-                            {loading ? (
-                                <div className="flex items-center justify-center py-20">
-                                    <LoadingSpinner />
-                                </div>
-                            ) : posts.length === 0 ? (
-                                <div className="text-center py-16 rounded-2xl bg-white border border-gray-100">
-                                    <FiMessageCircle size={40} className="mx-auto mb-4 text-gray-300" />
-                                    <h3 className="text-lg font-bold mb-2 text-gray-900">No posts yet</h3>
-                                    <p className="text-sm mb-6 text-gray-500">Be the first to start the conversation!</p>
-                                    <button
-                                        onClick={() => setShowCreateModal(true)}
-                                        className="px-6 py-3 rounded-xl text-white font-bold text-sm bg-orange-600 hover:bg-orange-700 transition-all"
-                                    >
-                                        Create Post
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {posts.map(post => (
-                                        <CommunityPostCard
-                                            key={post._id}
-                                            post={post}
-                                            onViewDetails={handleViewDetails}
-                                            onMessage={handleMessage}
-                                            onEdit={handleEditPost}
-                                            onDelete={handleDeletePost}
-                                            onReport={handleReportPost}
-                                            channelColor={channels.find(c => c.id === post.channel)?.color || '#6B7280'}
-                                        />
-                                    ))}
-                                </div>
-                            )}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    {/* CENTER - Feed */}
+                    <div className="lg:col-span-9 min-w-0">
 
-                            {/* Pagination */}
-                            {pagination.pages > 1 && (
-                                <div className="flex justify-center gap-2 mt-6">
-                                    {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(page => (
+                        {/* Filter Bar */}
+                        <div className="rounded-2xl p-3 mb-4 flex items-center justify-between gap-4 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm">
+                            {/* Filter Chips */}
+                            <div className="flex items-center gap-2 overflow-x-auto">
+                                {filterOptions.map(filter => {
+                                    const isActive = activeFilter === filter.id;
+                                    return (
                                         <button
-                                            key={page}
-                                            onClick={() => fetchPosts(page)}
-                                            className={`w-9 h-9 rounded-lg font-bold text-sm transition-all ${pagination.page === page
+                                            key={filter.id}
+                                            onClick={() => setActiveFilter(filter.id)}
+                                            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${isActive
                                                 ? 'bg-orange-600 text-white'
                                                 : 'bg-white text-gray-700 border border-gray-200 hover:border-orange-300'
                                                 }`}
                                         >
-                                            {page}
+                                            {filter.label}
                                         </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Sort Dropdown */}
+                            <div className="relative shrink-0">
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="appearance-none px-4 py-2 pr-8 rounded-lg text-sm font-medium cursor-pointer bg-gray-50 text-gray-700 border border-gray-200"
+                                >
+                                    {sortOptions.map(opt => (
+                                        <option key={opt.id} value={opt.id}>{opt.label}</option>
                                     ))}
-                                </div>
-                            )}
+                                </select>
+                                <FiChevronDown
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500"
+                                    size={14}
+                                />
+                            </div>
                         </div>
 
-                        {/* RIGHT SIDEBAR */}
-                        <div className="hidden xl:block w-72 shrink-0">
-                            <div className="sticky top-24 space-y-4">
+                        {/* Posts List */}
+                        {loading ? (
+                            <div className="flex items-center justify-center py-20">
+                                <LoadingSpinner />
+                            </div>
+                        ) : posts.length === 0 ? (
+                            <div className="text-center py-16 rounded-[2rem] bg-white/20 backdrop-blur-xl border border-white/30 shadow-sm">
+                                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <FiMessageCircle size={32} className="text-white/50" />
+                                </div>
+                                <h3 className="text-lg font-bold mb-2 text-white">No posts yet</h3>
+                                <p className="text-sm mb-6 text-white/60">Be the first to start the conversation!</p>
+                                <button
+                                    onClick={() => setShowCreateModal(true)}
+                                    className="px-6 py-3 rounded-xl text-gray-900 font-bold text-sm bg-white hover:bg-white/90 transition-all shadow-lg"
+                                >
+                                    Create Post
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {posts.map(post => (
+                                    <CommunityPostCard
+                                        key={post._id}
+                                        post={post}
+                                        onViewDetails={handleViewDetails}
+                                        onMessage={handleMessage}
+                                        onEdit={handleEditPost}
+                                        onDelete={handleDeletePost}
+                                        onReport={handleReportPost}
+                                        channelColor={channels.find(c => c.id === post.channel)?.color || '#6B7280'}
+                                    />
+                                ))}
+                            </div>
+                        )}
 
-                                {/* CTA Card */}
-                                <div className="rounded-2xl p-5 text-white bg-gradient-to-br from-orange-500 to-red-600">
-                                    <h3 className="font-bold text-lg mb-2">Share with the community</h3>
-                                    <p className="text-sm opacity-90 mb-4">
-                                        Looking for a sublease? Selling furniture? Post it here!
-                                    </p>
+                        {/* Pagination */}
+                        {pagination.pages > 1 && (
+                            <div className="flex justify-center gap-2 mt-6">
+                                {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(page => (
                                     <button
-                                        onClick={() => setShowCreateModal(true)}
-                                        className="w-full py-3 rounded-xl font-bold text-sm transition-all hover:opacity-90 bg-white text-orange-600"
+                                        key={page}
+                                        onClick={() => fetchPosts(page)}
+                                        className={`w-9 h-9 rounded-lg font-bold text-sm transition-all ${pagination.page === page
+                                            ? 'bg-white text-gray-900 shadow-lg scale-110'
+                                            : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                            }`}
                                     >
-                                        Create Post
+                                        {page}
                                     </button>
-                                </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
-                                {/* Guidelines Card */}
-                                <div className="rounded-2xl overflow-hidden bg-white border border-gray-100">
-                                    <div className="px-4 py-3 border-b border-gray-100 bg-gray-900">
-                                        <span className="text-white font-bold text-sm">Community Guidelines</span>
-                                    </div>
-                                    <ul className="p-4 space-y-3 text-sm">
-                                        <li className="flex items-start gap-2">
-                                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 bg-green-100 text-green-600">✓</span>
-                                            <span className="text-gray-700">Be respectful and helpful</span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 bg-green-100 text-green-600">✓</span>
-                                            <span className="text-gray-700">Provide clear details</span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 bg-green-100 text-green-600">✓</span>
-                                            <span className="text-gray-700">Report suspicious content</span>
-                                        </li>
-                                        <li className="flex items-start gap-2">
-                                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 bg-red-100 text-red-600">✗</span>
-                                            <span className="text-gray-700">No spam or duplicates</span>
-                                        </li>
-                                    </ul>
+                    {/* RIGHT SIDEBAR */}
+                    <div className="hidden lg:block lg:col-span-3 min-w-0">
+                        <div className="sticky top-24 space-y-4">
+
+                            {/* CTA Card */}
+                            <GlassCard className="text-white bg-white/10 border border-white/20 backdrop-blur-xl shadow-lg" padding="sm">
+                                <h3 className="font-bold text-lg mb-2">Share with us</h3>
+                                <p className="text-sm opacity-90 mb-4">
+                                    Looking for a sublease? Selling furniture? Post it here!
+                                </p>
+                                <button
+                                    onClick={() => setShowCreateModal(true)}
+                                    className="w-full py-3 rounded-xl font-bold text-sm transition-all hover:opacity-90 bg-white text-orange-600 shadow-md"
+                                >
+                                    Create Post
+                                </button>
+                            </GlassCard>
+
+                            {/* Guidelines Card */}
+                            <div className="rounded-3xl overflow-hidden border border-white/30 bg-white/20 backdrop-blur-xl shadow-lg">
+                                <div className="px-4 py-3 border-b border-white/20 bg-white/10">
+                                    <span className="text-white font-bold text-sm">Guidelines</span>
                                 </div>
+                                <ul className="p-4 space-y-3 text-sm">
+                                    <li className="flex items-start gap-2">
+                                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 bg-green-500/20 text-green-200">✓</span>
+                                        <span className="text-white/80">Be respectful</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 bg-green-500/20 text-green-200">✓</span>
+                                        <span className="text-white/80">Provide clear details</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 bg-green-500/20 text-green-200">✓</span>
+                                        <span className="text-white/80">Report suspicious content</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 bg-red-500/20 text-red-200">✗</span>
+                                        <span className="text-white/80">No spam</span>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -375,7 +375,7 @@ const Community = () => {
                 onEdit={handleEditPost}
                 onDelete={handleDeletePost}
             />
-        </div>
+        </div >
     );
 };
 

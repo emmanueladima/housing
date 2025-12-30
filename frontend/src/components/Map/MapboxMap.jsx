@@ -173,25 +173,25 @@ const MapboxMap = ({
         <div className="relative h-full w-full rounded-xl overflow-hidden group">
             <div ref={mapContainer} className="h-full w-full" />
 
-            {/* Custom Controls - Left Side */}
+            {/* Custom Controls - Left Side - Blur Glass Effect */}
             <div className="absolute left-4 top-24 flex flex-col gap-2 z-10">
                 <button
                     onClick={handleZoomIn}
-                    className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-colors focus:outline-none"
+                    className="w-10 h-10 bg-white/70 backdrop-blur-xl border border-white/30 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:bg-white/90 hover:text-orange-600 transition-colors focus:outline-none"
                     title="Zoom In"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </button>
                 <button
                     onClick={handleZoomOut}
-                    className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-colors focus:outline-none"
+                    className="w-10 h-10 bg-white/70 backdrop-blur-xl border border-white/30 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:bg-white/90 hover:text-orange-600 transition-colors focus:outline-none"
                     title="Zoom Out"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </button>
                 <button
                     onClick={handleGeolocate}
-                    className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-colors focus:outline-none mt-2"
+                    className="w-10 h-10 bg-white/70 backdrop-blur-xl border border-white/30 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:bg-white/90 hover:text-orange-600 transition-colors focus:outline-none mt-2"
                     title="My Location"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>

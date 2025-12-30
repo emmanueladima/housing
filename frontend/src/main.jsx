@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { HeroUIProvider } from '@heroui/react';
 import App from './App.jsx';
 import './index.css';
 import { AuthProvider } from './contexts/AuthContext.jsx';
@@ -10,13 +11,15 @@ import { FeatureFlagProvider } from './contexts/FeatureFlagContext.jsx';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <FeatureFlagProvider>
-        <AuthProvider>
-          <SocketProvider>
-            <App />
-          </SocketProvider>
-        </AuthProvider>
-      </FeatureFlagProvider>
+      <HeroUIProvider>
+        <FeatureFlagProvider>
+          <AuthProvider>
+            <SocketProvider>
+              <App />
+            </SocketProvider>
+          </AuthProvider>
+        </FeatureFlagProvider>
+      </HeroUIProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

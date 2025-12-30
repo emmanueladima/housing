@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FiChevronDown, FiChevronUp, FiFilter, FiCheck } from 'react-icons/fi';
+import MajorAutocomplete from '../ui/MajorAutocomplete';
 
 const FilterSection = ({ title, isOpen, onToggle, children }) => (
     <div className="border-b border-gray-200 py-4">
@@ -18,8 +19,8 @@ const PillOption = ({ label, selected, onClick }) => (
     <button
         onClick={onClick}
         className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${selected
-                ? 'bg-black text-white border-black'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+            ? 'bg-black text-white border-black'
+            : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
             }`}
     >
         {label}
@@ -118,13 +119,11 @@ const RoommateSidebarFilters = ({ filters, onFilterChange }) => {
                 </div>
 
                 <div className="mt-4">
-                    <label className="text-xs font-semibold text-gray-500 mb-2 block">Major / Field</label>
-                    <input
-                        type="text"
-                        placeholder="e.g. Engineering, Arts..."
+                    <MajorAutocomplete
                         value={filters.major || ''}
-                        onChange={(e) => updateFilter('major', e.target.value)}
-                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-black focus:border-black outline-none"
+                        onChange={(value) => updateFilter('major', value)}
+                        label="Major / Field"
+                        placeholder="e.g. Computer Science"
                     />
                 </div>
             </FilterSection>

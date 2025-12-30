@@ -14,7 +14,8 @@ const expenseSchema = new mongoose.Schema({
   paidBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   splitAmong: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   date: { type: Date, default: Date.now },
-  category: { type: String, enum: ['rent', 'utilities', 'groceries', 'internet', 'other'], default: 'other' }
+  category: { type: String, enum: ['rent', 'utilities', 'groceries', 'internet', 'household', 'entertainment', 'other'], default: 'other' },
+  status: { type: String, enum: ['open', 'settled'], default: 'open' }
 });
 
 const ruleSchema = new mongoose.Schema({
@@ -29,6 +30,14 @@ const joinRequestSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+const sharedEventSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  date: { type: Date, required: true },
+  type: { type: String, enum: ['social', 'payment', 'chore', 'admin'], default: 'social' },
+  description: { type: String },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+}, { timestamps: true });
+
 const roommateGroupSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
@@ -42,6 +51,7 @@ const roommateGroupSchema = new mongoose.Schema({
   chores: [choreSchema],
   expenses: [expenseSchema],
   houseRules: [ruleSchema],
+  sharedEvents: [sharedEventSchema],
 
   // Discovery Features (from previous implementation)
   budget: {

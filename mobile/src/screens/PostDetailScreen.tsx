@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { GlassView } from 'expo-glass-effect';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
 
 const { width, height } = Dimensions.get('window');
@@ -41,10 +42,12 @@ const PostDetailScreen: React.FC<PostDetailScreenProps> = ({ navigation }) => {
             <SafeAreaView edges={['top']} style={styles.safeArea}>
                 <View style={styles.header}>
                     <TouchableOpacity
-                        style={styles.backButton}
+                        style={styles.glassButtonWrapper}
                         onPress={() => navigation?.goBack?.()}
                     >
-                        <Ionicons name="chevron-back" size={24} color={COLORS.text} />
+                        <GlassView style={styles.glassButton}>
+                            <Ionicons name="chevron-back" size={22} color="#db4a2b" />
+                        </GlassView>
                     </TouchableOpacity>
                     <Text style={styles.headerTitle}>Post</Text>
                     <TouchableOpacity style={styles.moreButton}>
@@ -228,6 +231,18 @@ const styles = StyleSheet.create({
         height: 40,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    glassButtonWrapper: {
+        borderRadius: 20,
+        overflow: 'hidden',
+    },
+    glassButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'transparent',
     },
     headerTitle: {
         fontSize: FONT_SIZES.lg,

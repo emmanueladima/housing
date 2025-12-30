@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { FiX, FiUser, FiSun, FiMoon, FiVolume2, FiCheckCircle, FiSmile, FiArrowRight, FiArrowLeft, FiCheck, FiHeart, FiThermometer, FiBook, FiUsers } from 'react-icons/fi';
 import lifestyleProfileService from '../../services/lifestyleProfileService';
 import { useNavigate } from 'react-router-dom';
+import BioTextarea from '../ui/BioTextarea';
+import SleepScheduleSlider from '../ui/SleepScheduleSlider';
+import MajorAutocomplete from '../ui/MajorAutocomplete';
 
 const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
     const navigate = useNavigate();
@@ -10,6 +13,7 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
     const [formData, setFormData] = useState({
         age: '',
         gender: '',
+        major: '',
         bio: '',
         cleanliness: 5,
         noiseLevel: 5,
@@ -236,17 +240,25 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                 </select>
                             </div>
                         </div>
+
+                        {/* Major Autocomplete */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Bio</label>
-                            <textarea
-                                name="bio"
-                                value={formData.bio}
-                                onChange={handleChange}
-                                rows="3"
-                                placeholder="I'm a junior studying CS. I love hiking and coffee..."
-                                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none resize-none transition-all"
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Major / Field of Study</label>
+                            <MajorAutocomplete
+                                value={formData.major || ''}
+                                onChange={(value) => setFormData(prev => ({ ...prev, major: value }))}
+                                label=""
+                                placeholder="e.g. Computer Science"
                             />
                         </div>
+
+                        <BioTextarea
+                            value={formData.bio}
+                            onChange={(value) => setFormData(prev => ({ ...prev, bio: value }))}
+                            label="Bio"
+                            placeholder="I'm a junior studying CS. I love hiking and coffee..."
+                            maxLength={500}
+                        />
 
                         {/* Roommate Visibility Toggle */}
                         <div className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.lookingForRoommate ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}
@@ -309,79 +321,17 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                             </div>
                         </div>
 
-                        {/* Sleep Schedule as Dual Sliders */}
-                        <div className="border border-gray-200 rounded-xl p-4">
-                            <label className="block text-sm font-bold text-gray-700 mb-4">Sleep Schedule</label>
-
-                            {/* Visual display of sleep window */}
-                            <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg">
-                                <div className="flex items-center gap-2">
-                                    <FiMoon className="text-blue-500" />
-                                    <div>
-                                        <p className="text-xs text-gray-500">Bedtime</p>
-                                        <p className="font-bold text-gray-900">{formData.sleepSchedule.bedtime}:00</p>
-                                    </div>
-                                </div>
-                                <div className="flex-1 mx-4 h-2 rounded-full bg-gradient-to-r from-blue-200 via-purple-300 to-orange-200"></div>
-                                <div className="flex items-center gap-2">
-                                    <div className="text-right">
-                                        <p className="text-xs text-gray-500">Wake Up</p>
-                                        <p className="font-bold text-gray-900">{formData.sleepSchedule.wakeup}:00</p>
-                                    </div>
-                                    <FiSun className="text-orange-500" />
-                                </div>
-                            </div>
-
-                            {/* Bedtime Slider */}
-                            <div className="mb-4">
-                                <div className="flex justify-between mb-1">
-                                    <span className="text-xs font-medium text-gray-500">Bedtime</span>
-                                    <span className="text-xs font-bold text-blue-600">{formData.sleepSchedule.bedtime}:00</span>
-                                </div>
-                                <input
-                                    type="range"
-                                    name="sleepSchedule.bedtime"
-                                    min="18"
-                                    max="4"
-                                    value={formData.sleepSchedule.bedtime <= 4 ? formData.sleepSchedule.bedtime + 24 : formData.sleepSchedule.bedtime}
-                                    onChange={(e) => {
-                                        const val = parseInt(e.target.value);
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            sleepSchedule: { ...prev.sleepSchedule, bedtime: val > 23 ? val - 24 : val }
-                                        }));
-                                    }}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                                />
-                                <div className="flex justify-between text-xs text-gray-400 mt-1">
-                                    <span>6PM</span>
-                                    <span>Midnight</span>
-                                    <span>4AM</span>
-                                </div>
-                            </div>
-
-                            {/* Wake Up Slider */}
-                            <div>
-                                <div className="flex justify-between mb-1">
-                                    <span className="text-xs font-medium text-gray-500">Wake Up</span>
-                                    <span className="text-xs font-bold text-orange-600">{formData.sleepSchedule.wakeup}:00</span>
-                                </div>
-                                <input
-                                    type="range"
-                                    name="sleepSchedule.wakeup"
-                                    min="4"
-                                    max="12"
-                                    value={formData.sleepSchedule.wakeup}
-                                    onChange={handleChange}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                                />
-                                <div className="flex justify-between text-xs text-gray-400 mt-1">
-                                    <span>4AM</span>
-                                    <span>8AM</span>
-                                    <span>Noon</span>
-                                </div>
-                            </div>
-                        </div>
+                        {/* Sleep Schedule with HeroUI Slider */}
+                        <SleepScheduleSlider
+                            bedtime={formData.sleepSchedule.bedtime}
+                            wakeup={formData.sleepSchedule.wakeup}
+                            onChange={({ bedtime, wakeup }) => {
+                                setFormData(prev => ({
+                                    ...prev,
+                                    sleepSchedule: { bedtime, wakeup }
+                                }));
+                            }}
+                        />
                     </div>
                 );
             case 3: // Vibe
@@ -481,9 +431,9 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
             <div
-                className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
+                className="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -514,8 +464,8 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                     </div>
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 p-6 overflow-y-auto">
+                {/* Content - Scrollable */}
+                <div className="flex-1 p-6 overflow-y-auto min-h-0 scroll-smooth" style={{ scrollbarGutter: 'stable' }}>
                     <div className="mb-6">
                         <h2 className="text-2xl font-black text-gray-900 mb-1">{steps[step - 1].label}</h2>
                         <p className="text-gray-500 text-sm">
@@ -526,6 +476,12 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                         </p>
                     </div>
                     {renderStepContent()}
+                    {/* Scroll indicator for mobile */}
+                    {step === 1 && (
+                        <div className="mt-4 text-center text-gray-400 text-xs animate-bounce sm:hidden">
+                            ↓ Scroll for more options
+                        </div>
+                    )}
                 </div>
 
                 {/* Footer */}

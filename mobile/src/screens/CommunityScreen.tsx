@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
+import { useColors, SPACING, BORDER_RADIUS, FONT_SIZES, SHADOWS } from '../constants/theme';
+import { useTheme } from '../contexts/ThemeContext';
 import communityService, { Post } from '../services/communityService';
 
 // Channel tabs
@@ -29,6 +30,8 @@ interface CommunityScreenProps {
 }
 
 const CommunityScreen: React.FC<CommunityScreenProps> = ({ navigation }) => {
+    const colors = useColors();
+    const { isDark } = useTheme();
     const [activeChannel, setActiveChannel] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [posts, setPosts] = useState<Post[]>([]);
@@ -78,27 +81,262 @@ const CommunityScreen: React.FC<CommunityScreenProps> = ({ navigation }) => {
         return 'Just now';
     };
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: colors.background,
+        },
+        safeArea: {
+            backgroundColor: colors.background,
+        },
+        loadingContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        emptyContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: 100,
+        },
+        emptyText: {
+            fontSize: FONT_SIZES.md,
+            color: colors.textMuted,
+            marginTop: SPACING.md,
+        },
+
+        // Header
+        header: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingHorizontal: SPACING.lg,
+            paddingBottom: SPACING.sm,
+        },
+        title: {
+            fontSize: FONT_SIZES.title,
+            fontWeight: '700',
+            color: colors.text,
+        },
+        notifButton: {
+            width: 40,
+            height: 40,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: colors.backgroundSecondary,
+            borderRadius: BORDER_RADIUS.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+
+        // Search
+        searchContainer: {
+            paddingHorizontal: SPACING.lg,
+            paddingBottom: SPACING.sm,
+        },
+        searchBar: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.backgroundSecondary,
+            borderRadius: BORDER_RADIUS.lg,
+            paddingHorizontal: SPACING.md,
+            paddingVertical: SPACING.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+        searchInput: {
+            flex: 1,
+            marginLeft: SPACING.sm,
+            fontSize: FONT_SIZES.md,
+            color: colors.text,
+        },
+
+        // Channel Pills
+        channelContainer: {
+            paddingHorizontal: SPACING.lg,
+            paddingBottom: SPACING.md,
+        },
+        channelPill: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: SPACING.xs,
+            paddingHorizontal: SPACING.lg,
+            paddingVertical: SPACING.sm,
+            backgroundColor: colors.backgroundSecondary,
+            borderRadius: BORDER_RADIUS.full,
+            marginRight: SPACING.sm,
+            borderWidth: 1,
+            borderColor: colors.border,
+        },
+        channelPillActive: {
+            backgroundColor: colors.primary,
+            borderColor: colors.primary,
+        },
+        channelText: {
+            fontSize: FONT_SIZES.sm,
+            fontWeight: '600',
+            color: colors.text,
+        },
+        channelTextActive: {
+            color: '#FFFFFF',
+        },
+
+        // Content
+        content: {
+            flex: 1,
+        },
+        contentContainer: {
+            paddingHorizontal: SPACING.lg,
+        },
+
+        // Post Card
+        postCard: {
+            backgroundColor: colors.card,
+            borderRadius: BORDER_RADIUS.xl,
+            padding: SPACING.lg,
+            marginBottom: SPACING.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+            ...SHADOWS.sm,
+        },
+        postHeader: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            marginBottom: SPACING.md,
+        },
+        avatar: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: colors.primary,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        avatarText: {
+            fontSize: FONT_SIZES.sm,
+            fontWeight: '700',
+            color: '#FFFFFF',
+        },
+        postMeta: {
+            flex: 1,
+            marginLeft: SPACING.sm,
+        },
+        authorName: {
+            fontSize: FONT_SIZES.md,
+            fontWeight: '600',
+            color: colors.text,
+        },
+        postTime: {
+            fontSize: FONT_SIZES.xs,
+            color: colors.textMuted,
+        },
+        moreButton: {
+            padding: SPACING.xs,
+        },
+        postTitle: {
+            fontSize: FONT_SIZES.lg,
+            fontWeight: '700',
+            color: colors.text,
+            marginBottom: SPACING.xs,
+        },
+        postContent: {
+            fontSize: FONT_SIZES.md,
+            color: colors.textSecondary,
+            lineHeight: 22,
+            marginBottom: SPACING.md,
+        },
+        tagRow: {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: SPACING.xs,
+            marginBottom: SPACING.md,
+        },
+        tag: {
+            backgroundColor: colors.backgroundSecondary,
+            paddingHorizontal: SPACING.sm,
+            paddingVertical: 4,
+            borderRadius: BORDER_RADIUS.sm,
+        },
+        tagText: {
+            fontSize: FONT_SIZES.xs,
+            color: colors.primary,
+            fontWeight: '500',
+        },
+        postFooter: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingTop: SPACING.sm,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
+        },
+        statRow: {
+            flexDirection: 'row',
+            gap: SPACING.lg,
+        },
+        stat: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+        },
+        statText: {
+            fontSize: FONT_SIZES.sm,
+            color: colors.textSecondary,
+        },
+        messageButton: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: SPACING.xs,
+            paddingHorizontal: SPACING.md,
+            paddingVertical: SPACING.xs,
+            borderRadius: BORDER_RADIUS.md,
+            backgroundColor: colors.accentBg,
+        },
+        messageButtonText: {
+            fontSize: FONT_SIZES.sm,
+            fontWeight: '600',
+            color: colors.primary,
+        },
+
+        // Floating Create Button
+        createButtonContainer: {
+            position: 'absolute',
+            bottom: 100,
+            right: SPACING.lg,
+        },
+        createButton: {
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: colors.primary,
+            justifyContent: 'center',
+            alignItems: 'center',
+            ...SHADOWS.lg,
+        },
+    });
+
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" />
+            <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
             <SafeAreaView edges={['top']} style={styles.safeArea}>
                 {/* Header */}
                 <View style={styles.header}>
                     <Text style={styles.title}>Community</Text>
-                    <TouchableOpacity style={styles.notifButton}>
-                        <Ionicons name="notifications-outline" size={22} color={COLORS.text} />
+                    <TouchableOpacity style={styles.notifButton} onPress={() => navigation?.navigate('Notifications')}>
+                        <Ionicons name="notifications-outline" size={22} color={colors.text} />
                     </TouchableOpacity>
                 </View>
 
                 {/* Search */}
                 <View style={styles.searchContainer}>
                     <View style={styles.searchBar}>
-                        <Ionicons name="search" size={18} color={COLORS.textMuted} />
+                        <Ionicons name="search" size={18} color={colors.textMuted} />
                         <TextInput
                             style={styles.searchInput}
                             placeholder="Search posts..."
-                            placeholderTextColor={COLORS.textMuted}
+                            placeholderTextColor={colors.textMuted}
                             value={searchQuery}
                             onChangeText={setSearchQuery}
                         />
@@ -122,7 +360,7 @@ const CommunityScreen: React.FC<CommunityScreenProps> = ({ navigation }) => {
                                 <Ionicons
                                     name={channel.icon as any}
                                     size={16}
-                                    color={isActive ? COLORS.card : COLORS.text}
+                                    color={isActive ? '#FFFFFF' : colors.text}
                                 />
                                 <Text style={[styles.channelText, isActive && styles.channelTextActive]}>
                                     {channel.label}
@@ -136,7 +374,7 @@ const CommunityScreen: React.FC<CommunityScreenProps> = ({ navigation }) => {
             {/* Posts */}
             {isLoading ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={COLORS.primary} />
+                    <ActivityIndicator size="large" color={colors.primary} />
                 </View>
             ) : (
                 <ScrollView
@@ -147,13 +385,13 @@ const CommunityScreen: React.FC<CommunityScreenProps> = ({ navigation }) => {
                         <RefreshControl
                             refreshing={isRefreshing}
                             onRefresh={onRefresh}
-                            tintColor={COLORS.primary}
+                            tintColor={colors.primary}
                         />
                     }
                 >
                     {posts.length === 0 ? (
                         <View style={styles.emptyContainer}>
-                            <Ionicons name="chatbubbles-outline" size={60} color={COLORS.textMuted} />
+                            <Ionicons name="chatbubbles-outline" size={60} color={colors.textMuted} />
                             <Text style={styles.emptyText}>No posts yet</Text>
                         </View>
                     ) : (
@@ -176,7 +414,7 @@ const CommunityScreen: React.FC<CommunityScreenProps> = ({ navigation }) => {
                                         <Text style={styles.postTime}>{formatTimeAgo(post.createdAt)}</Text>
                                     </View>
                                     <TouchableOpacity style={styles.moreButton}>
-                                        <Ionicons name="ellipsis-horizontal" size={18} color={COLORS.textMuted} />
+                                        <Ionicons name="ellipsis-horizontal" size={18} color={colors.textMuted} />
                                     </TouchableOpacity>
                                 </View>
 
@@ -199,16 +437,25 @@ const CommunityScreen: React.FC<CommunityScreenProps> = ({ navigation }) => {
                                 <View style={styles.postFooter}>
                                     <View style={styles.statRow}>
                                         <View style={styles.stat}>
-                                            <Ionicons name="heart-outline" size={16} color={COLORS.textSecondary} />
+                                            <Ionicons name="heart-outline" size={16} color={colors.textSecondary} />
                                             <Text style={styles.statText}>{post.likes}</Text>
                                         </View>
                                         <View style={styles.stat}>
-                                            <Ionicons name="chatbubble-outline" size={15} color={COLORS.textSecondary} />
+                                            <Ionicons name="chatbubble-outline" size={15} color={colors.textSecondary} />
                                             <Text style={styles.statText}>{post.commentCount}</Text>
                                         </View>
                                     </View>
-                                    <TouchableOpacity style={styles.messageButton}>
-                                        <Ionicons name="send" size={14} color={COLORS.primary} />
+                                    <TouchableOpacity
+                                        style={styles.messageButton}
+                                        onPress={() => {
+                                            // Navigate to chat with post author
+                                            navigation?.navigate('Chat', {
+                                                threadId: `dm-${post.author._id}`,
+                                                otherUserName: post.author.name,
+                                            });
+                                        }}
+                                    >
+                                        <Ionicons name="send" size={14} color={colors.primary} />
                                         <Text style={styles.messageButtonText}>Message</Text>
                                     </TouchableOpacity>
                                 </View>
@@ -227,246 +474,11 @@ const CommunityScreen: React.FC<CommunityScreenProps> = ({ navigation }) => {
                     activeOpacity={0.9}
                     onPress={() => navigation?.navigate?.('CreatePost', { channel: activeChannel })}
                 >
-                    <Ionicons name="add" size={24} color={COLORS.card} />
+                    <Ionicons name="add" size={24} color={'#FFFFFF'} />
                 </TouchableOpacity>
             </View>
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.background,
-    },
-    safeArea: {
-        backgroundColor: COLORS.background,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    emptyContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingTop: 100,
-    },
-    emptyText: {
-        fontSize: FONT_SIZES.md,
-        color: COLORS.textMuted,
-        marginTop: SPACING.md,
-    },
-
-    // Header
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: SPACING.lg,
-        paddingBottom: SPACING.sm,
-    },
-    title: {
-        fontSize: FONT_SIZES.title,
-        fontWeight: '700',
-        color: COLORS.text,
-    },
-    notifButton: {
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: COLORS.backgroundSecondary,
-        borderRadius: BORDER_RADIUS.md,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-
-    // Search
-    searchContainer: {
-        paddingHorizontal: SPACING.lg,
-        paddingBottom: SPACING.sm,
-    },
-    searchBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: COLORS.backgroundSecondary,
-        borderRadius: BORDER_RADIUS.lg,
-        paddingHorizontal: SPACING.md,
-        paddingVertical: SPACING.md,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-    searchInput: {
-        flex: 1,
-        marginLeft: SPACING.sm,
-        fontSize: FONT_SIZES.md,
-        color: COLORS.text,
-    },
-
-    // Channel Pills
-    channelContainer: {
-        paddingHorizontal: SPACING.lg,
-        paddingBottom: SPACING.md,
-    },
-    channelPill: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: SPACING.xs,
-        paddingHorizontal: SPACING.lg,
-        paddingVertical: SPACING.sm,
-        backgroundColor: COLORS.backgroundSecondary,
-        borderRadius: BORDER_RADIUS.full,
-        marginRight: SPACING.sm,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-    },
-    channelPillActive: {
-        backgroundColor: COLORS.primary,
-        borderColor: COLORS.primary,
-    },
-    channelText: {
-        fontSize: FONT_SIZES.sm,
-        fontWeight: '600',
-        color: COLORS.text,
-    },
-    channelTextActive: {
-        color: COLORS.card,
-    },
-
-    // Content
-    content: {
-        flex: 1,
-    },
-    contentContainer: {
-        paddingHorizontal: SPACING.lg,
-    },
-
-    // Post Card
-    postCard: {
-        backgroundColor: COLORS.card,
-        borderRadius: BORDER_RADIUS.xl,
-        padding: SPACING.lg,
-        marginBottom: SPACING.md,
-        borderWidth: 1,
-        borderColor: COLORS.border,
-        ...SHADOWS.sm,
-    },
-    postHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: SPACING.md,
-    },
-    avatar: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: COLORS.primary,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    avatarText: {
-        fontSize: FONT_SIZES.sm,
-        fontWeight: '700',
-        color: COLORS.card,
-    },
-    postMeta: {
-        flex: 1,
-        marginLeft: SPACING.sm,
-    },
-    authorName: {
-        fontSize: FONT_SIZES.md,
-        fontWeight: '600',
-        color: COLORS.text,
-    },
-    postTime: {
-        fontSize: FONT_SIZES.xs,
-        color: COLORS.textMuted,
-    },
-    moreButton: {
-        padding: SPACING.xs,
-    },
-    postTitle: {
-        fontSize: FONT_SIZES.lg,
-        fontWeight: '700',
-        color: COLORS.text,
-        marginBottom: SPACING.xs,
-    },
-    postContent: {
-        fontSize: FONT_SIZES.md,
-        color: COLORS.textSecondary,
-        lineHeight: 22,
-        marginBottom: SPACING.md,
-    },
-    tagRow: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: SPACING.xs,
-        marginBottom: SPACING.md,
-    },
-    tag: {
-        backgroundColor: COLORS.backgroundSecondary,
-        paddingHorizontal: SPACING.sm,
-        paddingVertical: 4,
-        borderRadius: BORDER_RADIUS.sm,
-    },
-    tagText: {
-        fontSize: FONT_SIZES.xs,
-        color: COLORS.primary,
-        fontWeight: '500',
-    },
-    postFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingTop: SPACING.sm,
-        borderTopWidth: 1,
-        borderTopColor: COLORS.border,
-    },
-    statRow: {
-        flexDirection: 'row',
-        gap: SPACING.lg,
-    },
-    stat: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    statText: {
-        fontSize: FONT_SIZES.sm,
-        color: COLORS.textSecondary,
-    },
-    messageButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: SPACING.xs,
-        paddingHorizontal: SPACING.md,
-        paddingVertical: SPACING.xs,
-        borderRadius: BORDER_RADIUS.md,
-        backgroundColor: 'rgba(219, 74, 43, 0.1)',
-    },
-    messageButtonText: {
-        fontSize: FONT_SIZES.sm,
-        fontWeight: '600',
-        color: COLORS.primary,
-    },
-
-    // Floating Create Button
-    createButtonContainer: {
-        position: 'absolute',
-        bottom: 100,
-        right: SPACING.lg,
-    },
-    createButton: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: COLORS.primary,
-        justifyContent: 'center',
-        alignItems: 'center',
-        ...SHADOWS.lg,
-    },
-});
 
 export default CommunityScreen;

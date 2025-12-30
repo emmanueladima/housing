@@ -9,9 +9,11 @@ import {
     KeyboardAvoidingView,
     Platform,
     Alert,
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../constants/theme';
 import communityService from '../services/communityService';
 
@@ -28,7 +30,12 @@ const CreatePostScreen: React.FC<CreatePostScreenProps> = ({ navigation, route }
         intent: '',
         title: '',
         content: '',
+        price: '',
+        location: '',
+        tags: [] as string[],
+        images: [] as string[],
     });
+    const [tagInput, setTagInput] = useState('');
 
     // Channels matching website exactly
     const channels = [
@@ -58,12 +65,48 @@ const CreatePostScreen: React.FC<CreatePostScreenProps> = ({ navigation, route }
         'misc': ['looking-for', 'offering', 'announcement'],
     };
 
-    const updateForm = (field: string, value: string) => {
+    const updateForm = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
         // Reset intent when changing channel
         if (field === 'channel') {
-            setFormData(prev => ({ ...prev, intent: '' }));
+            setFormData(prev => ({ ...prev, intent: '', price: '' }));
         }
+    };
+
+    // Check if intent requires price
+    const showPriceField = formData.intent === 'selling' || formData.intent === 'looking-for';
+
+    // Image picker
+    const pickImage = async () => {
+        if (formData.images.length >= 5) {
+            Alert.alert('Limit Reached', 'You can add up to 5 images');
+            return;
+        }
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            quality: 0.8,
+        });
+        if (!result.canceled && result.assets[0]) {
+            setFormData(prev => ({ ...prev, images: [...prev.images, result.assets[0].uri] }));
+        }
+    };
+
+    const removeImage = (index: number) => {
+        setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
+    };
+
+    // Tags
+    const addTag = () => {
+        const tag = tagInput.trim();
+        if (tag && formData.tags.length < 5 && !formData.tags.includes(tag)) {
+            setFormData(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+            setTagInput('');
+        }
+    };
+
+    const removeTag = (tag: string) => {
+        setFormData(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }));
     };
 
     const validate = () => {
@@ -207,6 +250,98 @@ const CreatePostScreen: React.FC<CreatePostScreenProps> = ({ navigation, route }
                         <Text style={styles.charCount}>{formData.content.length} characters</Text>
                     </View>
 
+                    {/* Price/Budget (conditional) */}
+                    {showPriceField && (
+                        <View style={styles.section}>
+                            <Text style={styles.label}>
+                                {formData.intent === 'selling' ? 'Price' : 'Budget'}
+                            </Text>
+                            <View style={styles.priceInputContainer}>
+                                <Text style={styles.priceCurrency}>$</Text>
+                                <TextInput
+                                    style={styles.priceInput}
+                                    placeholder="0"
+                                    value={formData.price}
+                                    onChangeText={(v) => updateForm('price', v.replace(/[^0-9]/g, ''))}
+                                    keyboardType="numeric"
+                                    placeholderTextColor={COLORS.textMuted}
+                                />
+                            </View>
+                        </View>
+                    )}
+
+                    {/* Location */}
+                    <View style={styles.section}>
+                        <Text style={styles.label}>Location</Text>
+                        <View style={styles.locationInput}>
+                            <Ionicons name="location-outline" size={20} color={COLORS.textMuted} />
+                            <TextInput
+                                style={styles.locationTextInput}
+                                placeholder="Add location (optional)"
+                                value={formData.location}
+                                onChangeText={(v) => updateForm('location', v)}
+                                placeholderTextColor={COLORS.textMuted}
+                            />
+                        </View>
+                    </View>
+
+                    {/* Tags */}
+                    <View style={styles.section}>
+                        <Text style={styles.label}>Tags ({formData.tags.length}/5)</Text>
+                        <View style={styles.tagInputRow}>
+                            <TextInput
+                                style={styles.tagInput}
+                                placeholder="Add a tag..."
+                                value={tagInput}
+                                onChangeText={setTagInput}
+                                onSubmitEditing={addTag}
+                                returnKeyType="done"
+                                placeholderTextColor={COLORS.textMuted}
+                            />
+                            <TouchableOpacity style={styles.addTagBtn} onPress={addTag}>
+                                <Ionicons name="add" size={20} color={COLORS.card} />
+                            </TouchableOpacity>
+                        </View>
+                        {formData.tags.length > 0 && (
+                            <View style={styles.tagsContainer}>
+                                {formData.tags.map((tag) => (
+                                    <View key={tag} style={styles.tag}>
+                                        <Text style={styles.tagText}>{tag}</Text>
+                                        <TouchableOpacity onPress={() => removeTag(tag)}>
+                                            <Ionicons name="close" size={14} color={COLORS.text} />
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
+                    </View>
+
+                    {/* Images */}
+                    <View style={styles.section}>
+                        <Text style={styles.label}>Photos ({formData.images.length}/5)</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                            <View style={styles.imagesRow}>
+                                {formData.images.map((uri, index) => (
+                                    <View key={index} style={styles.imageContainer}>
+                                        <Image source={{ uri }} style={styles.imagePreview} />
+                                        <TouchableOpacity
+                                            style={styles.removeImageBtn}
+                                            onPress={() => removeImage(index)}
+                                        >
+                                            <Ionicons name="close" size={14} color={COLORS.card} />
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
+                                {formData.images.length < 5 && (
+                                    <TouchableOpacity style={styles.addImageBtn} onPress={pickImage}>
+                                        <Ionicons name="camera" size={24} color={COLORS.textMuted} />
+                                        <Text style={styles.addImageText}>Add Photo</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                        </ScrollView>
+                    </View>
+
                     <View style={{ height: 50 }} />
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -259,6 +394,55 @@ const styles = StyleSheet.create({
     },
     textArea: { height: 180, paddingTop: SPACING.md },
     charCount: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted, textAlign: 'right', marginTop: SPACING.xs },
+
+    // Price
+    priceInputContainer: {
+        flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.backgroundSecondary,
+        borderRadius: BORDER_RADIUS.lg, borderWidth: 1, borderColor: COLORS.border,
+        paddingHorizontal: SPACING.md,
+    },
+    priceCurrency: { fontSize: FONT_SIZES.lg, fontWeight: '600', color: COLORS.text, marginRight: SPACING.xs },
+    priceInput: { flex: 1, paddingVertical: SPACING.md, fontSize: FONT_SIZES.lg, color: COLORS.text },
+
+    // Location
+    locationInput: {
+        flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.backgroundSecondary,
+        borderRadius: BORDER_RADIUS.lg, borderWidth: 1, borderColor: COLORS.border,
+        paddingHorizontal: SPACING.md, gap: SPACING.sm,
+    },
+    locationTextInput: { flex: 1, paddingVertical: SPACING.md, fontSize: FONT_SIZES.md, color: COLORS.text },
+
+    // Tags
+    tagInputRow: { flexDirection: 'row', gap: SPACING.sm },
+    tagInput: {
+        flex: 1, backgroundColor: COLORS.backgroundSecondary, borderRadius: BORDER_RADIUS.lg,
+        paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm,
+        fontSize: FONT_SIZES.md, color: COLORS.text, borderWidth: 1, borderColor: COLORS.border,
+    },
+    addTagBtn: {
+        width: 40, height: 40, backgroundColor: COLORS.primary, borderRadius: BORDER_RADIUS.lg,
+        justifyContent: 'center', alignItems: 'center',
+    },
+    tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.xs, marginTop: SPACING.sm },
+    tag: {
+        flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: COLORS.backgroundSecondary,
+        paddingHorizontal: SPACING.sm, paddingVertical: 4, borderRadius: BORDER_RADIUS.full,
+    },
+    tagText: { fontSize: FONT_SIZES.xs, color: COLORS.text, fontWeight: '500' },
+
+    // Images
+    imagesRow: { flexDirection: 'row', gap: SPACING.sm, paddingRight: SPACING.lg },
+    imageContainer: { position: 'relative' },
+    imagePreview: { width: 80, height: 80, borderRadius: BORDER_RADIUS.md },
+    removeImageBtn: {
+        position: 'absolute', top: -6, right: -6, width: 20, height: 20,
+        backgroundColor: COLORS.error, borderRadius: 10, justifyContent: 'center', alignItems: 'center',
+    },
+    addImageBtn: {
+        width: 80, height: 80, borderRadius: BORDER_RADIUS.md, borderWidth: 2, borderStyle: 'dashed',
+        borderColor: COLORS.border, justifyContent: 'center', alignItems: 'center', gap: 4,
+    },
+    addImageText: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted },
 });
 
 export default CreatePostScreen;

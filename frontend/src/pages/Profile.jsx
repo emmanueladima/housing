@@ -1,20 +1,24 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useFeatureFlags } from '../contexts/FeatureFlagContext';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardBody, CardFooter } from '@heroui/card';
 import ProfileCreationWizard from '../components/Profile/ProfileCreationWizard';
 import lifestyleProfileService from '../services/lifestyleProfileService';
 import api from '../services/api';
-import { FiEdit3, FiCheckCircle, FiDollarSign, FiCalendar, FiSun, FiMoon, FiVolume2, FiShield, FiMail, FiMapPin, FiZap, FiCamera } from 'react-icons/fi';
-import ModernBackground from '../components/shared/ModernBackground';
-import LoadingSpinner from '../components/shared/LoadingSpinner';
+import {
+  FiEdit3, FiSettings, FiCamera, FiUsers, FiMapPin, FiArrowRight,
+  FiCheckCircle, FiHeart, FiMessageCircle, FiDollarSign, FiCalendar,
+  FiMoon, FiSun
+} from 'react-icons/fi';
 
 const Profile = () => {
   const { user, refreshUser } = useAuth();
   const { flags } = useFeatureFlags();
+  const navigate = useNavigate();
   const [showWizard, setShowWizard] = useState(false);
   const [lifestyleProfile, setLifestyleProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
-  const [boosting, setBoosting] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const photoInputRef = useRef(null);
 
@@ -48,11 +52,9 @@ const Profile = () => {
     try {
       const formData = new FormData();
       formData.append('photo', file);
-
       await api.put('/auth/profile-photo', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-
       await refreshUser();
     } catch (error) {
       console.error('Error uploading photo:', error);
@@ -62,77 +64,40 @@ const Profile = () => {
     }
   };
 
-  const calculateCompletion = () => {
-    if (!lifestyleProfile) return 0;
-
-    let score = 0;
-    const total = 8; // Total optional fields to complete
-
-    // Count completed fields
-    if (user.profilePhoto || user.avatar || lifestyleProfile.photo) score++;
-    if (lifestyleProfile.bio) score++;
-    if (lifestyleProfile.age) score++;
-    if (lifestyleProfile.gender) score++;
-    if (lifestyleProfile.cleanliness && lifestyleProfile.cleanliness !== 5) score++; // Default is 5
-    if (lifestyleProfile.noiseLevel && lifestyleProfile.noiseLevel !== 5) score++; // Default is 5
-    if (lifestyleProfile.vibeTags && lifestyleProfile.vibeTags.length > 0) score++;
-    if (lifestyleProfile.budgetMin > 0 || lifestyleProfile.budgetMax < 2000) score++;
-
-    return Math.round((score / total) * 100);
-  };
-
   if (!user) return null;
 
-  const habits = {
-    sleep: lifestyleProfile?.sleepTime > "23:00" ? 'Night Owl' : 'Early Bird',
-    noise: lifestyleProfile?.noiseLevel <= 2 ? 'Quiet' : 'Moderate',
-    cleanliness: lifestyleProfile?.cleanliness >= 4 ? 'Clean' : 'Average'
-  };
-
-  const habitColors = {
-    sleep: 'bg-amber-100 text-amber-600',
-    noise: 'bg-blue-100 text-blue-600',
-    cleanliness: 'bg-emerald-100 text-emerald-600'
-  };
+  // Get lifestyle labels
+  const sleepLabel = lifestyleProfile?.sleepTime > "23:00" ? 'Night Owl' : 'Early Bird';
+  const noiseLabel = lifestyleProfile?.noiseLevel <= 3 ? 'Quiet' : lifestyleProfile?.noiseLevel <= 6 ? 'Moderate' : 'Social';
+  const cleanLabel = lifestyleProfile?.cleanliness >= 7 ? 'Very Clean' : lifestyleProfile?.cleanliness >= 4 ? 'Average' : 'Relaxed';
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Header with Orange Gradient & Orbs */}
-      <div className="relative overflow-hidden pt-20 sm:pt-32 pb-16 sm:pb-24">
-        <ModernBackground />
+    <div className="min-h-screen relative pb-24">
+      {/* Header */}
+      <div className="relative pt-32 pb-8">
+      </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Profile Card - Horizontal Layout */}
-          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-            {/* Gray Header Band */}
-            <div className="bg-gray-100 h-16 sm:h-20 relative">
-              {/* Edit Button */}
-              <button
-                onClick={() => setShowWizard(true)}
-                className="absolute top-3 sm:top-4 right-3 sm:right-4 flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-gray-700 rounded-lg sm:rounded-xl font-semibold hover:bg-gray-50 transition-all shadow-md border border-gray-200 text-sm sm:text-base"
-              >
-                <FiEdit3 size={14} />
-                <span className="hidden sm:inline">Edit Profile</span>
-                <span className="sm:hidden">Edit</span>
-              </button>
-            </div>
-
-            {/* Main Content */}
-            <div className="px-4 sm:px-6 md:px-8 pb-6 sm:pb-8">
-              {/* Photo & Basic Info Row */}
-              <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6 -mt-10 sm:-mt-12 mb-6 sm:mb-8">
-                {/* Photo */}
-                <div className="relative shrink-0 group">
-                  <img
-                    src={user.profilePhoto || user.avatar || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=ea580c&color=fff&size=128`}
-                    alt={`${user.firstName} ${user.lastName}`}
-                    className="w-20 h-20 sm:w-28 sm:h-28 rounded-xl sm:rounded-2xl object-cover border-4 border-white shadow-xl"
-                  />
-                  {/* Photo Upload Overlay */}
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-4 relative z-10">
+        {/* Main Profile Card */}
+        <Card isBlurred className="w-full border border-white/30 shadow-xl rounded-[3rem] overflow-hidden bg-white/20 backdrop-blur-xl">
+          <CardBody className="p-6">
+            <div className="flex flex-col sm:flex-row gap-6">
+              {/* Left Column - Avatar & Basic Info */}
+              <div className="flex-shrink-0">
+                {/* Profile Photo */}
+                <div className="relative group mb-4">
+                  <div className="w-24 h-24 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white">
+                    <img
+                      src={user.profilePhoto || user.avatar || `https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=ea580c&color=fff&size=96`}
+                      alt={`${user.firstName} ${user.lastName}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <button
                     onClick={() => photoInputRef.current?.click()}
                     disabled={uploadingPhoto}
-                    className="absolute inset-0 bg-black/40 rounded-xl sm:rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    className="absolute inset-0 w-24 h-24 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                   >
                     {uploadingPhoto ? (
                       <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent" />
@@ -147,168 +112,190 @@ const Profile = () => {
                     onChange={handlePhotoUpload}
                     className="hidden"
                   />
-                  {user.isVerified && (
-                    <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 bg-green-500 w-5 h-5 sm:w-7 sm:h-7 rounded-md sm:rounded-lg flex items-center justify-center border-2 sm:border-3 border-white shadow">
-                      <FiCheckCircle className="text-white" size={12} />
-                    </div>
-                  )}
+
+                  {/* Edit Icon */}
+                  <button
+                    onClick={() => setShowWizard(true)}
+                    className="absolute -top-1 -right-1 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-orange-600 transition-all"
+                  >
+                    <FiEdit3 size={14} />
+                  </button>
                 </div>
 
                 {/* Name & Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
-                    <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 truncate">{user.firstName} {user.lastName}</h1>
-                    {lifestyleProfile?.age && (
-                      <span className="text-lg sm:text-xl text-gray-500 font-medium">, {lifestyleProfile.age}</span>
-                    )}
-
-                    {/* Role Chip */}
-                    {user.role === 'landlord' ? (
-                      <span className="flex items-center gap-1 px-2.5 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold border border-purple-200">
-                        🏢 Landlord
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 px-2.5 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold border border-orange-200">
-                        🎓 Student
-                      </span>
-                    )}
-
-                    {user.isVerified && (
-                      <span className="flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold border border-blue-100">
-                        <FiShield size={12} />
-                        Verified
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Landlord Info */}
-                  {user.role === 'landlord' && user.landlordProfile && (
-                    <div className="mb-2 text-gray-600 font-medium flex items-center gap-2">
-                      <span>{user.landlordProfile.companyName}</span>
-                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                      <span>{user.landlordProfile.propertiesCount} Active Listings</span>
-                    </div>
-                  )}
-
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-gray-500 text-sm sm:text-base">
-                    {user.role === 'student' && user.major && <span className="font-medium truncate">{user.major}</span>}
-                    {lifestyleProfile?.gender && (
-                      <span className="capitalize">{lifestyleProfile.gender}</span>
-                    )}
-                    {user.email && (
-                      <span className="flex items-center gap-1 truncate">
-                        <FiMail size={12} />
-                        <span className="hidden sm:inline">{user.email}</span>
-                        <span className="sm:hidden">{user.email.split('@')[0]}...</span>
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Completion Score */}
-                <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-green-50 text-green-700 rounded-lg sm:rounded-xl border border-green-100">
-                  <span className="font-black text-lg sm:text-xl">{calculateCompletion()}%</span>
-                  <span className="text-xs sm:text-sm font-semibold">Complete</span>
-                </div>
-
-                {/* Boost Profile Button - Hidden until payment integration */}
-              </div>
-
-              {/* Stats Row */}
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
-                <div className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-100">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                    <FiDollarSign className="text-emerald-500" size={14} />
-                    <p className="text-xs text-gray-500 font-bold uppercase">Budget</p>
-                  </div>
-                  <p className="text-base sm:text-xl font-bold text-gray-900">
-                    ${lifestyleProfile?.budgetMin || 500} - ${lifestyleProfile?.budgetMax || 1200}
+                <h1 className="text-xl font-black text-white">
+                  {user.firstName} {user.lastName}
+                </h1>
+                <p className="text-white/70 text-sm">
+                  {lifestyleProfile?.major || (user.role === 'landlord' ? 'Landlord' : 'Student')}
+                </p>
+                {lifestyleProfile?.lookingFor?.location && (
+                  <p className="text-white/60 text-xs flex items-center gap-1 mt-1">
+                    <FiMapPin size={12} />
+                    {lifestyleProfile.lookingFor.location}
                   </p>
-                </div>
-                <div className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-100">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                    <FiCalendar className="text-blue-500" size={14} />
-                    <p className="text-xs text-gray-500 font-bold uppercase">Move-in</p>
-                  </div>
-                  <p className="text-base sm:text-xl font-bold text-gray-900">
-                    {lifestyleProfile?.lookingFor?.moveInDate
-                      ? new Date(lifestyleProfile.lookingFor.moveInDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                      : 'Flexible'}
-                  </p>
-                </div>
-                <div className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-100 col-span-2">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                    <FiMapPin className="text-orange-500" size={14} />
-                    <p className="text-xs text-gray-500 font-bold uppercase">Looking In</p>
-                  </div>
-                  <p className="text-base sm:text-xl font-bold text-gray-900">
-                    {lifestyleProfile?.lookingFor?.location || 'Near Campus'}
-                  </p>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={() => setShowWizard(true)}
+                    className="px-4 py-2 bg-white text-gray-900 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors"
+                  >
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={() => navigate('/settings')}
+                    className="px-4 py-2 bg-white/10 border-2 border-white/30 text-white rounded-full font-bold text-sm hover:bg-white/20 hover:border-white/50 transition-colors"
+                  >
+                    Settings
+                  </button>
                 </div>
               </div>
 
-              {/* Lifestyle Section */}
-              <div className="p-4 sm:p-6 bg-gray-50 rounded-xl sm:rounded-2xl border border-gray-100 mb-6 sm:mb-8">
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-5">Lifestyle</h3>
-                <div className="grid grid-cols-3 gap-3 sm:gap-6">
-                  <div className="text-center">
-                    <div className={`w-10 h-10 sm:w-14 sm:h-14 mx-auto rounded-lg sm:rounded-xl flex items-center justify-center mb-1 sm:mb-2 ${habitColors.sleep}`}>
-                      {habits.sleep === 'Night Owl' ? <FiMoon size={18} /> : <FiSun size={18} />}
-                    </div>
-                    <p className="text-xs sm:text-sm font-bold text-gray-700">{habits.sleep}</p>
-                    <p className="text-xs text-gray-400 hidden sm:block">Sleep</p>
-                  </div>
-                  <div className="text-center">
-                    <div className={`w-10 h-10 sm:w-14 sm:h-14 mx-auto rounded-lg sm:rounded-xl flex items-center justify-center mb-1 sm:mb-2 ${habitColors.noise}`}>
-                      <FiVolume2 size={18} />
-                    </div>
-                    <p className="text-xs sm:text-sm font-bold text-gray-700">{habits.noise}</p>
-                    <p className="text-xs text-gray-400 hidden sm:block">Noise</p>
-                  </div>
-                  <div className="text-center">
-                    <div className={`w-10 h-10 sm:w-14 sm:h-14 mx-auto rounded-lg sm:rounded-xl flex items-center justify-center mb-1 sm:mb-2 ${habitColors.cleanliness}`}>
-                      <FiCheckCircle size={18} />
-                    </div>
-                    <p className="text-xs sm:text-sm font-bold text-gray-700">{habits.cleanliness}</p>
-                    <p className="text-xs text-gray-400 hidden sm:block">Cleanliness</p>
+              {/* Right Column - Vibes & Stats Bubbles */}
+              <div className="flex-1 sm:pt-4">
+                {/* Vibes Section */}
+                <div className="mb-4">
+                  <span className="text-white/60 text-xs flex items-center gap-1 mb-2">
+                    Vibes <FiHeart size={12} />
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {lifestyleProfile?.vibeTags?.slice(0, 5).map((vibe, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1.5 bg-white/20 border border-white/30 text-white rounded-full text-xs font-medium"
+                      >
+                        {vibe}
+                      </span>
+                    ))}
+                    {(!lifestyleProfile?.vibeTags || lifestyleProfile.vibeTags.length === 0) && (
+                      <>
+                        <span className="px-3 py-1.5 bg-white/10 border border-white/20 text-white/80 rounded-full text-xs font-medium">
+                          {sleepLabel}
+                        </span>
+                        <span className="px-3 py-1.5 bg-white/10 border border-white/20 text-white/80 rounded-full text-xs font-medium">
+                          {noiseLabel}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
 
-                {/* Compatibility Test Button */}
-                {(!lifestyleProfile?.compatibilityAnswers || Object.keys(lifestyleProfile.compatibilityAnswers).length === 0) && (
-                  <div className="mt-8 pt-6 border-t border-gray-200 text-center">
-                    <button
-                      onClick={() => window.location.href = '/compatibility-test'}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-white text-orange-600 rounded-xl font-bold hover:bg-orange-50 transition-all border-2 border-orange-100 hover:border-orange-200 shadow-sm"
-                    >
-                      <FiCheckCircle />
-                      Take Compatibility Test
-                    </button>
+                {/* Stats Bubbles - Inside Card */}
+                <div className="flex flex-wrap gap-3">
+                  {/* Budget */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-green-500/20 border border-green-500/30 rounded-full">
+                    <FiDollarSign className="text-green-300" size={16} />
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-green-300 uppercase leading-none">Budget</span>
+                      <span className="text-sm font-bold text-green-100 leading-none mt-0.5">
+                        ${lifestyleProfile?.budgetMin || 500}-${lifestyleProfile?.budgetMax || 2000}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Move-in */}
+                  {/* Move-in */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-500/30 rounded-full">
+                    <FiCalendar className="text-blue-300" size={16} />
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-blue-300 uppercase leading-none">Move-in</span>
+                      <span className="text-sm font-bold text-blue-100 leading-none mt-0.5">
+                        {lifestyleProfile?.lookingFor?.moveInDate
+                          ? new Date(lifestyleProfile.lookingFor.moveInDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                          : 'Flexible'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Cleanliness */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full">
+                    <FiCheckCircle className="text-purple-300" size={16} />
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-purple-300 uppercase leading-none">Cleanliness</span>
+                      <span className="text-sm font-bold text-purple-100 leading-none mt-0.5">{cleanLabel}</span>
+                    </div>
+                  </div>
+
+                  {/* Noise */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-pink-500/20 border border-pink-500/30 rounded-full">
+                    <FiMessageCircle className="text-pink-300" size={16} />
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-pink-300 uppercase leading-none">Noise</span>
+                      <span className="text-sm font-bold text-pink-100 leading-none mt-0.5">{noiseLabel}</span>
+                    </div>
+                  </div>
+
+                  {/* Sleep */}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/20 border border-amber-500/30 rounded-full">
+                    {lifestyleProfile?.sleepTime > "23:00" ? <FiMoon className="text-amber-300" size={16} /> : <FiSun className="text-amber-300" size={16} />}
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-amber-300 uppercase leading-none">Sleep</span>
+                      <span className="text-sm font-bold text-amber-100 leading-none mt-0.5">{sleepLabel}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bio */}
+                {(lifestyleProfile?.bio || user.bio) && (
+                  <div className="mt-4 p-3 bg-white/10 rounded-xl border border-white/20">
+                    <p className="text-white/80 text-sm leading-relaxed line-clamp-3">
+                      "{lifestyleProfile?.bio || user.bio}"
+                    </p>
                   </div>
                 )}
               </div>
-
-              {/* Bio */}
-              {(lifestyleProfile?.bio || user.bio) && (
-                <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100 mb-8">
-                  <h3 className="text-lg font-bold text-gray-900 mb-3">About Me</h3>
-                  <p className="text-gray-600 leading-relaxed">{lifestyleProfile?.bio || user.bio}</p>
-                </div>
-              )}
-
-              {/* Vibe Tags */}
-              {lifestyleProfile?.vibeTags && lifestyleProfile.vibeTags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {lifestyleProfile.vibeTags.map((tag, i) => (
-                    <span key={i} className="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-sm font-semibold border border-orange-100">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
-          </div>
-        </div>
+          </CardBody>
+
+          {/* Action Cards Footer */}
+          <CardFooter className="bg-white/10 border-t border-white/20 p-4 rounded-b-[3rem]">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
+              {/* Find Roommates Card */}
+              <button
+                onClick={() => navigate('/roommates')}
+                className="flex items-center justify-between p-3 bg-white/10 rounded-xl border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all group text-left"
+              >
+                <div>
+                  <h4 className="font-bold text-white text-sm">Find Roommates</h4>
+                  <p className="text-xs text-white/60">Browse matches</p>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white group-hover:bg-white/30 transition-colors">
+                  <FiArrowRight size={16} />
+                </div>
+              </button>
+
+              {/* Messages Card */}
+              <button
+                onClick={() => navigate('/messages')}
+                className="flex items-center justify-between p-3 bg-white/10 rounded-xl border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all group text-left"
+              >
+                <div>
+                  <h4 className="font-bold text-white text-sm">Messages</h4>
+                  <p className="text-xs text-white/60">Chat with others</p>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white group-hover:bg-white/30 transition-colors">
+                  <FiArrowRight size={16} />
+                </div>
+              </button>
+
+              {/* Compatibility Test Card */}
+              <button
+                onClick={() => navigate('/compatibility-test')}
+                className="flex items-center justify-between p-3 bg-white/10 rounded-xl border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all group text-left"
+              >
+                <div>
+                  <h4 className="font-bold text-white text-sm">Take Quiz</h4>
+                  <p className="text-xs text-white/60">Improve score</p>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white group-hover:bg-white/30 transition-colors">
+                  <FiArrowRight size={16} />
+                </div>
+              </button>
+            </div>
+          </CardFooter>
+        </Card>
       </div>
 
       {/* Modals */}

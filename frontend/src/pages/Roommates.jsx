@@ -5,12 +5,14 @@ import api from '../services/api';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import GroupCard from '../components/Roommates/GroupCard';
 import RoommateCard from '../components/Roommates/RoommateCard';
+import { Card, CardBody } from "@heroui/card";
 import GroupCreationWizard from '../components/Roommates/GroupCreationWizard';
 import GroupDetailsModal from '../components/Roommates/GroupDetailsModal';
 import RoommateDetailsModal from '../components/Roommates/RoommateDetailsModal';
 import lifestyleProfileService from '../services/lifestyleProfileService';
 import roommateGroupService from '../services/roommateGroupService';
 import ModernBackground from '../components/shared/ModernBackground';
+import GlassCard from '../components/shared/GlassCard';
 
 import { useAuth } from '../contexts/AuthContext';
 
@@ -305,19 +307,24 @@ const Roommates = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     {/* Compatibility Test Banner */}
                     {!hasTakenTest && (
-                        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-8 mb-10 text-white flex flex-col md:flex-row items-center justify-between shadow-xl relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-                            <div className="relative z-10 mb-6 md:mb-0">
-                                <h3 className="text-2xl font-black mb-2">Find your perfect match! 🧩</h3>
-                                <p className="text-indigo-100 text-lg">Take our 2-minute compatibility test to see who you vibe with.</p>
+                        <GlassCard
+                            className="mb-8 bg-gradient-to-br from-orange-500 to-red-600 border-none text-white"
+                            padding="none"
+                            isHoverable={false}
+                        >
+                            <div className="px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div>
+                                    <h3 className="text-lg font-bold mb-1 text-white">Find your perfect match!</h3>
+                                    <p className="text-white/90 text-sm">Take our 2-minute compatibility test to see who you vibe with.</p>
+                                </div>
+                                <button
+                                    onClick={() => navigate('/compatibility-test')}
+                                    className="px-6 py-2.5 bg-white text-orange-600 rounded-xl font-bold hover:bg-white/90 transition-all shadow-md whitespace-nowrap text-sm"
+                                >
+                                    Take Test
+                                </button>
                             </div>
-                            <button
-                                onClick={() => navigate('/compatibility-test')}
-                                className="relative z-10 px-8 py-3 bg-white text-indigo-600 rounded-xl font-bold hover:bg-indigo-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap"
-                            >
-                                Take Test
-                            </button>
-                        </div>
+                        </GlassCard>
                     )}
 
                     {/* Filter Bar */}

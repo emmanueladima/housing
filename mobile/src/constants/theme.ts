@@ -1,6 +1,8 @@
-// Theme constants - WHITE theme with ORANGE accents throughout
+// Theme constants - Dynamic theme with ORANGE accents throughout
+import { useTheme } from '../contexts/ThemeContext';
 
-export const COLORS = {
+// Light theme colors
+export const LIGHT_COLORS = {
     // Primary brand color (used for accents, buttons, active states)
     primary: '#DB4A2B',
     primaryLight: '#E86B4F',
@@ -43,8 +45,70 @@ export const COLORS = {
     black40: 'rgba(0, 0, 0, 0.4)',
 
     // Orange accents (for pills, badges, highlights)
-    accentBg: 'rgba(219, 74, 43, 0.1)',     // Light orange background
-    accentBgStrong: 'rgba(219, 74, 43, 0.15)', // Slightly stronger
+    accentBg: 'rgba(219, 74, 43, 0.1)',
+    accentBgStrong: 'rgba(219, 74, 43, 0.15)',
+};
+
+// Dark theme colors
+export const DARK_COLORS = {
+    // Primary brand color
+    primary: '#DB4A2B',
+    primaryLight: '#E86B4F',
+    primaryDark: '#C43D22',
+
+    // Dark backgrounds
+    background: '#0A0A0A',
+    backgroundSecondary: '#141414',
+    backgroundTertiary: '#1F1F1F',
+
+    // Card and surface colors
+    card: '#1A1A1A',
+    cardElevated: '#252525',
+
+    // Text colors
+    text: '#FFFFFF',
+    textSecondary: '#A0A0A0',
+    textMuted: '#666666',
+
+    // Border colors
+    border: '#2A2A2A',
+    borderLight: '#333333',
+
+    // Status colors
+    success: '#22C55E',
+    warning: '#F59E0B',
+    error: '#EF4444',
+    info: '#3B82F6',
+
+    // For liked/saved state
+    heart: '#EF4444',
+
+    // White with opacity
+    white60: 'rgba(255, 255, 255, 0.6)',
+    white80: 'rgba(255, 255, 255, 0.8)',
+    white90: 'rgba(255, 255, 255, 0.9)',
+
+    // Black with opacity
+    black10: 'rgba(255, 255, 255, 0.1)',
+    black40: 'rgba(255, 255, 255, 0.4)',
+
+    // Orange accents
+    accentBg: 'rgba(219, 74, 43, 0.2)',
+    accentBgStrong: 'rgba(219, 74, 43, 0.25)',
+};
+
+// Default export for backwards compatibility (light theme)
+export const COLORS = LIGHT_COLORS;
+
+// Hook to get dynamic colors based on theme
+export const useColors = () => {
+    try {
+        const { isDark } = useTheme();
+        return isDark ? DARK_COLORS : LIGHT_COLORS;
+    } catch {
+        // Fallback if used outside ThemeProvider
+        return LIGHT_COLORS;
+    }
 };
 
 export const SPACING = {

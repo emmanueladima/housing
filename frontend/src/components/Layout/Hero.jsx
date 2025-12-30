@@ -32,8 +32,6 @@ const Hero = () => {
   return (
     <>
       <div className="relative overflow-hidden min-h-[100svh] md:min-h-[85vh] flex items-center">
-        {/* Background */}
-        <ModernBackground />
 
         {/* Content */}
         <div className="relative z-10 w-full">

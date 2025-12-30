@@ -3,7 +3,7 @@ import { FiStar, FiThumbsUp, FiFlag, FiChevronDown, FiChevronUp, FiUser, FiCalen
 import reviewService from '../../services/reviewService';
 import { useAuth } from '../../contexts/AuthContext';
 
-const StarRating = ({ rating, size = 16, interactive = false, onChange }) => {
+const StarRating = ({ rating, size = 16, interactive = false, onChange, darkMode = false }) => {
     const [hovered, setHovered] = useState(0);
 
     return (
@@ -22,7 +22,7 @@ const StarRating = ({ rating, size = 16, interactive = false, onChange }) => {
                         size={size}
                         className={`${star <= (hovered || rating)
                             ? 'fill-yellow-400 text-yellow-400'
-                            : 'text-gray-300'
+                            : darkMode ? 'text-gray-400' : 'text-gray-300'
                             } transition-colors`}
                     />
                 </button>
@@ -31,7 +31,7 @@ const StarRating = ({ rating, size = 16, interactive = false, onChange }) => {
     );
 };
 
-const ReviewCard = ({ review, onReport }) => {
+const ReviewCard = ({ review, onReport, darkMode = false }) => {
     const [showResponse, setShowResponse] = useState(false);
     const createdDate = new Date(review.createdAt).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -40,7 +40,7 @@ const ReviewCard = ({ review, onReport }) => {
     });
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
+        <div className={`${darkMode ? 'bg-white/10 border-white/10' : 'bg-white border-gray-200'} rounded-2xl border p-5 hover:shadow-md transition-shadow`}>
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -49,7 +49,7 @@ const ReviewCard = ({ review, onReport }) => {
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
-                            <span className="font-bold text-gray-900">
+                            <span className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                                 {review.reviewer?.firstName} {review.reviewer?.lastName?.[0]}.
                             </span>
                             {review.verifiedStay && (
@@ -59,17 +59,17 @@ const ReviewCard = ({ review, onReport }) => {
                                 </span>
                             )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <div className={`flex items-center gap-2 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-500'}`}>
                             <FiCalendar size={12} />
                             {createdDate}
                         </div>
                     </div>
                 </div>
-                <StarRating rating={review.rating} />
+                <StarRating rating={review.rating} darkMode={darkMode} />
             </div>
 
             {/* Review Text */}
-            <p className="text-gray-700 leading-relaxed mb-4">{review.reviewText}</p>
+            <p className={`${darkMode ? 'text-gray-200' : 'text-gray-700'} leading-relaxed mb-4`}>{review.reviewText}</p>
 
             {/* Photos */}
             {review.photos && review.photos.length > 0 && (
@@ -87,31 +87,31 @@ const ReviewCard = ({ review, onReport }) => {
 
             {/* Landlord Response */}
             {review.response?.text && (
-                <div className="bg-gray-50 rounded-xl p-4 border-l-4 border-orange-400">
+                <div className={`${darkMode ? 'bg-white/5 border-orange-500/50' : 'bg-gray-50 border-orange-400'} rounded-xl p-4 border-l-4`}>
                     <button
                         onClick={() => setShowResponse(!showResponse)}
                         className="flex items-center justify-between w-full text-left"
                     >
-                        <span className="text-sm font-bold text-gray-700">Response from Landlord</span>
-                        {showResponse ? <FiChevronUp /> : <FiChevronDown />}
+                        <span className={`text-sm font-bold ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>Response from Landlord</span>
+                        {showResponse ? <FiChevronUp className={darkMode ? 'text-white' : ''} /> : <FiChevronDown className={darkMode ? 'text-white' : ''} />}
                     </button>
                     {showResponse && (
-                        <p className="mt-3 text-sm text-gray-600">{review.response.text}</p>
+                        <p className={`mt-3 text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{review.response.text}</p>
                     )}
                 </div>
             )}
 
             {/* Actions */}
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+            <div className={`flex items-center justify-between mt-4 pt-4 border-t ${darkMode ? 'border-white/10' : 'border-gray-100'}`}>
                 <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 text-gray-500 hover:text-orange-500 transition-colors text-sm">
+                    <button className={`flex items-center gap-2 ${darkMode ? 'text-gray-400 hover:text-orange-400' : 'text-gray-500 hover:text-orange-500'} transition-colors text-sm`}>
                         <FiThumbsUp size={14} />
                         <span>Helpful ({review.helpful || 0})</span>
                     </button>
                 </div>
                 <button
                     onClick={() => onReport?.(review._id)}
-                    className="flex items-center gap-1 text-gray-400 hover:text-red-500 transition-colors text-sm"
+                    className={`flex items-center gap-1 ${darkMode ? 'text-gray-400 hover:text-red-400' : 'text-gray-400 hover:text-red-500'} transition-colors text-sm`}
                 >
                     <FiFlag size={14} />
                     Report
@@ -206,7 +206,7 @@ const WriteReviewForm = ({ listingId, onSubmit, onCancel }) => {
     );
 };
 
-const ListingReviews = ({ listingId, averageRating = 0, totalReviews = 0 }) => {
+const ListingReviews = ({ listingId, averageRating = 0, totalReviews = 0, darkMode = false }) => {
     const { user } = useAuth();
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -254,13 +254,13 @@ const ListingReviews = ({ listingId, averageRating = 0, totalReviews = 0 }) => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                    <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'} flex items-center gap-3`}>
                         Reviews
                         <span className="flex items-center gap-1 text-lg">
                             <FiStar className="fill-yellow-400 text-yellow-400" />
                             {averageRating.toFixed(1)}
                         </span>
-                        <span className="text-sm font-normal text-gray-500">
+                        <span className={`text-sm font-normal ${darkMode ? 'text-gray-200' : 'text-gray-500'}`}>
                             ({totalReviews} {totalReviews === 1 ? 'review' : 'reviews'})
                         </span>
                     </h2>
@@ -290,15 +290,15 @@ const ListingReviews = ({ listingId, averageRating = 0, totalReviews = 0 }) => {
                     <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
                 </div>
             ) : reviews.length === 0 ? (
-                <div className="text-center py-10 bg-gray-50 rounded-2xl">
-                    <FiStar className="mx-auto text-gray-300 mb-3" size={40} />
-                    <p className="text-gray-500 font-medium">No reviews yet</p>
-                    <p className="text-gray-400 text-sm">Be the first to share your experience!</p>
+                <div className={`text-center py-10 ${darkMode ? 'bg-white/5' : 'bg-gray-50'} rounded-2xl`}>
+                    <FiStar className={`mx-auto ${darkMode ? 'text-gray-600' : 'text-gray-300'} mb-3`} size={40} />
+                    <p className={`${darkMode ? 'text-gray-300' : 'text-gray-500'} font-medium`}>No reviews yet</p>
+                    <p className={`${darkMode ? 'text-gray-500' : 'text-gray-400'} text-sm`}>Be the first to share your experience!</p>
                 </div>
             ) : (
                 <div className="space-y-4">
                     {reviews.map((review) => (
-                        <ReviewCard key={review._id} review={review} onReport={handleReport} />
+                        <ReviewCard key={review._id} review={review} onReport={handleReport} darkMode={darkMode} />
                     ))}
                 </div>
             )}

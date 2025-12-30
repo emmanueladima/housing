@@ -7,59 +7,103 @@ const EXAMPLE_EVENTS = [
     { id: 'ex3', title: 'Game Night', date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], type: 'social', description: 'Board games and pizza!', isExample: true },
 ];
 
-const SharedTimeline = () => {
-    const [events, setEvents] = useState([]);
+const SharedTimeline = ({
+    events: propEvents = [],
+    onAddEvent,
+    onDeleteEvent,
+    isPersonal = false
+}) => {
+    const [localEvents, setLocalEvents] = useState([]);
+    const [isLoaded, setIsLoaded] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [newEvent, setNewEvent] = useState({ title: '', date: '', type: 'social', description: '' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Use prop events for group mode, localStorage for personal mode
+    const events = isPersonal ? localEvents : (propEvents.length > 0 ? propEvents : EXAMPLE_EVENTS);
 
     useEffect(() => {
-        // Load events from localStorage
-        const saved = localStorage.getItem('timeline_events');
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            if (parsed.length > 0) {
-                setEvents(parsed);
+        if (isPersonal) {
+            // Load events from localStorage for personal use
+            const saved = localStorage.getItem('timeline_events');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.length > 0) {
+                    setLocalEvents(parsed);
+                } else {
+                    setLocalEvents(EXAMPLE_EVENTS);
+                }
             } else {
-                setEvents(EXAMPLE_EVENTS);
+                setLocalEvents(EXAMPLE_EVENTS);
             }
-        } else {
-            setEvents(EXAMPLE_EVENTS);
         }
-    }, []);
+        setIsLoaded(true);
+    }, [isPersonal]);
 
-    const saveEvents = (newEvents) => {
+    const saveLocalEvents = (newEvents) => {
         // Filter out example events before saving
         const userEvents = newEvents.filter(e => !e.isExample);
         localStorage.setItem('timeline_events', JSON.stringify(userEvents));
     };
 
-    const handleAddEvent = () => {
+    const handleAddEvent = async () => {
         if (!newEvent.title || !newEvent.date) return;
 
-        const event = {
-            id: Date.now().toString(),
-            ...newEvent,
-            isExample: false
-        };
+        setIsSubmitting(true);
 
-        // Replace all examples with user events
-        const userEvents = events.filter(e => !e.isExample);
-        const updated = [...userEvents, event].sort((a, b) => new Date(a.date) - new Date(b.date));
+        try {
+            if (isPersonal) {
+                // Personal mode: use localStorage
+                const event = {
+                    id: Date.now().toString(),
+                    ...newEvent,
+                    isExample: false
+                };
 
-        setEvents(updated);
-        saveEvents(updated);
-        setShowModal(false);
-        setNewEvent({ title: '', date: '', type: 'social', description: '' });
+                const userEvents = localEvents.filter(e => !e.isExample);
+                const updated = [...userEvents, event].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                setLocalEvents(updated);
+                saveLocalEvents(updated);
+            } else if (onAddEvent) {
+                // Group mode: use API callback
+                await onAddEvent({
+                    title: newEvent.title,
+                    date: newEvent.date,
+                    type: newEvent.type,
+                    description: newEvent.description
+                });
+            }
+
+            setShowModal(false);
+            setNewEvent({ title: '', date: '', type: 'social', description: '' });
+        } catch (error) {
+            console.error('Failed to add event:', error);
+            alert('Failed to add event. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    const handleDeleteEvent = (id) => {
-        const updated = events.filter(e => e.id !== id);
-        if (updated.length === 0) {
-            setEvents(EXAMPLE_EVENTS);
-            localStorage.removeItem('timeline_events');
-        } else {
-            setEvents(updated);
-            saveEvents(updated);
+    const handleDeleteEvent = async (id) => {
+        try {
+            if (isPersonal) {
+                // Personal mode: use localStorage
+                const updated = localEvents.filter(e => e.id !== id);
+                if (updated.length === 0) {
+                    setLocalEvents(EXAMPLE_EVENTS);
+                    localStorage.removeItem('timeline_events');
+                } else {
+                    setLocalEvents(updated);
+                    saveLocalEvents(updated);
+                }
+            } else if (onDeleteEvent) {
+                // Group mode: use API callback
+                await onDeleteEvent(id);
+            }
+        } catch (error) {
+            console.error('Failed to delete event:', error);
+            alert('Failed to delete event. Please try again.');
         }
     };
 
@@ -82,18 +126,19 @@ const SharedTimeline = () => {
     };
 
     const hasUserEvents = events.some(e => !e.isExample);
+    const displayEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return (
         <div className="space-y-6">
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-lg font-bold text-gray-900">Shared Timeline</h2>
-                    <p className="text-gray-500 text-sm">Upcoming events and important dates.</p>
+                    <h2 className="text-lg font-bold text-white">Shared Timeline</h2>
+                    <p className="text-white/80 text-sm">Upcoming events and important dates.</p>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-white text-gray-900 rounded-xl font-bold hover:bg-white/90 transition-colors shadow-lg"
                 >
                     <FiPlus /> Add Event
                 </button>
@@ -101,49 +146,56 @@ const SharedTimeline = () => {
 
             {/* Info Banner for Example Events */}
             {!hasUserEvents && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-sm">
+                <div className="p-3 bg-amber-500/20 border border-amber-500/30 rounded-xl text-amber-200 text-sm backdrop-blur-md">
                     <strong>Example Timeline:</strong> Add your own events to replace these examples.
                 </div>
             )}
 
             {/* Timeline Feed */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <div className="relative border-l-2 border-gray-100 ml-3 space-y-8">
-                    {events.map((event) => {
-                        const colors = getColorClasses(event.type);
-                        return (
-                            <div key={event.id} className={`relative pl-8 ${event.isExample ? 'opacity-60' : ''}`}>
-                                {/* Dot */}
-                                <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-white ${colors.bg} shadow-sm`}></div>
+            {!isLoaded ? (
+                <div className="h-40 flex items-center justify-center">
+                    <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+                </div>
+            ) : (
+                <div className="bg-white/60 backdrop-blur-xl rounded-xl border border-white/40 shadow-sm p-6 animate-fade-in">
+                    <div className="relative border-l-2 border-gray-200 ml-3 space-y-8">
+                        {displayEvents.map((event) => {
+                            const colors = getColorClasses(event.type);
+                            const eventId = event._id || event.id;
+                            return (
+                                <div key={eventId} className={`relative pl-8 ${event.isExample ? 'opacity-60' : ''}`}>
+                                    {/* Dot */}
+                                    <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-white ${colors.bg} shadow-sm`}></div>
 
-                                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                                    <div className="flex-1">
-                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${colors.light} ${colors.text} mb-1`}>
-                                            {getIcon(event.type)} {event.type}
-                                        </span>
-                                        <h3 className="text-lg font-bold text-gray-900">{event.title}</h3>
-                                        <p className="text-gray-600 text-sm mt-1">{event.description}</p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="flex items-center gap-2 text-gray-500 text-sm font-medium bg-gray-50 px-3 py-1 rounded-lg">
-                                            <FiClock size={14} />
-                                            {new Date(event.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                                        <div className="flex-1">
+                                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${colors.light} ${colors.text} mb-1 border border-black/5`}>
+                                                {getIcon(event.type)} {event.type}
+                                            </span>
+                                            <h3 className="text-lg font-bold text-gray-900">{event.title}</h3>
+                                            <p className="text-gray-600 text-sm mt-1">{event.description}</p>
                                         </div>
-                                        {!event.isExample && (
-                                            <button
-                                                onClick={() => handleDeleteEvent(event.id)}
-                                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                            >
-                                                <FiTrash2 size={14} />
-                                            </button>
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 text-gray-500 text-sm font-medium bg-white/50 border border-white/50 px-3 py-1 rounded-lg">
+                                                <FiClock size={14} />
+                                                {new Date(event.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                                            </div>
+                                            {!event.isExample && (
+                                                <button
+                                                    onClick={() => handleDeleteEvent(eventId)}
+                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                >
+                                                    <FiTrash2 size={14} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Add Event Modal */}
             {showModal && (
@@ -210,10 +262,10 @@ const SharedTimeline = () => {
                             </button>
                             <button
                                 onClick={handleAddEvent}
-                                disabled={!newEvent.title || !newEvent.date}
+                                disabled={!newEvent.title || !newEvent.date || isSubmitting}
                                 className="flex-1 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Add Event
+                                {isSubmitting ? 'Adding...' : 'Add Event'}
                             </button>
                         </div>
                     </div>

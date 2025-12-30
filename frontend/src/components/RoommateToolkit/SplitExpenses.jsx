@@ -2,10 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { FiDollarSign, FiPlus, FiCheck, FiX, FiTrash2 } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 
-const SplitExpenses = ({ members = [], expenses: propExpenses = [], onAddExpense, isPersonal = false }) => {
+const SplitExpenses = ({
+    members = [],
+    expenses: propExpenses = [],
+    onAddExpense,
+    onSettleExpense,
+    onDeleteExpense,
+    isPersonal = false
+}) => {
     const { user } = useAuth();
-    const [expenses, setExpenses] = useState([]);
+    const [localExpenses, setLocalExpenses] = useState([]);
+    const [isLoaded, setIsLoaded] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [newExpense, setNewExpense] = useState({
         title: '',
         amount: '',
@@ -14,73 +23,110 @@ const SplitExpenses = ({ members = [], expenses: propExpenses = [], onAddExpense
         category: 'other'
     });
 
+    // Use prop expenses for group mode, localStorage for personal mode
+    const expenses = isPersonal ? localExpenses : propExpenses;
+
     useEffect(() => {
         if (isPersonal) {
             // Load from localStorage for personal use
             const saved = localStorage.getItem('personal_expenses');
             if (saved) {
-                setExpenses(JSON.parse(saved));
+                setLocalExpenses(JSON.parse(saved));
             }
-        } else if (propExpenses.length > 0) {
-            setExpenses(propExpenses);
         }
-    }, [propExpenses, isPersonal]);
+        setIsLoaded(true);
+    }, [isPersonal]);
 
-    const saveExpenses = (newExpenses) => {
-        if (isPersonal) {
-            localStorage.setItem('personal_expenses', JSON.stringify(newExpenses));
-        }
+    const saveLocalExpenses = (newExpenses) => {
+        localStorage.setItem('personal_expenses', JSON.stringify(newExpenses));
     };
 
-    const handleAddExpense = () => {
+    const handleAddExpense = async () => {
         if (!newExpense.title || !newExpense.amount) return;
 
-        const expense = {
-            id: Date.now().toString(),
-            title: newExpense.title,
-            amount: parseFloat(newExpense.amount),
-            payer: newExpense.paidBy === 'me'
-                ? { firstName: 'You', _id: user?._id }
-                : { firstName: 'Roommate', _id: 'other' },
-            date: new Date().toISOString(),
-            status: 'Open',
-            category: newExpense.category,
-            splitWith: newExpense.splitWith
-        };
+        setIsSubmitting(true);
 
-        const updated = [expense, ...expenses];
-        setExpenses(updated);
-        saveExpenses(updated);
+        try {
+            if (isPersonal) {
+                // Personal mode: use localStorage
+                const expense = {
+                    id: Date.now().toString(),
+                    title: newExpense.title,
+                    amount: parseFloat(newExpense.amount),
+                    payer: { firstName: 'You', _id: user?._id },
+                    date: new Date().toISOString(),
+                    status: 'open',
+                    category: newExpense.category,
+                    splitWith: newExpense.splitWith
+                };
 
-        if (onAddExpense && !isPersonal) {
-            onAddExpense(expense);
+                const updated = [expense, ...localExpenses];
+                setLocalExpenses(updated);
+                saveLocalExpenses(updated);
+            } else if (onAddExpense) {
+                // Group mode: use API callback
+                await onAddExpense({
+                    title: newExpense.title,
+                    amount: parseFloat(newExpense.amount),
+                    paidBy: newExpense.paidBy === 'me' ? user?._id : newExpense.paidBy,
+                    category: newExpense.category,
+                    splitAmong: members.map(m => m._id)
+                });
+            }
+
+            setShowModal(false);
+            setNewExpense({ title: '', amount: '', paidBy: 'me', splitWith: 'all', category: 'other' });
+        } catch (error) {
+            console.error('Failed to add expense:', error);
+            alert('Failed to add expense. Please try again.');
+        } finally {
+            setIsSubmitting(false);
         }
-
-        setShowModal(false);
-        setNewExpense({ title: '', amount: '', paidBy: 'me', splitWith: 'all', category: 'other' });
     };
 
-    const handleSettleExpense = (id) => {
-        const updated = expenses.map(e =>
-            e.id === id ? { ...e, status: 'Settled' } : e
-        );
-        setExpenses(updated);
-        saveExpenses(updated);
+    const handleSettleExpense = async (id) => {
+        try {
+            if (isPersonal) {
+                // Personal mode: use localStorage
+                const updated = localExpenses.map(e =>
+                    e.id === id ? { ...e, status: 'settled' } : e
+                );
+                setLocalExpenses(updated);
+                saveLocalExpenses(updated);
+            } else if (onSettleExpense) {
+                // Group mode: use API callback
+                await onSettleExpense(id);
+            }
+        } catch (error) {
+            console.error('Failed to settle expense:', error);
+            alert('Failed to settle expense. Please try again.');
+        }
     };
 
-    const handleDeleteExpense = (id) => {
-        const updated = expenses.filter(e => e.id !== id);
-        setExpenses(updated);
-        saveExpenses(updated);
+    const handleDeleteExpense = async (id) => {
+        try {
+            if (isPersonal) {
+                // Personal mode: use localStorage
+                const updated = localExpenses.filter(e => e.id !== id);
+                setLocalExpenses(updated);
+                saveLocalExpenses(updated);
+            } else if (onDeleteExpense) {
+                // Group mode: use API callback
+                await onDeleteExpense(id);
+            }
+        } catch (error) {
+            console.error('Failed to delete expense:', error);
+            alert('Failed to delete expense. Please try again.');
+        }
     };
 
     // Calculate totals
     const youOwe = expenses
-        .filter(e => e.status === 'Open' && e.payer?.firstName !== 'You')
+        .filter(e => (e.status === 'open' || e.status === 'Open') && e.paidBy?.firstName !== 'You' && e.paidBy?._id !== user?._id)
         .reduce((sum, e) => sum + (e.amount / 2), 0); // Assuming 50/50 split
 
     const youreOwed = expenses
-        .filter(e => e.status === 'Open' && e.payer?.firstName === 'You')
+        .filter(e => (e.status === 'open' || e.status === 'Open') && (e.paidBy?.firstName === 'You' || e.paidBy?._id === user?._id))
         .reduce((sum, e) => sum + (e.amount / 2), 0);
 
     const categories = [
@@ -92,21 +138,29 @@ const SplitExpenses = ({ members = [], expenses: propExpenses = [], onAddExpense
         { value: 'other', label: 'Other' }
     ];
 
+    const getExpenseStatus = (expense) => {
+        return expense.status?.toLowerCase() === 'settled' ? 'Settled' : 'Open';
+    };
+
+    const isExpenseOpen = (expense) => {
+        return expense.status?.toLowerCase() !== 'settled';
+    };
+
     return (
         <div className="space-y-6">
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-lg font-bold text-gray-900">
+                    <h2 className="text-lg font-bold text-white">
                         {isPersonal ? 'My Expenses' : 'Split Expenses'}
                     </h2>
-                    <p className="text-gray-500 text-sm">
+                    <p className="text-white/80 text-sm">
                         {isPersonal ? 'Track your personal expenses.' : 'Track shared costs easily.'}
                     </p>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-colors shadow-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-white text-gray-900 rounded-xl font-bold hover:bg-white/90 transition-colors shadow-lg"
                 >
                     <FiPlus /> Add Expense
                 </button>
@@ -115,86 +169,96 @@ const SplitExpenses = ({ members = [], expenses: propExpenses = [], onAddExpense
             {/* Summary Cards */}
             {!isPersonal && (
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-red-50 p-4 rounded-xl border border-red-100">
-                        <p className="text-xs font-bold text-red-600 uppercase tracking-wide mb-1">You Owe</p>
-                        <p className="text-2xl font-black text-gray-900">${youOwe.toFixed(2)}</p>
+                    <div className="bg-red-500/20 p-4 rounded-xl border border-red-500/30">
+                        <p className="text-xs font-bold text-red-200 uppercase tracking-wide mb-1">You Owe</p>
+                        <p className="text-2xl font-black text-white">${youOwe.toFixed(2)}</p>
                     </div>
-                    <div className="bg-green-50 p-4 rounded-xl border border-green-100">
-                        <p className="text-xs font-bold text-green-600 uppercase tracking-wide mb-1">You're Owed</p>
-                        <p className="text-2xl font-black text-gray-900">${youreOwed.toFixed(2)}</p>
+                    <div className="bg-green-500/20 p-4 rounded-xl border border-green-500/30">
+                        <p className="text-xs font-bold text-green-200 uppercase tracking-wide mb-1">You're Owed</p>
+                        <p className="text-2xl font-black text-white">${youreOwed.toFixed(2)}</p>
                     </div>
                 </div>
             )}
 
             {/* Personal Total */}
             {isPersonal && (
-                <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
-                    <p className="text-xs font-bold text-orange-600 uppercase tracking-wide mb-1">Total Tracked</p>
-                    <p className="text-2xl font-black text-gray-900">
+                <div className="bg-orange-500/20 p-4 rounded-xl border border-orange-500/30">
+                    <p className="text-xs font-bold text-orange-200 uppercase tracking-wide mb-1">Total Tracked</p>
+                    <p className="text-2xl font-black text-white">
                         ${expenses.reduce((sum, e) => sum + e.amount, 0).toFixed(2)}
                     </p>
                 </div>
             )}
 
             {/* Expenses List */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                {expenses.length === 0 ? (
-                    <div className="p-8 text-center">
-                        <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500">
-                            <FiDollarSign size={32} />
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">No Expenses Yet</h3>
-                        <p className="text-gray-500">Add an expense to start tracking.</p>
-                    </div>
-                ) : (
-                    <div className="divide-y divide-gray-100">
-                        {expenses.map(expense => (
-                            <div key={expense.id} className="p-4 hover:bg-gray-50 transition-colors">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${expense.payer?.firstName === 'You' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'
-                                            }`}>
-                                            <FiDollarSign />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-gray-900">{expense.title}</h3>
-                                            <p className="text-xs text-gray-500 flex items-center gap-1">
-                                                Paid by <span className="font-medium text-gray-700">{expense.payer?.firstName || 'Unknown'}</span>
-                                                • {new Date(expense.date).toLocaleDateString()}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right flex items-center gap-3">
-                                        <div>
-                                            <p className="font-bold text-gray-900">${expense.amount.toFixed(2)}</p>
-                                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${expense.status === 'Settled' ? 'bg-gray-100 text-gray-600' : 'bg-red-100 text-red-600'
-                                                }`}>
-                                                {expense.status}
-                                            </span>
-                                        </div>
-                                        <button
-                                            onClick={() => handleDeleteExpense(expense.id)}
-                                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                        >
-                                            <FiTrash2 size={16} />
-                                        </button>
-                                    </div>
-                                </div>
-                                {expense.status === 'Open' && !isPersonal && (
-                                    <div className="flex justify-end mt-2">
-                                        <button
-                                            onClick={() => handleSettleExpense(expense.id)}
-                                            className="text-xs font-bold text-green-600 hover:text-green-700 flex items-center gap-1"
-                                        >
-                                            <FiCheck /> Mark as Settled
-                                        </button>
-                                    </div>
-                                )}
+            {!isLoaded ? (
+                <div className="h-40 flex items-center justify-center">
+                    <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+                </div>
+            ) : (
+                <div className="bg-white/60 backdrop-blur-xl rounded-xl border border-white/40 shadow-sm overflow-hidden animate-fade-in">
+                    {expenses.length === 0 ? (
+                        <div className="p-8 text-center">
+                            <div className="w-16 h-16 bg-white/50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+                                <FiDollarSign size={32} />
                             </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">No Expenses Yet</h3>
+                            <p className="text-gray-600">Add an expense to start tracking.</p>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-white/10">
+                            {expenses.map(expense => {
+                                const expenseId = expense._id || expense.id;
+                                const isUserPayer = expense.paidBy?.firstName === 'You' || expense.paidBy?._id === user?._id;
+                                return (
+                                    <div key={expenseId} className="p-4 hover:bg-white/5 transition-colors">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${isUserPayer ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                                    }`}>
+                                                    <FiDollarSign />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-gray-900">{expense.title}</h3>
+                                                    <p className="text-xs text-gray-600 flex items-center gap-1">
+                                                        Paid by <span className="font-medium text-gray-800">{expense.paidBy?.firstName || 'Unknown'}</span>
+                                                        • {new Date(expense.date).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right flex items-center gap-3">
+                                                <div>
+                                                    <p className="font-bold text-gray-900">${expense.amount.toFixed(2)}</p>
+                                                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${getExpenseStatus(expense) === 'Settled' ? 'bg-gray-100 text-gray-500' : 'bg-red-100 text-red-600'
+                                                        }`}>
+                                                        {getExpenseStatus(expense)}
+                                                    </span>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleDeleteExpense(expenseId)}
+                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                >
+                                                    <FiTrash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {isExpenseOpen(expense) && !isPersonal && (
+                                            <div className="flex justify-end mt-2">
+                                                <button
+                                                    onClick={() => handleSettleExpense(expenseId)}
+                                                    className="text-xs font-bold text-green-600 hover:text-green-700 flex items-center gap-1"
+                                                >
+                                                    <FiCheck /> Mark as Settled
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Add Expense Modal */}
             {showModal && (
@@ -249,8 +313,8 @@ const SplitExpenses = ({ members = [], expenses: propExpenses = [], onAddExpense
                                             type="button"
                                             onClick={() => setNewExpense({ ...newExpense, paidBy: 'me' })}
                                             className={`py-3 rounded-xl font-bold transition-all ${newExpense.paidBy === 'me'
-                                                    ? 'bg-gray-900 text-white'
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                ? 'bg-gray-900 text-white'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                 }`}
                                         >
                                             I Paid
@@ -259,8 +323,8 @@ const SplitExpenses = ({ members = [], expenses: propExpenses = [], onAddExpense
                                             type="button"
                                             onClick={() => setNewExpense({ ...newExpense, paidBy: 'other' })}
                                             className={`py-3 rounded-xl font-bold transition-all ${newExpense.paidBy === 'other'
-                                                    ? 'bg-gray-900 text-white'
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                ? 'bg-gray-900 text-white'
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                 }`}
                                         >
                                             Roommate Paid
@@ -279,10 +343,10 @@ const SplitExpenses = ({ members = [], expenses: propExpenses = [], onAddExpense
                             </button>
                             <button
                                 onClick={handleAddExpense}
-                                disabled={!newExpense.title || !newExpense.amount}
+                                disabled={!newExpense.title || !newExpense.amount || isSubmitting}
                                 className="flex-1 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Add Expense
+                                {isSubmitting ? 'Adding...' : 'Add Expense'}
                             </button>
                         </div>
                     </div>

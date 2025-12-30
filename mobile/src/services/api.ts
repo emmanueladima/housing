@@ -4,18 +4,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // =================================================================
 // API URL CONFIGURATION
 // =================================================================
-// For LOCAL development (backend running on your computer):
-//   1. Find your computer's local IP: run 'ipconfig getifaddr en0' in terminal
-//   2. Replace 'YOUR_LOCAL_IP' below with that IP (e.g., '192.168.1.100')
-//   3. Make sure backend is running: cd backend && npm run dev
-//
-// For DEPLOYED backend (Render, etc.):
-//   Replace with your deployed URL, e.g., 'https://your-app.onrender.com/api'
+// PRODUCTION: Uses the deployed Render backend
+// LOCAL DEV: Change USE_LOCAL to true and update LOCAL_IP
 // =================================================================
 
-// CHANGE THIS to your backend URL:
-const API_URL = 'http://172.16.46.110:5001/api'; // Local development
-// const API_URL = 'https://your-deployed-backend.onrender.com/api'; // Production
+const USE_LOCAL = false; // Set to true for local development
+const LOCAL_IP = '172.16.46.110'; // Your Mac's IP (run: ipconfig getifaddr en0)
+
+const API_URL = USE_LOCAL
+    ? `http://${LOCAL_IP}:5001/api`
+    : 'https://collegio-backend-j053.onrender.com/api';
 
 console.log('📡 Mobile API configured to:', API_URL);
 

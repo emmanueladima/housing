@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Layout/Header';
 import Footer from './components/Layout/Footer';
+import ModernBackground from './components/shared/ModernBackground';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 
 // Pages
@@ -29,6 +30,7 @@ import Settings from './pages/Settings';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiePolicy from './pages/CookiePolicy';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   const location = useLocation();
@@ -49,15 +51,27 @@ function App() {
     '/compatibility-test',
     '/settings',
     '/safety',
+    '/terms',
+    '/privacy',
+    '/cookie-policy',
   ];
   const isTransparentPage = transparentPages.some(page =>
     location.pathname === page || location.pathname.startsWith(page + '/')
   );
 
+  const isAnimatedBackgroundPage = ['/', '/safety', '/terms', '/privacy', '/cookies', '/roommate-toolkit', '/landlord/dashboard', '/saved', '/settings', '/profile', '/applications', '/messages', '/community', '/notifications'].includes(location.pathname);
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Fixed animated background for specific pages */}
+      {isAnimatedBackgroundPage && (
+        <div className="fixed inset-0 z-0">
+          <ModernBackground />
+        </div>
+      )}
+
       <Header />
-      <main className={`flex-grow ${!isTransparentPage ? 'pt-24' : ''}`}>
+      <main className={`flex-grow ${!isTransparentPage ? 'pt-24' : ''} relative z-10`}>
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} />
@@ -76,6 +90,7 @@ function App() {
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* Protected routes */}
           <Route
@@ -211,7 +226,9 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      <Footer />
+      <div className="relative z-10">
+        <Footer />
+      </div>
     </div>
   );
 }

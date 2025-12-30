@@ -8,6 +8,7 @@ export interface Listing {
     bedrooms: number;
     bathrooms: number;
     sqft?: number;
+    squareFeet?: number;
     address: string;
     city: string;
     state: string;
@@ -31,6 +32,8 @@ export interface Listing {
     latitude?: number;
     longitude?: number;
     createdAt: string;
+    propertyType?: string;
+    status?: 'active' | 'inactive' | 'rented';
 }
 
 export interface ListingFilters {
@@ -92,6 +95,18 @@ const listingService = {
         const response = await api.post('/listings', data);
         return response.data.listing;
     },
+
+    // Update a listing
+    async updateListing(id: string, data: Partial<Listing> & { status?: string }): Promise<Listing> {
+        const response = await api.put(`/listings/${id}`, data);
+        return response.data.listing;
+    },
+
+    // Delete a listing
+    async deleteListing(id: string): Promise<void> {
+        await api.delete(`/listings/${id}`);
+    },
 };
 
 export default listingService;
+

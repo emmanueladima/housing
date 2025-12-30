@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiBell, FiCheck, FiMessageCircle, FiHome, FiUsers, FiStar, FiCalendar, FiTrash2 } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
-import ModernBackground from '../components/shared/ModernBackground';
+
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import notificationService from '../services/notificationService';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,13 +17,13 @@ const notificationIcons = {
 };
 
 const notificationColors = {
-  message: 'bg-blue-100 text-blue-600',
-  match: 'bg-green-100 text-green-600',
-  application: 'bg-orange-100 text-orange-600',
-  new_listing: 'bg-purple-100 text-purple-600',
-  tour: 'bg-teal-100 text-teal-600',
-  review: 'bg-yellow-100 text-yellow-600',
-  community_reply: 'bg-pink-100 text-pink-600',
+  message: 'bg-blue-500/20 text-blue-200',
+  match: 'bg-green-500/20 text-green-200',
+  application: 'bg-orange-500/20 text-orange-200',
+  new_listing: 'bg-purple-500/20 text-purple-200',
+  tour: 'bg-teal-500/20 text-teal-200',
+  review: 'bg-yellow-500/20 text-yellow-200',
+  community_reply: 'bg-pink-500/20 text-pink-200',
 };
 
 const formatTimeAgo = (date) => {
@@ -105,10 +105,9 @@ const Notifications = () => {
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen relative">
       {/* Hero Header */}
-      <div className="relative overflow-hidden pt-32 pb-16">
-        <ModernBackground />
+      <div className="relative overflow-hidden pt-32 pb-8">
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full border border-white/30 mb-6">
@@ -126,25 +125,25 @@ const Notifications = () => {
       </div>
 
       {/* Main Content */}
-      <div className="bg-gray-50 min-h-screen">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="relative z-10 pb-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Filter Bar */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 bg-white/10 backdrop-blur-md p-1.5 rounded-full border border-white/20 inline-flex w-full sm:w-auto">
             <div className="flex gap-2">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded-full font-medium text-sm transition-all ${filter === 'all'
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                className={`px-6 py-2 rounded-full font-bold text-sm transition-all ${filter === 'all'
+                  ? 'bg-white text-gray-900 shadow-lg'
+                  : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
               >
                 All
               </button>
               <button
                 onClick={() => setFilter('unread')}
-                className={`px-4 py-2 rounded-full font-medium text-sm transition-all flex items-center gap-2 ${filter === 'unread'
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                className={`px-6 py-2 rounded-full font-bold text-sm transition-all flex items-center gap-2 ${filter === 'unread'
+                  ? 'bg-white text-gray-900 shadow-lg'
+                  : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
               >
                 Unread
@@ -165,7 +164,9 @@ const Notifications = () => {
               </button>
             )}
           </div>
+        </div>
 
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Notifications List */}
           {loading ? (
             <div className="flex justify-center py-20">
@@ -194,25 +195,25 @@ const Notifications = () => {
             <div className="space-y-3">
               {notifications.map(notification => {
                 const Icon = notificationIcons[notification.type] || FiBell;
-                const colorClass = notificationColors[notification.type] || 'bg-gray-100 text-gray-600';
+                const colorClass = notificationColors[notification.type] || 'bg-gray-500/20 text-gray-200';
 
                 return (
                   <div
                     key={notification._id}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`flex items-start gap-4 p-4 rounded-2xl border cursor-pointer transition-all hover:shadow-md ${notification.isRead
-                        ? 'bg-white border-gray-100'
-                        : 'bg-orange-50 border-orange-200'
+                    className={`flex items-start gap-4 p-4 rounded-2xl border cursor-pointer transition-all hover:scale-[1.01] ${notification.isRead
+                      ? 'bg-white/10 border-white/10 backdrop-blur-md'
+                      : 'bg-white/20 border-white/30 backdrop-blur-xl shadow-lg'
                       }`}
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${colorClass}`}>
                       <Icon size={18} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm ${notification.isRead ? 'text-gray-600' : 'text-gray-900 font-medium'}`}>
+                      <p className={`text-sm ${notification.isRead ? 'text-white/60' : 'text-white font-bold'}`}>
                         {notification.content}
                       </p>
-                      <span className="text-xs text-gray-400 mt-1 block">
+                      <span className="text-xs text-white/40 mt-1 block">
                         {formatTimeAgo(notification.createdAt)}
                       </span>
                     </div>

@@ -6,7 +6,6 @@ import lifestyleProfileService from '../services/lifestyleProfileService';
 import ListingCard from '../components/Listings/ListingCard';
 import RoommateCard from '../components/Roommates/RoommateCard';
 import RoommateDetailsModal from '../components/Roommates/RoommateDetailsModal';
-import ModernBackground from '../components/shared/ModernBackground';
 
 const SavedPage = () => {
     const [activeTab, setActiveTab] = useState('listings');
@@ -54,14 +53,9 @@ const SavedPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* Hero Header with Orange Gradient & Orbs - extends to very top */}
-            <div className="relative overflow-hidden">
-                {/* Orange Gradient Background - positioned from top */}
-                <div className="absolute inset-0">
-                    <ModernBackground />
-                </div>
-
+        <div className="min-h-screen relative">
+            {/* Hero Header */}
+            <div className="relative">
                 {/* Content with top padding for navbar */}
                 <div className="relative z-10 pt-24 sm:pt-32 pb-10 sm:pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Title & Subtitle */}
@@ -114,12 +108,12 @@ const SavedPage = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="bg-gray-50 min-h-screen">
+            <div className="relative z-10 pb-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
                     {/* Content */}
                     {loading ? (
                         <div className="flex justify-center py-20">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
                         </div>
                     ) : (
                         <div className="min-h-[400px]">
@@ -182,15 +176,15 @@ const SavedPage = () => {
 };
 
 const EmptyState = ({ icon: Icon, title, description, actionLink, actionText }) => (
-    <div className="flex flex-col items-center justify-center py-12 sm:py-20 bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-100 mx-auto">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-100 to-orange-50 rounded-full flex items-center justify-center mb-4 sm:mb-6">
-            <Icon className="text-orange-500" size={28} />
+    <div className="flex flex-col items-center justify-center py-12 sm:py-20 bg-white/20 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-white/30 shadow-lg mx-auto">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 sm:mb-6">
+            <Icon className="text-white" size={28} />
         </div>
-        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{title}</h3>
-        <p className="text-gray-500 mb-6 sm:mb-8 max-w-md text-center text-sm sm:text-base px-4">{description}</p>
+        <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{title}</h3>
+        <p className="text-white/70 mb-6 sm:mb-8 max-w-md text-center text-sm sm:text-base px-4">{description}</p>
         <Link
             to={actionLink}
-            className="inline-flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 bg-orange-600 text-white rounded-full font-bold hover:bg-orange-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm sm:text-base"
+            className="inline-flex items-center gap-2 px-6 sm:px-8 py-2.5 sm:py-3 bg-white text-gray-900 rounded-full font-bold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-sm sm:text-base"
         >
             <span>{actionText}</span>
             <FiArrowRight />
