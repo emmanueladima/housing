@@ -151,7 +151,7 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
         <div className="grid grid-cols-2 gap-5">
           <button
             onClick={() => handleRoleSelect('student')}
-            className="p-6 border-2 border-gray-100 rounded-2xl hover:border-orange-500 hover:bg-orange-50/50 transition-all duration-300 text-left group hover:shadow-xl hover:-translate-y-1 bg-white"
+            className="p-6 border-2 border-white/30 rounded-2xl hover:border-orange-500 hover:bg-orange-500/10 transition-all duration-300 text-left group hover:shadow-xl hover:-translate-y-1 bg-white/20 backdrop-blur-md"
           >
             <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
               <span className="text-3xl">🎓</span>
@@ -164,7 +164,7 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
 
           <button
             onClick={() => handleRoleSelect('landlord')}
-            className="p-6 border-2 border-gray-100 rounded-2xl hover:border-blue-500 hover:bg-blue-50/50 transition-all duration-300 text-left group hover:shadow-xl hover:-translate-y-1 bg-white"
+            className="p-6 border-2 border-white/30 rounded-2xl hover:border-blue-500 hover:bg-blue-500/10 transition-all duration-300 text-left group hover:shadow-xl hover:-translate-y-1 bg-white/20 backdrop-blur-md"
           >
             <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
               <span className="text-3xl">🏢</span>

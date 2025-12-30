@@ -330,6 +330,7 @@ export const resendVerification = async (req, res) => {
 export const resendVerificationPublic = async (req, res) => {
   try {
     const { email } = req.body;
+    console.log('🔄 Public resend verification requested for:', email);
 
     if (!email) {
       return res.status(400).json({
@@ -341,6 +342,7 @@ export const resendVerificationPublic = async (req, res) => {
     const user = await User.findOne({ email }).select('+verificationToken');
 
     if (!user) {
+      console.log('ℹ️ Resend request for non-existent email:', email);
       // Don't reveal if user exists or not for security
       return res.json({
         success: true,

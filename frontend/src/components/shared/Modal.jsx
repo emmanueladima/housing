@@ -39,7 +39,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div
-          className={`relative w-full ${sizes[size]} bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl shadow-black/10 transform transition-all animate-fadeIn`}
+          className={`relative w-full ${sizes[size]} bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl shadow-black/10 transform transition-all animate-fadeIn`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header - Only show if title is provided */}
