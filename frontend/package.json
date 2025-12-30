@@ -9,15 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@heroui/accordion": "^2.2.0",
-    "@heroui/autocomplete": "^2.3.0",
-    "@heroui/card": "^2.2.0",
-    "@heroui/dropdown": "^2.3.0",
-    "@heroui/input": "^2.4.0",
-    "@heroui/react": "2.7.6",
-    "@heroui/slider": "^2.4.0",
-    "@heroui/system": "2.4.17",
-    "@heroui/theme": "2.4.17",
+    "@heroui/accordion": "2.0.36",
+    "@heroui/autocomplete": "2.1.5",
+    "@heroui/card": "2.0.34",
+    "@heroui/dropdown": "2.1.30",
+    "@heroui/input": "2.2.5",
+    "@heroui/react": "2.4.8",
+    "@heroui/slider": "2.2.16",
+    "@heroui/system": "2.2.6",
+    "@heroui/theme": "2.2.11",
     "axios": "^1.6.2",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.26",
@@ -39,10 +39,5 @@
     "postcss": "^8.4.32",
     "tailwindcss": "^3.3.6",
     "vite": "^5.0.8"
-  },
-  "overrides": {
-    "@heroui/theme": "2.4.17",
-    "@heroui/system": "2.4.17",
-    "@heroui/system-rsc": "2.4.17"
   }
 }

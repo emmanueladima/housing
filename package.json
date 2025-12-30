@@ -16,8 +16,8 @@
         "install:all": "cd frontend && npm install && cd ../backend && npm install && cd ../mobile && npm install"
     },
     "overrides": {
-        "@heroui/theme": "2.4.17",
-        "@heroui/system": "2.4.17",
-        "@heroui/system-rsc": "2.4.17"
+        "@heroui/theme": "2.2.11",
+        "@heroui/system": "2.2.6",
+        "@heroui/system-rsc": "2.1.4"
     }
 }
