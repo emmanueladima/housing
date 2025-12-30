@@ -331,7 +331,6 @@ const Header = () => {
 
                     <DropdownItem key="logout" startContent={<FiLogOut size={18} className="text-white/60" />} className="text-red-400 data-[hover=true]:bg-red-500/20 data-[hover=true]:text-red-200">Sign Out</DropdownItem>
                   ] : [
-                    <DropdownItem key="/listings" startContent={<FiHome size={18} className="text-white/60" />} className="text-white data-[hover=true]:bg-white/10 data-[hover=true]:text-white">Listings</DropdownItem>,
                     <DropdownItem key="login" className="text-white data-[hover=true]:bg-white/10 data-[hover=true]:text-white font-bold">Log In</DropdownItem>,
                     <DropdownItem key="signup" className="bg-white/90 text-orange-600 font-bold data-[hover=true]:bg-white data-[hover=true]:text-orange-700 rounded-lg text-center justify-center">Sign Up Free</DropdownItem>
                   ]}
