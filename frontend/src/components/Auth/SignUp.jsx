@@ -123,8 +123,8 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
           <span className="text-3xl">🎉</span>
         </div>
         <div className="space-y-2">
-          <h3 className="text-xl font-bold text-gray-900">Account Created!</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="text-xl font-bold text-white">Account Created!</h3>
+          <p className="text-sm text-gray-200">
             Your account has been successfully created. Please check your email to verify your account.
           </p>
         </div>
@@ -141,8 +141,8 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
       <div className="space-y-6">
         {/* Card Header */}
         <div className="space-y-1">
-          <h3 className="text-xl font-bold text-gray-900">Create your account</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="text-xl font-bold text-white">Create your account</h3>
+          <p className="text-sm text-gray-200">
             Select your account type to get started
           </p>
         </div>
@@ -156,8 +156,8 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
             <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
               <span className="text-3xl">🎓</span>
             </div>
-            <h4 className="text-lg font-black text-gray-900 group-hover:text-orange-600 mb-1">Student</h4>
-            <p className="text-sm font-medium text-gray-500 group-hover:text-gray-600 leading-relaxed">
+            <h4 className="text-lg font-black text-white group-hover:text-orange-400 mb-1">Student</h4>
+            <p className="text-sm font-medium text-gray-200 group-hover:text-gray-100 leading-relaxed">
               Find housing, roommates, and groups.
             </p>
           </button>
@@ -169,15 +169,15 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
             <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
               <span className="text-3xl">🏢</span>
             </div>
-            <h4 className="text-lg font-black text-gray-900 group-hover:text-blue-600 mb-1">Landlord</h4>
-            <p className="text-sm font-medium text-gray-500 group-hover:text-gray-600 leading-relaxed">
+            <h4 className="text-lg font-black text-white group-hover:text-blue-400 mb-1">Landlord</h4>
+            <p className="text-sm font-medium text-gray-200 group-hover:text-gray-100 leading-relaxed">
               List properties and manage applications.
             </p>
           </button>
         </div>
 
         {/* Already have account link */}
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-gray-200">
           Already have an account?{' '}
           <button
             type="button"
@@ -200,15 +200,15 @@ const SignUp = ({ onSuccess, onSwitchToLogin }) => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setStep(1)}
-              className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+              className="p-1 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition-colors"
             >
               <FiArrowLeft size={18} />
             </button>
             <div>
-              <h3 className="text-xl font-bold text-gray-900">
+              <h3 className="text-xl font-bold text-white">
                 {role === 'student' ? 'Student Sign Up' : 'Landlord Registration'}
               </h3>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-sm text-gray-200 mt-0.5">
                 Fill in your details below
               </p>
             </div>

@@ -70,8 +70,8 @@ const Login = ({ onSuccess, onSwitchToSignUp, onForgotPassword }) => {
     <div className="space-y-6">
       {/* Card Header */}
       <div className="space-y-1">
-        <h3 className="text-xl font-bold text-gray-900">Login to your account</h3>
-        <p className="text-sm text-gray-500">
+        <h3 className="text-xl font-bold text-white">Login to your account</h3>
+        <p className="text-sm text-gray-200">
           Enter your email below to login to your account
         </p>
       </div>
@@ -114,7 +114,7 @@ const Login = ({ onSuccess, onSwitchToSignUp, onForgotPassword }) => {
               <button
                 type="button"
                 onClick={onForgotPassword}
-                className="text-sm text-gray-500 hover:text-orange-600 underline-offset-4 hover:underline"
+                className="text-sm text-gray-300 hover:text-orange-500 underline-offset-4 hover:underline"
               >
                 Forgot your password?
               </button>
@@ -134,7 +134,7 @@ const Login = ({ onSuccess, onSwitchToSignUp, onForgotPassword }) => {
             {loading ? <LoadingSpinner size="sm" /> : 'Login'}
           </Button>
 
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-gray-200">
             Don't have an account?{' '}
             <button
               type="button"
