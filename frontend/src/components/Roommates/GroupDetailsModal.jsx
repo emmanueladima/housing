@@ -22,19 +22,19 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin, onDelete, isOwner }
     return (
         <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4 backdrop-blur-md" onClick={onClose}>
             <div
-                className="bg-white/90 backdrop-blur-2xl rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200 border border-white/50"
+                className="bg-white/80 backdrop-blur-3xl rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200 border border-white/40"
                 onClick={e => e.stopPropagation()}
             >
-                {/* Header - Clean gray background */}
-                <div className="relative bg-gray-100 shrink-0 pt-6 pb-16 px-6 md:px-8">
+                {/* Header - Transparent to blend with glass */}
+                <div className="relative shrink-0 pt-6 pb-16 px-6 md:px-8 border-b border-white/10">
                     {/* Top Actions */}
                     <div className="absolute top-4 right-4 flex gap-2 z-10">
-                        <button className="p-2.5 bg-white hover:bg-gray-50 text-gray-500 rounded-xl transition-all shadow-sm border border-gray-200">
+                        <button className="p-2.5 bg-white/50 hover:bg-white text-gray-700 rounded-xl transition-all shadow-sm border border-white/20">
                             <FiMoreHorizontal size={18} />
                         </button>
                         <button
                             onClick={onClose}
-                            className="p-2.5 bg-white hover:bg-gray-50 text-gray-500 rounded-xl transition-all shadow-sm border border-gray-200"
+                            className="p-2.5 bg-white/50 hover:bg-white text-gray-700 rounded-xl transition-all shadow-sm border border-white/20"
                         >
                             <FiX size={18} />
                         </button>
@@ -71,7 +71,7 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin, onDelete, isOwner }
                 </div>
 
                 {/* Content */}
-                <div className="pt-12 px-6 md:px-8 pb-8 overflow-y-auto flex-1 bg-white">
+                <div className="pt-12 px-6 md:px-8 pb-8 overflow-y-auto flex-1">
                     {/* Actions & Match Score */}
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                         {/* Match Score */}

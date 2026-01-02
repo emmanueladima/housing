@@ -260,7 +260,7 @@ const GroupCreationWizard = ({ isOpen, onClose, onCreate }) => {
     return (
         <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4 backdrop-blur-md" onClick={onClose}>
             <div
-                className="bg-white/90 backdrop-blur-2xl rounded-3xl w-full max-w-lg min-h-[600px] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden border border-white/50"
+                className="bg-white/80 backdrop-blur-3xl rounded-[2.5rem] w-full max-w-lg min-h-[600px] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden border border-white/40"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -287,7 +287,7 @@ const GroupCreationWizard = ({ isOpen, onClose, onCreate }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <div className="p-6 border-t border-white/20 flex justify-between items-center">
                     <button
                         onClick={handleBack}
                         disabled={step === 1}
