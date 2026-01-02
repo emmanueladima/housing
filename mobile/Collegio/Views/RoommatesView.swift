@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RoommatesView: View {
+    @StateObject private var viewModel = RoommatesViewModel()
     @State private var selectedTab = 0
     
     var body: some View {
@@ -28,10 +29,14 @@ struct RoommatesView: View {
             .navigationTitle("Roommates")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {}) {
-                        Image(systemName: "slider.horizontal.3")
+                    NavigationLink(destination: GroupCreationView()) {
+                        Image(systemName: "plus.circle.fill")
                     }
                 }
+            }
+            .task {
+                await viewModel.loadProfiles()
+                await viewModel.loadGroups()
             }
         }
     }
@@ -40,11 +45,18 @@ struct RoommatesView: View {
     private var soloProfilesList: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                ForEach(0..<5) { index in
-                    NavigationLink(destination: RoommateDetailsView(profile: LifestyleProfile.sample)) {
-                        RoommateCard(profile: LifestyleProfile.sample)
+                if viewModel.isLoadingProfiles {
+                    ProgressView()
+                        .padding(.top, 40)
+                } else if viewModel.profiles.isEmpty {
+                    emptyState(icon: "person.2", title: "No Profiles Yet", subtitle: "Be the first to create a roommate profile!")
+                } else {
+                    ForEach(viewModel.profiles) { profile in
+                        NavigationLink(destination: RoommateDetailsView(profile: profile)) {
+                            RoommateCard(profile: profile)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal)
@@ -56,13 +68,89 @@ struct RoommatesView: View {
     private var groupsList: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
-                ForEach(0..<3) { index in
-                    GroupCard(memberCount: index + 2, lookingFor: 4 - index - 2)
+                if viewModel.isLoadingGroups {
+                    ProgressView()
+                        .padding(.top, 40)
+                } else if viewModel.groups.isEmpty {
+                    emptyState(icon: "person.3", title: "No Groups Yet", subtitle: "Create a group to find roommates together!")
+                } else {
+                    ForEach(viewModel.groups) { group in
+                        NavigationLink(destination: GroupDetailView(group: group)) {
+                            GroupCardView(group: group)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
             }
             .padding(.horizontal)
             .padding(.bottom, 100)
         }
+    }
+    
+    private func emptyState(icon: String, title: String, subtitle: String) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 50))
+                .foregroundStyle(.secondary)
+            Text(title)
+                .font(.headline)
+            Text(subtitle)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.top, 60)
+    }
+}
+
+// MARK: - Group Card View (Updated to use real data)
+struct GroupCardView: View {
+    let group: RoommateGroup
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                // Member Avatars (overlapping)
+                HStack(spacing: -12) {
+                    ForEach(Array((group.members ?? []).prefix(3).enumerated()), id: \.offset) { index, member in
+                        Circle()
+                            .fill(Color.collegioBlue.opacity(0.3))
+                            .frame(width: 40, height: 40)
+                            .overlay {
+                                Text(member.firstName?.prefix(1) ?? "?")
+                                    .font(.caption.bold())
+                            }
+                            .overlay(Circle().stroke(.white, lineWidth: 2))
+                    }
+                }
+                
+                Spacer()
+                
+                if let lookingFor = group.lookingFor {
+                    Text("Looking for \(lookingFor)")
+                        .font(.subheadline.bold())
+                        .foregroundStyle(Color.collegioOrange)
+                }
+            }
+            
+            Text(group.name)
+                .font(.headline)
+            
+            if let budget = group.budget?.max {
+                Text("Budget: Up to $\(budget)/mo")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            
+            if let vibes = group.vibe, !vibes.isEmpty {
+                HStack(spacing: 8) {
+                    ForEach(vibes.prefix(3), id: \.self) { vibe in
+                        TagView(text: vibe)
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .glassCard()
     }
 }
 

@@ -81,6 +81,11 @@ class APIService {
         }
     }
     
+    // MARK: - Public Authenticated Request (for use by other services)
+    func authenticatedRequest<T: Decodable>(_ endpoint: String, method: String = "GET", body: Data? = nil) async throws -> T {
+        try await request(endpoint, method: method, body: body)
+    }
+    
     // MARK: - Listings API
     func getListings() async throws -> [Listing] {
         struct ListingsResponse: Decodable {

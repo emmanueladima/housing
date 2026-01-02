@@ -149,6 +149,18 @@ struct ProfileView: View {
                 ProfileCard(title: "My\nListings", icon: "house.fill", color: .collegioOrange, count: 0)
             }
             .buttonStyle(.plain)
+            
+            // NEW: Toolkit
+            NavigationLink(destination: ToolkitView()) {
+                ProfileCard(title: "Roommate\nToolkit", icon: "hammer.fill", color: .collegioOrange)
+            }
+            .buttonStyle(.plain)
+            
+            // NEW: My Group
+            NavigationLink(destination: GroupDashboardView()) {
+                ProfileCard(title: "My\nGroup", icon: "person.3.fill", color: .collegioOrange)
+            }
+            .buttonStyle(.plain)
         }
         .padding(.horizontal)
     }
