@@ -20,9 +20,9 @@ const GroupDetailsModal = ({ isOpen, onClose, group, onJoin, onDelete, isOwner }
     const matchSentences = getMatchSentences();
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4 backdrop-blur-md" onClick={onClose}>
             <div
-                className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200"
+                className="bg-white/90 backdrop-blur-2xl rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200 border border-white/50"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header - Clean gray background */}

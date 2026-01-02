@@ -258,9 +258,9 @@ const GroupCreationWizard = ({ isOpen, onClose, onCreate }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4 backdrop-blur-md" onClick={onClose}>
             <div
-                className="bg-white rounded-3xl w-full max-w-lg min-h-[600px] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden"
+                className="bg-white/90 backdrop-blur-2xl rounded-3xl w-full max-w-lg min-h-[600px] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden border border-white/50"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
