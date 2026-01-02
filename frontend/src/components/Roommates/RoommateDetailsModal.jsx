@@ -66,7 +66,7 @@ const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite
                             alt={`${firstName} ${lastName}`}
                             className="w-32 h-32 rounded-3xl object-cover border-4 border-white/20 shadow-2xl"
                         />
-                        <div className="absolute -bottom-2 -right-2 bg-green-500 w-6 h-6 rounded-full border-4 border-[#242424]"></div>
+
                     </div>
 
                     <div className="mb-2">
@@ -144,22 +144,26 @@ const RoommateDetailsModal = ({ isOpen, onClose, roommate, onMessage, onFavorite
                     {/* Right Column - Details */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* Bio */}
-                        <div>
-                            <h3 className="text-lg font-bold text-white mb-3">About {firstName}</h3>
-                            <p className="text-gray-300 leading-relaxed text-lg">{bio}</p>
-                        </div>
+                        {bio && (
+                            <div>
+                                <h3 className="text-lg font-bold text-white mb-3">About {firstName}</h3>
+                                <p className="text-gray-300 leading-relaxed text-lg">{bio}</p>
+                            </div>
+                        )}
 
                         {/* Vibes */}
-                        <div>
-                            <h3 className="text-lg font-bold text-white mb-3">Vibe</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {tags.map((tag, i) => (
-                                    <span key={i} className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-200 rounded-xl text-sm font-medium border border-white/10 transition-colors">
-                                        {tag}
-                                    </span>
-                                ))}
+                        {tags && tags.length > 0 && (
+                            <div>
+                                <h3 className="text-lg font-bold text-white mb-3">Vibe</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {tags.map((tag, i) => (
+                                        <span key={i} className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-200 rounded-xl text-sm font-medium border border-white/10 transition-colors">
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Habits */}
                         <div>
