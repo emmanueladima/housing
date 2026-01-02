@@ -308,15 +308,11 @@ const Roommates = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     {/* Compatibility Test Banner */}
                     {!hasTakenTest && (
-                        <GlassCard
-                            className="mb-8 bg-gradient-to-br from-orange-500 to-red-600 border-none text-white"
-                            padding="none"
-                            isHoverable={false}
-                        >
+                        <div className="mb-8 bg-white/20 backdrop-blur-xl rounded-3xl border border-white/30 overflow-hidden">
                             <div className="px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
                                 <div>
                                     <h3 className="text-lg font-bold mb-1 text-white">Find your perfect match!</h3>
-                                    <p className="text-white/90 text-sm">Take our 2-minute compatibility test to see who you vibe with.</p>
+                                    <p className="text-white/80 text-sm">Take our 2-minute compatibility test to see who you vibe with.</p>
                                 </div>
                                 <button
                                     onClick={() => navigate('/compatibility-test')}
@@ -325,18 +321,18 @@ const Roommates = () => {
                                     Take Test
                                 </button>
                             </div>
-                        </GlassCard>
+                        </div>
                     )}
 
                     {/* Filter Bar */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
-                        <p className="text-gray-600 font-medium text-sm sm:text-base">
+                        <p className="text-white font-medium text-sm sm:text-base">
                             {loading ? 'Loading...' : `${processedData.length} ${activeTab === 'groups' ? 'groups' : 'roommates'} found`}
                         </p>
 
                         {/* Sort Pills - Horizontal scroll on mobile */}
                         <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto">
-                            <span className="text-xs sm:text-sm font-medium text-gray-500 mr-1 sm:mr-2 whitespace-nowrap">Sort:</span>
+                            <span className="text-xs sm:text-sm font-medium text-white/80 mr-1 sm:mr-2 whitespace-nowrap">Sort:</span>
                             {[
                                 { id: 'match', label: 'Best Match' },
                                 { id: 'budget', label: 'Budget' },
