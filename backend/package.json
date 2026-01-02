@@ -40,6 +40,8 @@
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
+    "form-data": "^4.0.5",
+    "node-fetch": "^3.3.2",
     "nodemon": "^3.0.2"
   }
 }

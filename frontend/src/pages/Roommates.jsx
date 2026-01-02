@@ -201,13 +201,14 @@ const Roommates = () => {
     const processedData = getSortedData(getFilteredData(activeTab === 'groups' ? groups : soloRoommates));
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* Hero Header with Orange Gradient & Orbs - extends to very top */}
-            <div className="relative overflow-hidden">
-                {/* Orange Gradient Background with Orbs - positioned from top */}
-                <div className="absolute inset-0">
-                    <ModernBackground />
-                </div>
+        <div className="min-h-screen relative">
+            {/* Full-page animated background */}
+            <div className="fixed inset-0 z-0">
+                <ModernBackground />
+            </div>
+
+            {/* Hero Header */}
+            <div className="relative z-10 overflow-hidden">
 
                 {/* Content with top padding for navbar */}
                 <div className="relative z-10 pt-24 sm:pt-32 pb-12 sm:pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -303,7 +304,7 @@ const Roommates = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="bg-gray-50 min-h-screen">
+            <div className="relative z-10 min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     {/* Compatibility Test Banner */}
                     {!hasTakenTest && (

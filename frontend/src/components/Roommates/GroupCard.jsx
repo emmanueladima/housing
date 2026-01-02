@@ -15,7 +15,7 @@ const GroupCard = ({ group, onViewDetails, onRequestJoin }) => {
             isPressable
             onPress={handleCardClick}
             isBlurred
-            className="border-none bg-white/60 dark:bg-default-100/50 shadow-sm hover:shadow-xl transition-all duration-300 h-full"
+            className="border-none bg-white/80 dark:bg-default-100/50 shadow-lg hover:shadow-2xl transition-all duration-300 h-full rounded-3xl overflow-hidden"
         >
             {/* Content */}
             <CardBody className="p-5 flex-1 flex flex-col overflow-visible">

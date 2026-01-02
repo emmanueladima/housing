@@ -1,0 +1,469 @@
+import SwiftUI
+import MapboxMaps
+import CoreLocation
+import Combine
+
+struct ListingDetailView: View {
+    let listing: Listing
+    @Environment(\.dismiss) private var dismiss
+    @State private var isSaved = false
+    @State private var showContactSheet = false
+    @State private var currentImageIndex = 0
+    
+    var body: some View {
+        ZStack {
+            GradientBackground()
+            
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Image Gallery with overlaid buttons
+                    imageGalleryWithButtons
+                    
+                    // Content
+                    VStack(alignment: .leading, spacing: 20) {
+                        // Price & Status
+                        priceSection
+                        
+                        Divider()
+                        
+                        // Features
+                        featuresSection
+                        
+                        Divider()
+                        
+                        // Description
+                        descriptionSection
+                        
+                        Divider()
+                        
+                        // Amenities
+                        amenitiesSection
+                        
+                        Divider()
+                        
+                        // Location
+                        locationSection
+                        
+                        // Landlord Info
+                        landlordSection
+                    }
+                    .padding()
+                    .padding(.bottom, 100)
+                }
+            }
+            
+            // Floating Action Bar
+            VStack {
+                Spacer()
+                floatingActionBar
+            }
+        }
+        .navigationBarHidden(true)
+        .sheet(isPresented: $showContactSheet) {
+            ContactLandlordSheet(listing: listing)
+        }
+    }
+    
+    // MARK: - Image Gallery with Overlaid Buttons (No backgrounds)
+    private var imageGalleryWithButtons: some View {
+        ZStack(alignment: .top) {
+            // Main Image
+            RoundedRectangle(cornerRadius: 0)
+                .fill(
+                    LinearGradient(
+                        colors: [Color.gray.opacity(0.2), Color.gray.opacity(0.4)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(height: 320)
+                .overlay {
+                    Image(systemName: "photo")
+                        .font(.system(size: 60, weight: .light))
+                        .foregroundStyle(.secondary.opacity(0.4))
+                }
+            
+            // Top Navigation Bar (No outline/background)
+            HStack {
+                // Back Button - No background
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(Color.collegioOrange)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 20) {
+                    // Share Button - No background
+                    Button(action: {}) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.title3.weight(.medium))
+                            .foregroundStyle(.primary)
+                    }
+                    
+                    // Save Button - No background
+                    Button(action: { isSaved.toggle() }) {
+                        Image(systemName: isSaved ? "heart.fill" : "heart")
+                            .font(.title3.weight(.medium))
+                            .foregroundStyle(isSaved ? .red : .primary)
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 60) // Account for status bar
+            
+            // Image Indicator at bottom
+            VStack {
+                Spacer()
+                HStack(spacing: 6) {
+                    ForEach(0..<4, id: \.self) { index in
+                        Circle()
+                            .fill(index == currentImageIndex ? Color.white : Color.white.opacity(0.5))
+                            .frame(width: 8, height: 8)
+                    }
+                }
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
+                .background(.ultraThinMaterial, in: Capsule())
+            }
+            .padding(.bottom, 16)
+            .frame(height: 320)
+        }
+    }
+    
+    // MARK: - Price Section
+    private var priceSection: some View {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(listing.formattedPrice)
+                    .font(.largeTitle.weight(.bold))
+                    .foregroundStyle(Color.collegioOrange)
+                
+                Text(listing.title)
+                    .font(.title3.weight(.semibold))
+            }
+            
+            Spacer()
+            
+            if listing.isAvailable {
+                Text("Available")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.green)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(.green.opacity(0.12), in: Capsule())
+            }
+        }
+    }
+    
+    // MARK: - Features Section
+    private var featuresSection: some View {
+        HStack(spacing: 0) {
+            FeatureItem(icon: "bed.double.fill", value: "\(listing.bedrooms)", label: "Beds")
+            
+            Divider().frame(height: 40)
+            
+            FeatureItem(icon: "shower.fill", value: listing.bathroomsText.replacingOccurrences(of: " bath", with: ""), label: "Baths")
+            
+            Divider().frame(height: 40)
+            
+            FeatureItem(icon: "square.dashed", value: "850", label: "Sq Ft")
+            
+            if let distance = listing.distance {
+                Divider().frame(height: 40)
+                FeatureItem(icon: "figure.walk", value: String(format: "%.1f", distance), label: "Miles")
+            }
+        }
+        .padding(.vertical, 8)
+    }
+    
+    // MARK: - Description
+    private var descriptionSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Description")
+                .font(.headline)
+            
+            Text("Beautiful modern apartment located just minutes from campus. Features include updated kitchen, in-unit washer/dryer, and a private balcony. Perfect for students looking for a quiet, comfortable living space close to all amenities.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .lineSpacing(4)
+        }
+    }
+    
+    // MARK: - Amenities
+    private var amenitiesSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Amenities")
+                .font(.headline)
+            
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                DetailAmenityItem(icon: "washer.fill", text: "Washer/Dryer")
+                DetailAmenityItem(icon: "parkingsign", text: "Parking")
+                DetailAmenityItem(icon: "wifi", text: "WiFi Included")
+                DetailAmenityItem(icon: "snowflake", text: "A/C")
+                DetailAmenityItem(icon: "pawprint.fill", text: "Pet Friendly")
+                DetailAmenityItem(icon: "lock.shield.fill", text: "Secured Entry")
+            }
+        }
+    }
+    
+    // MARK: - Location
+    private var locationSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Location")
+                .font(.headline)
+            
+            HStack(spacing: 8) {
+                Image(systemName: "mappin.circle.fill")
+                    .font(.body)
+                    .foregroundStyle(Color.collegioOrange)
+                
+                Text(listing.address)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            
+            // Mapbox Map Preview
+            ListingMapPreview(coordinate: listing.coordinate)
+                .frame(height: 150)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+    }
+    
+    // MARK: - Landlord Section
+    private var landlordSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Listed By")
+                .font(.headline)
+            
+            HStack(spacing: 14) {
+                Circle()
+                    .fill(Color.collegioBlue.opacity(0.2))
+                    .frame(width: 50, height: 50)
+                    .overlay {
+                        Text("PM")
+                            .font(.headline)
+                            .foregroundStyle(Color.collegioBlue)
+                    }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Property Manager")
+                        .font(.subheadline.weight(.semibold))
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.seal.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.green)
+                        Text("Verified")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                
+                Spacer()
+            }
+            .padding()
+            .glassCard(cornerRadius: 16)
+        }
+    }
+    
+    // MARK: - Floating Action Bar
+    private var floatingActionBar: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(listing.formattedPrice)
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(Color.collegioOrange)
+                Text("per month")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Spacer()
+            
+            Button(action: { showContactSheet = true }) {
+                Text("Contact Landlord")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 14)
+                    .background {
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.collegioOrange, Color.collegioOrangeDark],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    }
+            }
+        }
+        .padding()
+        .background {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: -10)
+                .ignoresSafeArea(edges: .bottom)
+        }
+    }
+}
+
+// MARK: - Feature Item
+struct FeatureItem: View {
+    let icon: String
+    let value: String
+    let label: String
+    
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundStyle(Color.collegioOrange)
+            
+            Text(value)
+                .font(.headline)
+            
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - Detail Amenity Item
+struct DetailAmenityItem: View {
+    let icon: String
+    let text: String
+    
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(Color.collegioOrange)
+                .frame(width: 24)
+            
+            Text(text)
+                .font(.subheadline)
+            
+            Spacer()
+        }
+        .padding(.vertical, 8)
+    }
+}
+
+// MARK: - Contact Landlord Sheet
+struct ContactLandlordSheet: View {
+    let listing: Listing
+    @Environment(\.dismiss) private var dismiss
+    @State private var message = ""
+    
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Quick Messages")
+                        .font(.headline)
+                    
+                    ForEach([
+                        "Is this still available?",
+                        "I'd like to schedule a viewing",
+                        "What's the move-in date?"
+                    ], id: \.self) { quickMessage in
+                        Button(action: { message = quickMessage }) {
+                            Text(quickMessage)
+                                .font(.subheadline)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding()
+                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Your Message")
+                        .font(.headline)
+                    
+                    TextEditor(text: $message)
+                        .frame(height: 120)
+                        .padding(8)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                }
+                
+                Spacer()
+                
+                Button(action: { dismiss() }) {
+                    Text("Send Message")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.collegioOrange, in: Capsule())
+                }
+            }
+            .padding()
+            .background(GradientBackground())
+            .navigationTitle("Contact Landlord")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+}
+
+// MARK: - Listing Map Preview
+struct ListingMapPreview: UIViewRepresentable {
+    let coordinate: CLLocationCoordinate2D
+    
+    func makeUIView(context: Context) -> MapView {
+        let options = MapInitOptions(
+            cameraOptions: CameraOptions(center: coordinate, zoom: 14),
+            styleURI: StyleURI(url: URL(string: "mapbox://styles/mapbox/streets-v12")!)
+        )
+        
+        let mapView = MapView(frame: .zero, mapInitOptions: options)
+        mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        mapView.gestures.options.panEnabled = false
+        mapView.gestures.options.pinchEnabled = false
+        mapView.gestures.options.rotateEnabled = false
+        mapView.gestures.options.pitchEnabled = false
+        
+        // Add marker after style loads
+        mapView.mapboxMap.onStyleLoaded.observeNext { _ in
+            // Add a point annotation for the listing
+            var pointAnnotation = PointAnnotation(coordinate: coordinate)
+            pointAnnotation.iconImage = "mapbox-marker-icon-20px-orange"
+            
+            let annotationManager = mapView.annotations.makePointAnnotationManager()
+            annotationManager.annotations = [pointAnnotation]
+        }.store(in: &context.coordinator.cancellables)
+        
+        return mapView
+    }
+    
+    func updateUIView(_ uiView: MapView, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+    
+    class Coordinator {
+        var cancellables = Set<AnyCancellable>()
+    }
+}
+
+#Preview {
+    ListingDetailView(listing: Listing.sample)
+}
+
+#Preview("Dark") {
+    ListingDetailView(listing: Listing.sample)
+        .preferredColorScheme(.dark)
+}
