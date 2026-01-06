@@ -15,7 +15,7 @@ const TermsOfService = () => {
                         Back to Home
                     </Link>
                     <h1 className="text-3xl sm:text-4xl font-black text-white">Terms of Service</h1>
-                    <p className="text-white/70 mt-2">Last updated: December {currentYear}</p>
+                    <p className="text-white/70 mt-2">Last updated: January 2, 2026</p>
                 </div>
             </div>
 
@@ -86,7 +86,21 @@ const TermsOfService = () => {
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-bold text-white mb-4">6. Messaging and Communication</h2>
+                        <h2 className="text-xl font-bold text-white mb-4">6. Student Marketplace</h2>
+                        <p className="text-white/80 leading-relaxed mb-3">
+                            Collegio provides a marketplace for students to buy and sell items. When using the marketplace:
+                        </p>
+                        <ul className="list-disc list-inside text-white/80 space-y-2 ml-4">
+                            <li>Sellers are responsible for the accuracy of item descriptions and pricing</li>
+                            <li>Buyers and sellers transact directly; Collegio is not a party to sales</li>
+                            <li>We recommend meeting in public, well-lit areas for exchanges</li>
+                            <li>Collegio does not provide payment processing or buyer/seller protection</li>
+                            <li>Prohibited items include: weapons, drugs, alcohol, stolen goods, and counterfeit products</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2 className="text-xl font-bold text-white mb-4">7. Messaging and Communication</h2>
                         <p className="text-white/80 leading-relaxed mb-3">
                             When using our messaging system, you agree not to:
                         </p>

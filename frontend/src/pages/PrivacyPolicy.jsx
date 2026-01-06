@@ -15,7 +15,7 @@ const PrivacyPolicy = () => {
                         Back to Home
                     </Link>
                     <h1 className="text-3xl sm:text-4xl font-black text-white">Privacy Policy</h1>
-                    <p className="text-white/70 mt-2">Last updated: December {currentYear}</p>
+                    <p className="text-white/70 mt-2">Last updated: January 2, 2026</p>
                 </div>
             </div>
 
@@ -42,6 +42,7 @@ const PrivacyPolicy = () => {
                             <li><strong>Profile Information:</strong> Profile photo, age, university/college, major, graduation year</li>
                             <li><strong>Lifestyle Preferences:</strong> Sleep schedule, cleanliness habits, noise preferences, guest policies, study habits for roommate matching</li>
                             <li><strong>Listing Information:</strong> Property photos, addresses, descriptions, pricing, amenities (for landlords)</li>
+                            <li><strong>Marketplace Information:</strong> Item photos, descriptions, pricing (for sellers in student marketplace)</li>
                             <li><strong>Communications:</strong> Messages sent through our platform, support inquiries</li>
                         </ul>
 
