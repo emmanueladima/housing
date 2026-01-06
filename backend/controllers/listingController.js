@@ -471,7 +471,15 @@ export const toggleFavorite = async (req, res) => {
     }
 
     const user = await User.findById(req.user._id);
-    const isFavorited = user.favorites.includes(listing._id);
+
+    // Initialize favorites array if it doesn't exist
+    if (!user.favorites) {
+      user.favorites = [];
+    }
+
+    const isFavorited = user.favorites.some(
+      id => id.toString() === listing._id.toString()
+    );
 
     if (isFavorited) {
       // Remove from favorites
@@ -491,10 +499,10 @@ export const toggleFavorite = async (req, res) => {
       message: isFavorited ? 'Removed from favorites' : 'Added to favorites',
     });
   } catch (error) {
-    console.error('Toggle favorite error:', error);
+    console.error('Toggle favorite error:', error.message, error.stack);
     res.status(500).json({
       success: false,
-      error: 'Error toggling favorite',
+      error: error.message || 'Error toggling favorite',
     });
   }
 };

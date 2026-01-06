@@ -191,6 +191,7 @@ struct ConversationRowView: View {
 struct ChatView: View {
     let conversation: Conversation
     @State private var messageText = ""
+    @State private var showReportSheet = false
     
     var body: some View {
         ZStack {
@@ -224,6 +225,23 @@ struct ChatView: View {
         }
         .navigationTitle(conversation.participants.first?.fullName ?? "Chat")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(role: .destructive) {
+                        showReportSheet = true
+                    } label: {
+                        Label("Report Conversation", systemImage: "exclamationmark.triangle")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .foregroundStyle(Color.collegioOrange)
+                }
+            }
+        }
+        .sheet(isPresented: $showReportSheet) {
+            MessageReportSheet(conversationId: conversation.id)
+        }
     }
 }
 

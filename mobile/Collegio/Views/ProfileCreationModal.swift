@@ -317,10 +317,10 @@ struct ProfileCreationModal: View {
                 
                 // Lifestyle Toggles
                 VStack(spacing: 16) {
-                    ToggleRow(label: "I have pets", icon: "pawprint.fill", isOn: $hasPets)
-                    ToggleRow(label: "Pet allergies", icon: "allergens", isOn: $petAllergies)
-                    ToggleRow(label: "Smoker", icon: "smoke.fill", isOn: $smoking)
-                    ToggleRow(label: "Social drinker", icon: "wineglass.fill", isOn: $drinking)
+                    ModalToggleRow(label: "I have pets", icon: "pawprint.fill", isOn: $hasPets)
+                    ModalToggleRow(label: "Pet allergies", icon: "allergens", isOn: $petAllergies)
+                    ModalToggleRow(label: "Smoker", icon: "smoke.fill", isOn: $smoking)
+                    ModalToggleRow(label: "Social drinker", icon: "wineglass.fill", isOn: $drinking)
                 }
             }
             .padding()
@@ -499,8 +499,8 @@ struct SliderSection: View {
     }
 }
 
-// MARK: - Toggle Row
-struct ToggleRow: View {
+// MARK: - Modal Toggle Row
+struct ModalToggleRow: View {
     let label: String
     let icon: String
     @Binding var isOn: Bool

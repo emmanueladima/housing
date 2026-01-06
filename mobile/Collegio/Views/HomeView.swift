@@ -60,9 +60,12 @@ struct HomeView: View {
         }
         .task {
             await viewModel.fetchListings()
+            // Load favorites so heart icons show correct state
+            await FavoritesManager.shared.loadFavorites()
         }
         .refreshable {
             await viewModel.fetchListings()
+            await FavoritesManager.shared.loadFavorites()
         }
         .sheet(isPresented: $showMap) {
             MapSheetView(listings: viewModel.listings, selectedListing: $mapSelectedListing)
@@ -126,63 +129,39 @@ struct HomeView: View {
         .padding(.bottom, 12)
     }
     
-    // MARK: - Filter Pills (Filters + Sort Dropdown)
+    // MARK: - Sort Pills (Horizontal scroll)
     private var filterPills: some View {
-        HStack(spacing: 12) {
-            // Filters Button
-            Button(action: { showFilters = true }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "slider.horizontal.3")
-                        .font(.subheadline.weight(.semibold))
-                    Text("Filters")
-                        .font(.subheadline.weight(.semibold))
-                }
-                .foregroundStyle(.primary)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color(.systemGray4), lineWidth: 1)
-                }
-            }
-            .buttonStyle(.plain)
-            
-            // Sort Dropdown
-            Menu {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
                 ForEach(SortOption.allCases, id: \.self) { option in
-                    Button(action: {
-                        withAnimation { selectedSort = option }
-                    }) {
-                        HStack {
+                    Button {
+                        withAnimation(.spring(response: 0.3)) {
+                            selectedSort = option
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
                             Image(systemName: option.icon)
+                                .font(.caption.weight(.semibold))
                             Text(option.rawValue)
-                            if selectedSort == option {
-                                Spacer()
-                                Image(systemName: "checkmark")
-                            }
+                                .font(.subheadline.weight(.semibold))
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(Color.white.opacity(0.1))
+                        .foregroundStyle(selectedSort == option ? Color.collegioOrange : .primary)
+                        .clipShape(Capsule())
+                        .overlay {
+                            Capsule()
+                                .stroke(selectedSort == option ? Color.collegioOrange : Color.white.opacity(0.2), lineWidth: selectedSort == option ? 2 : 1)
                         }
                     }
+                    .buttonStyle(.plain)
                 }
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "arrow.up.arrow.down")
-                        .font(.subheadline)
-                    Text(selectedSort.rawValue)
-                        .font(.subheadline.weight(.medium))
-                    Image(systemName: "chevron.down")
-                        .font(.caption)
-                }
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
             }
-            
-            Spacer()
+            .padding(.horizontal)
+            .padding(.vertical, 4)
         }
-        .padding(.horizontal)
-        .padding(.bottom, 16)
+        .padding(.bottom, 8)
     }
     
     // MARK: - Floating Map Button
@@ -286,8 +265,12 @@ struct HomeView: View {
 // MARK: - Listing Card Component
 struct ListingCard: View {
     let listing: Listing
-    @State private var isSaved = false
+    @ObservedObject private var favoritesManager = FavoritesManager.shared
     @State private var currentImageIndex = 0
+    
+    private var isSaved: Bool {
+        favoritesManager.isFavorite(listing.id)
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -326,11 +309,11 @@ struct ListingCard: View {
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 
                 // Save Button
-                Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                        isSaved.toggle()
+                Button {
+                    Task {
+                        await favoritesManager.toggleFavorite(for: listing.id)
                     }
-                }) {
+                } label: {
                     Image(systemName: isSaved ? "heart.fill" : "heart")
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(isSaved ? .red : .white)

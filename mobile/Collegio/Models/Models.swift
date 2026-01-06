@@ -74,7 +74,11 @@ struct User: Identifiable, Codable {
     let lastName: String
     let profileImage: String?
     let userType: UserType
-    let isVerified: Bool
+    var isVerified: Bool?
+    var hasLifestyleProfile: Bool?
+    let phone: String?
+    let school: String?
+    let graduationYear: Int?
     
     var fullName: String {
         "\(firstName) \(lastName)"
@@ -96,6 +100,9 @@ enum UserType: String, Codable {
 struct LifestyleProfile: Identifiable, Codable {
     let id: String
     let user: User?
+    
+    // Profile photo
+    let photo: String?
     
     // Basics
     let bio: String?
@@ -126,6 +133,7 @@ struct LifestyleProfile: Identifiable, Codable {
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case user
+        case photo
         case bio
         case gender
         case age
@@ -240,7 +248,11 @@ extension User {
         lastName: "Doe",
         profileImage: nil,
         userType: .student,
-        isVerified: true
+        isVerified: true,
+        hasLifestyleProfile: true,
+        phone: "555-123-4567",
+        school: "Oregon State University",
+        graduationYear: 2026
     )
 }
 
@@ -248,6 +260,7 @@ extension LifestyleProfile {
     static let sample = LifestyleProfile(
         id: "lp1",
         user: User.sample,
+        photo: nil,
         bio: "CS major looking for a chill roommate!",
         gender: "male",
         age: 21,

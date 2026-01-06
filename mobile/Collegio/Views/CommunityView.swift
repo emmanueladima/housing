@@ -134,6 +134,7 @@ struct CommunityView: View {
 struct CommunityPostCard: View {
     let post: CommunityPost
     @State private var isLiked: Bool
+    @State private var showReportSheet = false
     
     init(post: CommunityPost) {
         self.post = post
@@ -204,14 +205,24 @@ struct CommunityPostCard: View {
                 
                 Spacer()
                 
-                Button(action: {}) {
-                    Image(systemName: "square.and.arrow.up")
+                // Report Menu
+                Menu {
+                    Button(role: .destructive) {
+                        showReportSheet = true
+                    } label: {
+                        Label("Report Post", systemImage: "exclamationmark.triangle")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
                         .foregroundStyle(.secondary)
                 }
             }
         }
         .padding(16)
         .glassCard()
+        .sheet(isPresented: $showReportSheet) {
+            PostReportSheet(postId: post.id)
+        }
     }
     
     private func timeAgoString(from date: Date) -> String {

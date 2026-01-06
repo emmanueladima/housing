@@ -9,6 +9,8 @@ class ProfileViewModel: ObservableObject {
     @Published var completionPercentage: Double = 0.0
     @Published var isLoading = false
     @Published var completionTasks: [String] = [] // What's missing
+    @Published var savedCount: Int = 0
+    @Published var applicationsCount: Int = 0
     
     func fetchProfileData() async {
         isLoading = true
@@ -29,6 +31,13 @@ class ProfileViewModel: ObservableObject {
             self.lifestyleProfile = nil
         }
         
+        // 3. Get favorites count from FavoritesManager
+        await FavoritesManager.shared.loadFavorites()
+        savedCount = FavoritesManager.shared.favoriteListings.count
+        
+        // 4. Get applications count (TODO: implement when applications API is available)
+        applicationsCount = 0 // Will be fetched from applications API when implemented
+        
         calculateCompletion()
         isLoading = false
     }
@@ -45,7 +54,7 @@ class ProfileViewModel: ObservableObject {
                 tasks.append("Upload a profile picture")
             }
             
-            if u.isVerified {
+            if u.isVerified ?? false {
                 score += 10
             } else {
                 tasks.append("Verify your student email")

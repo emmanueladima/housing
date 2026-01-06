@@ -517,42 +517,6 @@ struct PreviewRow: View {
     }
 }
 
-// MARK: - Flow Layout (for tags)
-struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
-    
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let result = arrangedSubviews(proposal: proposal, subviews: subviews)
-        return result.size
-    }
-    
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let result = arrangedSubviews(proposal: proposal, subviews: subviews)
-        for (index, origin) in result.origins.enumerated() {
-            subviews[index].place(at: CGPoint(x: bounds.minX + origin.x, y: bounds.minY + origin.y), proposal: .unspecified)
-        }
-    }
-    
-    private func arrangedSubviews(proposal: ProposedViewSize, subviews: Subviews) -> (size: CGSize, origins: [CGPoint]) {
-        var origins: [CGPoint] = []
-        var x: CGFloat = 0
-        var y: CGFloat = 0
-        var maxY: CGFloat = 0
-        
-        for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
-            if x + size.width > (proposal.width ?? .infinity), x > 0 {
-                x = 0
-                y = maxY + spacing
-            }
-            origins.append(CGPoint(x: x, y: y))
-            x += size.width + spacing
-            maxY = max(maxY, y + size.height)
-        }
-        
-        return (CGSize(width: proposal.width ?? x, height: maxY), origins)
-    }
-}
 
 #Preview {
     CreatePostView()

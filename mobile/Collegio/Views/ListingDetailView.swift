@@ -6,9 +6,16 @@ import Combine
 struct ListingDetailView: View {
     let listing: Listing
     @Environment(\.dismiss) private var dismiss
-    @State private var isSaved = false
+    @ObservedObject private var favoritesManager = FavoritesManager.shared
     @State private var showContactSheet = false
+    @State private var showWriteReview = false
+    @State private var showReportSheet = false
     @State private var currentImageIndex = 0
+    @StateObject private var reviewsVM = ListingReviewsViewModel()
+    
+    private var isSaved: Bool {
+        favoritesManager.isFavorite(listing.id)
+    }
     
     var body: some View {
         ZStack {
@@ -44,6 +51,11 @@ struct ListingDetailView: View {
                         // Location
                         locationSection
                         
+                        Divider()
+                        
+                        // Reviews
+                        reviewsSection
+                        
                         // Landlord Info
                         landlordSection
                     }
@@ -61,6 +73,17 @@ struct ListingDetailView: View {
         .navigationBarHidden(true)
         .sheet(isPresented: $showContactSheet) {
             ContactLandlordSheet(listing: listing)
+        }
+        .sheet(isPresented: $showWriteReview) {
+            WriteReviewSheet(listingId: listing.id) {
+                Task { await reviewsVM.loadReviews(for: listing.id) }
+            }
+        }
+        .sheet(isPresented: $showReportSheet) {
+            ListingReportSheet(listingId: listing.id)
+        }
+        .task {
+            await reviewsVM.loadReviews(for: listing.id)
         }
     }
     
@@ -94,21 +117,39 @@ struct ListingDetailView: View {
                 
                 Spacer()
                 
-                HStack(spacing: 20) {
-                    // Share Button - No background
-                    Button(action: {}) {
+                HStack(spacing: 16) {
+                    // Share Button
+                    ShareLink(item: URL(string: "https://collegio.us/listings/\(listing.id)")!, subject: Text(listing.title ?? "Check out this listing"), message: Text("Found this listing on Collegio!")) {
                         Image(systemName: "square.and.arrow.up")
-                            .font(.title3.weight(.medium))
+                            .font(.body.weight(.medium))
                             .foregroundStyle(.primary)
                     }
                     
-                    // Save Button - No background
-                    Button(action: { isSaved.toggle() }) {
+                    // Save Button (Heart)
+                    Button {
+                        Task { await favoritesManager.toggleFavorite(for: listing.id) }
+                    } label: {
                         Image(systemName: isSaved ? "heart.fill" : "heart")
-                            .font(.title3.weight(.medium))
+                            .font(.body.weight(.medium))
                             .foregroundStyle(isSaved ? .red : .primary)
                     }
+                    
+                    // Report Menu
+                    Menu {
+                        Button(role: .destructive) {
+                            showReportSheet = true
+                        } label: {
+                            Label("Report Listing", systemImage: "exclamationmark.triangle")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(.primary)
+                    }
                 }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(.ultraThinMaterial, in: Capsule())
             }
             .padding(.horizontal, 20)
             .padding(.top, 60) // Account for status bar
@@ -228,6 +269,70 @@ struct ListingDetailView: View {
             ListingMapPreview(coordinate: listing.coordinate)
                 .frame(height: 150)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
+    }
+    
+    // MARK: - Reviews Section
+    private var reviewsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Header
+            HStack {
+                Text("Reviews")
+                    .font(.headline)
+                
+                if reviewsVM.averageRating > 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(.yellow)
+                        Text(String(format: "%.1f", reviewsVM.averageRating))
+                            .fontWeight(.semibold)
+                        Text("(\(reviewsVM.reviews.count))")
+                            .foregroundStyle(.secondary)
+                    }
+                    .font(.subheadline)
+                }
+                
+                Spacer()
+                
+                Button("Write Review") {
+                    showWriteReview = true
+                }
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Color.collegioOrange)
+            }
+            
+            if reviewsVM.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else if reviewsVM.reviews.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "text.bubble")
+                        .font(.title)
+                        .foregroundStyle(.secondary)
+                    Text("No reviews yet")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text("Be the first to share your experience!")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 20)
+            } else {
+                ForEach(reviewsVM.reviews.prefix(3)) { review in
+                    ReviewCard(review: review)
+                }
+                
+                if reviewsVM.reviews.count > 3 {
+                    NavigationLink(destination: AllReviewsView(reviews: reviewsVM.reviews)) {
+                        Text("See all \(reviewsVM.reviews.count) reviews")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Color.collegioOrange)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                }
+            }
         }
     }
     

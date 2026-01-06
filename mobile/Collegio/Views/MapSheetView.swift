@@ -28,12 +28,6 @@ struct MapSheetView: View {
             .animation(.spring(response: 0.35), value: selectedListing?.id)
             .navigationTitle("Explore Map")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                        .fontWeight(.semibold)
-                }
-            }
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
@@ -118,11 +112,12 @@ struct CollegioMapView: UIViewRepresentable {
         annotationManager.annotations = points
     }
     
-    /// Create a price bubble marker like the website
+    /// Create a price bubble marker like the website (orange theme)
     private func createPriceMarker(text: String, isSelected: Bool) -> UIImage {
-        let font = UIFont.systemFont(ofSize: 13, weight: .bold)
-        let textColor = isSelected ? UIColor.white : UIColor.black
-        let bgColor = isSelected ? UIColor.systemOrange : UIColor.white
+        let font = UIFont.systemFont(ofSize: 14, weight: .bold)
+        // Darker orange like website screenshot
+        let textColor = UIColor.white
+        let bgColor = UIColor(red: 0.86, green: 0.29, blue: 0.17, alpha: 1.0) // #db4a2b
         
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
@@ -130,10 +125,10 @@ struct CollegioMapView: UIViewRepresentable {
         ]
         
         let textSize = text.size(withAttributes: attributes)
-        let padding: CGFloat = 12
+        let padding: CGFloat = 14
         let bubbleWidth = textSize.width + padding * 2
-        let bubbleHeight: CGFloat = 28
-        let pointerHeight: CGFloat = 6
+        let bubbleHeight: CGFloat = 32
+        let pointerHeight: CGFloat = 8
         let totalHeight = bubbleHeight + pointerHeight
         
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: bubbleWidth, height: totalHeight))
@@ -146,24 +141,17 @@ struct CollegioMapView: UIViewRepresentable {
             let path = UIBezierPath(roundedRect: bubbleRect, cornerRadius: bubbleHeight / 2)
             
             // Add pointer triangle
-            path.move(to: CGPoint(x: bubbleWidth / 2 - 5, y: bubbleHeight))
+            path.move(to: CGPoint(x: bubbleWidth / 2 - 6, y: bubbleHeight))
             path.addLine(to: CGPoint(x: bubbleWidth / 2, y: totalHeight))
-            path.addLine(to: CGPoint(x: bubbleWidth / 2 + 5, y: bubbleHeight))
+            path.addLine(to: CGPoint(x: bubbleWidth / 2 + 6, y: bubbleHeight))
             path.close()
             
             // Shadow
             ctx.saveGState()
-            ctx.setShadow(offset: CGSize(width: 0, height: 2), blur: 4, color: UIColor.black.withAlphaComponent(0.15).cgColor)
+            ctx.setShadow(offset: CGSize(width: 0, height: 2), blur: 5, color: UIColor.black.withAlphaComponent(0.25).cgColor)
             bgColor.setFill()
             path.fill()
             ctx.restoreGState()
-            
-            // Border
-            if !isSelected {
-                UIColor.systemGray4.setStroke()
-                path.lineWidth = 1
-                path.stroke()
-            }
             
             // Text
             let textRect = CGRect(

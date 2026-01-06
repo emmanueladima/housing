@@ -4,6 +4,8 @@ struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
     @AppStorage("isDarkMode") private var isDarkMode = false
     @State private var showLogoutAlert = false
+    @State private var showDeleteAlert = false
+    @State private var showProfileSetup = false
     
     var body: some View {
         NavigationStack {
@@ -40,6 +42,17 @@ struct ProfileView: View {
         } message: {
             Text("Are you sure you want to log out?")
         }
+        .alert("Delete Account", isPresented: $showDeleteAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                // TODO: Implement account deletion
+            }
+        } message: {
+            Text("This will permanently delete your account and all data. This action cannot be undone.")
+        }
+        .fullScreenCover(isPresented: $showProfileSetup) {
+            ProfileSetupWizard()
+        }
     }
     
     // MARK: - Profile Header
@@ -60,8 +73,16 @@ struct ProfileView: View {
                         .rotationEffect(.degrees(-90))
                         .animation(.easeOut(duration: 1.0), value: viewModel.completionPercentage)
                     
-                    // Avatar Image/Placeholder
-                    if let imageUrl = viewModel.user?.profileImage, let url = URL(string: imageUrl) {
+                    // Avatar Image/Placeholder - check lifestyle profile photo first
+                    if let photoUrl = viewModel.lifestyleProfile?.photo, let url = URL(string: photoUrl) {
+                        AsyncImage(url: url) { image in
+                            image.resizable().aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            ProgressView()
+                        }
+                        .frame(width: 76, height: 76)
+                        .clipShape(Circle())
+                    } else if let imageUrl = viewModel.user?.profileImage, let url = URL(string: imageUrl) {
                         AsyncImage(url: url) { image in
                             image.resizable().aspectRatio(contentMode: .fill)
                         } placeholder: {
@@ -107,17 +128,16 @@ struct ProfileView: View {
                     }
                 }
                 
-                Button(action: {}) {
+                Button(action: { showProfileSetup = true }) {
                     HStack(spacing: 6) {
-                        Image(systemName: "pencil")
-                        Text("Complete profile")
+                        Image(systemName: "sparkles")
+                        Text(viewModel.completionPercentage >= 100 ? "Edit Profile" : "Complete Profile")
                     }
                     .font(.subheadline.bold())
-                    .foregroundStyle(.primary)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(Capsule().fill(.ultraThinMaterial))
-                    .overlay(Capsule().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                    .background(Capsule().fill(Color.collegioOrange))
                 }
                 .buttonStyle(.plain)
             }
@@ -131,12 +151,12 @@ struct ProfileView: View {
     private var menuGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
             NavigationLink(destination: SavedListingsView()) {
-                ProfileCard(title: "Saved\nListings", icon: "heart.fill", color: .collegioOrange, count: 3)
+                ProfileCard(title: "Saved\nListings", icon: "heart.fill", color: .collegioOrange, count: viewModel.savedCount)
             }
             .buttonStyle(.plain)
             
             NavigationLink(destination: MyApplicationsView()) {
-                ProfileCard(title: "My\nApplications", icon: "doc.text.fill", color: .collegioOrange, count: 2)
+                ProfileCard(title: "My\nApplications", icon: "doc.text.fill", color: .collegioOrange, count: viewModel.applicationsCount)
             }
             .buttonStyle(.plain)
             
@@ -189,8 +209,29 @@ struct ProfileView: View {
             
             MenuRow(icon: "bell.fill", title: "Notifications", color: .orange)
             Divider().padding(.leading, 56)
-            MenuRow(icon: "lock.fill", title: "Privacy & Security", color: .gray)
-            Divider().padding(.leading, 56)
+            
+            // Privacy & Security Link
+            NavigationLink(destination: PrivacySecurityView()) {
+                HStack {
+                    Image(systemName: "lock.fill")
+                        .font(.title3)
+                        .foregroundStyle(.gray)
+                        .frame(width: 32)
+                    
+                    Text("Privacy & Security")
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
             
             // Feedback Board Link
             NavigationLink(destination: FeedbackView()) {
@@ -216,23 +257,58 @@ struct ProfileView: View {
             .buttonStyle(.plain)
             
             Divider().padding(.leading, 56)
-            MenuRow(icon: "questionmark.circle.fill", title: "Help & Support", color: .teal)
+            
+            // Safety Center Link
+            NavigationLink(destination: SafetyCenterView()) {
+                HStack {
+                    Image(systemName: "shield.fill")
+                        .font(.title3)
+                        .foregroundStyle(.teal)
+                        .frame(width: 32)
+                    
+                    Text("Safety Center")
+                        .font(.body)
+                        .foregroundStyle(.primary)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
         }
         .glassCard()
     }
     
     // MARK: - Logout Button
     private var logoutButton: some View {
-        Button(action: { showLogoutAlert = true }) {
-            HStack {
-                Spacer()
-                Text("Log Out")
-                    .font(.headline)
-                    .foregroundStyle(.red)
-                Spacer()
+        VStack(spacing: 12) {
+            Button(action: { showLogoutAlert = true }) {
+                HStack {
+                    Spacer()
+                    Text("Log Out")
+                        .font(.headline)
+                        .foregroundStyle(.red)
+                    Spacer()
+                }
+                .padding()
+                .glassCard()
             }
-            .padding()
-            .glassCard()
+            
+            Button(action: { showDeleteAlert = true }) {
+                HStack {
+                    Spacer()
+                    Text("Delete Account")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                }
+                .padding(.vertical, 8)
+            }
         }
     }
 }
@@ -287,7 +363,7 @@ struct ProfileCard: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 120, alignment: .leading)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
         .overlay {
             RoundedRectangle(cornerRadius: 20)

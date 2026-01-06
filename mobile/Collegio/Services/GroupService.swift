@@ -274,3 +274,98 @@ class GroupService {
 
 // Helper for endpoints that return empty or success-only responses
 struct EmptyResponse: Decodable {}
+
+// MARK: - Checklist Models
+
+struct ChecklistItem: Codable, Identifiable {
+    let id: String
+    let text: String
+    let completed: Bool
+    let category: String?
+    let order: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case text, completed, category, order
+    }
+}
+
+struct PersonalChecklist: Codable {
+    let id: String?
+    let items: [ChecklistItem]
+    let notCreated: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case items, notCreated
+    }
+}
+
+struct InitChecklistRequest: Encodable {
+    let useTemplate: Bool
+}
+
+struct UpdateChecklistRequest: Encodable {
+    let items: [ChecklistItemUpdate]
+}
+
+struct ChecklistItemUpdate: Encodable {
+    let _id: String
+    let text: String
+    let completed: Bool
+    let category: String?
+    let order: Int?
+}
+
+struct AddChecklistItemRequest: Encodable {
+    let text: String
+    let category: String
+}
+
+// MARK: - ChecklistService
+
+class ChecklistService {
+    static let shared = ChecklistService()
+    private let api = APIService.shared
+    private let baseEndpoint = "/checklists"
+    
+    private let encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        return encoder
+    }()
+    
+    // Get personal checklist
+    func getPersonalChecklist() async throws -> PersonalChecklist {
+        try await api.authenticatedRequest("\(baseEndpoint)/personal")
+    }
+    
+    // Initialize checklist with template or empty
+    func initPersonalChecklist(useTemplate: Bool) async throws -> PersonalChecklist {
+        let body = try encoder.encode(InitChecklistRequest(useTemplate: useTemplate))
+        return try await api.authenticatedRequest("\(baseEndpoint)/personal/init", method: "POST", body: body)
+    }
+    
+    // Update entire checklist
+    func updatePersonalChecklist(items: [ChecklistItem]) async throws -> PersonalChecklist {
+        let updates = items.map { ChecklistItemUpdate(_id: $0.id, text: $0.text, completed: $0.completed, category: $0.category, order: $0.order) }
+        let body = try encoder.encode(UpdateChecklistRequest(items: updates))
+        return try await api.authenticatedRequest("\(baseEndpoint)/personal", method: "PUT", body: body)
+    }
+    
+    // Add new item
+    func addPersonalItem(text: String, category: String) async throws -> PersonalChecklist {
+        let body = try encoder.encode(AddChecklistItemRequest(text: text, category: category))
+        return try await api.authenticatedRequest("\(baseEndpoint)/personal/items", method: "POST", body: body)
+    }
+    
+    // Delete item
+    func deletePersonalItem(itemId: String) async throws -> PersonalChecklist {
+        try await api.authenticatedRequest("\(baseEndpoint)/personal/items/\(itemId)", method: "DELETE")
+    }
+    
+    // Reset to template
+    func resetPersonalChecklist() async throws -> PersonalChecklist {
+        try await api.authenticatedRequest("\(baseEndpoint)/personal/reset", method: "POST")
+    }
+}
+

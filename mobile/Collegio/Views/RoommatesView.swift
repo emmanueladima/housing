@@ -3,6 +3,7 @@ import SwiftUI
 struct RoommatesView: View {
     @StateObject private var viewModel = RoommatesViewModel()
     @State private var selectedTab = 0
+    @State private var showCreateGroup = false
     
     var body: some View {
         NavigationStack {
@@ -25,15 +26,29 @@ struct RoommatesView: View {
                         groupsList
                     }
                 }
-            }
-            .navigationTitle("Roommates")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(destination: GroupCreationView()) {
-                        Image(systemName: "plus.circle.fill")
+                
+                // Floating Create Group Button (only in Groups tab)
+                if selectedTab == 1 {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            NavigationLink(destination: GroupCreationView()) {
+                                Image(systemName: "plus")
+                                    .font(.title2.bold())
+                                    .foregroundStyle(.white)
+                                    .frame(width: 56, height: 56)
+                                    .background(Color.collegioOrange)
+                                    .clipShape(Circle())
+                                    .shadow(color: Color.collegioOrange.opacity(0.4), radius: 8, y: 4)
+                            }
+                            .padding(.trailing, 20)
+                            .padding(.bottom, 16)
+                        }
                     }
                 }
             }
+            .navigationTitle("Roommates")
             .task {
                 await viewModel.loadProfiles()
                 await viewModel.loadGroups()

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SavedListingsView: View {
     @State private var selectedTab = 0
-    @State private var savedListings: [Listing] = []
+    @ObservedObject private var favoritesManager = FavoritesManager.shared
     @State private var savedRoommates: [LifestyleProfile] = []
     @State private var isLoading = true
     
@@ -20,7 +20,7 @@ struct SavedListingsView: View {
                 .padding()
                 
                 // Content
-                if isLoading {
+                if isLoading || favoritesManager.isLoading {
                     Spacer()
                     ProgressView("Loading...")
                     Spacer()
@@ -38,12 +38,15 @@ struct SavedListingsView: View {
         .task {
             await loadSavedItems()
         }
+        .refreshable {
+            await favoritesManager.loadFavorites()
+        }
     }
     
     // MARK: - Listings Tab
     private var listingsTab: some View {
         Group {
-            if savedListings.isEmpty {
+            if favoritesManager.favoriteListings.isEmpty {
                 VStack(spacing: 16) {
                     Image(systemName: "heart.slash")
                         .font(.system(size: 48))
@@ -60,7 +63,7 @@ struct SavedListingsView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                        ForEach(savedListings) { listing in
+                        ForEach(favoritesManager.favoriteListings) { listing in
                             ListingCard(listing: listing)
                         }
                     }
@@ -103,10 +106,9 @@ struct SavedListingsView: View {
     }
     
     private func loadSavedItems() async {
-        // TODO: Implement API calls to fetch saved listings and roommates
-        try? await Task.sleep(nanoseconds: 500_000_000)
+        await favoritesManager.loadFavorites()
+        // TODO: Implement API calls to fetch saved roommates
         isLoading = false
-        // For now, show empty states
     }
 }
 

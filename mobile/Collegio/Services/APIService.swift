@@ -70,7 +70,16 @@ class APIService {
         }
         
         guard (200...299).contains(httpResponse.statusCode) else {
-            throw APIError.serverError("Server error: \(httpResponse.statusCode)")
+            // Try to parse error message from backend
+            var errorMessage = "Server error: \(httpResponse.statusCode)"
+            if let errorJson = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let backendError = errorJson["error"] as? String {
+                errorMessage = backendError
+                print("❌ Backend error: \(backendError)")
+            } else if let rawString = String(data: data, encoding: .utf8) {
+                print("❌ Raw error response: \(rawString)")
+            }
+            throw APIError.serverError(errorMessage)
         }
         
         do {
@@ -124,8 +133,51 @@ class APIService {
         return response.user
     }
     
+    func signup(
+        firstName: String,
+        lastName: String,
+        email: String,
+        password: String,
+        phone: String,
+        school: String,
+        graduationYear: Int
+    ) async throws {
+        struct SignupRequest: Encodable {
+            let firstName: String
+            let lastName: String
+            let email: String
+            let password: String
+            let phone: String
+            let school: String
+            let graduationYear: Int
+        }
+        
+        struct SignupResponse: Decodable {
+            let success: Bool
+            let message: String?
+        }
+        
+        let body = try JSONEncoder().encode(SignupRequest(
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            password: password,
+            phone: phone,
+            school: school,
+            graduationYear: graduationYear
+        ))
+        let _: SignupResponse = try await request("/auth/signup", method: "POST", body: body)
+    }
+    
     func getCurrentUser() async throws -> User {
         try await request("/auth/me")
+    }
+    
+    func resendVerification() async throws {
+        struct EmptyResponse: Decodable {
+            let success: Bool?
+        }
+        let _: EmptyResponse = try await request("/auth/resend-verification", method: "POST")
     }
     
     func logout() {
@@ -134,11 +186,91 @@ class APIService {
     
     // MARK: - Lifestyle Profiles API
     func getLifestyleProfiles() async throws -> [LifestyleProfile] {
-        try await request("/lifestyle-profiles/all")
+        struct ProfilesResponse: Decodable {
+            let success: Bool
+            let profiles: [LifestyleProfile]
+        }
+        let response: ProfilesResponse = try await request("/lifestyle-profiles/all")
+        return response.profiles
     }
     
     func getMyLifestyleProfile() async throws -> LifestyleProfile {
-        try await request("/lifestyle-profiles/me")
+        struct ProfileResponse: Decodable {
+            let success: Bool
+            let profile: LifestyleProfile
+        }
+        let response: ProfileResponse = try await request("/lifestyle-profiles/me")
+        return response.profile
+    }
+    
+    func createLifestyleProfile(
+        age: Int,
+        gender: String,
+        major: String,
+        bio: String,
+        cleanliness: Int,
+        noiseLevel: Int,
+        sleepTime: String,
+        wakeTime: String,
+        budgetMin: Int,
+        budgetMax: Int,
+        vibeTags: [String],
+        hasPets: Bool,
+        petAllergies: Bool,
+        smoking: Bool,
+        drinking: Bool,
+        lookingForRoommate: Bool
+    ) async throws {
+        struct ProfileRequest: Encodable {
+            let age: Int
+            let gender: String
+            let bio: String
+            let cleanliness: Int
+            let noiseLevel: Int
+            let sleepTime: String
+            let wakeTime: String
+            let budgetMin: Int
+            let budgetMax: Int
+            let vibeTags: [String]
+            let hasPets: Bool
+            let petAllergies: Bool
+            let smoking: String
+            let drinking: Bool  // Backend expects Bool, not String
+            let lookingForRoommate: Bool
+        }
+        
+        struct ProfileResponse: Decodable {
+            let success: Bool?
+        }
+        
+        // Map gender to backend enum format
+        let genderValue: String
+        switch gender.lowercased() {
+        case "male": genderValue = "male"
+        case "female": genderValue = "female"
+        case "non-binary": genderValue = "non-binary"
+        default: genderValue = "prefer-not-to-say"
+        }
+        
+        let body = try JSONEncoder().encode(ProfileRequest(
+            age: age,
+            gender: genderValue,
+            bio: bio,
+            cleanliness: cleanliness,
+            noiseLevel: noiseLevel,
+            sleepTime: sleepTime,
+            wakeTime: wakeTime,
+            budgetMin: budgetMin,
+            budgetMax: budgetMax,
+            vibeTags: vibeTags,
+            hasPets: hasPets,
+            petAllergies: petAllergies,
+            smoking: smoking ? "regular" : "non-smoker",
+            drinking: drinking,  // Send as Bool
+            lookingForRoommate: lookingForRoommate
+        ))
+        
+        let _: ProfileResponse = try await request("/lifestyle-profiles/me", method: "PUT", body: body)
     }
     
     // MARK: - Community API
@@ -150,5 +282,24 @@ class APIService {
     // MARK: - Messages API
     func getConversations() async throws -> [Conversation] {
         try await request("/messages/conversations")
+    }
+    
+    // MARK: - Favorites API
+    func getFavorites() async throws -> [Listing] {
+        struct FavoritesResponse: Decodable {
+            let success: Bool
+            let listings: [Listing]  // Backend returns "listings" not "favorites"
+        }
+        let response: FavoritesResponse = try await request("/listings/favorites")
+        return response.listings
+    }
+    
+    func toggleFavorite(listingId: String) async throws -> Bool {
+        struct ToggleResponse: Decodable {
+            let success: Bool
+            let isFavorited: Bool  // Backend returns "isFavorited" not "isFavorite"
+        }
+        let response: ToggleResponse = try await request("/listings/\(listingId)/favorite", method: "POST")
+        return response.isFavorited
     }
 }

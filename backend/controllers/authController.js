@@ -117,8 +117,8 @@ export const login = async (req, res) => {
       });
     }
 
-    // Find user with password field
-    const user = await User.findOne({ email }).select('+password');
+    // Find user with password field and populate roommateProfile
+    const user = await User.findOne({ email }).select('+password').populate('roommateProfile');
 
     if (!user) {
       return res.status(401).json({
@@ -162,6 +162,7 @@ export const login = async (req, res) => {
         isVerified: user.isVerified,
         favorites: user.favorites || [],
         savedProfiles: user.savedProfiles || [],
+        hasLifestyleProfile: !!user.roommateProfile,
       },
     });
   } catch (error) {

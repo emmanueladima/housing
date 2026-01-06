@@ -16,21 +16,14 @@ struct GroupDashboardView: View {
                 GradientBackground()
                 
                 VStack(spacing: 0) {
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .frame(maxHeight: .infinity)
-                    } else if viewModel.group == nil {
-                        noGroupView
-                    } else {
-                        // Stats Header
-                        statsHeader
-                        
-                        // Tab Selector
-                        tabSelector
-                        
-                        // Content
-                        tabContent
-                    }
+                    // Stats Header - Always show for testing
+                    statsHeader
+                    
+                    // Tab Selector
+                    tabSelector
+                    
+                    // Content
+                    tabContent
                 }
             }
             .navigationTitle(viewModel.group?.name ?? "My Group")

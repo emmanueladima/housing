@@ -25,11 +25,6 @@ struct GroupCreationView: View {
             }
             .navigationTitle("Create Group")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-            }
             .alert("Error", isPresented: $viewModel.showError) {
                 Button("OK") {}
             } message: {
@@ -82,7 +77,12 @@ struct GroupCreationView: View {
                     .font(.subheadline.bold())
                     .foregroundStyle(.secondary)
                 TextField("e.g., The Study Hub", text: $viewModel.name)
-                    .textFieldStyle(.roundedBorder)
+                    .padding(16)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    }
             }
             
             VStack(alignment: .leading, spacing: 8) {
@@ -90,7 +90,12 @@ struct GroupCreationView: View {
                     .font(.subheadline.bold())
                     .foregroundStyle(.secondary)
                 TextField("Tell others about your group...", text: $viewModel.description, axis: .vertical)
-                    .textFieldStyle(.roundedBorder)
+                    .padding(16)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    }
                     .lineLimit(3...6)
             }
         }
@@ -110,7 +115,12 @@ struct GroupCreationView: View {
                     .font(.subheadline.bold())
                     .foregroundStyle(.secondary)
                 TextField("$0", text: $viewModel.budget)
-                    .textFieldStyle(.roundedBorder)
+                    .padding(16)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    }
                     .keyboardType(.numberPad)
             }
             
