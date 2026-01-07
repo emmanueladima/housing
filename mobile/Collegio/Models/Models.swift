@@ -1,6 +1,25 @@
 import Foundation
 import CoreLocation
 
+// MARK: - Landlord Info (nested in Listing)
+struct LandlordInfo: Codable, Identifiable {
+    let id: String
+    let firstName: String?
+    let lastName: String?
+    let isVerifiedLandlord: Bool?
+    
+    var fullName: String {
+        [firstName, lastName].compactMap { $0 }.joined(separator: " ")
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case firstName
+        case lastName
+        case isVerifiedLandlord
+    }
+}
+
 // MARK: - Listing Model
 struct Listing: Identifiable, Codable {
     let id: String
@@ -14,8 +33,13 @@ struct Listing: Identifiable, Codable {
     let state: String?
     let distanceToUniversity: Double?
     let isActive: Bool?
-    let landlord: String?
+    let landlord: LandlordInfo? // Changed from String to object
     let createdAt: Date?
+    let description: String?
+    let amenities: [String]?
+    let sqft: Int?
+    let zipCode: String?
+    let averageRating: Double?
     
     // Map backend field names to iOS property names
     enum CodingKeys: String, CodingKey {
@@ -32,6 +56,11 @@ struct Listing: Identifiable, Codable {
         case isActive
         case landlord
         case createdAt
+        case description
+        case amenities
+        case sqft
+        case zipCode
+        case averageRating
     }
     
     var imageUrl: String? { images?.first }
@@ -66,6 +95,7 @@ struct Listing: Identifiable, Codable {
     }
 }
 
+
 // MARK: - User Model
 struct User: Identifiable, Codable {
     let id: String
@@ -73,7 +103,7 @@ struct User: Identifiable, Codable {
     let firstName: String
     let lastName: String
     let profileImage: String?
-    let userType: UserType
+    let userType: UserType? // Optional - not always included in nested populates
     var isVerified: Bool?
     var hasLifestyleProfile: Bool?
     let phone: String?
@@ -190,7 +220,7 @@ struct Message: Identifiable, Codable {
 // MARK: - Sample Data for Previews
 extension Listing {
     static let sample = Listing(
-        id: "1",
+        id: "sample1",
         title: "Modern 2BR Apartment",
         address: "123 College Ave",
         price: 1200,
@@ -201,14 +231,19 @@ extension Listing {
         state: "OR",
         distanceToUniversity: 0.5,
         isActive: true,
-        landlord: "landlord1",
-        createdAt: Date()
+        landlord: nil,
+        createdAt: Date(),
+        description: "A modern apartment near campus",
+        amenities: ["WiFi", "Parking"],
+        sqft: 900,
+        zipCode: "97330",
+        averageRating: 4.5
     )
     
     static let samples = [
         sample,
         Listing(
-            id: "2",
+            id: "sample2",
             title: "Cozy Studio Apartment",
             address: "456 University St",
             price: 850,
@@ -219,11 +254,16 @@ extension Listing {
             state: "OR",
             distanceToUniversity: 0.3,
             isActive: true,
-            landlord: "landlord2",
-            createdAt: Date()
+            landlord: nil,
+            createdAt: Date(),
+            description: nil,
+            amenities: nil,
+            sqft: nil,
+            zipCode: nil,
+            averageRating: nil
         ),
         Listing(
-            id: "3",
+            id: "sample3",
             title: "Spacious 3BR House",
             address: "789 Oak Lane",
             price: 2100,
@@ -234,8 +274,13 @@ extension Listing {
             state: "OR",
             distanceToUniversity: 1.2,
             isActive: true,
-            landlord: "landlord3",
-            createdAt: Date()
+            landlord: nil,
+            createdAt: Date(),
+            description: nil,
+            amenities: nil,
+            sqft: nil,
+            zipCode: nil,
+            averageRating: nil
         )
     ]
 }

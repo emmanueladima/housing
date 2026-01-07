@@ -16,8 +16,7 @@ class ListingsViewModel: ObservableObject {
             listings = try await APIService.shared.getListings()
         } catch {
             errorMessage = error.localizedDescription
-            // Fallback to sample data for demo
-            listings = Listing.samples
+            listings = [] // Don't use sample data - causes invalid ID errors
         }
         
         isLoading = false
@@ -43,8 +42,7 @@ class CommunityViewModel: ObservableObject {
             posts = try await APIService.shared.getCommunityPosts(channel: channel)
         } catch {
             errorMessage = error.localizedDescription
-            // Fallback to sample data
-            posts = CommunityPost.samples
+            posts = [] // Don't use sample data
         }
         
         isLoading = false

@@ -37,10 +37,10 @@ struct AuthView: View {
                         .frame(height: 200) // Much larger logo
                         .padding(.top, 20)
                     
-                    // Auth Card - directly below logo
+                    // Auth Card - directly below logo, no gap
                     authCard
                         .padding(.horizontal, 24)
-                        .padding(.top, 8) // Minimal gap
+                        .padding(.top, 0) // No gap
                     
                     Spacer()
                     
