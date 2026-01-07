@@ -43,13 +43,13 @@ struct ListingDetailView: View {
                         
                         Divider()
                         
-                        // Details (Lease Term, Pets, etc.)
-                        detailsSection
+                        // Amenities (above Details like website)
+                        amenitiesSection
                         
                         Divider()
                         
-                        // Amenities
-                        amenitiesSection
+                        // Details (Lease Term, Pets, etc.)
+                        detailsSection
                         
                         Divider()
                         
@@ -286,7 +286,7 @@ struct ListingDetailView: View {
             if let amenities = listing.amenities, !amenities.isEmpty {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ForEach(amenities, id: \.self) { amenity in
-                        DetailAmenityItem(icon: iconFor(amenity: amenity), text: amenity)
+                        DetailAmenityItem(icon: iconFor(amenity: amenity), text: amenity.capitalized)
                     }
                 }
             } else {

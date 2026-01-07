@@ -284,7 +284,12 @@ extension Listing {
             amenities: nil,
             sqft: nil,
             zipCode: nil,
-            averageRating: nil
+            averageRating: nil,
+            leaseTerm: nil,
+            availableDate: nil,
+            rules: nil,
+            university: nil,
+            tags: nil
         ),
         Listing(
             id: "sample3",
@@ -304,7 +309,12 @@ extension Listing {
             amenities: nil,
             sqft: nil,
             zipCode: nil,
-            averageRating: nil
+            averageRating: nil,
+            leaseTerm: nil,
+            availableDate: nil,
+            rules: nil,
+            university: nil,
+            tags: nil
         )
     ]
 }
