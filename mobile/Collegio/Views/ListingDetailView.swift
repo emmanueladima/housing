@@ -43,6 +43,11 @@ struct ListingDetailView: View {
                         
                         Divider()
                         
+                        // Details (Lease Term, Pets, etc.)
+                        detailsSection
+                        
+                        Divider()
+                        
                         // Amenities
                         amenitiesSection
                         
@@ -209,7 +214,7 @@ struct ListingDetailView: View {
             
             Divider().frame(height: 40)
             
-            FeatureItem(icon: "square.dashed", value: "850", label: "Sq Ft")
+            FeatureItem(icon: "square.dashed", value: listing.sqft != nil ? "\(listing.sqft!)" : "—", label: "Sq Ft")
             
             if let distance = listing.distance {
                 Divider().frame(height: 40)
@@ -225,11 +230,51 @@ struct ListingDetailView: View {
             Text("Description")
                 .font(.headline)
             
-            Text("Beautiful modern apartment located just minutes from campus. Features include updated kitchen, in-unit washer/dryer, and a private balcony. Perfect for students looking for a quiet, comfortable living space close to all amenities.")
+            Text(listing.description ?? "No description available.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineSpacing(4)
         }
+    }
+    
+    // MARK: - Details (Lease Term, Pets, etc.)
+    private var detailsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Details")
+                .font(.headline)
+            
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                // Lease Term
+                DetailRow(label: "Lease Term", value: listing.leaseTerm ?? "—")
+                
+                // Available Date
+                if let date = listing.availableDate {
+                    DetailRow(label: "Available", value: formatDate(date))
+                }
+                
+                // Pets
+                DetailRow(
+                    label: "Pets",
+                    value: listing.rules?.petsAllowed == true ? "Allowed" : "Not Allowed",
+                    icon: listing.rules?.petsAllowed == true ? "checkmark.circle.fill" : "xmark.circle.fill",
+                    iconColor: listing.rules?.petsAllowed == true ? .green : .red
+                )
+                
+                // Smoking
+                DetailRow(
+                    label: "Smoking",
+                    value: listing.rules?.smokingAllowed == true ? "Allowed" : "Not Allowed",
+                    icon: listing.rules?.smokingAllowed == true ? "checkmark.circle.fill" : "xmark.circle.fill",
+                    iconColor: listing.rules?.smokingAllowed == true ? .green : .red
+                )
+            }
+        }
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: date)
     }
     
     // MARK: - Amenities
@@ -238,15 +283,31 @@ struct ListingDetailView: View {
             Text("Amenities")
                 .font(.headline)
             
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                DetailAmenityItem(icon: "washer.fill", text: "Washer/Dryer")
-                DetailAmenityItem(icon: "parkingsign", text: "Parking")
-                DetailAmenityItem(icon: "wifi", text: "WiFi Included")
-                DetailAmenityItem(icon: "snowflake", text: "A/C")
-                DetailAmenityItem(icon: "pawprint.fill", text: "Pet Friendly")
-                DetailAmenityItem(icon: "lock.shield.fill", text: "Secured Entry")
+            if let amenities = listing.amenities, !amenities.isEmpty {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    ForEach(amenities, id: \.self) { amenity in
+                        DetailAmenityItem(icon: iconFor(amenity: amenity), text: amenity)
+                    }
+                }
+            } else {
+                Text("No amenities listed")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
         }
+    }
+    
+    private func iconFor(amenity: String) -> String {
+        let lowercased = amenity.lowercased()
+        if lowercased.contains("washer") || lowercased.contains("dryer") { return "washer.fill" }
+        if lowercased.contains("parking") { return "parkingsign" }
+        if lowercased.contains("wifi") { return "wifi" }
+        if lowercased.contains("a/c") || lowercased.contains("ac") || lowercased.contains("air") { return "snowflake" }
+        if lowercased.contains("pet") { return "pawprint.fill" }
+        if lowercased.contains("gym") || lowercased.contains("fitness") { return "dumbbell.fill" }
+        if lowercased.contains("pool") { return "figure.pool.swim" }
+        if lowercased.contains("laundry") { return "washer.fill" }
+        return "checkmark.circle.fill"
     }
     
     // MARK: - Location
@@ -561,6 +622,39 @@ struct ListingMapPreview: UIViewRepresentable {
     
     class Coordinator {
         var cancellables = Set<AnyCancellable>()
+    }
+}
+
+// MARK: - Detail Row Component
+struct DetailRow: View {
+    let label: String
+    let value: String
+    var icon: String? = nil
+    var iconColor: Color = .primary
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                
+                HStack(spacing: 4) {
+                    if let icon = icon {
+                        Image(systemName: icon)
+                            .font(.caption)
+                            .foregroundStyle(iconColor)
+                    }
+                    Text(value)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                }
+            }
+            Spacer()
+        }
+        .padding(12)
+        .background(Color.white.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 

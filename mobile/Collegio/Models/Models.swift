@@ -20,6 +20,13 @@ struct LandlordInfo: Codable, Identifiable {
     }
 }
 
+// MARK: - Listing Rules (nested in Listing)
+struct ListingRules: Codable {
+    let petsAllowed: Bool?
+    let smokingAllowed: Bool?
+    let partiesAllowed: Bool?
+}
+
 // MARK: - Listing Model
 struct Listing: Identifiable, Codable {
     let id: String
@@ -33,13 +40,20 @@ struct Listing: Identifiable, Codable {
     let state: String?
     let distanceToUniversity: Double?
     let isActive: Bool?
-    let landlord: LandlordInfo? // Changed from String to object
+    let landlord: LandlordInfo?
     let createdAt: Date?
     let description: String?
     let amenities: [String]?
     let sqft: Int?
     let zipCode: String?
     let averageRating: Double?
+    
+    // Additional fields from backend
+    let leaseTerm: String?
+    let availableDate: Date?
+    let rules: ListingRules?
+    let university: String?
+    let tags: [String]?
     
     // Map backend field names to iOS property names
     enum CodingKeys: String, CodingKey {
@@ -61,6 +75,11 @@ struct Listing: Identifiable, Codable {
         case sqft
         case zipCode
         case averageRating
+        case leaseTerm
+        case availableDate
+        case rules
+        case university
+        case tags
     }
     
     var imageUrl: String? { images?.first }
@@ -237,7 +256,12 @@ extension Listing {
         amenities: ["WiFi", "Parking"],
         sqft: 900,
         zipCode: "97330",
-        averageRating: 4.5
+        averageRating: 4.5,
+        leaseTerm: "1-year",
+        availableDate: Date(),
+        rules: ListingRules(petsAllowed: false, smokingAllowed: false, partiesAllowed: false),
+        university: "Oregon State University",
+        tags: ["apartment"]
     )
     
     static let samples = [

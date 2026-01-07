@@ -30,11 +30,11 @@ struct AuthView: View {
                 
                 // Content positioned at top, not centered
                 VStack(spacing: 0) {
-                    // Collegio logo with transparent background - LARGE
-                    Image("CollegioLogo")
+                    // BeigeCover logo
+                    Image("BeigeCover")
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 200) // Much larger logo
+                        .frame(height: 200) // Large logo
                         .padding(.top, 20)
                     
                     // Auth Card - directly below logo, no gap

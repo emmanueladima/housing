@@ -472,26 +472,28 @@ export const toggleFavorite = async (req, res) => {
 
     const user = await User.findById(req.user._id);
 
-    // Initialize favorites array if it doesn't exist
-    if (!user.favorites) {
-      user.favorites = [];
-    }
-
-    const isFavorited = user.favorites.some(
+    // Check if already favorited
+    const favorites = user.favorites || [];
+    const isFavorited = favorites.some(
       id => id.toString() === listing._id.toString()
     );
 
+    // Use findByIdAndUpdate to avoid triggering validation
     if (isFavorited) {
       // Remove from favorites
-      user.favorites = user.favorites.filter(
-        id => id.toString() !== listing._id.toString()
+      await User.findByIdAndUpdate(
+        req.user._id,
+        { $pull: { favorites: listing._id } },
+        { new: true }
       );
     } else {
       // Add to favorites
-      user.favorites.push(listing._id);
+      await User.findByIdAndUpdate(
+        req.user._id,
+        { $addToSet: { favorites: listing._id } },
+        { new: true }
+      );
     }
-
-    await user.save();
 
     res.json({
       success: true,
