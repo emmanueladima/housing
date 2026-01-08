@@ -613,7 +613,7 @@ const ListingDetailContent = ({ listingId, onClose, isModal = false }) => {
                                         {/* Back to Dashboard */}
                                         <button
                                             onClick={() => navigate('/landlord/dashboard')}
-                                            className="w-full py-2 text-gray-600 font-medium hover:text-orange-600 transition-colors"
+                                            className="w-full py-2 text-gray-800 font-medium hover:text-orange-600 transition-colors"
                                         >
                                             ← Back to Dashboard
                                         </button>
@@ -701,7 +701,7 @@ const ListingDetailContent = ({ listingId, onClose, isModal = false }) => {
                                             )}
                                         </div>
                                     </div>
-                                    {listing.landlord.phone && (
+                                    {listing.showPhoneNumber !== false && listing.landlord.phone && (
                                         <div className={`flex items-center gap-2 text-sm ${isModal ? 'text-gray-300 bg-white/10' : 'text-gray-600 bg-white/40'} p-3 rounded-xl backdrop-blur-sm`}>
                                             <FiPhone size={16} />
                                             <span className="font-medium">{listing.landlord.phone}</span>

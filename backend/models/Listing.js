@@ -142,6 +142,10 @@ const listingSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  showPhoneNumber: {
+    type: Boolean,
+    default: true, // Show by default for backward compatibility
+  },
   // Quality score (0-100)
   qualityScore: {
     type: Number,

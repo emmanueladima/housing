@@ -203,7 +203,7 @@ const Header = () => {
                       openDelay={0}
                       closeDelay={0}
                       classNames={{
-                        content: "bg-white/20 backdrop-blur-xl border border-white/30 shadow-xl rounded-2xl min-w-[240px] p-2 duration-100 ease-in-out"
+                        content: "bg-white/90 backdrop-blur-xl border border-white/30 shadow-2xl shadow-black/20 rounded-2xl min-w-[240px] p-2 duration-100 ease-in-out"
                       }}
                     >
                       <DropdownTrigger>
@@ -223,28 +223,28 @@ const Header = () => {
                         }
                       }}>
                         <DropdownItem key="profile-info" className="h-14 gap-2 opacity-100" textValue={`Signed in as ${user?.firstName}`}>
-                          <p className="font-semibold text-white">Signed in as</p>
-                          <p className="font-semibold text-white/70">{user?.email}</p>
+                          <p className="font-semibold text-gray-800">Signed in as</p>
+                          <p className="font-semibold text-gray-500">{user?.email}</p>
                         </DropdownItem>
-                        <DropdownItem key="divider-profile" className="h-px bg-white/10 opacity-50 p-0 my-1 pointer-events-none" textValue="-"></DropdownItem>
+                        <DropdownItem key="divider-profile" className="h-px bg-gray-200 opacity-50 p-0 my-1 pointer-events-none" textValue="-"></DropdownItem>
 
-                        <DropdownItem key="/profile" startContent={<FiUser size={18} className="text-white/60" />} className="text-white data-[hover=true]:bg-white/10 data-[hover=true]:text-white">Your Profile</DropdownItem>
+                        <DropdownItem key="/profile" startContent={<FiUser size={18} className="text-gray-500" />} className="text-gray-800 data-[hover=true]:bg-gray-100 data-[hover=true]:text-gray-900 rounded-xl">Your Profile</DropdownItem>
 
                         {isStudent && (
-                          <DropdownItem key="/saved" startContent={<FiHeart size={18} className="text-white/60" />} className="text-white data-[hover=true]:bg-white/10 data-[hover=true]:text-white">Saved Items</DropdownItem>
+                          <DropdownItem key="/saved" startContent={<FiHeart size={18} className="text-gray-500" />} className="text-gray-800 data-[hover=true]:bg-gray-100 data-[hover=true]:text-gray-900 rounded-xl">Saved Items</DropdownItem>
                         )}
                         {isStudent && (
-                          <DropdownItem key="/applications" startContent={<FiGrid size={18} className="text-white/60" />} className="text-white data-[hover=true]:bg-white/10 data-[hover=true]:text-white">Applications</DropdownItem>
+                          <DropdownItem key="/applications" startContent={<FiGrid size={18} className="text-gray-500" />} className="text-gray-800 data-[hover=true]:bg-gray-100 data-[hover=true]:text-gray-900 rounded-xl">Applications</DropdownItem>
                         )}
                         {isStudent && (
-                          <DropdownItem key="/roommate-toolkit" startContent={<FiTool size={18} className="text-white/60" />} className="text-white data-[hover=true]:bg-white/10 data-[hover=true]:text-white">Toolkit</DropdownItem>
+                          <DropdownItem key="/roommate-toolkit" startContent={<FiTool size={18} className="text-gray-500" />} className="text-gray-800 data-[hover=true]:bg-gray-100 data-[hover=true]:text-gray-900 rounded-xl">Toolkit</DropdownItem>
                         )}
 
-                        <DropdownItem key="/settings" startContent={<FiSettings size={18} className="text-white/60" />} className="text-white data-[hover=true]:bg-white/10 data-[hover=true]:text-white">Settings</DropdownItem>
+                        <DropdownItem key="/settings" startContent={<FiSettings size={18} className="text-gray-500" />} className="text-gray-800 data-[hover=true]:bg-gray-100 data-[hover=true]:text-gray-900 rounded-xl">Settings</DropdownItem>
 
-                        <DropdownItem key="divider-logout" className="h-px bg-white/10 opacity-50 p-0 my-1 pointer-events-none" textValue="-"></DropdownItem>
+                        <DropdownItem key="divider-logout" className="h-px bg-gray-200 opacity-50 p-0 my-1 pointer-events-none" textValue="-"></DropdownItem>
 
-                        <DropdownItem key="logout" startContent={<FiLogOut size={18} className="text-red-500" />} className="text-red-600 data-[hover=true]:bg-red-500/10 data-[hover=true]:text-red-700">Sign Out</DropdownItem>
+                        <DropdownItem key="logout" startContent={<FiLogOut size={18} className="text-red-500" />} className="text-red-600 data-[hover=true]:bg-red-50 data-[hover=true]:text-red-700 rounded-xl">Sign Out</DropdownItem>
                       </DropdownMenu>
                     </Dropdown>
                   </div>
