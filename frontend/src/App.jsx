@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Header from './components/Layout/Header';
 import Footer from './components/Layout/Footer';
 import ModernBackground from './components/shared/ModernBackground';
@@ -183,11 +183,7 @@ function App() {
           />
           <Route
             path="/landlord/applications"
-            element={
-              <ProtectedRoute allowedRoles={['landlord', 'admin']}>
-                <LandlordApplicationDashboard />
-              </ProtectedRoute>
-            }
+            element={<Navigate to="/landlord/dashboard?tab=applications" replace />}
           />
           <Route
             path="/listings/edit/:id"
