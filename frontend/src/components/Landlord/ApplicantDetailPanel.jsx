@@ -28,9 +28,9 @@ const ApplicantDetailPanel = ({ application, onClose, onStatusUpdate }) => {
             />
 
             {/* Panel */}
-            <div className="fixed right-0 top-0 h-full w-full max-w-md bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-white/10 shadow-2xl z-50 overflow-y-auto animate-in slide-in-from-right duration-300">
-                {/* Header */}
-                <div className="sticky top-0 bg-gradient-to-r from-orange-500 to-red-500 p-6 z-10">
+            <div className="fixed right-0 top-0 h-full w-full max-w-md bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl border-l border-white/10 shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
+                {/* Header - Fixed */}
+                <div className="bg-gradient-to-r from-orange-500 to-red-500 p-6 flex-shrink-0">
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-white/80 text-sm font-medium">Application Details</p>
@@ -47,134 +47,112 @@ const ApplicantDetailPanel = ({ application, onClose, onStatusUpdate }) => {
                     </div>
                 </div>
 
-                <div className="p-6 space-y-6">
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
                     {/* Applicant Profile Card */}
-                    <div className="bg-white/10 rounded-2xl p-5 border border-white/10">
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                    <div className="bg-white/10 rounded-2xl p-4 border border-white/10">
+                        <div className="flex items-center gap-4 mb-3">
+                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white text-lg font-bold shadow-lg flex-shrink-0">
                                 {applicant.profilePicture ? (
                                     <img src={applicant.profilePicture} alt="Avatar" className="w-full h-full rounded-full object-cover" />
                                 ) : (
                                     <span>{applicant.firstName?.[0] || '?'}{applicant.lastName?.[0] || ''}</span>
                                 )}
                             </div>
-                            <div>
-                                <h3 className="text-white font-bold text-lg">
+                            <div className="min-w-0">
+                                <h3 className="text-white font-bold text-base truncate">
                                     {applicant.firstName} {applicant.lastName}
                                 </h3>
-                                <p className="text-white/60 text-sm">
-                                    {applicant.school ? `${applicant.school} • Class of ${applicant.graduationYear}` : 'Student'}
+                                <p className="text-white/60 text-sm truncate">
+                                    {applicant.school ? `${applicant.school} • ${applicant.graduationYear}` : 'Student'}
                                 </p>
                             </div>
                         </div>
 
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-3 text-white/80">
-                                <FiMail className="text-orange-400" size={16} />
-                                <span className="text-sm">{applicant.email || 'No email provided'}</span>
+                        <div className="space-y-2 text-sm">
+                            <div className="flex items-center gap-2 text-white/80">
+                                <FiMail className="text-orange-400 flex-shrink-0" size={14} />
+                                <span className="truncate">{applicant.email || 'No email'}</span>
                             </div>
-                            <div className="flex items-center gap-3 text-white/80">
-                                <FiPhone className="text-orange-400" size={16} />
-                                <span className="text-sm">{applicant.phone || 'No phone provided'}</span>
+                            <div className="flex items-center gap-2 text-white/80">
+                                <FiPhone className="text-orange-400 flex-shrink-0" size={14} />
+                                <span>{applicant.phone || 'No phone'}</span>
                             </div>
-                            {applicant.school && (
-                                <div className="flex items-center gap-3 text-white/80">
-                                    <FiBook className="text-orange-400" size={16} />
-                                    <span className="text-sm">{applicant.school}</span>
-                                </div>
-                            )}
                         </div>
                     </div>
 
                     {/* Property Applied For */}
-                    <div className="bg-white/10 rounded-2xl p-5 border border-white/10">
-                        <h4 className="text-white/60 text-xs uppercase tracking-wider mb-3">Property Applied For</h4>
+                    <div className="bg-white/10 rounded-2xl p-4 border border-white/10">
+                        <h4 className="text-white/60 text-xs uppercase tracking-wider mb-2">Property Applied For</h4>
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center overflow-hidden">
+                            <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
                                 {listing.images?.[0] ? (
                                     <img src={listing.images[0]} alt={listing.title} className="w-full h-full object-cover" />
                                 ) : (
-                                    <FiHome className="text-white/50" size={20} />
+                                    <FiHome className="text-white/50" size={18} />
                                 )}
                             </div>
-                            <div>
-                                <h4 className="text-white font-bold">{listing.title || 'Unknown Listing'}</h4>
+                            <div className="min-w-0">
+                                <h4 className="text-white font-bold text-sm truncate">{listing.title || 'Unknown Listing'}</h4>
                                 {listing.city && (
-                                    <p className="text-white/60 text-sm">{listing.city}, {listing.state} • ${listing.rent}/mo</p>
+                                    <p className="text-white/60 text-xs truncate">{listing.city}, {listing.state} • ${listing.rent}/mo</p>
                                 )}
                             </div>
                         </div>
                     </div>
 
-                    {/* Application Timeline */}
-                    <div className="bg-white/10 rounded-2xl p-5 border border-white/10">
-                        <h4 className="text-white/60 text-xs uppercase tracking-wider mb-3">Timeline</h4>
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2 text-white/80">
-                                    <FiCalendar className="text-blue-400" size={14} />
-                                    <span className="text-sm">Applied</span>
-                                </div>
-                                <span className="text-white text-sm font-medium">
+                    {/* Timeline - Compact */}
+                    <div className="bg-white/10 rounded-2xl p-4 border border-white/10">
+                        <h4 className="text-white/60 text-xs uppercase tracking-wider mb-2">Details</h4>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                                <span className="text-white/50 text-xs">Applied</span>
+                                <p className="text-white font-medium">
                                     {application.createdAt
-                                        ? new Date(application.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                                        ? new Date(application.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                                         : 'N/A'
                                     }
-                                </span>
+                                </p>
                             </div>
-                            {application.desiredMoveIn && (
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2 text-white/80">
-                                        <FiHome className="text-green-400" size={14} />
-                                        <span className="text-sm">Desired Move-in</span>
-                                    </div>
-                                    <span className="text-white text-sm font-medium">
-                                        {new Date(application.desiredMoveIn).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                    </span>
-                                </div>
-                            )}
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2 text-white/80">
-                                    <FiUser className="text-purple-400" size={14} />
-                                    <span className="text-sm">Status</span>
-                                </div>
-                                <span className={`text-sm font-bold capitalize px-2 py-0.5 rounded-full ${application.status === 'approved' ? 'bg-green-500/20 text-green-300' :
-                                        application.status === 'rejected' ? 'bg-red-500/20 text-red-300' :
-                                            'bg-blue-500/20 text-blue-300'
+                            <div>
+                                <span className="text-white/50 text-xs">Status</span>
+                                <p className={`font-bold capitalize ${application.status === 'approved' ? 'text-green-400' :
+                                        application.status === 'rejected' ? 'text-red-400' :
+                                            'text-blue-400'
                                     }`}>
                                     {application.status?.replace('_', ' ') || 'Pending'}
-                                </span>
+                                </p>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* Action Buttons */}
-                    <div className="space-y-3 pt-4">
-                        {application.status !== 'approved' && application.status !== 'rejected' && (
-                            <>
-                                <button
-                                    onClick={handleApprove}
-                                    className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-green-500/20"
-                                >
-                                    <FiCheck size={18} />
-                                    Approve Application
-                                </button>
-                                <button
-                                    onClick={handleReject}
-                                    className="w-full py-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors border border-red-500/30"
-                                >
-                                    <FiXCircle size={18} />
-                                    Reject Application
-                                </button>
-                            </>
-                        )}
-                        <button
-                            className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors border border-white/20"
-                        >
-                            <FiMessageSquare size={18} />
-                            Message Applicant
-                        </button>
-                    </div>
+                {/* Sticky Footer - Action Buttons */}
+                <div className="flex-shrink-0 p-4 bg-gray-900/90 border-t border-white/10 space-y-2">
+                    {application.status !== 'approved' && application.status !== 'rejected' && (
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleApprove}
+                                className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-green-500/20"
+                            >
+                                <FiCheck size={18} />
+                                Approve
+                            </button>
+                            <button
+                                onClick={handleReject}
+                                className="flex-1 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-300 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors border border-red-500/30"
+                            >
+                                <FiXCircle size={18} />
+                                Reject
+                            </button>
+                        </div>
+                    )}
+                    <button
+                        className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors border border-white/20"
+                    >
+                        <FiMessageSquare size={18} />
+                        Message Applicant
+                    </button>
                 </div>
             </div>
         </>
