@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FiSearch, FiUser, FiHome, FiCheckCircle, FiXCircle, FiClock, FiAlertCircle, FiCalendar } from 'react-icons/fi';
 import applicationService from '../../services/applicationService';
 import LoadingSpinner from '../shared/LoadingSpinner';
+import ApplicantDetailPanel from './ApplicantDetailPanel';
 
 const StatusBadge = ({ status }) => {
     const config = {
@@ -30,6 +31,7 @@ const DashboardApplications = ({ initialListingId }) => {
     const [filterListingId, setFilterListingId] = useState(initialListingId || 'all');
     const [listings, setListings] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedApplication, setSelectedApplication] = useState(null);
 
     useEffect(() => {
         if (initialListingId) {
@@ -56,6 +58,20 @@ const DashboardApplications = ({ initialListingId }) => {
             console.error("Error fetching applications:", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleStatusUpdate = async (applicationId, newStatus) => {
+        try {
+            await applicationService.updateApplicationStatus(applicationId, { status: newStatus });
+            // Update local state
+            setApplications(prev => prev.map(app =>
+                app._id === applicationId ? { ...app, status: newStatus } : app
+            ));
+            // Close panel
+            setSelectedApplication(null);
+        } catch (error) {
+            console.error('Error updating application status:', error);
         }
     };
 
@@ -187,7 +203,10 @@ const DashboardApplications = ({ initialListingId }) => {
                                             <StatusBadge status={app.status} />
                                         </td>
                                         <td className="p-4 sm:p-6 text-right">
-                                            <button className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-orange-500/20">
+                                            <button
+                                                onClick={() => setSelectedApplication(app)}
+                                                className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-orange-500/20"
+                                            >
                                                 View Details
                                             </button>
                                         </td>
@@ -204,6 +223,15 @@ const DashboardApplications = ({ initialListingId }) => {
                 <div className="p-4 border-t border-white/10 text-white/60 text-sm">
                     Showing {filteredApps.length} of {applications.length} applications
                 </div>
+            )}
+
+            {/* Applicant Detail Panel */}
+            {selectedApplication && (
+                <ApplicantDetailPanel
+                    application={selectedApplication}
+                    onClose={() => setSelectedApplication(null)}
+                    onStatusUpdate={handleStatusUpdate}
+                />
             )}
         </div>
     );
