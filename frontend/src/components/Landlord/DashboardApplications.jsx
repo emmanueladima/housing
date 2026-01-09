@@ -110,7 +110,7 @@ const DashboardApplications = ({ initialListingId }) => {
                         <tr className="border-b border-white/10 text-white/60 text-xs uppercase tracking-wider">
                             <th className="p-4 sm:p-6 font-semibold">Applicant</th>
                             <th className="p-4 sm:p-6 font-semibold">Property Applied For</th>
-                            <th className="p-4 sm:p-6 font-semibold">Financials</th>
+                            <th className="p-4 sm:p-6 font-semibold">Date Applied</th>
                             <th className="p-4 sm:p-6 font-semibold">Status</th>
                             <th className="p-4 sm:p-6 font-semibold text-right">Actions</th>
                         </tr>
@@ -149,18 +149,12 @@ const DashboardApplications = ({ initialListingId }) => {
                                         </div>
                                     </td>
                                     <td className="p-4 sm:p-6">
-                                        {/* Mock Data for now as backend might not serve it flat yet */}
                                         <div className="text-sm">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-white/70">Credit:</span>
-                                                <span className={`font-bold ${Math.random() > 0.5 ? 'text-green-300' : 'text-yellow-300'}`}>
-                                                    {app.applicant?.creditScore || '720'}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-white/70">Income:</span>
-                                                <span className="font-medium">{app.applicant?.income ? `$${app.applicant.income}/yr` : '$85k/yr'}</span>
-                                            </div>
+                                            {app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-US', {
+                                                month: 'short',
+                                                day: 'numeric',
+                                                year: 'numeric'
+                                            }) : 'N/A'}
                                         </div>
                                     </td>
                                     <td className="p-4 sm:p-6">
