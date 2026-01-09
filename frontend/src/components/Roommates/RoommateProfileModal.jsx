@@ -35,7 +35,7 @@ const RoommateProfileModal = ({ isOpen, onClose, roommate }) => {
                             className="w-full aspect-square object-cover rounded-2xl shadow-lg"
                         />
                         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-sm font-bold shadow-sm">
-                            {roommate.compatibility || 92}% Match
+                            {roommate.compatibility || 0}% Match
                         </div>
                     </div>
 
