@@ -36,7 +36,8 @@ const LandlordDashboard = () => {
   const fetchData = async () => {
     try {
       const { data } = await api.get('/landlord/listings');
-      setListings(data);
+      // Handle both array response and object with listings property
+      setListings(Array.isArray(data) ? data : (data.listings || []));
     } catch (error) {
       console.error('Error fetching landlord data:', error);
     } finally {
@@ -88,8 +89,8 @@ const LandlordDashboard = () => {
                 key={tab}
                 onClick={() => setActiveTab(tab.toLowerCase())}
                 className={`px-6 sm:px-8 py-2.5 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ${activeTab === tab.toLowerCase()
-                    ? 'bg-orange-500 text-white shadow-lg scale-105'
-                    : 'text-white/80 hover:bg-white/10 hover:text-white'
+                  ? 'bg-orange-500 text-white shadow-lg scale-105'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white'
                   }`}
               >
                 {tab}
