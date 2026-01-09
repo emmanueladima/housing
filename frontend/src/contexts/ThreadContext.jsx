@@ -91,15 +91,13 @@ export const ThreadProvider = ({ children }) => {
                 const msgData = await messageService.getMessages(activeThreadId);
                 setMessages(msgData.messages);
 
-                // Mark as read
-                if (data.thread.unreadCount > 0) {
-                    await messageService.markThreadRead(activeThreadId);
-                    // Update local state
-                    setThreads(prev => prev.map(t =>
-                        t._id === activeThreadId ? { ...t, unreadCount: 0 } : t
-                    ));
-                    fetchUnreadCount();
-                }
+                // Always mark as read when opening the conversation
+                await messageService.markThreadRead(activeThreadId);
+                // Update local state to clear unread indicator
+                setThreads(prev => prev.map(t =>
+                    t._id === activeThreadId ? { ...t, unreadCount: 0 } : t
+                ));
+                fetchUnreadCount();
             } catch (error) {
                 console.error('Error loading thread:', error);
             } finally {
