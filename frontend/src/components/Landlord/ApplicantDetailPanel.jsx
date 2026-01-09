@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { FiX, FiMail, FiPhone, FiCalendar, FiHome, FiCheck, FiXCircle, FiMessageSquare, FiUser, FiBook, FiMapPin } from 'react-icons/fi';
 
 const ApplicantDetailPanel = ({ application, onClose, onStatusUpdate }) => {
@@ -19,8 +20,8 @@ const ApplicantDetailPanel = ({ application, onClose, onStatusUpdate }) => {
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    return ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -75,8 +76,8 @@ const ApplicantDetailPanel = ({ application, onClose, onStatusUpdate }) => {
                                             {applicant.firstName} {applicant.lastName}
                                         </h3>
                                         <span className={`inline-block mt-1 text-sm font-bold capitalize px-3 py-1 rounded-full ${application.status === 'approved' ? 'bg-green-500/20 text-green-300' :
-                                                application.status === 'rejected' ? 'bg-red-500/20 text-red-300' :
-                                                    'bg-blue-500/20 text-blue-300'
+                                            application.status === 'rejected' ? 'bg-red-500/20 text-red-300' :
+                                                'bg-blue-500/20 text-blue-300'
                                             }`}>
                                             {application.status?.replace('_', ' ') || 'Pending Review'}
                                         </span>
@@ -214,7 +215,8 @@ const ApplicantDetailPanel = ({ application, onClose, onStatusUpdate }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
