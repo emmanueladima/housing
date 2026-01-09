@@ -565,11 +565,13 @@ const CreateListingWizard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen relative">
+            {/* Full Page Background */}
+            <ModernBackground />
+
             {/* Hero Header */}
-            <div className="relative overflow-hidden pt-24 pb-12">
-                <ModernBackground />
-                <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+            <div className="relative pt-24 pb-12 z-10">
+                <div className="max-w-4xl mx-auto px-6 text-center">
                     <h1 className="text-4xl font-black text-white mb-3">List Your Place</h1>
                     <p className="text-white/80">Get your listing in front of thousands of students</p>
                 </div>

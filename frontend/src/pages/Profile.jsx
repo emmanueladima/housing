@@ -51,7 +51,7 @@ const Profile = () => {
     setUploadingPhoto(true);
     try {
       const formData = new FormData();
-      formData.append('photo', file);
+      formData.append('image', file);
       await api.put('/auth/profile-photo', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });

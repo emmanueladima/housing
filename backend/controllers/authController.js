@@ -75,20 +75,16 @@ export const signup = async (req, res) => {
       .then(() => console.log('✅ Verification email sent to:', user.email))
       .catch((err) => console.error('⚠️ Failed to send verification email:', err.message));
 
-    // Generate JWT token
-    const token = generateToken(user._id);
-
+    // DO NOT return token here - require email verification first
     res.status(201).json({
       success: true,
-      message: 'User registered successfully. Please check your email to verify your account.',
-      token,
+      message: 'Account created! Please check your email to verify your account before logging in.',
+      requiresVerification: true,
       user: {
         id: user._id,
         firstName: user.firstName,
-        lastName: user.lastName,
         email: user.email,
-        userType: user.userType,
-        isVerified: user.isVerified,
+        isVerified: false,
       },
     });
   } catch (error) {

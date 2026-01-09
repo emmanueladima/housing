@@ -68,8 +68,20 @@ const Roommates = () => {
                 const { data } = await api.get('/roommate-groups');
                 setGroups(data);
             } else {
-                const { data } = await api.get('/lifestyle-profiles/all');
-                setSoloRoommates(data.profiles);
+                // Try to get matches with compatibility scores first
+                try {
+                    const { data } = await api.get('/lifestyle-profiles/matches');
+                    // Transform matches data to include compatibility
+                    const profilesWithScores = data.matches?.map(match => ({
+                        ...match.profile,
+                        compatibilityScore: match.compatibility?.score || 0
+                    })) || [];
+                    setSoloRoommates(profilesWithScores);
+                } catch (matchError) {
+                    // Fallback to all profiles if user doesn't have a profile
+                    const { data } = await api.get('/lifestyle-profiles/all');
+                    setSoloRoommates(data.profiles || []);
+                }
             }
         } catch (err) {
             console.error(`Error fetching ${activeTab}:`, err);
@@ -116,7 +128,7 @@ const Roommates = () => {
             year: roommate.user?.graduationYear ? `Class of ${roommate.user.graduationYear}` : 'Student',
             budget: { min: roommate.budgetMin, max: roommate.budgetMax },
             tags: roommate.vibeTags,
-            compatibility: 85,
+            compatibility: roommate.compatibilityScore || 0,
             bio: roommate.bio,
             moveIn: roommate.lookingFor?.moveInDate ? new Date(roommate.lookingFor.moveInDate).toLocaleDateString() : 'Flexible',
             habits: {
@@ -426,7 +438,7 @@ const Roommates = () => {
                                                     year: profile.user?.graduationYear ? `Class of ${profile.user.graduationYear}` : 'Student',
                                                     budget: { min: profile.budgetMin, max: profile.budgetMax },
                                                     tags: profile.vibeTags,
-                                                    compatibility: 85,
+                                                    compatibility: profile.compatibilityScore || 0,
                                                     bio: profile.bio,
                                                     moveIn: profile.lookingFor?.moveInDate ? new Date(profile.lookingFor.moveInDate).toLocaleDateString() : 'Flexible',
                                                     habits: {
