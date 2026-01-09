@@ -1,66 +1,57 @@
 import React, { useEffect, useState } from 'react';
-import { FiSearch, FiFilter, FiUser, FiHome, FiCheckCircle, FiXCircle, FiClock, FiAlertCircle } from 'react-icons/fi';
+import { FiSearch, FiUser, FiHome, FiCheckCircle, FiXCircle, FiClock, FiAlertCircle, FiCalendar } from 'react-icons/fi';
 import applicationService from '../../services/applicationService';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
 const StatusBadge = ({ status }) => {
     const config = {
-        submitted: { color: 'bg-blue-500/20 text-blue-200', icon: FiClock, label: 'Pending' },
-        'under review': { color: 'bg-yellow-500/20 text-yellow-200', icon: FiAlertCircle, label: 'Reviewing' },
-        interview: { color: 'bg-purple-500/20 text-purple-200', icon: FiUsersLink, label: 'Interview' }, // FiUsersLink not imported
-        approved: { color: 'bg-green-500/20 text-green-200', icon: FiCheckCircle, label: 'Approved' },
-        rejected: { color: 'bg-red-500/20 text-red-200', icon: FiXCircle, label: 'Rejected' },
+        submitted: { color: 'bg-blue-500/20 text-blue-200 border-blue-500/30', icon: FiClock, label: 'Pending' },
+        under_review: { color: 'bg-yellow-500/20 text-yellow-200 border-yellow-500/30', icon: FiAlertCircle, label: 'Reviewing' },
+        interview_scheduled: { color: 'bg-purple-500/20 text-purple-200 border-purple-500/30', icon: FiCalendar, label: 'Interview' },
+        approved: { color: 'bg-green-500/20 text-green-200 border-green-500/30', icon: FiCheckCircle, label: 'Approved' },
+        rejected: { color: 'bg-red-500/20 text-red-200 border-red-500/30', icon: FiXCircle, label: 'Rejected' },
+        withdrawn: { color: 'bg-gray-500/20 text-gray-300 border-gray-500/30', icon: FiXCircle, label: 'Withdrawn' },
     };
 
-    const style = config[status.toLowerCase()] || config['submitted'];
+    const style = config[status] || config['submitted'];
     const Icon = style.icon;
 
     return (
-        <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold capitalize ${style.color}`}>
+        <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold capitalize border ${style.color}`}>
             <Icon size={12} />
             {style.label || status}
         </span>
     );
 };
 
-// Quick fix for missing icon
-const FiUsersLink = () => <FiUser />;
-
 const DashboardApplications = ({ initialListingId }) => {
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filterListingId, setFilterListingId] = useState(initialListingId || 'all');
-    const [listings, setListings] = useState([]); // To populate filter dropdown
+    const [listings, setListings] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        if (initialListingId) {
+            setFilterListingId(initialListingId);
+        }
+    }, [initialListingId]);
 
     useEffect(() => {
         fetchData();
-    }, [initialListingId]);
+    }, []);
 
     const fetchData = async () => {
         try {
+            // API returns { success, count, applications, listings }
             const data = await applicationService.getReceivedApplications();
-            // Flatten the grouped object into a single array
-            const flatList = [];
-            Object.entries(data).forEach(([status, apps]) => {
-                if (Array.isArray(apps)) {
-                    apps.forEach(app => {
-                        // Ensure listing info is attached
-                        flatList.push({ ...app, currentStatus: status });
-                    });
-                }
-            });
 
-            // Extract unique listings for filter
-            const seenListings = new Set();
-            const uniqueListings = [];
-            flatList.forEach(app => {
-                if (app.listing && !seenListings.has(app.listing._id)) {
-                    seenListings.add(app.listing._id);
-                    uniqueListings.push(app.listing);
-                }
-            });
-            setListings(uniqueListings);
-            setApplications(flatList);
+            // Handle response structure - applications is an array, not grouped
+            const appsList = data.applications || [];
+            const listingsList = data.listings || [];
+
+            setApplications(appsList);
+            setListings(listingsList);
         } catch (error) {
             console.error("Error fetching applications:", error);
         } finally {
@@ -69,7 +60,25 @@ const DashboardApplications = ({ initialListingId }) => {
     };
 
     const filteredApps = applications.filter(app => {
-        if (filterListingId !== 'all' && app.listing?._id !== filterListingId) return false;
+        // Filter by listing
+        if (filterListingId !== 'all') {
+            const appListingId = app.listingId?._id || app.listingId;
+            if (appListingId !== filterListingId) return false;
+        }
+
+        // Filter by search term
+        if (searchTerm) {
+            const applicant = app.userId || {};
+            const fullName = `${applicant.firstName || ''} ${applicant.lastName || ''}`.toLowerCase();
+            const email = (applicant.email || '').toLowerCase();
+            const listingTitle = (app.listingId?.title || '').toLowerCase();
+            const term = searchTerm.toLowerCase();
+
+            if (!fullName.includes(term) && !email.includes(term) && !listingTitle.includes(term)) {
+                return false;
+            }
+        }
+
         return true;
     });
 
@@ -86,10 +95,11 @@ const DashboardApplications = ({ initialListingId }) => {
                         <input
                             type="text"
                             placeholder="Search applicants..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                             className="bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
                         />
                     </div>
-                    {/* Listing Filter - Simple */}
                     <select
                         className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 [&>option]:text-black"
                         value={filterListingId}
@@ -119,58 +129,82 @@ const DashboardApplications = ({ initialListingId }) => {
                         {filteredApps.length === 0 ? (
                             <tr>
                                 <td colSpan="5" className="p-8 text-center text-white/50">
-                                    No applications found matching your criteria.
+                                    {applications.length === 0
+                                        ? "No applications received yet."
+                                        : "No applications found matching your criteria."
+                                    }
                                 </td>
                             </tr>
                         ) : (
-                            filteredApps.map((app) => (
-                                <tr key={app._id} className="hover:bg-white/5 transition-colors group">
-                                    <td className="p-4 sm:p-6">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white overflow-hidden">
-                                                {app.applicant?.profilePicture ? (
-                                                    <img src={app.applicant.profilePicture} alt="Avatar" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <span className="font-bold text-sm">
-                                                        {app.applicant?.firstName?.[0]}{app.applicant?.lastName?.[0]}
-                                                    </span>
-                                                )}
+                            filteredApps.map((app) => {
+                                // Extract applicant from userId (populated field)
+                                const applicant = app.userId || {};
+                                // Extract listing from listingId (populated field)
+                                const listing = app.listingId || {};
+
+                                return (
+                                    <tr key={app._id} className="hover:bg-white/5 transition-colors group">
+                                        <td className="p-4 sm:p-6">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center text-white overflow-hidden shadow-lg">
+                                                    {applicant.profilePicture ? (
+                                                        <img src={applicant.profilePicture} alt="Avatar" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <span className="font-bold text-sm">
+                                                            {applicant.firstName?.[0] || '?'}{applicant.lastName?.[0] || ''}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold">
+                                                        {applicant.firstName || 'Unknown'} {applicant.lastName || 'Applicant'}
+                                                    </div>
+                                                    <div className="text-xs text-white/60">{applicant.email || 'No email'}</div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <div className="font-bold">{app.applicant?.firstName} {app.applicant?.lastName}</div>
-                                                <div className="text-xs text-white/60">{app.applicant?.email}</div>
+                                        </td>
+                                        <td className="p-4 sm:p-6">
+                                            <div className="flex items-center gap-2">
+                                                <FiHome className="text-white/50" />
+                                                <span className="font-medium">{listing.title || 'Unknown Listing'}</span>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td className="p-4 sm:p-6">
-                                        <div className="flex items-center gap-2">
-                                            <FiHome className="text-white/50" />
-                                            <span className="font-medium">{app.listing?.title || 'Unknown Listing'}</span>
-                                        </div>
-                                    </td>
-                                    <td className="p-4 sm:p-6">
-                                        <div className="text-sm">
-                                            {app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-US', {
-                                                month: 'short',
-                                                day: 'numeric',
-                                                year: 'numeric'
-                                            }) : 'N/A'}
-                                        </div>
-                                    </td>
-                                    <td className="p-4 sm:p-6">
-                                        <StatusBadge status={app.currentStatus} />
-                                    </td>
-                                    <td className="p-4 sm:p-6 text-right">
-                                        <button className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-colors">
-                                            View Details
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
+                                            {listing.city && (
+                                                <div className="text-xs text-white/50 mt-1">
+                                                    {listing.city}, {listing.state}
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="p-4 sm:p-6">
+                                            <div className="text-sm">
+                                                {app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-US', {
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    year: 'numeric'
+                                                }) : 'N/A'}
+                                            </div>
+                                        </td>
+                                        <td className="p-4 sm:p-6">
+                                            <StatusBadge status={app.status} />
+                                        </td>
+                                        <td className="p-4 sm:p-6 text-right">
+                                            <button className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-orange-500/20">
+                                                View Details
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })
                         )}
                     </tbody>
                 </table>
             </div>
+
+            {/* Footer with count */}
+            {applications.length > 0 && (
+                <div className="p-4 border-t border-white/10 text-white/60 text-sm">
+                    Showing {filteredApps.length} of {applications.length} applications
+                </div>
+            )}
         </div>
     );
 };
