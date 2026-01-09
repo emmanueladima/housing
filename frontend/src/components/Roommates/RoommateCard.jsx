@@ -48,11 +48,22 @@ const RoommateCard = ({ roommate, onMessage, onFavorite, isSaved, onInvite, onCl
             {/* Removed green online dot */}
           </div>
 
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-50/80 backdrop-blur-sm rounded-full border border-teal-100/50">
-            <FiStar className="text-teal-600 fill-current" size={14} />
-            <span className="text-teal-700 font-black text-sm">{compatibility}%</span>
-            <span className="text-teal-600 text-xs font-bold uppercase">Match</span>
-          </div>
+          {compatibility > 0 ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-50/80 backdrop-blur-sm rounded-full border border-teal-100/50">
+              <FiStar className="text-teal-600 fill-current" size={14} />
+              <span className="text-teal-700 font-black text-sm">{compatibility}%</span>
+              <span className="text-teal-600 text-xs font-bold uppercase">Match</span>
+            </div>
+          ) : (
+            <a
+              href="/compatibility-test"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50/80 backdrop-blur-sm rounded-full border border-orange-200 hover:bg-orange-100 transition-colors"
+            >
+              <FiStar className="text-orange-500" size={14} />
+              <span className="text-orange-600 text-xs font-bold">Take Test</span>
+            </a>
+          )}
         </div>
 
         {/* Name & Info */}

@@ -64,6 +64,61 @@ const CompatibilityTest = () => {
                 { value: 'headphones', label: "🎧 Put on noise cancelling headphones", score: { conflict: 'avoidant' } },
                 { value: 'revenge', label: "🔊 Play my music louder", score: { conflict: 'aggressive' } }
             ]
+        },
+        {
+            id: 'morning',
+            icon: FiClock,
+            question: "What's your ideal morning routine?",
+            options: [
+                { value: 'early', label: "🌅 Up at 6 AM, gym before class", score: { sleep: 1 } },
+                { value: 'normal', label: "☀️ Wake up around 8-9 AM", score: { sleep: 5 } },
+                { value: 'late', label: "😴 Sleep until noon if I can", score: { sleep: 8 } },
+                { value: 'varies', label: "🎲 Depends on the day", score: { sleep: 5 } }
+            ]
+        },
+        {
+            id: 'study',
+            icon: FiAlertCircle,
+            question: "When it's time to study or work from home...",
+            options: [
+                { value: 'silence', label: "🤫 I need complete silence", score: { study: 1 } },
+                { value: 'quiet', label: "🎵 Background music is fine", score: { study: 4 } },
+                { value: 'coffee', label: "☕ I prefer studying at cafes", score: { study: 7 } },
+                { value: 'social', label: "📚 Study groups are the best", score: { study: 10 } }
+            ]
+        },
+        {
+            id: 'pets',
+            icon: FiUsers,
+            question: "How do you feel about pets?",
+            options: [
+                { value: 'no', label: "🚫 Allergic or prefer no pets", score: { pets: 1 } },
+                { value: 'small', label: "🐠 Fish or small pets only", score: { pets: 4 } },
+                { value: 'cats', label: "🐱 Cats are perfect", score: { pets: 7 } },
+                { value: 'dogs', label: "🐕 Dogs are family!", score: { pets: 10 } }
+            ]
+        },
+        {
+            id: 'cooking',
+            icon: FiThermometer,
+            question: "What's your cooking situation?",
+            options: [
+                { value: 'chef', label: "👨‍🍳 I cook elaborate meals daily", score: { kitchen: 10 } },
+                { value: 'sometimes', label: "🍳 I cook a few times a week", score: { kitchen: 7 } },
+                { value: 'basic', label: "🍜 Mostly microwave and basics", score: { kitchen: 4 } },
+                { value: 'never', label: "🥡 Takeout is my love language", score: { kitchen: 1 } }
+            ]
+        },
+        {
+            id: 'weekend',
+            icon: FiVolume2,
+            question: "Your ideal Friday night looks like...",
+            options: [
+                { value: 'home', label: "🏠 Cozy night in with Netflix", score: { weekend: 2 } },
+                { value: 'small', label: "🍷 Small gathering with close friends", score: { weekend: 5 } },
+                { value: 'party', label: "🎉 Hosting or going to parties", score: { weekend: 8 } },
+                { value: 'downtown', label: "🪩 Hit the bars/clubs downtown", score: { weekend: 10 } }
+            ]
         }
     ];
 

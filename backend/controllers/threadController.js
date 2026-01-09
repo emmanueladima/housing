@@ -42,10 +42,20 @@ export const getThreads = async (req, res) => {
                 .filter(p => p.user._id.toString() !== req.user._id.toString())
                 .map(p => p.user);
 
+            // Only mark as unread if:
+            // 1. There's a last message
+            // 2. It's newer than when user last read
+            // 3. The last message was NOT sent by the current user (don't show unread for own messages)
+            const lastMessageSenderId = thread.lastMessage?.sender?.toString() || thread.lastMessage?.user?.toString();
+            const isUnread = myParticipation &&
+                thread.lastMessageAt > myParticipation.lastReadAt &&
+                lastMessageSenderId &&
+                lastMessageSenderId !== req.user._id.toString();
+
             return {
                 ...thread.toObject(),
                 participants: otherParticipants,
-                unreadCount: myParticipation ? (thread.lastMessageAt > myParticipation.lastReadAt ? 1 : 0) : 0, // Simplified unread logic
+                unreadCount: isUnread ? 1 : 0,
                 isMuted: myParticipation?.isMuted || false,
             };
         }));
