@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiHome, FiMessageSquare, FiTrendingUp, FiPlus, FiEdit, FiEye } from 'react-icons/fi';
+import { FiHome, FiMessageSquare, FiTrendingUp, FiPlus, FiEdit, FiEye, FiUsers } from 'react-icons/fi';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -90,6 +90,16 @@ const LandlordDashboard = () => {
             </button>
 
             <button
+              onClick={() => navigate('/landlord/applications')}
+              className="p-4 sm:p-6 border-2 border-dashed border-white/30 rounded-xl hover:border-white/60 hover:bg-white/10 transition-all flex flex-col items-center justify-center gap-2 sm:gap-3 group"
+            >
+              <div className="p-2 sm:p-3 bg-white/20 rounded-full text-white group-hover:scale-110 transition-transform">
+                <FiUsers size={20} />
+              </div>
+              <span className="font-bold text-white text-xs sm:text-base text-center">Review Apps</span>
+            </button>
+
+            <button
               onClick={() => navigate('/messages')}
               className="p-4 sm:p-6 border-2 border-dashed border-white/30 rounded-xl hover:border-white/60 hover:bg-white/10 transition-all flex flex-col items-center justify-center gap-2 sm:gap-3 group"
             >
@@ -143,11 +153,24 @@ const LandlordDashboard = () => {
                         <span className={`text-xs px-2 py-0.5 rounded-full ${listing.isActive ? 'bg-green-500/30 text-green-200' : 'bg-white/20 text-white/60'}`}>
                           {listing.isActive ? 'Active' : 'Inactive'}
                         </span>
+                        {listing.totalApplications > 0 && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-orange-500/30 text-orange-200 flex items-center gap-1">
+                            <FiUsers size={10} />
+                            {listing.totalApplications} Apps
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 self-end sm:self-center">
+                    <Link
+                      to={`/landlord/applications?listingId=${listing._id}`}
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium text-xs sm:text-sm flex items-center gap-1"
+                    >
+                      <FiUsers size={14} />
+                      <span className="hidden sm:inline">Apps</span>
+                    </Link>
                     <Link
                       to={`/listings/${listing._id}`}
                       className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors font-medium text-xs sm:text-sm"

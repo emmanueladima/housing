@@ -7,7 +7,7 @@ import {
     FiMessageSquare, FiFilter, FiGrid, FiList, FiStar,
     FiChevronDown, FiMail, FiPhone, FiDollarSign, FiClock, FiHome
 } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const STATUS_CONFIG = {
     submitted: {
@@ -367,10 +367,14 @@ const ComparePanel = ({ applications, onClose }) => {
 };
 
 const LandlordApplicationDashboard = () => {
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const initialListingId = queryParams.get('listingId') || '';
+
     const [applications, setApplications] = useState({});
     const [listings, setListings] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedListingId, setSelectedListingId] = useState('');
+    const [selectedListingId, setSelectedListingId] = useState(initialListingId);
     const [viewMode, setViewMode] = useState('kanban');
     const [selectedIds, setSelectedIds] = useState([]);
 
@@ -519,8 +523,8 @@ const LandlordApplicationDashboard = () => {
                             <button
                                 onClick={() => setViewMode('kanban')}
                                 className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors flex items-center gap-1 ${viewMode === 'kanban'
-                                        ? 'bg-orange-500 text-white'
-                                        : 'text-gray-600 hover:text-orange-600'
+                                    ? 'bg-orange-500 text-white'
+                                    : 'text-gray-600 hover:text-orange-600'
                                     }`}
                             >
                                 <FiGrid size={14} />
@@ -529,8 +533,8 @@ const LandlordApplicationDashboard = () => {
                             <button
                                 onClick={() => setViewMode('list')}
                                 className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors flex items-center gap-1 ${viewMode === 'list'
-                                        ? 'bg-orange-500 text-white'
-                                        : 'text-gray-600 hover:text-orange-600'
+                                    ? 'bg-orange-500 text-white'
+                                    : 'text-gray-600 hover:text-orange-600'
                                     }`}
                             >
                                 <FiList size={14} />
