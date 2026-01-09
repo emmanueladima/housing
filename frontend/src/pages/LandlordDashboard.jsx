@@ -198,6 +198,11 @@ const LandlordDashboard = () => {
       {selectedListingId && (
         <GlassModal onClose={() => setSelectedListingId(null)} className="h-[90vh]">
           <div className="relative h-full flex flex-col">
+            {/* Modal Handle/Divider */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[80]">
+              <div className="w-16 h-1.5 bg-white/40 rounded-full shadow-sm"></div>
+            </div>
+
             <button
               onClick={() => setSelectedListingId(null)}
               className="absolute top-4 right-4 z-[70] p-2 bg-black/20 hover:bg-black/40 rounded-full text-white backdrop-blur-md transition-colors"
