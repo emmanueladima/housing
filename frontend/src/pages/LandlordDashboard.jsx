@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FiHome, FiMessageSquare, FiTrendingUp, FiPlus, FiEdit, FiEye, FiUsers } from 'react-icons/fi';
+import { FiHome, FiMessageSquare, FiTrendingUp, FiPlus, FiEdit, FiEye, FiUsers, FiX } from 'react-icons/fi';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
+import ListingDetailContent from '../components/Listings/ListingDetailContent';
+import GlassModal from '../components/GlassModal';
 
 const MetricCard = ({ icon: Icon, label, value, color }) => (
   <div className="bg-white/20 backdrop-blur-xl p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-white/30 shadow-lg flex items-center gap-3 sm:gap-4">
@@ -21,6 +23,7 @@ const LandlordDashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedListingId, setSelectedListingId] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -171,12 +174,12 @@ const LandlordDashboard = () => {
                       <FiUsers size={14} />
                       <span className="hidden sm:inline">Apps</span>
                     </Link>
-                    <Link
-                      to={`/listings/${listing._id}`}
+                    <button
+                      onClick={() => setSelectedListingId(listing._id)}
                       className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors font-medium text-xs sm:text-sm"
                     >
                       View
-                    </Link>
+                    </button>
                     <button
                       onClick={() => navigate(`/listings/edit/${listing._id}`)}
                       className="p-1.5 sm:p-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors"
@@ -190,6 +193,27 @@ const LandlordDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* Listing Preview Modal */}
+      {selectedListingId && (
+        <GlassModal onClose={() => setSelectedListingId(null)} className="h-[90vh]">
+          <div className="relative h-full flex flex-col">
+            <button
+              onClick={() => setSelectedListingId(null)}
+              className="absolute top-4 right-4 z-[70] p-2 bg-black/20 hover:bg-black/40 rounded-full text-white backdrop-blur-md transition-colors"
+            >
+              <FiX size={24} />
+            </button>
+            <div className="flex-1 overflow-y-auto custom-scrollbar rounded-[2.5rem]">
+              <ListingDetailContent
+                listingId={selectedListingId}
+                isModal={true}
+                onClose={() => setSelectedListingId(null)}
+              />
+            </div>
+          </div>
+        </GlassModal>
+      )}
     </div>
   );
 };
