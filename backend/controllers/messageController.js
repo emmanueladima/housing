@@ -162,8 +162,9 @@ export const getMessages = async (req, res) => {
  */
 export const getUnreadCount = async (req, res) => {
   try {
-    // Find all threads where lastMessageAt > lastReadAt
-    // This requires a join or aggregation
+    // Find all threads where:
+    // 1. lastMessageAt > lastReadAt
+    // 2. The last message was NOT sent by the current user
     const unreadThreads = await ThreadParticipant.aggregate([
       { $match: { user: req.user._id } },
       {
@@ -175,9 +176,22 @@ export const getUnreadCount = async (req, res) => {
         }
       },
       { $unwind: '$threadDetails' },
+      // Lookup the last message to check who sent it
+      {
+        $lookup: {
+          from: 'messages',
+          localField: 'threadDetails.lastMessage',
+          foreignField: '_id',
+          as: 'lastMessageDetails'
+        }
+      },
+      { $unwind: { path: '$lastMessageDetails', preserveNullAndEmptyArrays: true } },
       {
         $match: {
-          $expr: { $gt: ['$threadDetails.lastMessageAt', '$lastReadAt'] }
+          // Thread has messages newer than user's last read
+          $expr: { $gt: ['$threadDetails.lastMessageAt', '$lastReadAt'] },
+          // AND the last message was NOT sent by the current user
+          'lastMessageDetails.sender': { $ne: req.user._id }
         }
       }
     ]);
