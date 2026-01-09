@@ -59,8 +59,8 @@ router.get('/', getMyApplications);
 router.get('/prefill/:listingId', getPrefillData);
 router.patch('/:id/withdraw', withdrawApplication);
 
-// Landlord routes
-router.get('/received', checkLandlord, getReceivedApplications);
+// Landlord routes - removed checkLandlord since controller filters by listing ownership
+router.get('/received', getReceivedApplications);
 router.get('/listing/:id', getListingApplications);
 router.post('/compare', checkLandlord, compareApplications);
 router.patch('/bulk-status', checkLandlord, bulkStatusValidation, bulkUpdateStatus);
