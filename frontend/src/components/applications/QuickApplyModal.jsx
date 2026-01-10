@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { FiX, FiCheck, FiFileText, FiCalendar, FiEdit3, FiZap, FiUser, FiDollarSign, FiPhone } from 'react-icons/fi';
 import applicationService from '../../services/applicationService';
 import LoadingSpinner from '../shared/LoadingSpinner';
@@ -27,7 +28,6 @@ const QuickApplyModal = ({ isOpen, onClose, listing, onSuccess }) => {
             const data = await applicationService.getPrefillData(listing._id);
             setPrefillData(data);
 
-            // Pre-fill form with template data
             if (data.template) {
                 setFormData(prev => ({
                     ...prev,
@@ -66,7 +66,6 @@ const QuickApplyModal = ({ isOpen, onClose, listing, onSuccess }) => {
             setSubmitting(true);
 
             if (formData.useTemplate && prefillData?.template) {
-                // Quick Apply with template
                 await applicationService.quickApply(
                     listing._id,
                     prefillData.template.id,
@@ -77,7 +76,6 @@ const QuickApplyModal = ({ isOpen, onClose, listing, onSuccess }) => {
                     }
                 );
             } else {
-                // Standard submit
                 await applicationService.submitApplication({
                     listingId: listing._id,
                     moveInDate: formData.moveInDate,
@@ -98,18 +96,18 @@ const QuickApplyModal = ({ isOpen, onClose, listing, onSuccess }) => {
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
+    return ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            {/* Backdrop with blur */}
             <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/60 backdrop-blur-md"
                 onClick={onClose}
             />
 
-            {/* Modal */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-                {/* Header */}
-                <div className="sticky top-0 bg-gradient-to-r from-orange-500 to-orange-600 p-4 rounded-t-2xl">
+            {/* Glass Modal Card */}
+            <div className="relative bg-white/20 backdrop-blur-xl rounded-3xl border border-white/30 shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
+                {/* Glass Header */}
+                <div className="bg-gradient-to-r from-orange-500 to-red-500 p-5">
                     <button
                         onClick={onClose}
                         className="absolute top-4 right-4 p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-colors"
@@ -118,7 +116,7 @@ const QuickApplyModal = ({ isOpen, onClose, listing, onSuccess }) => {
                     </button>
 
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/20 rounded-xl">
+                        <div className="p-2.5 bg-white/20 rounded-xl">
                             <FiZap className="text-white" size={24} />
                         </div>
                         <div>
@@ -133,23 +131,23 @@ const QuickApplyModal = ({ isOpen, onClose, listing, onSuccess }) => {
                         <LoadingSpinner size="lg" />
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="p-4 space-y-4">
+                    <form onSubmit={handleSubmit} className="p-5 space-y-4 max-h-[60vh] overflow-y-auto">
                         {/* User Info Preview */}
                         {prefillData?.user && (
-                            <div className="bg-gray-50 rounded-xl p-3 space-y-2">
-                                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Your Information</h3>
+                            <div className="bg-white/10 rounded-xl p-4 border border-white/20 space-y-2">
+                                <h3 className="text-xs font-semibold text-white/60 uppercase tracking-wider">Your Information</h3>
                                 <div className="grid grid-cols-2 gap-2 text-sm">
-                                    <div className="flex items-center gap-2">
-                                        <FiUser className="text-gray-400" size={14} />
+                                    <div className="flex items-center gap-2 text-white">
+                                        <FiUser className="text-orange-400" size={14} />
                                         <span>{prefillData.user.firstName} {prefillData.user.lastName}</span>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <FiPhone className="text-gray-400" size={14} />
+                                    <div className="flex items-center gap-2 text-white">
+                                        <FiPhone className="text-orange-400" size={14} />
                                         <span>{prefillData.user.phone}</span>
                                     </div>
                                 </div>
                                 {prefillData.user.school && (
-                                    <div className="text-sm text-gray-600">
+                                    <div className="text-sm text-white/70">
                                         {prefillData.user.school} • Class of {prefillData.user.graduationYear}
                                     </div>
                                 )}
@@ -158,11 +156,11 @@ const QuickApplyModal = ({ isOpen, onClose, listing, onSuccess }) => {
 
                         {/* Template Info */}
                         {prefillData?.template && (
-                            <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+                            <div className="bg-green-500/20 border border-green-400/30 rounded-xl p-3">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <FiCheck className="text-green-600" size={16} />
-                                        <span className="text-sm font-medium text-green-800">
+                                        <FiCheck className="text-green-400" size={16} />
+                                        <span className="text-sm font-medium text-green-300">
                                             Using template: {prefillData.template.name}
                                         </span>
                                     </div>
@@ -173,26 +171,15 @@ const QuickApplyModal = ({ isOpen, onClose, listing, onSuccess }) => {
                                             onChange={(e) => setFormData({ ...formData, useTemplate: e.target.checked })}
                                             className="rounded text-orange-500 focus:ring-orange-500"
                                         />
-                                        <span className="text-xs text-gray-600">Use template</span>
+                                        <span className="text-xs text-white/60">Use template</span>
                                     </label>
                                 </div>
-                                {prefillData.template.incomeInfo?.employer && (
-                                    <div className="mt-2 text-sm text-gray-600 flex items-center gap-2">
-                                        <FiDollarSign size={14} />
-                                        <span>{prefillData.template.incomeInfo.employer}</span>
-                                        {prefillData.template.incomeInfo.annualIncome && (
-                                            <span className="text-gray-400">
-                                                • ${prefillData.template.incomeInfo.annualIncome.toLocaleString()}/yr
-                                            </span>
-                                        )}
-                                    </div>
-                                )}
                             </div>
                         )}
 
                         {/* Move-in Date */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-white/80 mb-1.5">
                                 <FiCalendar className="inline mr-1" size={14} />
                                 Move-in Date
                             </label>
@@ -200,82 +187,83 @@ const QuickApplyModal = ({ isOpen, onClose, listing, onSuccess }) => {
                                 type="date"
                                 value={formData.moveInDate}
                                 onChange={(e) => setFormData({ ...formData, moveInDate: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                 required
                             />
                         </div>
 
                         {/* Lease Term */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-white/80 mb-1.5">
                                 Lease Term
                             </label>
                             <select
                                 value={formData.leaseTerm}
                                 onChange={(e) => setFormData({ ...formData, leaseTerm: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                className="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                             >
-                                <option value="month-to-month">Month-to-Month</option>
-                                <option value="6-months">6 Months</option>
-                                <option value="1-year">1 Year</option>
-                                <option value="academic-year">Academic Year</option>
+                                <option value="month-to-month" className="bg-gray-800">Month-to-Month</option>
+                                <option value="6-months" className="bg-gray-800">6 Months</option>
+                                <option value="1-year" className="bg-gray-800">1 Year</option>
+                                <option value="academic-year" className="bg-gray-800">Academic Year</option>
                             </select>
                         </div>
 
                         {/* Cover Letter */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-white/80 mb-1.5">
                                 <FiEdit3 className="inline mr-1" size={14} />
                                 Cover Letter (Optional)
                             </label>
                             <textarea
                                 value={formData.coverLetter}
                                 onChange={(e) => setFormData({ ...formData, coverLetter: e.target.value })}
-                                placeholder="Tell the landlord about yourself, why you'd be a great tenant..."
-                                rows={4}
+                                placeholder="Tell the landlord about yourself..."
+                                rows={3}
                                 maxLength={2000}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
+                                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
                             />
-                            <div className="text-xs text-gray-500 text-right mt-1">
+                            <div className="text-xs text-white/40 text-right mt-1">
                                 {formData.coverLetter.length}/2000
                             </div>
                         </div>
 
                         {/* Error */}
                         {error && (
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
+                            <div className="bg-red-500/20 border border-red-400/30 rounded-xl p-3 text-red-300 text-sm">
                                 {error}
                             </div>
                         )}
-
-                        {/* Submit */}
-                        <div className="flex gap-3 pt-2">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={submitting}
-                                className="flex-1 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-bold hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                                {submitting ? (
-                                    <LoadingSpinner size="sm" />
-                                ) : (
-                                    <>
-                                        <FiZap size={16} />
-                                        Apply Now
-                                    </>
-                                )}
-                            </button>
-                        </div>
                     </form>
                 )}
+
+                {/* Footer Actions */}
+                <div className="p-5 pt-0 flex gap-3">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="flex-1 px-4 py-3 bg-white/10 border border-white/20 text-white rounded-xl font-semibold hover:bg-white/20 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleSubmit}
+                        disabled={submitting || loading}
+                        className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-bold hover:from-orange-600 hover:to-red-600 transition-all shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        {submitting ? (
+                            <LoadingSpinner size="sm" />
+                        ) : (
+                            <>
+                                <FiZap size={16} />
+                                Apply Now
+                            </>
+                        )}
+                    </button>
+                </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

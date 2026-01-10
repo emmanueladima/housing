@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { FiX } from 'react-icons/fi';
 
 const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
@@ -28,23 +29,23 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
     full: 'max-w-7xl',
   };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-[9999] overflow-y-auto">
+      {/* Backdrop with strong blur */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div
-          className={`relative w-full ${sizes[size]} bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl shadow-black/10 transform transition-all animate-fadeIn`}
+          className={`relative w-full ${sizes[size]} bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl shadow-black/20 transform transition-all animate-fadeIn`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header - Only show if title is provided */}
           {title ? (
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between p-6 border-b border-white/20">
               <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
               <button
                 onClick={onClose}
@@ -67,7 +68,8 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
           <div className={title ? "p-6" : "p-6 pt-10"}>{children}</div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
