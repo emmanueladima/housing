@@ -107,7 +107,7 @@ const ListingDetailContent = ({ listingId, onClose, isModal = false }) => {
 
     if (loading) {
         return (
-            <div className={`flex items-center justify-center bg-gray-50 ${isModal ? 'h-full min-h-[400px]' : 'min-h-screen'}`}>
+            <div className={`flex items-center justify-center ${isModal ? 'h-full min-h-[400px] bg-transparent' : 'min-h-screen bg-gray-50'}`}>
                 <LoadingSpinner size="lg" />
             </div>
         );
@@ -115,7 +115,7 @@ const ListingDetailContent = ({ listingId, onClose, isModal = false }) => {
 
     if (!listing) {
         return (
-            <div className={`flex flex-col items-center justify-center bg-gray-50 ${isModal ? 'h-full min-h-[400px]' : 'min-h-screen'}`}>
+            <div className={`flex flex-col items-center justify-center ${isModal ? 'h-full min-h-[400px] bg-transparent' : 'min-h-screen bg-gray-50'}`}>
                 <h1 className="text-2xl font-bold text-gray-900 mb-4">Listing not found</h1>
                 {!isModal && <Button onClick={() => navigate('/listings')}>Back to Listings</Button>}
             </div>

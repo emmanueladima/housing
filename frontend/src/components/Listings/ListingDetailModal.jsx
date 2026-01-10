@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { FiX } from 'react-icons/fi';
 import { Card } from '@heroui/card';
 import ListingDetailContent from './ListingDetailContent';
@@ -14,21 +15,29 @@ const ListingDetailModal = ({ listingId, onClose }) => {
 
     if (!listingId) return null;
 
-    return (
+    return ReactDOM.createPortal(
         <div
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-            style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-            onClick={onClose}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-200"
         >
-            <div className="w-full max-w-6xl h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            {/* Backdrop with blur */}
+            <div
+                className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                onClick={onClose}
+            />
+
+            {/* Modal Container */}
+            <div
+                className="relative w-full max-w-6xl h-[90vh] flex flex-col animate-in zoom-in-95 duration-200"
+                onClick={e => e.stopPropagation()}
+            >
                 <Card isBlurred className="w-full h-full border border-white/20 bg-white/10 backdrop-blur-3xl shadow-2xl rounded-[2.5rem] overflow-hidden flex flex-col">
                     {/* Fixed Header */}
-                    <div className="flex items-center justify-end px-5 py-4 border-b border-gray-200/20 flex-shrink-0">
+                    <div className="flex items-center justify-end px-5 py-4 border-b border-white/10 flex-shrink-0">
                         <button
                             onClick={onClose}
-                            className="p-2 rounded-lg transition-colors hover:bg-white/10 text-white hover:text-gray-200"
+                            className="p-2 rounded-full transition-colors hover:bg-white/20 text-white hover:text-gray-200"
                         >
-                            <FiX size={18} />
+                            <FiX size={20} />
                         </button>
                     </div>
 
@@ -37,9 +46,9 @@ const ListingDetailModal = ({ listingId, onClose }) => {
                     </div>
                 </Card>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
 export default ListingDetailModal;
-
