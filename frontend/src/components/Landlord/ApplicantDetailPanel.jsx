@@ -182,22 +182,28 @@ const ApplicantDetailPanel = ({ application, onClose, onStatusUpdate }) => {
                                         type="date"
                                         value={tourDate}
                                         onChange={(e) => setTourDate(e.target.value)}
-                                        className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                        min={new Date().toISOString().split('T')[0]}
+                                        className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 [color-scheme:dark]"
                                     />
                                     <input
                                         type="time"
                                         value={tourTime}
                                         onChange={(e) => setTourTime(e.target.value)}
-                                        className="w-28 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                        className="w-28 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 [color-scheme:dark]"
                                     />
                                     <button
                                         onClick={handleScheduleTour}
                                         disabled={!tourDate || !tourTime || saving}
-                                        className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white text-sm font-bold rounded-lg disabled:opacity-50"
+                                        className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white text-sm font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     >
-                                        Set
+                                        {saving ? '...' : 'Set'}
                                     </button>
                                 </div>
+                                {application.tourScheduled?.date && (
+                                    <div className="mt-2 text-xs text-purple-300 bg-purple-500/20 px-3 py-2 rounded-lg">
+                                        ✓ Tour scheduled: {new Date(application.tourScheduled.date).toLocaleDateString()} at {application.tourScheduled.time}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Private Notes */}
