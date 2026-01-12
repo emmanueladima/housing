@@ -194,8 +194,8 @@ const DashboardApplications = ({ initialListingId }) => {
                                     key={filter.key}
                                     onClick={() => setFilterStatus(filter.key)}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${isActive
-                                            ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'
-                                            : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
+                                        ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'
+                                        : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
                                         }`}
                                 >
                                     <Icon size={14} />
@@ -322,10 +322,14 @@ const DashboardApplications = ({ initialListingId }) => {
                             classNames={{
                                 base: "bg-transparent",
                                 headerWrapper: "bg-transparent",
+                                header: "text-white",
+                                title: "text-white",
                                 gridWrapper: "bg-transparent",
                                 grid: "bg-transparent",
                                 cell: "data-[selected=true]:bg-orange-500 data-[selected=true]:text-white",
-                                cellButton: "data-[selected=true]:bg-orange-500 data-[selected=true]:text-white hover:bg-white/20",
+                                cellButton: "data-[selected=true]:bg-orange-500 data-[selected=true]:text-white hover:bg-white/20 text-white",
+                                prevButton: "text-white hover:bg-white/20",
+                                nextButton: "text-white hover:bg-white/20",
                             }}
                         />
                     </div>
