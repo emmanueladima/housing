@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { FiX, FiUser, FiSun, FiMoon, FiVolume2, FiCheckCircle, FiSmile, FiArrowRight, FiArrowLeft, FiCheck, FiHeart, FiThermometer, FiBook, FiUsers } from 'react-icons/fi';
+import { FiX, FiUser, FiSun, FiMoon, FiVolume2, FiCheckCircle, FiSmile, FiArrowRight, FiArrowLeft, FiCheck, FiHeart, FiThermometer, FiBook, FiUsers, FiAtSign } from 'react-icons/fi';
 import lifestyleProfileService from '../../services/lifestyleProfileService';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import BioTextarea from '../ui/BioTextarea';
 import SleepScheduleSlider from '../ui/SleepScheduleSlider';
 import MajorAutocomplete from '../ui/MajorAutocomplete';
+import UsernameInput from '../ui/UsernameInput';
 
 const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
     const navigate = useNavigate();
+    const { user, refreshUser } = useAuth();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -259,6 +262,21 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                             placeholder="I'm a junior studying CS. I love hiking and coffee..."
                             maxLength={500}
                         />
+
+                        {/* Username */}
+                        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-4 border border-orange-200">
+                            <div className="flex items-center gap-2 mb-2">
+                                <FiAtSign className="text-orange-600" size={18} />
+                                <span className="text-sm font-bold text-gray-700">Choose a Username</span>
+                            </div>
+                            <p className="text-xs text-gray-500 mb-3">This makes it easy for others to find and invite you</p>
+                            <UsernameInput
+                                currentUsername={user?.username || ''}
+                                onUsernameSet={(username) => refreshUser()}
+                                className=""
+                                showLabel={false}
+                            />
+                        </div>
 
                         {/* Roommate Visibility Toggle */}
                         <div className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.lookingForRoommate ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}

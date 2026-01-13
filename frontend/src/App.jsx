@@ -31,6 +31,7 @@ import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiePolicy from './pages/CookiePolicy';
 import ResetPassword from './pages/ResetPassword';
+import JoinByCode from './pages/JoinByCode';
 
 function App() {
   const location = useLocation();
@@ -91,6 +92,7 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/cookies" element={<CookiePolicy />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/join/:code" element={<JoinByCode />} />
 
           {/* Protected routes */}
           <Route
