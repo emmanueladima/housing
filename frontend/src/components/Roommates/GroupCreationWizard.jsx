@@ -89,7 +89,7 @@ const GroupCreationWizard = ({ isOpen, onClose, onCreate }) => {
                                     value={formData.name}
                                     onChange={handleChange}
                                     placeholder="e.g., The Study Hub, Weekend Warriors"
-                                    className={`w-full p-4 bg-white/5 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-white placeholder-gray-500 ${errors.name ? 'border-red-400/50' : 'border-white/10'}`}
+                                    className={`w-full p-4 bg-white/5 border rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-white placeholder-white/40 ${errors.name ? 'border-red-400/50' : 'border-white/10'}`}
                                 />
                                 {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
                             </div>
@@ -101,7 +101,7 @@ const GroupCreationWizard = ({ isOpen, onClose, onCreate }) => {
                                     onChange={handleChange}
                                     rows="4"
                                     placeholder="Tell potential roommates what your group is about..."
-                                    className="w-full p-4 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all resize-none text-white placeholder-gray-500"
+                                    className="w-full p-4 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all resize-none text-white placeholder-white/40"
                                 />
                             </div>
 
@@ -156,7 +156,7 @@ const GroupCreationWizard = ({ isOpen, onClose, onCreate }) => {
                                         value={formData.budget}
                                         onChange={handleChange}
                                         placeholder="1200"
-                                        className={`w-full p-4 bg-white/5 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-white placeholder-gray-500 ${errors.budget ? 'border-red-400/50' : 'border-white/10'}`}
+                                        className={`w-full p-4 bg-white/5 border rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-white placeholder-white/40 ${errors.budget ? 'border-red-400/50' : 'border-white/10'}`}
                                     />
                                     {errors.budget && <p className="text-red-400 text-xs mt-1">{errors.budget}</p>}
                                 </div>

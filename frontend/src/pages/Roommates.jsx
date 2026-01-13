@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FiFilter, FiSearch, FiUsers, FiPlus, FiUser, FiSliders, FiSettings } from 'react-icons/fi';
 import api from '../services/api';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -18,8 +18,11 @@ import { useAuth } from '../contexts/AuthContext';
 
 const Roommates = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, refreshUser } = useAuth();
-    const [activeTab, setActiveTab] = useState('solo'); // 'groups' or 'solo'
+    // Check URL hash for initial tab
+    const initialTab = location.hash === '#groups' ? 'groups' : 'solo';
+    const [activeTab, setActiveTab] = useState(initialTab); // 'groups' or 'solo'
     const [groups, setGroups] = useState([]);
     const [soloRoommates, setSoloRoommates] = useState([]);
     const [loading, setLoading] = useState(true);
