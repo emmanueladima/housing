@@ -239,6 +239,9 @@ const Header = () => {
                         {isStudent && (
                           <DropdownItem key="/roommate-toolkit" startContent={<FiTool size={18} className="text-gray-500" />} className="text-gray-800 data-[hover=true]:bg-gray-100 data-[hover=true]:text-gray-900 rounded-xl">Toolkit</DropdownItem>
                         )}
+                        {isStudent && (
+                          <DropdownItem key="/group/dashboard" startContent={<FiUsers size={18} className="text-gray-500" />} className="text-gray-800 data-[hover=true]:bg-gray-100 data-[hover=true]:text-gray-900 rounded-xl">My Group</DropdownItem>
+                        )}
 
                         <DropdownItem key="/settings" startContent={<FiSettings size={18} className="text-gray-500" />} className="text-gray-800 data-[hover=true]:bg-gray-100 data-[hover=true]:text-gray-900 rounded-xl">Settings</DropdownItem>
 

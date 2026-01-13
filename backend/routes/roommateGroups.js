@@ -18,7 +18,13 @@ import {
   requestJoin,
   getJoinRequests,
   handleJoinRequest,
-  deleteMyGroup
+  deleteMyGroup,
+  // Invite code system
+  generateInviteCode,
+  joinByInviteCode,
+  revokeInviteCode,
+  inviteByUsername,
+  removeMember
 } from '../controllers/roommateGroupController.js';
 
 const router = express.Router();
@@ -36,6 +42,13 @@ router.get('/:id', getGroupById);
 router.post('/:id/request-join', requestJoin);
 router.get('/:id/requests', getJoinRequests);
 router.put('/:id/requests/:requestId', handleJoinRequest);
+
+// Invite Code Routes
+router.post('/join/:code', joinByInviteCode);  // Join by code (must be before /:id routes)
+router.post('/:id/invite-code', generateInviteCode);
+router.delete('/:id/invite-code', revokeInviteCode);
+router.post('/:id/invite-username', inviteByUsername);
+router.delete('/:id/members/:memberId', removeMember);
 
 // Toolkit Routes - Timeline Events
 router.post('/:id/events', addEvent);
@@ -55,3 +68,4 @@ router.delete('/:id/expenses/:expenseId', deleteExpense);
 router.post('/:id/rules', addRule);
 
 export default router;
+

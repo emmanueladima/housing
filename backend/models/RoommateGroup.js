@@ -65,6 +65,14 @@ const roommateGroupSchema = new mongoose.Schema({
   vibe: [String],
   lookingFor: String,
 
+  // Invite Code System
+  inviteCode: {
+    code: { type: String, index: true },
+    expiresAt: Date,
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  },
+  maxMembers: { type: Number, default: 6 },
+
 }, {
   timestamps: true
 });

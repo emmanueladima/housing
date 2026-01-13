@@ -3,8 +3,27 @@ import User from '../models/User.js';
 import LifestyleProfile from '../models/LifestyleProfile.js';
 import Report from '../models/Report.js';
 import { protect } from '../middleware/auth.js';
+import {
+  checkUsernameAvailability,
+  setUsername,
+  searchByUsername,
+  getUserByUsername
+} from '../controllers/usernameController.js';
 
 const router = express.Router();
+
+// ============ USERNAME ROUTES ============
+// Check username availability (public)
+router.get('/check-username/:username', checkUsernameAvailability);
+
+// Set/update username (protected)
+router.patch('/username', protect, setUsername);
+
+// Search users by username (protected)
+router.get('/search', protect, searchByUsername);
+
+// Get user by username (protected)
+router.get('/by-username/:username', protect, getUserByUsername);
 
 // GET users with lifestyle profiles (for roommate browse)
 router.get('/with-profiles', protect, async (req, res) => {

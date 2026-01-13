@@ -124,6 +124,40 @@ const roommateGroupService = {
         const { data } = await api.delete('/roommate-groups/my-group');
         return data;
     },
+
+    // ==============================
+    // Invite Code System
+    // ==============================
+
+    // Generate invite code
+    generateInviteCode: async (groupId, expiryDays = 7) => {
+        const { data } = await api.post(`/roommate-groups/${groupId}/invite-code`, { expiryDays });
+        return data;
+    },
+
+    // Join group by invite code
+    joinByInviteCode: async (code) => {
+        const { data } = await api.post(`/roommate-groups/join/${code}`);
+        return data;
+    },
+
+    // Revoke invite code
+    revokeInviteCode: async (groupId) => {
+        const { data } = await api.delete(`/roommate-groups/${groupId}/invite-code`);
+        return data;
+    },
+
+    // Invite user by username
+    inviteByUsername: async (groupId, username) => {
+        const { data } = await api.post(`/roommate-groups/${groupId}/invite-username`, { username });
+        return data;
+    },
+
+    // Remove member from group
+    removeMember: async (groupId, memberId) => {
+        const { data } = await api.delete(`/roommate-groups/${groupId}/members/${memberId}`);
+        return data;
+    },
 };
 
 export default roommateGroupService;

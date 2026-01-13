@@ -12,6 +12,32 @@ const userService = {
     const { data } = await api.get(`/users/${userId}`);
     return data;
   },
+
+  // ============ USERNAME OPERATIONS ============
+
+  // Check if username is available
+  checkUsername: async (username) => {
+    const { data } = await api.get(`/users/check-username/${username}`);
+    return data;
+  },
+
+  // Set or update username
+  setUsername: async (username) => {
+    const { data } = await api.patch('/users/username', { username });
+    return data;
+  },
+
+  // Search users by username or name
+  searchUsers: async (query) => {
+    const { data } = await api.get(`/users/search?q=${encodeURIComponent(query)}`);
+    return data;
+  },
+
+  // Get user by username
+  getUserByUsername: async (username) => {
+    const { data } = await api.get(`/users/by-username/${username}`);
+    return data;
+  },
 };
 
 export default userService;

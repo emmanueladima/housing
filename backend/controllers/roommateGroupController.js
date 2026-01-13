@@ -459,3 +459,217 @@ export const deleteExpense = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// ==============================
+// INVITE CODE SYSTEM
+// ==============================
+
+// Helper: Generate random alphanumeric code
+const generateCode = (length = 6) => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed ambiguous chars (O,0,1,I)
+    let code = '';
+    for (let i = 0; i < length; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+};
+
+// @desc    Generate invite code for group
+// @route   POST /api/roommate-groups/:id/invite-code
+// @access  Private (admin only)
+export const generateInviteCode = async (req, res) => {
+    try {
+        const group = await RoommateGroup.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Only admin can generate codes
+        if (group.admin.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Only group admin can generate invite codes' });
+        }
+
+        // Check if group is at capacity
+        const maxMembers = group.maxMembers || 6;
+        if (group.members.length >= maxMembers) {
+            return res.status(400).json({ message: 'Group is at maximum capacity' });
+        }
+
+        // Generate unique code (7 days expiry by default)
+        const expiryDays = req.body.expiryDays || 7;
+        const code = generateCode(6);
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + expiryDays);
+
+        group.inviteCode = {
+            code,
+            expiresAt,
+            createdBy: req.user._id
+        };
+        await group.save();
+
+        res.json({
+            success: true,
+            inviteCode: {
+                code,
+                expiresAt,
+                expiresIn: `${expiryDays} days`
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Join group by invite code
+// @route   POST /api/roommate-groups/join/:code
+// @access  Private
+export const joinByInviteCode = async (req, res) => {
+    try {
+        const { code } = req.params;
+
+        // Find group with this code
+        const group = await RoommateGroup.findOne({ 'inviteCode.code': code.toUpperCase() })
+            .populate('members', 'firstName lastName profilePicture')
+            .populate('admin', 'firstName lastName');
+
+        if (!group) {
+            return res.status(404).json({ message: 'Invalid invite code' });
+        }
+
+        // Check if code expired
+        if (group.inviteCode.expiresAt < new Date()) {
+            return res.status(400).json({ message: 'Invite code has expired' });
+        }
+
+        // Check if already a member
+        if (group.members.some(m => m._id.toString() === req.user._id.toString())) {
+            return res.status(400).json({ message: 'You are already a member of this group' });
+        }
+
+        // Check capacity
+        const maxMembers = group.maxMembers || 6;
+        if (group.members.length >= maxMembers) {
+            return res.status(400).json({ message: 'Group is at maximum capacity' });
+        }
+
+        // Add user to group
+        group.members.push(req.user._id);
+        await group.save();
+
+        // Re-populate
+        await group.populate('members', 'firstName lastName profilePicture email school');
+
+        res.json({
+            success: true,
+            message: `You've joined ${group.name}!`,
+            group
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Revoke current invite code
+// @route   DELETE /api/roommate-groups/:id/invite-code
+// @access  Private (admin only)
+export const revokeInviteCode = async (req, res) => {
+    try {
+        const group = await RoommateGroup.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Only admin can revoke
+        if (group.admin.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Only group admin can revoke invite codes' });
+        }
+
+        group.inviteCode = undefined;
+        await group.save();
+
+        res.json({ success: true, message: 'Invite code revoked' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Invite user by username
+// @route   POST /api/roommate-groups/:id/invite-username
+// @access  Private (admin only)
+export const inviteByUsername = async (req, res) => {
+    try {
+        const { username } = req.body;
+        if (!username) {
+            return res.status(400).json({ message: 'Username is required' });
+        }
+
+        const group = await RoommateGroup.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Only admin can invite
+        if (group.admin.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Only group admin can invite members' });
+        }
+
+        // Find user by username
+        const userToInvite = await User.findOne({ username: username.toLowerCase().replace('@', '') });
+        if (!userToInvite) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if already a member
+        if (group.members.some(m => m.toString() === userToInvite._id.toString())) {
+            return res.status(400).json({ message: 'User is already a member of this group' });
+        }
+
+        // Check capacity
+        const maxMembers = group.maxMembers || 6;
+        if (group.members.length >= maxMembers) {
+            return res.status(400).json({ message: 'Group is at maximum capacity' });
+        }
+
+        // Add directly to group (admin invite = instant join)
+        group.members.push(userToInvite._id);
+        await group.save();
+
+        await group.populate('members', 'firstName lastName profilePicture email school username');
+
+        res.json({
+            success: true,
+            message: `@${userToInvite.username} has been added to the group!`,
+            group
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Remove member from group
+// @route   DELETE /api/roommate-groups/:id/members/:memberId
+// @access  Private (admin only)
+export const removeMember = async (req, res) => {
+    try {
+        const group = await RoommateGroup.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Only admin can remove members
+        if (group.admin.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Only group admin can remove members' });
+        }
+
+        // Can't remove admin
+        if (req.params.memberId === group.admin.toString()) {
+            return res.status(400).json({ message: 'Cannot remove group admin' });
+        }
+
+        group.members = group.members.filter(m => m.toString() !== req.params.memberId);
+        await group.save();
+
+        await group.populate('members', 'firstName lastName profilePicture email school username');
+
+        res.json({
+            success: true,
+            message: 'Member removed from group',
+            group
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
