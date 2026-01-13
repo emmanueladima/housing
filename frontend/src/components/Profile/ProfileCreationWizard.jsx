@@ -3,6 +3,8 @@ import { FiX, FiUser, FiSun, FiMoon, FiVolume2, FiCheckCircle, FiSmile, FiArrowR
 import lifestyleProfileService from '../../services/lifestyleProfileService';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { NumberInput } from '@heroui/number-input';
+import { Select, SelectItem } from '@heroui/select';
 import BioTextarea from '../ui/BioTextarea';
 import SleepScheduleSlider from '../ui/SleepScheduleSlider';
 import MajorAutocomplete from '../ui/MajorAutocomplete';
@@ -216,32 +218,42 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Age</label>
-                                <input
-                                    type="number"
-                                    name="age"
-                                    value={formData.age}
-                                    onChange={handleChange}
-                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all"
-                                    placeholder="e.g. 21"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Gender</label>
-                                <select
-                                    name="gender"
-                                    value={formData.gender}
-                                    onChange={handleChange}
-                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:bg-white outline-none transition-all"
-                                >
-                                    <option value="">Select...</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="non-binary">Non-binary</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
+                            <NumberInput
+                                label="Age"
+                                labelPlacement="outside"
+                                value={formData.age}
+                                onValueChange={(val) => setFormData(prev => ({ ...prev, age: val }))}
+                                min={18}
+                                max={99}
+                                placeholder="e.g. 21"
+                                classNames={{
+                                    base: "w-full",
+                                    label: "text-sm font-bold text-gray-700",
+                                    inputWrapper: "bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 focus-within:!bg-white focus-within:!border-orange-500",
+                                    input: "text-gray-900"
+                                }}
+                            />
+                            <Select
+                                label="Gender"
+                                labelPlacement="outside"
+                                placeholder="Select..."
+                                selectedKeys={formData.gender ? [formData.gender] : []}
+                                onSelectionChange={(keys) => {
+                                    const selected = Array.from(keys)[0];
+                                    setFormData(prev => ({ ...prev, gender: selected || '' }));
+                                }}
+                                classNames={{
+                                    base: "w-full",
+                                    label: "text-sm font-bold text-gray-700",
+                                    trigger: "bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 data-[open=true]:border-orange-500",
+                                    value: "text-gray-900"
+                                }}
+                            >
+                                <SelectItem key="male">Male</SelectItem>
+                                <SelectItem key="female">Female</SelectItem>
+                                <SelectItem key="non-binary">Non-binary</SelectItem>
+                                <SelectItem key="other">Other</SelectItem>
+                            </Select>
                         </div>
 
                         {/* Major Autocomplete */}
@@ -275,6 +287,7 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                 onUsernameSet={(username) => refreshUser()}
                                 className=""
                                 showLabel={false}
+                                variant="light"
                             />
                         </div>
 

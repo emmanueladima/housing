@@ -184,14 +184,17 @@ const GroupDashboard = () => {
     const isAdmin = group.admin === user?._id || group.admin?._id === user?._id;
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* Hero Header */}
-            <div className="relative overflow-hidden pt-32 pb-20">
+        <div className="min-h-screen relative">
+            {/* Full-page animated background */}
+            <div className="fixed inset-0 z-0">
                 <ModernBackground />
+            </div>
 
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Hero Header */}
+            <div className="relative z-10 pt-32 pb-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <button
-                        onClick={() => navigate('/toolkit')}
+                        onClick={() => navigate('/roommate-toolkit')}
                         className="flex items-center gap-2 text-white/80 hover:text-white mb-6 font-medium transition-colors"
                     >
                         <FiArrowLeft size={18} />
@@ -237,22 +240,22 @@ const GroupDashboard = () => {
                 </div>
             </div>
 
-            {/* Main Content */}
-            <div className="bg-gray-50 min-h-screen">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            {/* Main Content - extends over the animated background */}
+            <div className="relative z-10 pb-20">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Tabs */}
-                    <div className="flex gap-4 mb-8">
+                    <div className="flex flex-wrap gap-3 mb-8">
                         <button
                             onClick={() => setActiveTab('requests')}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all ${activeTab === 'requests'
-                                ? 'bg-orange-600 text-white shadow-lg'
-                                : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold transition-all ${activeTab === 'requests'
+                                ? 'bg-white text-gray-900 shadow-lg'
+                                : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/20'
                                 }`}
                         >
                             <FiUserPlus size={18} />
                             Join Requests
                             {joinRequests.length > 0 && (
-                                <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'requests' ? 'bg-white/20' : 'bg-orange-100 text-orange-600'
+                                <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${activeTab === 'requests' ? 'bg-orange-500 text-white' : 'bg-orange-400/30 text-orange-200'
                                     }`}>
                                     {joinRequests.length}
                                 </span>
@@ -260,9 +263,9 @@ const GroupDashboard = () => {
                         </button>
                         <button
                             onClick={() => setActiveTab('members')}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all ${activeTab === 'members'
-                                ? 'bg-orange-600 text-white shadow-lg'
-                                : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold transition-all ${activeTab === 'members'
+                                ? 'bg-white text-gray-900 shadow-lg'
+                                : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/20'
                                 }`}
                         >
                             <FiUsers size={18} />
@@ -271,9 +274,9 @@ const GroupDashboard = () => {
                         {isAdmin && (
                             <button
                                 onClick={() => setActiveTab('invite')}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all ${activeTab === 'invite'
-                                    ? 'bg-orange-600 text-white shadow-lg'
-                                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold transition-all ${activeTab === 'invite'
+                                    ? 'bg-white text-gray-900 shadow-lg'
+                                    : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/20'
                                     }`}
                             >
                                 <FiShare2 size={18} />
