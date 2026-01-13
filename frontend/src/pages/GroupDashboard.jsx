@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiUsers, FiCheck, FiX, FiMail, FiClock, FiUserPlus, FiBell, FiArrowLeft, FiSettings, FiDollarSign } from 'react-icons/fi';
+import {
+    FiUsers, FiCheck, FiX, FiMail, FiClock, FiUserPlus, FiBell,
+    FiArrowLeft, FiSettings, FiDollarSign, FiCopy, FiRefreshCw,
+    FiLink, FiAtSign, FiShare2
+} from 'react-icons/fi';
 import roommateGroupService from '../services/roommateGroupService';
 import ModernBackground from '../components/shared/ModernBackground';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -16,6 +20,14 @@ const GroupDashboard = () => {
     const [activeTab, setActiveTab] = useState('requests');
     const [showEditModal, setShowEditModal] = useState(false);
     const [editData, setEditData] = useState({ budget: '', lookingFor: '', description: '' });
+
+    // Invite states
+    const [inviteUsername, setInviteUsername] = useState('');
+    const [inviteLoading, setInviteLoading] = useState(false);
+    const [inviteError, setInviteError] = useState('');
+    const [inviteSuccess, setInviteSuccess] = useState('');
+    const [codeLoading, setCodeLoading] = useState(false);
+    const [codeCopied, setCodeCopied] = useState(false);
 
     useEffect(() => {
         loadGroupData();
@@ -76,6 +88,63 @@ const GroupDashboard = () => {
             alert(`Failed to ${action} request. Please try again.`);
         } finally {
             setProcessingId(null);
+        }
+    };
+
+    // Invite by username
+    const handleInviteByUsername = async (e) => {
+        e.preventDefault();
+        if (!inviteUsername.trim()) return;
+
+        setInviteLoading(true);
+        setInviteError('');
+        setInviteSuccess('');
+
+        try {
+            const result = await roommateGroupService.inviteByUsername(group._id, inviteUsername);
+            setInviteSuccess(result.message);
+            setInviteUsername('');
+            setGroup(result.group);
+            setTimeout(() => setInviteSuccess(''), 3000);
+        } catch (error) {
+            setInviteError(error.response?.data?.message || 'Failed to invite user');
+        } finally {
+            setInviteLoading(false);
+        }
+    };
+
+    // Generate invite code
+    const handleGenerateInviteCode = async () => {
+        setCodeLoading(true);
+        try {
+            const result = await roommateGroupService.generateInviteCode(group._id, 7);
+            setGroup(prev => ({
+                ...prev,
+                inviteCode: result.inviteCode
+            }));
+        } catch (error) {
+            alert(error.response?.data?.message || 'Failed to generate invite code');
+        } finally {
+            setCodeLoading(false);
+        }
+    };
+
+    // Copy invite code
+    const handleCopyCode = () => {
+        if (group?.inviteCode?.code) {
+            navigator.clipboard.writeText(group.inviteCode.code);
+            setCodeCopied(true);
+            setTimeout(() => setCodeCopied(false), 2000);
+        }
+    };
+
+    // Copy invite link
+    const handleCopyLink = () => {
+        if (group?.inviteCode?.code) {
+            const link = `${window.location.origin}/join/${group.inviteCode.code}`;
+            navigator.clipboard.writeText(link);
+            setCodeCopied(true);
+            setTimeout(() => setCodeCopied(false), 2000);
         }
     };
 
@@ -199,6 +268,18 @@ const GroupDashboard = () => {
                             <FiUsers size={18} />
                             Members
                         </button>
+                        {isAdmin && (
+                            <button
+                                onClick={() => setActiveTab('invite')}
+                                className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all ${activeTab === 'invite'
+                                    ? 'bg-orange-600 text-white shadow-lg'
+                                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                    }`}
+                            >
+                                <FiShare2 size={18} />
+                                Invite Members
+                            </button>
+                        )}
                     </div>
 
                     {/* Content */}
@@ -278,7 +359,7 @@ const GroupDashboard = () => {
                                 ))
                             )}
                         </div>
-                    ) : (
+                    ) : activeTab === 'members' ? (
                         <div className="space-y-4">
                             {group.members?.length === 0 ? (
                                 <div className="bg-white rounded-3xl p-12 border border-gray-200 text-center">
@@ -319,7 +400,119 @@ const GroupDashboard = () => {
                                 ))
                             )}
                         </div>
-                    )}
+                    ) : activeTab === 'invite' && isAdmin ? (
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {/* Invite by Username */}
+                            <div className="bg-white rounded-3xl p-8 border border-gray-200">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-50 rounded-2xl flex items-center justify-center">
+                                        <FiAtSign className="text-purple-500" size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-900">Invite by Username</h3>
+                                        <p className="text-sm text-gray-500">Add someone directly to your group</p>
+                                    </div>
+                                </div>
+
+                                <form onSubmit={handleInviteByUsername} className="space-y-4">
+                                    <div className="relative">
+                                        <FiAtSign className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                                        <input
+                                            type="text"
+                                            value={inviteUsername}
+                                            onChange={(e) => {
+                                                setInviteUsername(e.target.value.toLowerCase().replace(/[^a-z0-9._]/g, ''));
+                                                setInviteError('');
+                                            }}
+                                            placeholder="username"
+                                            className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
+                                        />
+                                    </div>
+
+                                    {inviteError && (
+                                        <p className="text-red-500 text-sm">{inviteError}</p>
+                                    )}
+                                    {inviteSuccess && (
+                                        <p className="text-green-500 text-sm">{inviteSuccess}</p>
+                                    )}
+
+                                    <button
+                                        type="submit"
+                                        disabled={!inviteUsername.trim() || inviteLoading}
+                                        className="w-full py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
+                                    >
+                                        {inviteLoading ? 'Adding...' : 'Add to Group'}
+                                    </button>
+                                </form>
+                            </div>
+
+                            {/* Invite Code */}
+                            <div className="bg-white rounded-3xl p-8 border border-gray-200">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center">
+                                        <FiLink className="text-blue-500" size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-900">Invite Code</h3>
+                                        <p className="text-sm text-gray-500">Share a code or link for others to join</p>
+                                    </div>
+                                </div>
+
+                                {group?.inviteCode?.code && new Date(group.inviteCode.expiresAt) > new Date() ? (
+                                    <div className="space-y-4">
+                                        {/* Code Display */}
+                                        <div className="bg-gray-50 rounded-2xl p-4 text-center">
+                                            <p className="text-xs text-gray-500 mb-2">Your invite code</p>
+                                            <p className="text-3xl font-black tracking-[0.3em] text-gray-900">{group.inviteCode.code}</p>
+                                            <p className="text-xs text-gray-400 mt-2">
+                                                Expires {new Date(group.inviteCode.expiresAt).toLocaleDateString()}
+                                            </p>
+                                        </div>
+
+                                        {/* Copy Buttons */}
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={handleCopyCode}
+                                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all"
+                                            >
+                                                {codeCopied ? <FiCheck size={18} /> : <FiCopy size={18} />}
+                                                {codeCopied ? 'Copied!' : 'Copy Code'}
+                                            </button>
+                                            <button
+                                                onClick={handleCopyLink}
+                                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-100 text-blue-700 rounded-xl font-bold hover:bg-blue-200 transition-all"
+                                            >
+                                                <FiLink size={18} />
+                                                Copy Link
+                                            </button>
+                                        </div>
+
+                                        {/* Generate New */}
+                                        <button
+                                            onClick={handleGenerateInviteCode}
+                                            disabled={codeLoading}
+                                            className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-300 text-gray-500 rounded-xl font-bold hover:border-gray-400 hover:text-gray-600 transition-all"
+                                        >
+                                            <FiRefreshCw size={18} className={codeLoading ? 'animate-spin' : ''} />
+                                            Generate New Code
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-6">
+                                        <p className="text-gray-500 mb-4">No active invite code</p>
+                                        <button
+                                            onClick={handleGenerateInviteCode}
+                                            disabled={codeLoading}
+                                            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:bg-gray-300 transition-all"
+                                        >
+                                            {codeLoading ? 'Generating...' : 'Generate Invite Code'}
+                                        </button>
+                                        <p className="text-xs text-gray-400 mt-3">Code expires after 7 days</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ) : null}
                 </div>
             </div>
 
