@@ -19,57 +19,95 @@ const lifestyleProfileService = {
     // Get photo from either 2nd argument OR from profileData.newPhoto
     const newPhoto = photoArg || profileData.newPhoto;
 
-    // First, create a clean JSON object (no special types)
+    // Build clean data object - manually iterate to avoid any iterator issues
     const cleanData = {};
-    for (const key of Object.keys(profileData)) {
+    const keys = Object.keys(profileData);
+
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
       // Skip photo-related keys
-      if (key === 'newPhoto' || key === 'image' || key === 'photo' || key === 'photoPreview') continue;
+      if (key === 'newPhoto' || key === 'image' || key === 'photo' || key === 'photoPreview') {
+        continue;
+      }
 
       const value = profileData[key];
-      if (value == null) continue; // Skip null/undefined
+      if (value === null || value === undefined) continue;
 
-      // Convert special types to plain types
+      // Convert special types
       if (value instanceof Set) {
-        cleanData[key] = [...value];
+        cleanData[key] = Array.from(value);
       } else if (value instanceof Map) {
         cleanData[key] = Object.fromEntries(value);
       } else if (value instanceof File) {
-        // Skip files in regular data
-        continue;
+        continue; // Skip files
       } else {
         cleanData[key] = value;
       }
     }
 
-    console.log('saveMyProfile - cleanData:', cleanData);
-    console.log('saveMyProfile - hasPhoto:', !!newPhoto, newPhoto instanceof File);
+    // Get token for auth
+    const token = localStorage.getItem('token');
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
-    // If there's a new photo, use FormData
+    // If there's a new photo, use FormData with native fetch
     if (newPhoto && newPhoto instanceof File) {
       const formData = new FormData();
       formData.append('image', newPhoto);
 
-      // Append each field as string
-      for (const [key, value] of Object.entries(cleanData)) {
-        if (typeof value === 'object') {
+      // Add each clean field to FormData
+      const cleanKeys = Object.keys(cleanData);
+      for (let i = 0; i < cleanKeys.length; i++) {
+        const key = cleanKeys[i];
+        const value = cleanData[key];
+
+        if (Array.isArray(value) || (typeof value === 'object' && value !== null)) {
           formData.append(key, JSON.stringify(value));
         } else if (typeof value === 'boolean') {
-          formData.append(key, value.toString());
-        } else {
+          formData.append(key, String(value));
+        } else if (value !== null && value !== undefined) {
           formData.append(key, String(value));
         }
       }
 
-      console.log('saveMyProfile - sending FormData with photo');
+      console.log('saveMyProfile - using native fetch with FormData');
 
-      // Let axios handle Content-Type for FormData
-      const { data } = await api.post('/lifestyle-profiles/me', formData);
+      // Use native fetch - no axios
+      const response = await fetch(`${baseUrl}/lifestyle-profiles/me`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+          // Don't set Content-Type - let browser set it with boundary for FormData
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || 'Failed to save profile');
+      }
+
+      const data = await response.json();
       return data.profile;
     }
 
-    // No photo - send as JSON
-    console.log('saveMyProfile - sending JSON (no photo)');
-    const { data } = await api.post('/lifestyle-profiles/me', cleanData);
+    // No photo - send as JSON with native fetch
+    console.log('saveMyProfile - using native fetch with JSON');
+
+    const response = await fetch(`${baseUrl}/lifestyle-profiles/me`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(cleanData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || errorData.message || 'Failed to save profile');
+    }
+
+    const data = await response.json();
     return data.profile;
   },
 

@@ -7,6 +7,7 @@ import BioTextarea from '../ui/BioTextarea';
 import SleepScheduleSlider from '../ui/SleepScheduleSlider';
 import MajorAutocomplete from '../ui/MajorAutocomplete';
 import UsernameInput from '../ui/UsernameInput';
+import GlassModal from '../GlassModal';
 
 const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
     const navigate = useNavigate();
@@ -456,79 +457,58 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
-            <div
-                className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
-                onClick={e => e.stopPropagation()}
-            >
-                {/* Header */}
-                <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
-                    <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-xl font-bold text-gray-900">Edit Profile</h1>
-                        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100">
-                            <FiX size={24} />
-                        </button>
-                    </div>
-                    {/* Step Progress */}
-                    <div className="flex justify-between items-center">
-                        {steps.map((s, i) => (
-                            <div key={s.num} className="flex items-center">
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all ${step > s.num
-                                    ? 'bg-green-500 text-white'
-                                    : step === s.num
-                                        ? 'bg-orange-500 text-white'
-                                        : 'bg-gray-100 text-gray-400'
-                                    }`}>
-                                    {step > s.num ? <FiCheck size={14} /> : s.num}
-                                </div>
-                                {i < steps.length - 1 && (
-                                    <div className={`w-6 md:w-10 h-0.5 mx-1 ${step > s.num ? 'bg-green-500' : 'bg-gray-200'}`} />
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Content - Scrollable */}
-                <div className="flex-1 p-6 overflow-y-auto min-h-0 scroll-smooth" style={{ scrollbarGutter: 'stable' }}>
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-black text-gray-900 mb-1">{steps[step - 1].label}</h2>
-                        <p className="text-gray-500 text-sm">
-                            {step === 1 && "Tell us about yourself"}
-                            {step === 2 && "Your daily habits"}
-                            {step === 3 && "Your vibe and house rules"}
-                            {step === 4 && "Review your profile"}
-                        </p>
-                    </div>
-                    {renderStepContent()}
-                    {/* Scroll indicator for mobile */}
-                    {step === 1 && (
-                        <div className="mt-4 text-center text-gray-400 text-xs animate-bounce sm:hidden">
-                            ↓ Scroll for more options
-                        </div>
-                    )}
-                </div>
-
-                {/* Footer */}
-                <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
-                    <button
-                        onClick={handleBack}
-                        disabled={step === 1}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-colors ${step === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-200'
-                            }`}
-                    >
-                        <FiArrowLeft /> Back
-                    </button>
-                    <button
-                        onClick={handleNext}
-                        disabled={loading}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {loading ? 'Saving...' : (step === 4 ? 'Save Profile' : 'Next')} <FiArrowRight />
+        <GlassModal onClose={onClose} className="max-w-2xl h-[90vh]">
+            {/* Header */}
+            <div className="p-8 pb-4 relative z-10">
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-black text-white">Edit Profile</h3>
+                    <button onClick={onClose} className="text-gray-400 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-colors">
+                        <FiX size={24} />
                     </button>
                 </div>
+                {/* Progress Bar */}
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden mb-2">
+                    <div
+                        className="bg-orange-500 h-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+                        style={{ width: `${(step / 4) * 100}%` }}
+                    />
+                </div>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest text-right">Step {step} of 4</p>
             </div>
-        </div>
+
+            {/* Content - Scrollable */}
+            <div className="flex-1 p-8 pt-0 overflow-y-auto custom-scrollbar">
+                <div className="text-center mb-6">
+                    <h2 className="text-2xl font-black text-white mb-2">{steps[step - 1].label}</h2>
+                    <p className="text-gray-400">
+                        {step === 1 && "Tell us about yourself"}
+                        {step === 2 && "Your daily habits"}
+                        {step === 3 && "Your vibe and house rules"}
+                        {step === 4 && "Review your profile"}
+                    </p>
+                </div>
+                {renderStepContent()}
+            </div>
+
+            {/* Footer */}
+            <div className="p-8 border-t border-white/10 flex justify-between items-center bg-white/5 backdrop-blur-md">
+                <button
+                    onClick={handleBack}
+                    disabled={step === 1}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-gray-300 transition-colors ${step === 1 ? 'opacity-0 pointer-events-none' : 'hover:bg-white/10 hover:text-white'
+                        }`}
+                >
+                    <FiArrowLeft /> Back
+                </button>
+                <button
+                    onClick={handleNext}
+                    disabled={loading}
+                    className="flex items-center gap-2 px-8 py-3 bg-white text-black rounded-xl font-bold hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {loading ? 'Saving...' : (step === 4 ? 'Save Profile' : 'Next')} <FiArrowRight />
+                </button>
+            </div>
+        </GlassModal>
     );
 };
 
