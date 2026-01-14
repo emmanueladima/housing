@@ -19,19 +19,35 @@ const lifestyleProfileService = {
     // Get photo from either 2nd argument OR from profileData.newPhoto
     const newPhoto = photoArg || profileData.newPhoto;
 
+    // Helper function to safely serialize values for FormData
+    const serializeValue = (value) => {
+      if (value === null || value === undefined) return null;
+      if (value instanceof Set) return JSON.stringify([...value]);
+      if (value instanceof Map) return JSON.stringify(Object.fromEntries(value));
+      if (Array.isArray(value)) return JSON.stringify(value);
+      if (typeof value === 'object' && !(value instanceof File)) return JSON.stringify(value);
+      return value;
+    };
+
     // If there's a new photo, use FormData
     if (newPhoto && newPhoto instanceof File) {
       const formData = new FormData();
       formData.append('image', newPhoto);
 
-      // Append other fields
+      // Append other fields with safe serialization
       Object.keys(profileData).forEach(key => {
-        if (key !== 'newPhoto' && key !== 'image' && key !== 'photo' && profileData[key] != null) {
-          if (typeof profileData[key] === 'object' && !(profileData[key] instanceof File)) {
-            formData.append(key, JSON.stringify(profileData[key]));
-          } else {
-            formData.append(key, profileData[key]);
+        if (key === 'newPhoto' || key === 'image' || key === 'photo') return;
+
+        const value = profileData[key];
+        if (value == null) return; // Skip null/undefined
+
+        try {
+          const serialized = serializeValue(value);
+          if (serialized !== null) {
+            formData.append(key, serialized);
           }
+        } catch (err) {
+          console.warn(`Could not serialize field ${key}:`, err);
         }
       });
 
@@ -41,9 +57,25 @@ const lifestyleProfileService = {
       return data.profile;
     }
 
-    // Remove newPhoto from profileData before sending if it's not a File
-    const { newPhoto: _, ...dataToSend } = profileData;
-    const { data } = await api.post('/lifestyle-profiles/me', dataToSend);
+    // No photo - send as JSON
+    // Clean the data first
+    const cleanData = {};
+    Object.keys(profileData).forEach(key => {
+      if (key === 'newPhoto' || key === 'image') return;
+      const value = profileData[key];
+      if (value == null) return;
+
+      // Convert Sets to arrays
+      if (value instanceof Set) {
+        cleanData[key] = [...value];
+      } else if (value instanceof Map) {
+        cleanData[key] = Object.fromEntries(value);
+      } else {
+        cleanData[key] = value;
+      }
+    });
+
+    const { data } = await api.post('/lifestyle-profiles/me', cleanData);
     return data.profile;
   },
 

@@ -451,9 +451,9 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-md" onClick={onClose}>
             <div
-                className="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl"
+                className="bg-white/95 backdrop-blur-xl rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl border border-white/20"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
