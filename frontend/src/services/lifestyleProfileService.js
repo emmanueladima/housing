@@ -19,7 +19,7 @@ const lifestyleProfileService = {
     // Get photo from either 2nd argument OR from profileData.newPhoto
     const newPhoto = photoArg || profileData.newPhoto;
 
-    // Build clean data object - manually iterate to avoid any iterator issues
+    // Build clean data object - simplified to avoid iterator issues
     const cleanData = {};
     const keys = Object.keys(profileData);
 
@@ -33,17 +33,11 @@ const lifestyleProfileService = {
       const value = profileData[key];
       if (value === null || value === undefined) continue;
 
-      // Convert special types
-      if (value instanceof Set) {
-        cleanData[key] = Array.from(value);
-      } else if (value instanceof Map) {
-        cleanData[key] = Object.fromEntries(value);
-      } else if (value instanceof File) {
-        continue; // Skip files
-      } else {
-        cleanData[key] = value;
-      }
+      // Just take the value directly. React state uses Arrays/Objects, no Maps/Sets.
+      cleanData[key] = value;
     }
+
+    console.log('saveMyProfile - cleanData prepared:', cleanData);
 
     // Get token for auth
     const token = localStorage.getItem('token');

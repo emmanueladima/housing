@@ -187,7 +187,7 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                     <div className="space-y-6">
                         {/* Profile Photo */}
                         <div className="flex flex-col items-center">
-                            <label className="block text-sm font-bold text-gray-700 mb-3 text-center">Profile Photo</label>
+                            <label className="block text-sm font-bold text-white/70 mb-3 text-center">Profile Photo</label>
                             <div className="relative">
                                 <img
                                     src={formData.photoPreview || formData.photo || `https://ui-avatars.com/api/?name=${user?.firstName || 'US'}&background=ea580c&color=fff&size=96`}
@@ -223,7 +223,7 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Age</label>
+                                <label className="block text-sm font-bold text-white/70 mb-2">Age</label>
                                 <input
                                     type="number"
                                     value={formData.age || ''}
@@ -231,34 +231,35 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                     min={18}
                                     max={99}
                                     placeholder="e.g. 21"
-                                    className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 hover:bg-gray-100 focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
+                                    className="w-full h-14 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 hover:bg-white/10 focus:bg-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Gender</label>
+                                <label className="block text-sm font-bold text-white/70 mb-2">Gender</label>
                                 <select
                                     value={formData.gender || ''}
                                     onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
-                                    className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 hover:bg-gray-100 focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all appearance-none"
-                                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
+                                    className="w-full h-14 px-4 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 focus:bg-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all appearance-none"
+                                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='rgba(255,255,255,0.5)' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
                                 >
-                                    <option value="">Select...</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="non-binary">Non-binary</option>
-                                    <option value="other">Other</option>
+                                    <option value="" className="bg-gray-900 text-gray-300">Select...</option>
+                                    <option value="male" className="bg-gray-900 text-white">Male</option>
+                                    <option value="female" className="bg-gray-900 text-white">Female</option>
+                                    <option value="non-binary" className="bg-gray-900 text-white">Non-binary</option>
+                                    <option value="other" className="bg-gray-900 text-white">Other</option>
                                 </select>
                             </div>
                         </div>
 
                         {/* Major Autocomplete */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">Major / Field of Study</label>
+                            <label className="block text-sm font-bold text-white/70 mb-2">Major / Field of Study</label>
                             <MajorAutocomplete
                                 value={formData.major || ''}
                                 onChange={(value) => setFormData(prev => ({ ...prev, major: value }))}
                                 label=""
                                 placeholder="e.g. Computer Science"
+                                className="text-white placeholder-white/30 bg-white/5 border-white/10"
                             />
                         </div>
 
@@ -266,38 +267,40 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                             value={formData.bio}
                             onChange={(value) => setFormData(prev => ({ ...prev, bio: value }))}
                             label="Bio"
+                            labelClassName="text-white/70"
                             placeholder="I'm a junior studying CS. I love hiking and coffee..."
                             maxLength={500}
+                            className="text-white placeholder-white/30 bg-white/5 border-white/10"
                         />
 
                         {/* Username */}
-                        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-4 border border-orange-200">
+                        <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
                             <div className="flex items-center gap-2 mb-2">
-                                <FiAtSign className="text-orange-600" size={18} />
-                                <span className="text-sm font-bold text-gray-700">Choose a Username</span>
+                                <FiAtSign className="text-orange-400" size={18} />
+                                <span className="text-sm font-bold text-white">Choose a Username</span>
                             </div>
-                            <p className="text-xs text-gray-500 mb-3">This makes it easy for others to find and invite you</p>
+                            <p className="text-xs text-white/50 mb-3">This makes it easy for others to find and invite you</p>
                             <UsernameInput
                                 currentUsername={user?.username || ''}
                                 onUsernameSet={(username) => refreshUser()}
-                                className=""
+                                className="bg-white/5 border-white/10 text-white"
                                 showLabel={false}
-                                variant="light"
+                                variant="dark"
                             />
                         </div>
 
                         {/* Roommate Visibility Toggle */}
-                        <div className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.lookingForRoommate ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}
+                        <div className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.lookingForRoommate ? 'border-orange-500 bg-orange-500/10' : 'border-white/10 hover:border-white/20 bg-white/5'}`}
                             onClick={() => setFormData(prev => ({ ...prev, lookingForRoommate: !prev.lookingForRoommate }))}>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                    <FiUsers className={formData.lookingForRoommate ? 'text-orange-500' : 'text-gray-400'} size={20} />
+                                    <FiUsers className={formData.lookingForRoommate ? 'text-orange-400' : 'text-zinc-500'} size={20} />
                                     <div>
-                                        <p className="font-bold text-gray-900">Show on Roommates Page</p>
-                                        <p className="text-xs text-gray-500">Let others find you as a potential roommate</p>
+                                        <p className="font-bold text-white">Show on Roommates Page</p>
+                                        <p className="text-xs text-white/50">Let others find you as a potential roommate</p>
                                     </div>
                                 </div>
-                                <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-all ${formData.lookingForRoommate ? 'bg-orange-500 justify-end' : 'bg-gray-200 justify-start'}`}>
+                                <div className={`w-12 h-6 rounded-full flex items-center px-1 transition-all ${formData.lookingForRoommate ? 'bg-orange-500 justify-end' : 'bg-white/20 justify-start'}`}>
                                     <div className="w-4 h-4 bg-white rounded-full shadow" />
                                 </div>
                             </div>
@@ -309,8 +312,8 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                     <div className="space-y-8">
                         <div>
                             <div className="flex justify-between mb-2">
-                                <label className="text-sm font-bold text-gray-700">Cleanliness</label>
-                                <span className="text-sm font-bold text-orange-600">{formData.cleanliness}/10</span>
+                                <label className="text-sm font-bold text-white/70">Cleanliness</label>
+                                <span className="text-sm font-bold text-orange-400">{formData.cleanliness}/10</span>
                             </div>
                             <input
                                 type="range"
@@ -319,9 +322,9 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                 max="10"
                                 value={formData.cleanliness}
                                 onChange={handleChange}
-                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                                className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-orange-500"
                             />
-                            <div className="flex justify-between text-xs font-medium text-gray-400 mt-1">
+                            <div className="flex justify-between text-xs font-medium text-white/40 mt-1">
                                 <span>Relaxed</span>
                                 <span>Spotless</span>
                             </div>
@@ -329,8 +332,8 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
 
                         <div>
                             <div className="flex justify-between mb-2">
-                                <label className="text-sm font-bold text-gray-700">Noise Tolerance</label>
-                                <span className="text-sm font-bold text-orange-600">{formData.noiseLevel}/10</span>
+                                <label className="text-sm font-bold text-white/70">Noise Tolerance</label>
+                                <span className="text-sm font-bold text-orange-400">{formData.noiseLevel}/10</span>
                             </div>
                             <input
                                 type="range"
@@ -339,9 +342,9 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                 max="10"
                                 value={formData.noiseLevel}
                                 onChange={handleChange}
-                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                                className="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-orange-500"
                             />
-                            <div className="flex justify-between text-xs font-medium text-gray-400 mt-1">
+                            <div className="flex justify-between text-xs font-medium text-white/40 mt-1">
                                 <span>Library Quiet</span>
                                 <span>Concert Hall</span>
                             </div>
@@ -357,13 +360,14 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                     sleepSchedule: { bedtime, wakeup }
                                 }));
                             }}
+                            className="text-white"
                         />
                     </div>
                 );
             case 3: // Vibe
                 return (
                     <div className="space-y-6">
-                        <p className="text-gray-500 text-sm">Pick tags that describe you (select multiple)</p>
+                        <p className="text-white/50 text-sm">Pick tags that describe you (select multiple)</p>
                         <div className="flex flex-wrap gap-3">
                             {VIBES_OPTIONS.map(vibe => (
                                 <button
@@ -371,8 +375,8 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                     type="button"
                                     onClick={() => handleArrayToggle('vibes', vibe)}
                                     className={`px-5 py-3 rounded-full font-bold text-sm transition-all ${formData.vibes?.includes(vibe)
-                                        ? 'bg-gray-900 text-white shadow-lg'
-                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                        ? 'bg-white text-black shadow-lg'
+                                        : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/5'
                                         }`}
                                 >
                                     {vibe}
@@ -380,37 +384,37 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                             ))}
                         </div>
 
-                        <div className="border-t border-gray-100 pt-6 mt-6">
-                            <p className="text-sm font-bold text-gray-700 mb-4">House Rules</p>
+                        <div className="border-t border-white/10 pt-6 mt-6">
+                            <p className="text-sm font-bold text-white/90 mb-4">House Rules</p>
                             <div className="space-y-3">
-                                <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${formData.smoking ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                                    <span className="font-medium text-gray-900">Smoking Allowed</span>
+                                <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${formData.smoking ? 'border-orange-500 bg-orange-500/10' : 'border-white/10 hover:border-white/20 bg-white/5'}`}>
+                                    <span className="font-medium text-white">Smoking Allowed</span>
                                     <input
                                         type="checkbox"
                                         name="smoking"
                                         checked={formData.smoking}
                                         onChange={handleChange}
-                                        className="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                                        className="h-5 w-5 text-orange-500 focus:ring-orange-500 border-white/30 rounded bg-white/10"
                                     />
                                 </label>
-                                <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${formData.drinking ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                                    <span className="font-medium text-gray-900">Drinking Allowed</span>
+                                <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${formData.drinking ? 'border-orange-500 bg-orange-500/10' : 'border-white/10 hover:border-white/20 bg-white/5'}`}>
+                                    <span className="font-medium text-white">Drinking Allowed</span>
                                     <input
                                         type="checkbox"
                                         name="drinking"
                                         checked={formData.drinking}
                                         onChange={handleChange}
-                                        className="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                                        className="h-5 w-5 text-orange-500 focus:ring-orange-500 border-white/30 rounded bg-white/10"
                                     />
                                 </label>
-                                <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${formData.hasPets ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}>
-                                    <span className="font-medium text-gray-900">I Have Pets</span>
+                                <label className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${formData.hasPets ? 'border-orange-500 bg-orange-500/10' : 'border-white/10 hover:border-white/20 bg-white/5'}`}>
+                                    <span className="font-medium text-white">I Have Pets</span>
                                     <input
                                         type="checkbox"
                                         name="hasPets"
                                         checked={formData.hasPets}
                                         onChange={handleChange}
-                                        className="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                                        className="h-5 w-5 text-orange-500 focus:ring-orange-500 border-white/30 rounded bg-white/10"
                                     />
                                 </label>
                             </div>
@@ -420,33 +424,33 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
             case 4: // Review
                 return (
                     <div className="space-y-6">
-                        <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
+                        <div className="bg-white/5 rounded-2xl p-6 space-y-4 border border-white/10">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <span className="text-xs font-bold text-gray-500 uppercase">Age/Gender</span>
-                                    <p className="font-bold text-gray-900">{formData.age} • {formData.gender || 'Not set'}</p>
+                                    <span className="text-xs font-bold text-white/40 uppercase">Age/Gender</span>
+                                    <p className="font-bold text-white">{formData.age} • {formData.gender || 'Not set'}</p>
                                 </div>
                                 <div>
-                                    <span className="text-xs font-bold text-gray-500 uppercase">Sleep</span>
-                                    <p className="font-bold text-gray-900">{formData.sleepSchedule.bedtime}:00 - {formData.sleepSchedule.wakeup}:00</p>
+                                    <span className="text-xs font-bold text-white/40 uppercase">Sleep</span>
+                                    <p className="font-bold text-white">{formData.sleepSchedule.bedtime}:00 - {formData.sleepSchedule.wakeup}:00</p>
                                 </div>
                             </div>
                             <div>
-                                <span className="text-xs font-bold text-gray-500 uppercase">Bio</span>
-                                <p className="text-gray-700 italic">"{formData.bio || 'No bio yet'}"</p>
+                                <span className="text-xs font-bold text-white/40 uppercase">Bio</span>
+                                <p className="text-gray-300 italic">"{formData.bio || 'No bio yet'}"</p>
                             </div>
                             <div>
-                                <span className="text-xs font-bold text-gray-500 uppercase">Vibe</span>
+                                <span className="text-xs font-bold text-white/40 uppercase">Vibe</span>
                                 <div className="flex flex-wrap gap-2 mt-1">
                                     {formData.vibes?.map(v => (
-                                        <span key={v} className="px-2 py-1 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600">
+                                        <span key={v} className="px-2 py-1 bg-white/10 border border-white/10 rounded-lg text-xs font-bold text-white/80">
                                             {v}
                                         </span>
                                     ))}
                                 </div>
                             </div>
                         </div>
-                        <p className="text-center text-gray-500 text-sm">
+                        <p className="text-center text-white/40 text-sm">
                             Your answers help us find compatible roommates for you!
                         </p>
                     </div>
@@ -457,7 +461,7 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
     };
 
     return (
-        <GlassModal onClose={onClose} className="max-w-2xl h-[90vh]">
+        <GlassModal onClose={onClose} className="max-w-4xl h-[800px]">
             {/* Header */}
             <div className="p-8 pb-4 relative z-10">
                 <div className="flex justify-between items-center mb-6">
