@@ -157,33 +157,33 @@ const SharedTimeline = ({
                     <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
                 </div>
             ) : (
-                <div className="bg-white/60 backdrop-blur-xl rounded-xl border border-white/40 shadow-sm p-6 animate-fade-in">
-                    <div className="relative border-l-2 border-gray-200 ml-3 space-y-8">
+                <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-sm p-6 animate-fade-in">
+                    <div className="relative border-l-2 border-white/20 ml-3 space-y-8">
                         {displayEvents.map((event) => {
                             const colors = getColorClasses(event.type);
                             const eventId = event._id || event.id;
                             return (
                                 <div key={eventId} className={`relative pl-8 ${event.isExample ? 'opacity-60' : ''}`}>
                                     {/* Dot */}
-                                    <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-white ${colors.bg} shadow-sm`}></div>
+                                    <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-white/30 ${colors.bg} shadow-sm`}></div>
 
                                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                                         <div className="flex-1">
                                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${colors.light} ${colors.text} mb-1 border border-black/5`}>
                                                 {getIcon(event.type)} {event.type}
                                             </span>
-                                            <h3 className="text-lg font-bold text-gray-900">{event.title}</h3>
-                                            <p className="text-gray-600 text-sm mt-1">{event.description}</p>
+                                            <h3 className="text-lg font-bold text-white">{event.title}</h3>
+                                            <p className="text-white/60 text-sm mt-1">{event.description}</p>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <div className="flex items-center gap-2 text-gray-500 text-sm font-medium bg-white/50 border border-white/50 px-3 py-1 rounded-lg">
+                                            <div className="flex items-center gap-2 text-white/70 text-sm font-medium bg-white/10 border border-white/20 px-3 py-1 rounded-lg">
                                                 <FiClock size={14} />
                                                 {new Date(event.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                                             </div>
                                             {!event.isExample && (
                                                 <button
                                                     onClick={() => handleDeleteEvent(eventId)}
-                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    className="p-2 text-white/40 hover:text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
                                                 >
                                                     <FiTrash2 size={14} />
                                                 </button>

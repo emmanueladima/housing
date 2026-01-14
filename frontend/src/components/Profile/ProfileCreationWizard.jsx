@@ -221,6 +221,7 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                             <NumberInput
                                 label="Age"
                                 labelPlacement="outside"
+                                size="lg"
                                 value={formData.age}
                                 onValueChange={(val) => setFormData(prev => ({ ...prev, age: val }))}
                                 min={18}
@@ -228,14 +229,15 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                 placeholder="e.g. 21"
                                 classNames={{
                                     base: "w-full",
-                                    label: "text-sm font-bold text-gray-700",
-                                    inputWrapper: "bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 focus-within:!bg-white focus-within:!border-orange-500",
+                                    label: "text-sm font-bold text-gray-700 pb-1",
+                                    inputWrapper: "h-14 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 focus-within:!bg-white focus-within:!border-orange-500",
                                     input: "text-gray-900"
                                 }}
                             />
                             <Select
                                 label="Gender"
                                 labelPlacement="outside"
+                                size="lg"
                                 placeholder="Select..."
                                 selectedKeys={formData.gender ? [formData.gender] : []}
                                 onSelectionChange={(keys) => {
@@ -244,8 +246,8 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                 }}
                                 classNames={{
                                     base: "w-full",
-                                    label: "text-sm font-bold text-gray-700",
-                                    trigger: "bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 data-[open=true]:border-orange-500",
+                                    label: "text-sm font-bold text-gray-700 pb-1",
+                                    trigger: "h-14 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 data-[open=true]:border-orange-500",
                                     value: "text-gray-900"
                                 }}
                             >

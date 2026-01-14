@@ -196,14 +196,14 @@ const SplitExpenses = ({
                     <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
                 </div>
             ) : (
-                <div className="bg-white/60 backdrop-blur-xl rounded-xl border border-white/40 shadow-sm overflow-hidden animate-fade-in">
+                <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-sm overflow-hidden animate-fade-in">
                     {expenses.length === 0 ? (
                         <div className="p-8 text-center">
-                            <div className="w-16 h-16 bg-white/50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+                            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 text-white/50">
                                 <FiDollarSign size={32} />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">No Expenses Yet</h3>
-                            <p className="text-gray-600">Add an expense to start tracking.</p>
+                            <h3 className="text-lg font-bold text-white mb-2">No Expenses Yet</h3>
+                            <p className="text-white/60">Add an expense to start tracking.</p>
                         </div>
                     ) : (
                         <div className="divide-y divide-white/10">
@@ -214,29 +214,29 @@ const SplitExpenses = ({
                                     <div key={expenseId} className="p-4 hover:bg-white/5 transition-colors">
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${isUserPayer ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${isUserPayer ? 'bg-green-500/20 text-green-300' : 'bg-orange-500/20 text-orange-300'
                                                     }`}>
                                                     <FiDollarSign />
                                                 </div>
                                                 <div>
-                                                    <h3 className="font-bold text-gray-900">{expense.title}</h3>
-                                                    <p className="text-xs text-gray-600 flex items-center gap-1">
-                                                        Paid by <span className="font-medium text-gray-800">{expense.paidBy?.firstName || 'Unknown'}</span>
+                                                    <h3 className="font-bold text-white">{expense.title}</h3>
+                                                    <p className="text-xs text-white/60 flex items-center gap-1">
+                                                        Paid by <span className="font-medium text-white/80">{expense.paidBy?.firstName || 'Unknown'}</span>
                                                         • {new Date(expense.date).toLocaleDateString()}
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="text-right flex items-center gap-3">
                                                 <div>
-                                                    <p className="font-bold text-gray-900">${expense.amount.toFixed(2)}</p>
-                                                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${getExpenseStatus(expense) === 'Settled' ? 'bg-gray-100 text-gray-500' : 'bg-red-100 text-red-600'
+                                                    <p className="font-bold text-white">${expense.amount.toFixed(2)}</p>
+                                                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${getExpenseStatus(expense) === 'Settled' ? 'bg-white/10 text-white/50' : 'bg-red-500/20 text-red-300'
                                                         }`}>
                                                         {getExpenseStatus(expense)}
                                                     </span>
                                                 </div>
                                                 <button
                                                     onClick={() => handleDeleteExpense(expenseId)}
-                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    className="p-2 text-white/40 hover:text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
                                                 >
                                                     <FiTrash2 size={16} />
                                                 </button>
@@ -246,7 +246,7 @@ const SplitExpenses = ({
                                             <div className="flex justify-end mt-2">
                                                 <button
                                                     onClick={() => handleSettleExpense(expenseId)}
-                                                    className="text-xs font-bold text-green-600 hover:text-green-700 flex items-center gap-1"
+                                                    className="text-xs font-bold text-green-400 hover:text-green-300 flex items-center gap-1"
                                                 >
                                                     <FiCheck /> Mark as Settled
                                                 </button>

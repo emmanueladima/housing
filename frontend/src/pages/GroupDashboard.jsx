@@ -289,17 +289,17 @@ const GroupDashboard = () => {
                     {activeTab === 'requests' ? (
                         <div className="space-y-4">
                             {!isAdmin ? (
-                                <div className="bg-white rounded-3xl p-8 border border-gray-200 text-center">
-                                    <FiSettings className="text-gray-300 mx-auto mb-4" size={48} />
-                                    <p className="text-gray-500 font-medium">Only the group admin can manage join requests.</p>
+                                <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 text-center">
+                                    <FiSettings className="text-white/30 mx-auto mb-4" size={48} />
+                                    <p className="text-white/70 font-medium">Only the group admin can manage join requests.</p>
                                 </div>
                             ) : joinRequests.length === 0 ? (
-                                <div className="bg-white rounded-3xl p-12 border border-gray-200 text-center">
-                                    <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <FiBell className="text-orange-500" size={32} />
+                                <div className="bg-white/10 backdrop-blur-md rounded-3xl p-12 border border-white/20 text-center">
+                                    <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <FiBell className="text-orange-400" size={32} />
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2">No pending requests</h3>
-                                    <p className="text-gray-500">
+                                    <h3 className="text-xl font-bold text-white mb-2">No pending requests</h3>
+                                    <p className="text-white/60">
                                         When someone requests to join your group, they'll appear here.
                                     </p>
                                 </div>
