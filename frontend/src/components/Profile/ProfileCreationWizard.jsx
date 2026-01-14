@@ -458,14 +458,14 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
     return (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-md" onClick={onClose}>
             <div
-                className="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl"
+                className="bg-white/80 backdrop-blur-xl rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl border border-white/40"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="p-6 border-b border-gray-100 shrink-0">
+                <div className="p-6 border-b border-gray-200/50 shrink-0 bg-white/50 rounded-t-3xl backdrop-blur-sm">
                     <div className="flex justify-between items-center mb-4">
                         <h1 className="text-xl font-black text-gray-900">Edit Profile</h1>
-                        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100/50 transition-colors">
                             <FiX size={24} />
                         </button>
                     </div>
@@ -477,12 +477,12 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                     ? 'bg-green-500 text-white'
                                     : step === s.num
                                         ? 'bg-orange-500 text-white'
-                                        : 'bg-gray-100 text-gray-400'
+                                        : 'bg-white/50 text-gray-500'
                                     }`}>
                                     {step > s.num ? <FiCheck size={14} /> : s.num}
                                 </div>
                                 {i < steps.length - 1 && (
-                                    <div className={`w-6 md:w-10 h-0.5 mx-1 ${step > s.num ? 'bg-green-500' : 'bg-gray-200'}`} />
+                                    <div className={`w-6 md:w-10 h-0.5 mx-1 ${step > s.num ? 'bg-green-500' : 'bg-gray-300/50'}`} />
                                 )}
                             </div>
                         ))}
@@ -510,7 +510,7 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-between items-center shrink-0">
+                <div className="p-6 border-t border-gray-200/50 bg-white/50 rounded-b-3xl backdrop-blur-sm flex justify-between items-center shrink-0">
                     <button
                         onClick={handleBack}
                         disabled={step === 1}
