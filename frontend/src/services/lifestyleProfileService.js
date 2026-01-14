@@ -19,62 +19,56 @@ const lifestyleProfileService = {
     // Get photo from either 2nd argument OR from profileData.newPhoto
     const newPhoto = photoArg || profileData.newPhoto;
 
-    // Helper function to safely serialize values for FormData
-    const serializeValue = (value) => {
-      if (value === null || value === undefined) return null;
-      if (value instanceof Set) return JSON.stringify([...value]);
-      if (value instanceof Map) return JSON.stringify(Object.fromEntries(value));
-      if (Array.isArray(value)) return JSON.stringify(value);
-      if (typeof value === 'object' && !(value instanceof File)) return JSON.stringify(value);
-      return value;
-    };
+    // First, create a clean JSON object (no special types)
+    const cleanData = {};
+    for (const key of Object.keys(profileData)) {
+      // Skip photo-related keys
+      if (key === 'newPhoto' || key === 'image' || key === 'photo' || key === 'photoPreview') continue;
+
+      const value = profileData[key];
+      if (value == null) continue; // Skip null/undefined
+
+      // Convert special types to plain types
+      if (value instanceof Set) {
+        cleanData[key] = [...value];
+      } else if (value instanceof Map) {
+        cleanData[key] = Object.fromEntries(value);
+      } else if (value instanceof File) {
+        // Skip files in regular data
+        continue;
+      } else {
+        cleanData[key] = value;
+      }
+    }
+
+    console.log('saveMyProfile - cleanData:', cleanData);
+    console.log('saveMyProfile - hasPhoto:', !!newPhoto, newPhoto instanceof File);
 
     // If there's a new photo, use FormData
     if (newPhoto && newPhoto instanceof File) {
       const formData = new FormData();
       formData.append('image', newPhoto);
 
-      // Append other fields with safe serialization
-      Object.keys(profileData).forEach(key => {
-        if (key === 'newPhoto' || key === 'image' || key === 'photo') return;
-
-        const value = profileData[key];
-        if (value == null) return; // Skip null/undefined
-
-        try {
-          const serialized = serializeValue(value);
-          if (serialized !== null) {
-            formData.append(key, serialized);
-          }
-        } catch (err) {
-          console.warn(`Could not serialize field ${key}:`, err);
+      // Append each field as string
+      for (const [key, value] of Object.entries(cleanData)) {
+        if (typeof value === 'object') {
+          formData.append(key, JSON.stringify(value));
+        } else if (typeof value === 'boolean') {
+          formData.append(key, value.toString());
+        } else {
+          formData.append(key, String(value));
         }
-      });
+      }
 
-      const { data } = await api.post('/lifestyle-profiles/me', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      console.log('saveMyProfile - sending FormData with photo');
+
+      // Let axios handle Content-Type for FormData
+      const { data } = await api.post('/lifestyle-profiles/me', formData);
       return data.profile;
     }
 
     // No photo - send as JSON
-    // Clean the data first
-    const cleanData = {};
-    Object.keys(profileData).forEach(key => {
-      if (key === 'newPhoto' || key === 'image') return;
-      const value = profileData[key];
-      if (value == null) return;
-
-      // Convert Sets to arrays
-      if (value instanceof Set) {
-        cleanData[key] = [...value];
-      } else if (value instanceof Map) {
-        cleanData[key] = Object.fromEntries(value);
-      } else {
-        cleanData[key] = value;
-      }
-    });
-
+    console.log('saveMyProfile - sending JSON (no photo)');
     const { data } = await api.post('/lifestyle-profiles/me', cleanData);
     return data.profile;
   },
