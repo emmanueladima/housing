@@ -189,9 +189,12 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                             <label className="block text-sm font-bold text-gray-700 mb-3 text-center">Profile Photo</label>
                             <div className="relative">
                                 <img
-                                    src={formData.photoPreview || formData.photo || `https://ui-avatars.com/api/?name=User&background=ea580c&color=fff&size=96`}
-                                    alt="Profile"
-                                    className="w-24 h-24 rounded-2xl object-cover border-4 border-gray-100"
+                                    src={formData.photoPreview || formData.photo || `https://ui-avatars.com/api/?name=${user?.firstName || 'US'}&background=ea580c&color=fff&size=96`}
+                                    alt=""
+                                    className="w-24 h-24 rounded-2xl object-cover border-4 border-gray-100 bg-gray-100"
+                                    onError={(e) => {
+                                        e.target.src = `https://ui-avatars.com/api/?name=${user?.firstName || 'US'}&background=ea580c&color=fff&size=96`;
+                                    }}
                                 />
                                 <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl cursor-pointer opacity-0 hover:opacity-100 transition-opacity">
                                     <FiUser className="text-white" size={24} />
@@ -200,12 +203,14 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                         accept="image/*"
                                         onChange={(e) => {
                                             const file = e.target.files?.[0];
-                                            if (file) {
+                                            if (file && file.type.startsWith('image/')) {
                                                 setFormData(prev => ({
                                                     ...prev,
                                                     newPhoto: file,
                                                     photoPreview: URL.createObjectURL(file)
                                                 }));
+                                            } else if (file) {
+                                                alert('Please select an image file');
                                             }
                                         }}
                                         className="hidden"
@@ -453,7 +458,7 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
     return (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-md" onClick={onClose}>
             <div
-                className="bg-white/95 backdrop-blur-xl rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl border border-white/20"
+                className="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}

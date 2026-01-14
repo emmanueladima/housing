@@ -146,7 +146,7 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage, onEdit, onDelete, o
             </CardBody>
 
             {/* Footer Actions */}
-            <CardFooter className="px-5 py-3 bg-white/40 border-t border-white/30 flex items-center justify-between backdrop-blur-md">
+            <CardFooter className="px-5 py-3 bg-white/40 border-t border-white/30 flex items-center justify-between backdrop-blur-md rounded-b-3xl">
                 {/* Left: Comments */}
                 <button
                     onClick={(e) => { e.stopPropagation(); onViewDetails(post); }}
