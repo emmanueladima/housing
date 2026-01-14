@@ -365,15 +365,15 @@ const GroupDashboard = () => {
                     ) : activeTab === 'members' ? (
                         <div className="space-y-4">
                             {group.members?.length === 0 ? (
-                                <div className="bg-white rounded-3xl p-12 border border-gray-200 text-center">
-                                    <FiUsers className="text-gray-300 mx-auto mb-4" size={48} />
-                                    <p className="text-gray-500">No members yet.</p>
+                                <div className="bg-white/10 backdrop-blur-md rounded-3xl p-12 border border-white/20 text-center">
+                                    <FiUsers className="text-white/30 mx-auto mb-4" size={48} />
+                                    <p className="text-white/60">No members yet.</p>
                                 </div>
                             ) : (
                                 group.members.map((member, i) => (
                                     <div
                                         key={member._id || i}
-                                        className="bg-white rounded-2xl p-5 border border-gray-200 flex items-center gap-4"
+                                        className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 flex items-center gap-4"
                                     >
                                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-lg overflow-hidden">
                                             {member.avatar ? (
@@ -383,19 +383,19 @@ const GroupDashboard = () => {
                                             )}
                                         </div>
                                         <div className="flex-1">
-                                            <h3 className="font-bold text-gray-900">
+                                            <h3 className="font-bold text-white">
                                                 {member.firstName} {member.lastName}
                                             </h3>
-                                            <p className="text-sm text-gray-500">{member.email}</p>
+                                            <p className="text-sm text-white/60">{member.email}</p>
                                         </div>
                                         {(group.admin === member._id || group.admin?._id === member._id) && (
-                                            <span className="px-3 py-1 bg-orange-100 text-orange-600 text-xs font-bold rounded-full">
+                                            <span className="px-3 py-1 bg-orange-500/20 text-orange-300 text-xs font-bold rounded-full border border-orange-500/30">
                                                 Admin
                                             </span>
                                         )}
                                         <button
                                             onClick={() => navigate(`/messages?user=${member._id}`)}
-                                            className="p-2.5 rounded-xl border border-gray-200 text-gray-400 hover:border-orange-200 hover:text-orange-500 hover:bg-orange-50 transition-all"
+                                            className="p-2.5 rounded-xl border border-white/20 text-white/50 hover:border-orange-400/50 hover:text-orange-400 hover:bg-orange-500/10 transition-all"
                                         >
                                             <FiMail size={18} />
                                         </button>
@@ -406,20 +406,20 @@ const GroupDashboard = () => {
                     ) : activeTab === 'invite' && isAdmin ? (
                         <div className="grid md:grid-cols-2 gap-6">
                             {/* Invite by Username */}
-                            <div className="bg-white rounded-3xl p-8 border border-gray-200">
+                            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20">
                                 <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-50 rounded-2xl flex items-center justify-center">
-                                        <FiAtSign className="text-purple-500" size={24} />
+                                    <div className="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center border border-purple-500/30">
+                                        <FiAtSign className="text-purple-300" size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-gray-900">Invite by Username</h3>
-                                        <p className="text-sm text-gray-500">Add someone directly to your group</p>
+                                        <h3 className="text-lg font-bold text-white">Invite by Username</h3>
+                                        <p className="text-sm text-white/60">Add someone directly to your group</p>
                                     </div>
                                 </div>
 
                                 <form onSubmit={handleInviteByUsername} className="space-y-4">
                                     <div className="relative">
-                                        <FiAtSign className="absolute left-4 top-3.5 text-gray-400" size={18} />
+                                        <FiAtSign className="absolute left-4 top-3.5 text-white/40" size={18} />
                                         <input
                                             type="text"
                                             value={inviteUsername}
@@ -428,21 +428,21 @@ const GroupDashboard = () => {
                                                 setInviteError('');
                                             }}
                                             placeholder="username"
-                                            className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
+                                            className="w-full pl-11 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
                                         />
                                     </div>
 
                                     {inviteError && (
-                                        <p className="text-red-500 text-sm">{inviteError}</p>
+                                        <p className="text-red-400 text-sm">{inviteError}</p>
                                     )}
                                     {inviteSuccess && (
-                                        <p className="text-green-500 text-sm">{inviteSuccess}</p>
+                                        <p className="text-green-400 text-sm">{inviteSuccess}</p>
                                     )}
 
                                     <button
                                         type="submit"
                                         disabled={!inviteUsername.trim() || inviteLoading}
-                                        className="w-full py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
+                                        className="w-full py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed transition-all"
                                     >
                                         {inviteLoading ? 'Adding...' : 'Add to Group'}
                                     </button>
@@ -450,24 +450,24 @@ const GroupDashboard = () => {
                             </div>
 
                             {/* Invite Code */}
-                            <div className="bg-white rounded-3xl p-8 border border-gray-200">
+                            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20">
                                 <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center">
-                                        <FiLink className="text-blue-500" size={24} />
+                                    <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center border border-blue-500/30">
+                                        <FiLink className="text-blue-300" size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-gray-900">Invite Code</h3>
-                                        <p className="text-sm text-gray-500">Share a code or link for others to join</p>
+                                        <h3 className="text-lg font-bold text-white">Invite Code</h3>
+                                        <p className="text-sm text-white/60">Share a code or link for others to join</p>
                                     </div>
                                 </div>
 
                                 {group?.inviteCode?.code && new Date(group.inviteCode.expiresAt) > new Date() ? (
                                     <div className="space-y-4">
                                         {/* Code Display */}
-                                        <div className="bg-gray-50 rounded-2xl p-4 text-center">
-                                            <p className="text-xs text-gray-500 mb-2">Your invite code</p>
-                                            <p className="text-3xl font-black tracking-[0.3em] text-gray-900">{group.inviteCode.code}</p>
-                                            <p className="text-xs text-gray-400 mt-2">
+                                        <div className="bg-white/10 rounded-2xl p-4 text-center border border-white/20">
+                                            <p className="text-xs text-white/50 mb-2">Your invite code</p>
+                                            <p className="text-3xl font-black tracking-[0.3em] text-white">{group.inviteCode.code}</p>
+                                            <p className="text-xs text-white/40 mt-2">
                                                 Expires {new Date(group.inviteCode.expiresAt).toLocaleDateString()}
                                             </p>
                                         </div>
@@ -476,14 +476,14 @@ const GroupDashboard = () => {
                                         <div className="flex gap-3">
                                             <button
                                                 onClick={handleCopyCode}
-                                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all"
+                                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-white/10 text-white border border-white/20 rounded-xl font-bold hover:bg-white/20 transition-all"
                                             >
                                                 {codeCopied ? <FiCheck size={18} /> : <FiCopy size={18} />}
                                                 {codeCopied ? 'Copied!' : 'Copy Code'}
                                             </button>
                                             <button
                                                 onClick={handleCopyLink}
-                                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-100 text-blue-700 rounded-xl font-bold hover:bg-blue-200 transition-all"
+                                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-xl font-bold hover:bg-blue-500/30 transition-all"
                                             >
                                                 <FiLink size={18} />
                                                 Copy Link
@@ -494,7 +494,7 @@ const GroupDashboard = () => {
                                         <button
                                             onClick={handleGenerateInviteCode}
                                             disabled={codeLoading}
-                                            className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-300 text-gray-500 rounded-xl font-bold hover:border-gray-400 hover:text-gray-600 transition-all"
+                                            className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-white/20 text-white/50 rounded-xl font-bold hover:border-white/40 hover:text-white/70 transition-all"
                                         >
                                             <FiRefreshCw size={18} className={codeLoading ? 'animate-spin' : ''} />
                                             Generate New Code
@@ -502,15 +502,15 @@ const GroupDashboard = () => {
                                     </div>
                                 ) : (
                                     <div className="text-center py-6">
-                                        <p className="text-gray-500 mb-4">No active invite code</p>
+                                        <p className="text-white/50 mb-4">No active invite code</p>
                                         <button
                                             onClick={handleGenerateInviteCode}
                                             disabled={codeLoading}
-                                            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:bg-gray-300 transition-all"
+                                            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 disabled:bg-white/10 disabled:text-white/40 transition-all"
                                         >
                                             {codeLoading ? 'Generating...' : 'Generate Invite Code'}
                                         </button>
-                                        <p className="text-xs text-gray-400 mt-3">Code expires after 7 days</p>
+                                        <p className="text-xs text-white/40 mt-3">Code expires after 7 days</p>
                                     </div>
                                 )}
                             </div>

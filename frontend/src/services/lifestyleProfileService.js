@@ -14,9 +14,12 @@ const lifestyleProfileService = {
   },
 
   // Save my lifestyle profile (create or update)
-  saveMyProfile: async (profileData, newPhoto = null) => {
+  saveMyProfile: async (profileData) => {
+    // Extract newPhoto from profileData if it exists
+    const newPhoto = profileData.newPhoto;
+
     // If there's a new photo, use FormData
-    if (newPhoto) {
+    if (newPhoto && newPhoto instanceof File) {
       const formData = new FormData();
       formData.append('image', newPhoto);
 
@@ -37,7 +40,9 @@ const lifestyleProfileService = {
       return data.profile;
     }
 
-    const { data } = await api.post('/lifestyle-profiles/me', profileData);
+    // Remove newPhoto from profileData before sending if it's not a File
+    const { newPhoto: _, ...dataToSend } = profileData;
+    const { data } = await api.post('/lifestyle-profiles/me', dataToSend);
     return data.profile;
   },
 

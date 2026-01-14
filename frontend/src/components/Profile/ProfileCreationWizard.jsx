@@ -3,8 +3,6 @@ import { FiX, FiUser, FiSun, FiMoon, FiVolume2, FiCheckCircle, FiSmile, FiArrowR
 import lifestyleProfileService from '../../services/lifestyleProfileService';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { NumberInput } from '@heroui/number-input';
-import { Select, SelectItem } from '@heroui/select';
 import BioTextarea from '../ui/BioTextarea';
 import SleepScheduleSlider from '../ui/SleepScheduleSlider';
 import MajorAutocomplete from '../ui/MajorAutocomplete';
@@ -218,44 +216,33 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <NumberInput
-                                label="Age"
-                                labelPlacement="outside"
-                                size="lg"
-                                value={formData.age}
-                                onValueChange={(val) => setFormData(prev => ({ ...prev, age: val }))}
-                                min={18}
-                                max={99}
-                                placeholder="e.g. 21"
-                                classNames={{
-                                    base: "w-full",
-                                    label: "text-sm font-bold text-gray-700 pb-1",
-                                    inputWrapper: "h-14 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 focus-within:!bg-white focus-within:!border-orange-500",
-                                    input: "text-gray-900"
-                                }}
-                            />
-                            <Select
-                                label="Gender"
-                                labelPlacement="outside"
-                                size="lg"
-                                placeholder="Select..."
-                                selectedKeys={formData.gender ? [formData.gender] : []}
-                                onSelectionChange={(keys) => {
-                                    const selected = Array.from(keys)[0];
-                                    setFormData(prev => ({ ...prev, gender: selected || '' }));
-                                }}
-                                classNames={{
-                                    base: "w-full",
-                                    label: "text-sm font-bold text-gray-700 pb-1",
-                                    trigger: "h-14 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 data-[open=true]:border-orange-500",
-                                    value: "text-gray-900"
-                                }}
-                            >
-                                <SelectItem key="male">Male</SelectItem>
-                                <SelectItem key="female">Female</SelectItem>
-                                <SelectItem key="non-binary">Non-binary</SelectItem>
-                                <SelectItem key="other">Other</SelectItem>
-                            </Select>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Age</label>
+                                <input
+                                    type="number"
+                                    value={formData.age || ''}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, age: e.target.value ? parseInt(e.target.value) : '' }))}
+                                    min={18}
+                                    max={99}
+                                    placeholder="e.g. 21"
+                                    className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 hover:bg-gray-100 focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Gender</label>
+                                <select
+                                    value={formData.gender || ''}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
+                                    className="w-full h-14 px-4 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 hover:bg-gray-100 focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all appearance-none"
+                                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
+                                >
+                                    <option value="">Select...</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="non-binary">Non-binary</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
                         </div>
 
                         {/* Major Autocomplete */}
