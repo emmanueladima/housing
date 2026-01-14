@@ -14,9 +14,10 @@ const lifestyleProfileService = {
   },
 
   // Save my lifestyle profile (create or update)
-  saveMyProfile: async (profileData) => {
-    // Extract newPhoto from profileData if it exists
-    const newPhoto = profileData.newPhoto;
+  // Supports both: saveMyProfile(dataWithPhoto) and saveMyProfile(data, photoFile)
+  saveMyProfile: async (profileData, photoArg = null) => {
+    // Get photo from either 2nd argument OR from profileData.newPhoto
+    const newPhoto = photoArg || profileData.newPhoto;
 
     // If there's a new photo, use FormData
     if (newPhoto && newPhoto instanceof File) {
