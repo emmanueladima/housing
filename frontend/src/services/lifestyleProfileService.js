@@ -14,13 +14,10 @@ const lifestyleProfileService = {
   },
 
   // Save my lifestyle profile (create or update)
-  // Supports both: saveMyProfile(dataWithPhoto) and saveMyProfile(data, photoFile)
   saveMyProfile: async (profileData, photoArg = null) => {
-    console.log('DEBUG: saveMyProfile called');
     try {
       // Get photo from either 2nd argument OR from profileData.newPhoto
       const newPhoto = photoArg || profileData.newPhoto;
-      console.log('DEBUG: newPhoto present:', !!newPhoto, newPhoto instanceof File);
 
       // Build clean data object - simplified to avoid iterator issues
       const cleanData = {};
@@ -36,11 +33,8 @@ const lifestyleProfileService = {
         const value = profileData[key];
         if (value === null || value === undefined) continue;
 
-        // Just take the value directly. React state uses Arrays/Objects, no Maps/Sets.
         cleanData[key] = value;
       }
-
-      console.log('DEBUG: cleanData prepared. Keys:', Object.keys(cleanData));
 
       // Get token for auth
       const token = localStorage.getItem('token');
@@ -48,7 +42,6 @@ const lifestyleProfileService = {
 
       // If there's a new photo, use FormData with native fetch
       if (newPhoto && newPhoto instanceof File) {
-        console.log('DEBUG: Preparing FormData upload');
         const formData = new FormData();
         formData.append('image', newPhoto);
 
@@ -58,41 +51,28 @@ const lifestyleProfileService = {
           const key = cleanKeys[i];
           const value = cleanData[key];
 
-          // Safety check for objects
-          if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-            // If it's a generic object but NOT array (and not null), stringify it
+          if (Array.isArray(value) || (typeof value === 'object' && value !== null)) {
             formData.append(key, JSON.stringify(value));
-          } else if (Array.isArray(value)) {
-            formData.append(key, JSON.stringify(value));
-          } else {
+          } else if (typeof value === 'boolean') {
+            formData.append(key, String(value));
+          } else if (value !== null && value !== undefined) {
             formData.append(key, String(value));
           }
         }
 
-        console.log('DEBUG: FormData ready. Sending fetch...');
-        console.log('DEBUG: Fetch URL:', `${baseUrl}/lifestyle-profiles/me`);
-
-        // Use native fetch - strictly no axios polyfills if possible
+        // Use native fetch - no axios
         const response = await fetch(`${baseUrl}/lifestyle-profiles/me`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
-            // Don't set Content-Type for FormData, browser sets boundary
+            // Don't set Content-Type
           },
           body: formData
         });
 
-        console.log('DEBUG: Fetch complete. Status:', response.status);
-
         if (!response.ok) {
-          const errorText = await response.text().catch(() => 'No error text');
-          console.error('DEBUG: Server error response:', errorText);
-          try {
-            const errorData = JSON.parse(errorText);
-            throw new Error(errorData.error || errorData.message || 'Failed to save profile');
-          } catch (e) {
-            throw new Error(`Failed to save profile: ${response.status} ${response.statusText}`);
-          }
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || errorData.message || 'Failed to save profile');
         }
 
         const data = await response.json();
@@ -100,8 +80,6 @@ const lifestyleProfileService = {
       }
 
       // No photo - send as JSON with native fetch
-      console.log('DEBUG: No photo, using JSON fetch');
-
       const response = await fetch(`${baseUrl}/lifestyle-profiles/me`, {
         method: 'POST',
         headers: {
@@ -112,20 +90,14 @@ const lifestyleProfileService = {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('DEBUG: Server error response:', errorText);
-        try {
-          const errorData = JSON.parse(errorText);
-          throw new Error(errorData.error || errorData.message || 'Failed to save profile');
-        } catch {
-          throw new Error(`Failed to save profile: ${response.status} ${response.statusText}`);
-        }
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || 'Failed to save profile');
       }
 
       const data = await response.json();
       return data.profile;
     } catch (e) {
-      console.error('DEBUG: ERROR in saveMyProfile:', e);
+      console.error('Error saving profile:', e);
       throw e;
     }
   },
