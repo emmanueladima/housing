@@ -208,9 +208,17 @@ const Header = () => {
                     >
                       <DropdownTrigger>
                         <button className="flex items-center gap-2 p-1.5 pr-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-all outline-none group data-[hover=true]:bg-white/20">
-                          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white group-hover:bg-white group-hover:text-orange-600 transition-colors">
-                            <FiUser size={16} />
-                          </div>
+                          {user?.avatar || user?.profilePhoto ? (
+                            <img
+                              src={user.avatar || user.profilePhoto}
+                              alt="Profile"
+                              className="w-8 h-8 rounded-full object-cover border border-white/30"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white group-hover:bg-white group-hover:text-orange-600 transition-colors">
+                              <FiUser size={16} />
+                            </div>
+                          )}
                           <FiChevronDown size={14} className="text-white/80 transition-transform group-data-[aria-expanded=true]:rotate-180" />
                         </button>
                       </DropdownTrigger>

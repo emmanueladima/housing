@@ -311,8 +311,16 @@ const GroupDashboard = () => {
                                     >
                                         <div className="flex items-center justify-between gap-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-xl">
-                                                    {request.user?.firstName?.charAt(0) || '?'}
+                                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white font-bold text-xl overflow-hidden">
+                                                    {request.user?.avatar || request.user?.profilePhoto ? (
+                                                        <img
+                                                            src={request.user.avatar || request.user.profilePhoto}
+                                                            alt={request.user.firstName}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        request.user?.firstName?.charAt(0) || '?'
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <h3 className="font-bold text-gray-900 text-lg">

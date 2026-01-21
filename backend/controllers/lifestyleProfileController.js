@@ -124,7 +124,7 @@ export const getAllProfiles = async (req, res) => {
         const profiles = await LifestyleProfile.find({
             user: { $ne: req.user._id }, // Exclude current user
             lookingForRoommate: true, // Only show profiles that opted in
-        }).populate('user', 'firstName lastName school graduationYear profilePhoto');
+        }).populate('user', 'firstName lastName school graduationYear avatar');
 
         res.json({
             success: true,
@@ -182,7 +182,7 @@ export const getMatches = async (req, res) => {
         // Get all profiles except excluded users
         let candidates = await LifestyleProfile.find({
             user: { $nin: excludedUserIds },
-        }).populate('user', 'firstName lastName school graduationYear');
+        }).populate('user', 'firstName lastName school graduationYear avatar');
 
         // Apply filters using service or manual logic
         // Note: aiMatchingService.filterByPreferences expects 'lookingFor' structure which we added
@@ -236,7 +236,7 @@ export const getMatches = async (req, res) => {
 export const getProfile = async (req, res) => {
     try {
         const profile = await LifestyleProfile.findById(req.params.id)
-            .populate('user', 'firstName lastName email school graduationYear ratings');
+            .populate('user', 'firstName lastName email school graduationYear ratings avatar');
 
         if (!profile) {
             return res.status(404).json({

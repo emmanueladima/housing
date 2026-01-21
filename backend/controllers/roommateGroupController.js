@@ -61,10 +61,10 @@ export const createGroup = async (req, res) => {
 export const getMyGroup = async (req, res) => {
     try {
         const group = await RoommateGroup.findOne({ members: req.user._id })
-            .populate('members', 'firstName lastName profilePhoto email school')
-            .populate('chores.assignedTo', 'firstName lastName profilePhoto')
-            .populate('expenses.paidBy', 'firstName lastName profilePhoto')
-            .populate('expenses.splitAmong', 'firstName lastName profilePhoto');
+            .populate('members', 'firstName lastName avatar email school')
+            .populate('chores.assignedTo', 'firstName lastName avatar')
+            .populate('expenses.paidBy', 'firstName lastName avatar')
+            .populate('expenses.splitAmong', 'firstName lastName avatar');
 
         if (!group) {
             return res.status(404).json({ message: 'No group found' });
@@ -82,7 +82,7 @@ export const getMyGroup = async (req, res) => {
 export const getAllGroups = async (req, res) => {
     try {
         const groups = await RoommateGroup.find()
-            .populate('members', 'firstName lastName profilePhoto school')
+            .populate('members', 'firstName lastName avatar school')
             .sort({ createdAt: -1 });
         res.json(groups);
     } catch (error) {
@@ -244,9 +244,9 @@ export const handleJoinRequest = async (req, res) => {
 export const getGroupById = async (req, res) => {
     try {
         const group = await RoommateGroup.findById(req.params.id)
-            .populate('members', 'firstName lastName profilePhoto email school major')
-            .populate('admin', 'firstName lastName profilePhoto email')
-            .populate('joinRequests.user', 'firstName lastName profilePhoto email major');
+            .populate('members', 'firstName lastName avatar email school major')
+            .populate('admin', 'firstName lastName avatar email')
+            .populate('joinRequests.user', 'firstName lastName avatar email major');
 
         if (!group) return res.status(404).json({ message: 'Group not found' });
 
@@ -305,7 +305,7 @@ export const addEvent = async (req, res) => {
         group.sharedEvents.push(eventData);
         await group.save();
 
-        await group.populate('sharedEvents.createdBy', 'firstName lastName profilePhoto');
+        await group.populate('sharedEvents.createdBy', 'firstName lastName avatar');
 
         res.status(201).json(group.sharedEvents);
     } catch (error) {
@@ -426,8 +426,8 @@ export const updateExpense = async (req, res) => {
         if (req.body.category) expense.category = req.body.category;
 
         await group.save();
-        await group.populate('expenses.paidBy', 'firstName lastName profilePhoto');
-        await group.populate('expenses.splitAmong', 'firstName lastName profilePhoto');
+        await group.populate('expenses.paidBy', 'firstName lastName avatar');
+        await group.populate('expenses.splitAmong', 'firstName lastName avatar');
 
         res.json(group.expenses);
     } catch (error) {
@@ -528,7 +528,7 @@ export const joinByInviteCode = async (req, res) => {
 
         // Find group with this code
         const group = await RoommateGroup.findOne({ 'inviteCode.code': code.toUpperCase() })
-            .populate('members', 'firstName lastName profilePicture')
+            .populate('members', 'firstName lastName avatar')
             .populate('admin', 'firstName lastName');
 
         if (!group) {
@@ -556,7 +556,7 @@ export const joinByInviteCode = async (req, res) => {
         await group.save();
 
         // Re-populate
-        await group.populate('members', 'firstName lastName profilePicture email school');
+        await group.populate('members', 'firstName lastName avatar email school');
 
         res.json({
             success: true,
@@ -629,7 +629,7 @@ export const inviteByUsername = async (req, res) => {
         group.members.push(userToInvite._id);
         await group.save();
 
-        await group.populate('members', 'firstName lastName profilePicture email school username');
+        await group.populate('members', 'firstName lastName avatar email school username');
 
         res.json({
             success: true,
@@ -662,7 +662,7 @@ export const removeMember = async (req, res) => {
         group.members = group.members.filter(m => m.toString() !== req.params.memberId);
         await group.save();
 
-        await group.populate('members', 'firstName lastName profilePicture email school username');
+        await group.populate('members', 'firstName lastName avatar email school username');
 
         res.json({
             success: true,
