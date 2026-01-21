@@ -47,15 +47,27 @@ export const createOrUpdateProfile = async (req, res) => {
                 profileData,
                 { new: true, runValidators: true }
             ).populate('user', 'firstName lastName email school graduationYear');
+
+            // Sync photo to User.avatar if updated
+            if (profileData.photo) {
+                await User.findByIdAndUpdate(req.user._id, { avatar: profileData.photo });
+            }
         } else {
             // Create new profile
             profile = await LifestyleProfile.create(profileData);
             await profile.populate('user', 'firstName lastName email school graduationYear');
 
-            // Update user's profile reference
-            await User.findByIdAndUpdate(req.user._id, {
+            // Update user's profile reference and avatar if photo was uploaded
+            const userUpdate = {
                 roommateProfile: profile._id,
-            });
+            };
+
+            // If we have a photo, sync it to User.avatar
+            if (profileData.photo) {
+                userUpdate.avatar = profileData.photo;
+            }
+
+            await User.findByIdAndUpdate(req.user._id, userUpdate);
         }
 
         res.status(profile.isNew ? 201 : 200).json({

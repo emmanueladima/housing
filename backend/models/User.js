@@ -19,6 +19,9 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
   },
+  avatar: {
+    type: String,
+  },
   username: {
     type: String,
     unique: true,
