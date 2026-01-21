@@ -42,6 +42,8 @@ const Profile = () => {
   const handleSaveProfile = async (updatedProfile) => {
     setLifestyleProfile(updatedProfile);
     setShowWizard(false);
+    // Refresh user to get updated avatar
+    await refreshUser();
   };
 
   const handlePhotoUpload = async (e) => {
