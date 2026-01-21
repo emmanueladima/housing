@@ -1,6 +1,7 @@
 import express from 'express';
 import { protect } from '../middleware/auth.js';
 import { uploadSingleImage } from '../middleware/multer.js';
+import { optimizeProfilePhoto } from '../middleware/imageOptimizer.js';
 import {
   createOrUpdateProfile,
   getMyProfile,
@@ -20,8 +21,8 @@ router.use(protect);
 
 // Profile management
 router.get('/me', getMyProfile);
-router.put('/me', uploadSingleImage, createOrUpdateProfile); // Support PUT for updates
-router.post('/me', uploadSingleImage, createOrUpdateProfile); // Support POST for creation/updates with photo
+router.put('/me', uploadSingleImage, optimizeProfilePhoto, createOrUpdateProfile); // Support PUT for updates
+router.post('/me', uploadSingleImage, optimizeProfilePhoto, createOrUpdateProfile); // Support POST for creation/updates with photo
 router.post('/me/boost', boostMyProfile); // Boost profile visibility
 
 // Discovery & Matching
@@ -33,8 +34,3 @@ router.post('/compatibility-test', saveCompatibilityTest);
 router.get('/:id', getProfile);
 
 export default router;
-
-
-
-
-
