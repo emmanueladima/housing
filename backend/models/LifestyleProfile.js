@@ -109,8 +109,7 @@ const lifestyleProfileSchema = new mongoose.Schema({
 
   // Compatibility Test Results
   compatibilityAnswers: {
-    type: Map,
-    of: mongoose.Schema.Types.Mixed,
+    type: Object, // Changed from Map to Avoid iterator casting issues
     default: {}
   },
   compatibilityScore: {

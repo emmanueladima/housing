@@ -21,12 +21,18 @@ export const createOrUpdateProfile = async (req, res) => {
         }
 
         // Parse JSON fields from FormData
-        ['sleepSchedule', 'budget', 'interests', 'vibes', 'lookingFor'].forEach(field => {
+        const jsonFields = [
+            'sleepSchedule', 'budget', 'interests', 'vibes', 'lookingFor',
+            'vibeTags', 'compatibilityAnswers', 'petTypes', 'allergyTypes',
+            'studyLocations', 'weeklySchedule'
+        ];
+
+        jsonFields.forEach(field => {
             if (typeof profileData[field] === 'string') {
                 try {
                     profileData[field] = JSON.parse(profileData[field]);
                 } catch (e) {
-                    // Ignore parse errors
+                    // Ignore parse errors, keep as string or let validation fail
                 }
             }
         });
