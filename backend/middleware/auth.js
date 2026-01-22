@@ -70,6 +70,19 @@ export const checkLandlord = (req, res, next) => {
 };
 
 /**
+ * Check if user is an admin
+ */
+export const checkAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      error: 'Access denied. Admin privileges required.',
+    });
+  }
+  next();
+};
+
+/**
  * Generate JWT token
  */
 export const generateToken = (id) => {

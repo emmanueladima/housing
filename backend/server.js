@@ -31,6 +31,9 @@ const corsOptions = {
       'http://localhost:5173',
       'http://localhost:5174',
       'http://localhost:5175',
+      'http://localhost:5176', // Added strictly for dev
+      'http://localhost:5177', // Added strictly for dev
+      'http://localhost:5178', // Added strictly for dev
       'https://collegio.us',
       'https://www.collegio.us',
       process.env.FRONTEND_URL
@@ -125,6 +128,7 @@ import communityRoutes from './routes/community.js';
 import applicationTemplateRoutes from './routes/applicationTemplates.js';
 import coApplicantRoutes from './routes/coApplicants.js';
 import feedbackRoutes from './routes/feedback.js';
+import adminRoutes from './routes/admin.js';
 
 import uploadRoutes from './routes/uploads.js';
 
@@ -157,6 +161,7 @@ app.get('/', (req, res) => {
       applicationTemplates: '/api/application-templates',
       coApplicants: '/api/co-applicants',
       feedback: '/api/feedback',
+      admin: '/api/admin',
     },
   });
 });
@@ -184,6 +189,7 @@ app.use('/api/community', communityRoutes);
 app.use('/api/application-templates', applicationTemplateRoutes);
 app.use('/api/co-applicants', coApplicantRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

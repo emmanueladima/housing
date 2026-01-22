@@ -22,7 +22,10 @@ export const AuthProvider = ({ children }) => {
     console.log('🔧 VITE_DEV_MODE value:', devModeValue, typeof devModeValue);
     const isDevMode = devModeValue === 'true';
 
-    if (isDevMode) {
+    // Only auto-login if no user is currently stored
+    const storedUser = authService.getStoredUser();
+
+    if (isDevMode && !storedUser) {
       console.log('🔧 Dev Mode: Attempting auto-login...');
       authService.login({
         email: 'dev@oregonstate.edu',
@@ -71,15 +74,19 @@ export const AuthProvider = ({ children }) => {
             console.error('Error fetching user:', error);
             // Token might be invalid, logout
             logout();
+          })
+          .finally(() => {
+            setLoading(false);
           });
       } else {
         // User not verified - clear stored auth
         console.log('⚠️ Stored user not verified, clearing auth');
         authService.logout();
+        setLoading(false);
       }
+    } else {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const login = async (credentials) => {

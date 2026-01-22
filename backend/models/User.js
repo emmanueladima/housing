@@ -88,15 +88,17 @@ const userSchema = new mongoose.Schema({
       min: 0,
       max: 5,
     },
-    asRoommate: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 5,
-    },
+  },
+  isBanned: {
+    type: Boolean,
+    default: false
+  },
+  banReason: {
+    type: String
   },
   roommateProfile: {
     type: mongoose.Schema.Types.ObjectId,
+
     ref: 'LifestyleProfile',
   },
   favorites: [{

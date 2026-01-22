@@ -5,6 +5,7 @@ import communityService from '../services/communityService';
 import CommunityPostCard from '../components/Community/CommunityPostCard';
 import CreatePostModal from '../components/Community/CreatePostModal';
 import CommunityPostDetailModal from '../components/Community/CommunityPostDetailModal';
+import ReportModal from '../components/Community/ReportModal';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import GlassCard from '../components/shared/GlassCard';
 import { useAuth } from '../contexts/AuthContext';
@@ -58,6 +59,10 @@ const Community = () => {
     const [selectedPost, setSelectedPost] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [editingPost, setEditingPost] = useState(null);
+
+    // Reporting state
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [reportingPost, setReportingPost] = useState(null);
 
     const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
 
@@ -115,15 +120,24 @@ const Community = () => {
         }
     };
 
-    const handleReportPost = async (post) => {
-        if (window.confirm('Report this post for violating community guidelines?')) {
-            try {
-                await communityService.reportPost(post._id, 'Inappropriate content');
-                alert('Post reported. Our team will review it.');
-            } catch (error) {
-                console.error('Error reporting:', error);
-                alert('Failed to report post. Please try again.');
-            }
+    const handleReportPost = (post) => {
+        setReportingPost(post);
+        setShowReportModal(true);
+    };
+
+    const handleSubmitReport = async (reason, description) => {
+        if (!reportingPost) return;
+        try {
+            // We append description to reason for now as the API expects a simple string reason, 
+            // or we could update the service to accept both if we wanted to change the service signature.
+            // For now, let's keep it simple and just send the reason, as the backend primarily uses the enum.
+            // The description logic is handled by the updated backend if we pass it, but communityService.reportPost 
+            // currently only sends { reason }.
+            await communityService.reportPost(reportingPost._id, reason);
+            alert('Report submitted. Thank you for helping keep our community safe.');
+        } catch (error) {
+            console.error('Error reporting:', error);
+            alert('Failed to submit report. Please try again.');
         }
     };
 
@@ -374,6 +388,16 @@ const Community = () => {
                 onMessage={handleMessage}
                 onEdit={handleEditPost}
                 onDelete={handleDeletePost}
+            />
+
+            <ReportModal
+                isOpen={showReportModal}
+                onClose={() => {
+                    setShowReportModal(false);
+                    setReportingPost(null);
+                }}
+                targetTitle={reportingPost?.title}
+                onSubmit={handleSubmitReport}
             />
         </div >
     );

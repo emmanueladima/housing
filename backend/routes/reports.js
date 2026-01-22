@@ -1,12 +1,13 @@
 import express from 'express';
-import { protect } from '../middleware/auth.js';
-import { createReport, getReports } from '../controllers/reportController.js';
+import { protect, checkAdmin } from '../middleware/auth.js';
+import { createReport, getReports, updateReportStatus } from '../controllers/reportController.js';
 
 const router = express.Router();
 
 router.use(protect);
 
 router.post('/', createReport);
-router.get('/', getReports); // Should be admin protected
+router.get('/', checkAdmin, getReports);
+router.put('/:id/status', checkAdmin, updateReportStatus);
 
 export default router;

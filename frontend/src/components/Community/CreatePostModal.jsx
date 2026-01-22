@@ -241,7 +241,7 @@ const CreatePostModal = ({ isOpen, onClose, onCreated, onUpdated, editPost }) =>
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
             <div
-                className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+                className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
@@ -553,7 +553,7 @@ const CreatePostModal = ({ isOpen, onClose, onCreated, onUpdated, editPost }) =>
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between p-6 border-t border-gray-100 bg-gray-50">
+                <div className="flex items-center justify-between p-6 border-t border-gray-100 bg-gray-50 bg-opacity-50">
                     {step > 1 ? (
                         <button
                             onClick={() => setStep(step - 1)}
@@ -569,7 +569,7 @@ const CreatePostModal = ({ isOpen, onClose, onCreated, onUpdated, editPost }) =>
                     {step < 3 ? (
                         <button
                             onClick={handleNext}
-                            className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
+                            className="flex items-center gap-2 px-6 py-3 bg-black text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
                         >
                             Next
                             <FiArrowRight size={18} />
@@ -578,7 +578,7 @@ const CreatePostModal = ({ isOpen, onClose, onCreated, onUpdated, editPost }) =>
                         <button
                             onClick={handleSubmit}
                             disabled={loading}
-                            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all disabled:opacity-50"
+                            className="flex items-center gap-2 px-6 py-3 bg-black text-white font-bold rounded-xl hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50"
                         >
                             {loading ? (isEditing ? 'Saving...' : 'Posting...') : (isEditing ? 'Save Changes' : 'Create Post')}
                             <FiCheck size={18} />

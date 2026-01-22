@@ -225,13 +225,13 @@ const CreateListingWizard = () => {
                 return (
                     <div className="space-y-6">
                         {Object.keys(stepErrors).length > 0 && (
-                            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl">
-                                <p className="text-red-600 font-medium">Please fill in all required fields</p>
+                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                                <p className="text-red-400 font-medium">Please fill in all required fields</p>
                             </div>
                         )}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
-                                Listing Title <span className="text-red-500">*</span>
+                            <label className="block text-sm font-bold text-white mb-2">
+                                Listing Title <span className="text-red-400">*</span>
                             </label>
                             <input
                                 type="text"
@@ -239,13 +239,13 @@ const CreateListingWizard = () => {
                                 value={formData.title}
                                 onChange={handleChange}
                                 placeholder="e.g. Spacious 2BR near Campus"
-                                className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.title ? 'border-red-400' : 'border-gray-200'}`}
+                                className={`w-full p-4 bg-white/5 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-white placeholder-white/40 ${stepErrors.title ? 'border-red-400' : 'border-white/10'}`}
                             />
-                            {stepErrors.title && <p className="text-red-500 text-sm mt-1">{stepErrors.title}</p>}
+                            {stepErrors.title && <p className="text-red-400 text-sm mt-1">{stepErrors.title}</p>}
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
-                                Description <span className="text-red-500">*</span>
+                            <label className="block text-sm font-bold text-white mb-2">
+                                Description <span className="text-red-400">*</span>
                             </label>
                             <textarea
                                 name="description"
@@ -253,11 +253,11 @@ const CreateListingWizard = () => {
                                 onChange={handleChange}
                                 rows="5"
                                 placeholder="Describe the place, roommates, and vibe..."
-                                className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none resize-none transition-all ${stepErrors.description ? 'border-red-400' : 'border-gray-200'}`}
+                                className={`w-full p-4 bg-white/5 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none resize-none transition-all text-white placeholder-white/40 ${stepErrors.description ? 'border-red-400' : 'border-white/10'}`}
                             />
-                            {stepErrors.description && <p className="text-red-500 text-sm mt-1">{stepErrors.description}</p>}
+                            {stepErrors.description && <p className="text-red-400 text-sm mt-1">{stepErrors.description}</p>}
                         </div>
-                        <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl">
+                        <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl">
                             <label className="flex items-center gap-3 cursor-pointer">
                                 <input
                                     type="checkbox"
@@ -266,11 +266,11 @@ const CreateListingWizard = () => {
                                     checked={formData.isSublease}
                                     onChange={handleChange}
                                     disabled={user?.userType === 'student'}
-                                    className="h-5 w-5 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                                    className="h-5 w-5 text-orange-600 focus:ring-orange-500 border-white/20 bg-white/10 rounded"
                                 />
                                 <div>
-                                    <span className="font-bold text-gray-900">This is a sublease</span>
-                                    <p className="text-sm text-gray-500">Check if you're subleasing your current lease</p>
+                                    <span className="font-bold text-white">This is a sublease</span>
+                                    <p className="text-sm text-white/50">Check if you're subleasing your current lease</p>
                                 </div>
                             </label>
                         </div>
@@ -280,32 +280,32 @@ const CreateListingWizard = () => {
                 return (
                     <div className="space-y-6">
                         {Object.keys(stepErrors).length > 0 && (
-                            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl">
-                                <p className="text-red-600 font-medium">Please fill in all required fields</p>
+                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                                <p className="text-red-400 font-medium">Please fill in all required fields</p>
                             </div>
                         )}
                         <div className="relative">
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
-                                Street Address <span className="text-red-500">*</span>
+                            <label className="block text-sm font-bold text-white mb-2">
+                                Street Address <span className="text-red-400">*</span>
                             </label>
                             <input
                                 type="text"
                                 value={addressQuery || formData.address}
                                 onChange={(e) => setAddressQuery(e.target.value)}
                                 placeholder="Start typing address..."
-                                className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.address ? 'border-red-400' : 'border-gray-200'}`}
+                                className={`w-full p-4 bg-white/5 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white/10 outline-none transition-all text-white placeholder-white/40 ${stepErrors.address ? 'border-red-400' : 'border-white/10'}`}
                             />
-                            {stepErrors.address && <p className="text-red-500 text-sm mt-1">{stepErrors.address}</p>}
+                            {stepErrors.address && <p className="text-red-400 text-sm mt-1">{stepErrors.address}</p>}
                             {showSuggestions && suggestions.length > 0 && (
-                                <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-2xl mt-2 shadow-xl max-h-60 overflow-y-auto">
+                                <div className="absolute z-50 w-full bg-gray-900 border border-white/20 rounded-2xl mt-2 shadow-xl max-h-60 overflow-y-auto backdrop-blur-xl">
                                     {suggestions.map((suggestion) => (
                                         <div
                                             key={suggestion.id}
                                             onClick={() => handleAddressSelect(suggestion)}
-                                            className="p-4 hover:bg-orange-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors"
+                                            className="p-4 hover:bg-white/10 cursor-pointer border-b border-white/10 last:border-0 transition-colors"
                                         >
-                                            <div className="font-bold text-gray-900">{suggestion.text}</div>
-                                            <div className="text-gray-500 text-sm">{suggestion.place_name}</div>
+                                            <div className="font-bold text-white">{suggestion.text}</div>
+                                            <div className="text-white/60 text-sm">{suggestion.place_name}</div>
                                         </div>
                                     ))}
                                 </div>
@@ -313,54 +313,54 @@ const CreateListingWizard = () => {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">
-                                    City <span className="text-red-500">*</span>
+                                <label className="block text-sm font-bold text-white mb-2">
+                                    City <span className="text-red-400">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     name="city"
                                     value={formData.city}
                                     onChange={handleChange}
-                                    className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.city ? 'border-red-400' : 'border-gray-200'}`}
+                                    className={`w-full p-4 bg-white/5 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-white ${stepErrors.city ? 'border-red-400' : 'border-white/10'}`}
                                 />
-                                {stepErrors.city && <p className="text-red-500 text-sm mt-1">{stepErrors.city}</p>}
+                                {stepErrors.city && <p className="text-red-400 text-sm mt-1">{stepErrors.city}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">
-                                    State <span className="text-red-500">*</span>
+                                <label className="block text-sm font-bold text-white mb-2">
+                                    State <span className="text-red-400">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     name="state"
                                     value={formData.state}
                                     onChange={handleChange}
-                                    className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.state ? 'border-red-400' : 'border-gray-200'}`}
+                                    className={`w-full p-4 bg-white/5 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-white ${stepErrors.state ? 'border-red-400' : 'border-white/10'}`}
                                 />
-                                {stepErrors.state && <p className="text-red-500 text-sm mt-1">{stepErrors.state}</p>}
+                                {stepErrors.state && <p className="text-red-400 text-sm mt-1">{stepErrors.state}</p>}
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">
-                                    ZIP Code <span className="text-red-500">*</span>
+                                <label className="block text-sm font-bold text-white mb-2">
+                                    ZIP Code <span className="text-red-400">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     name="zipCode"
                                     value={formData.zipCode}
                                     onChange={handleChange}
-                                    className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.zipCode ? 'border-red-400' : 'border-gray-200'}`}
+                                    className={`w-full p-4 bg-white/5 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-white ${stepErrors.zipCode ? 'border-red-400' : 'border-white/10'}`}
                                 />
-                                {stepErrors.zipCode && <p className="text-red-500 text-sm mt-1">{stepErrors.zipCode}</p>}
+                                {stepErrors.zipCode && <p className="text-red-400 text-sm mt-1">{stepErrors.zipCode}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Nearby University</label>
+                                <label className="block text-sm font-bold text-white mb-2">Nearby University</label>
                                 <input
                                     type="text"
                                     name="university"
                                     value={formData.university}
                                     onChange={handleChange}
-                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all"
+                                    className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-white"
                                 />
                             </div>
                         </div>
@@ -370,35 +370,35 @@ const CreateListingWizard = () => {
                 return (
                     <div className="space-y-6">
                         {Object.keys(stepErrors).length > 0 && (
-                            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl">
-                                <p className="text-red-600 font-medium">Please fill in all required fields</p>
+                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                                <p className="text-red-400 font-medium">Please fill in all required fields</p>
                             </div>
                         )}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">
-                                    Monthly Rent <span className="text-red-500">*</span>
+                                <label className="block text-sm font-bold text-white mb-2">
+                                    Monthly Rent <span className="text-red-400">*</span>
                                 </label>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60 font-bold">$</span>
                                     <input
                                         type="number"
                                         name="rent"
                                         value={formData.rent}
                                         onChange={handleChange}
                                         placeholder="0"
-                                        className={`w-full p-4 pl-8 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.rent ? 'border-red-400' : 'border-gray-200'}`}
+                                        className={`w-full p-4 pl-8 bg-white/5 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-white placeholder-white/40 ${stepErrors.rent ? 'border-red-400' : 'border-white/10'}`}
                                     />
                                 </div>
-                                {stepErrors.rent && <p className="text-red-500 text-sm mt-1">{stepErrors.rent}</p>}
+                                {stepErrors.rent && <p className="text-red-400 text-sm mt-1">{stepErrors.rent}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Lease Term</label>
+                                <label className="block text-sm font-bold text-white mb-2">Lease Term</label>
                                 <select
                                     name="leaseTerm"
                                     value={formData.leaseTerm}
                                     onChange={handleChange}
-                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all"
+                                    className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-white [&>option]:text-black"
                                 >
                                     <option value="academic-year">Academic Year</option>
                                     <option value="1-year">1 Year</option>
@@ -409,8 +409,8 @@ const CreateListingWizard = () => {
                         </div>
                         <div className="grid grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">
-                                    Bedrooms <span className="text-red-500">*</span>
+                                <label className="block text-sm font-bold text-white mb-2">
+                                    Bedrooms <span className="text-red-400">*</span>
                                 </label>
                                 <input
                                     type="number"
@@ -418,13 +418,13 @@ const CreateListingWizard = () => {
                                     value={formData.bedrooms}
                                     onChange={handleChange}
                                     min="0"
-                                    className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none text-center transition-all ${stepErrors.bedrooms ? 'border-red-400' : 'border-gray-200'}`}
+                                    className={`w-full p-4 bg-white/5 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-center transition-all text-white ${stepErrors.bedrooms ? 'border-red-400' : 'border-white/10'}`}
                                 />
-                                {stepErrors.bedrooms && <p className="text-red-500 text-sm mt-1">{stepErrors.bedrooms}</p>}
+                                {stepErrors.bedrooms && <p className="text-red-400 text-sm mt-1">{stepErrors.bedrooms}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">
-                                    Bathrooms <span className="text-red-500">*</span>
+                                <label className="block text-sm font-bold text-white mb-2">
+                                    Bathrooms <span className="text-red-400">*</span>
                                 </label>
                                 <input
                                     type="number"
@@ -433,46 +433,46 @@ const CreateListingWizard = () => {
                                     onChange={handleChange}
                                     min="0"
                                     step="0.5"
-                                    className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none text-center transition-all ${stepErrors.bathrooms ? 'border-red-400' : 'border-gray-200'}`}
+                                    className={`w-full p-4 bg-white/5 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-center transition-all text-white ${stepErrors.bathrooms ? 'border-red-400' : 'border-white/10'}`}
                                 />
-                                {stepErrors.bathrooms && <p className="text-red-500 text-sm mt-1">{stepErrors.bathrooms}</p>}
+                                {stepErrors.bathrooms && <p className="text-red-400 text-sm mt-1">{stepErrors.bathrooms}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Sq Ft</label>
+                                <label className="block text-sm font-bold text-white mb-2">Sq Ft</label>
                                 <input
                                     type="number"
                                     name="sqft"
                                     value={formData.sqft}
                                     onChange={handleChange}
-                                    className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none text-center transition-all"
+                                    className="w-full p-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-center transition-all text-white"
                                 />
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2">
-                                Available Date <span className="text-red-500">*</span>
+                            <label className="block text-sm font-bold text-white mb-2">
+                                Available Date <span className="text-red-400">*</span>
                             </label>
                             <input
                                 type="date"
                                 name="availableDate"
                                 value={formData.availableDate}
                                 onChange={handleChange}
-                                className={`w-full p-4 bg-gray-50 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 focus:bg-white outline-none transition-all ${stepErrors.availableDate ? 'border-red-400' : 'border-gray-200'}`}
+                                className={`w-full p-4 bg-white/5 border rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-white [color-scheme:dark] ${stepErrors.availableDate ? 'border-red-400' : 'border-white/10'}`}
                             />
-                            {stepErrors.availableDate && <p className="text-red-500 text-sm mt-1">{stepErrors.availableDate}</p>}
+                            {stepErrors.availableDate && <p className="text-red-400 text-sm mt-1">{stepErrors.availableDate}</p>}
                         </div>
-                        <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl mt-4">
+                        <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl mt-4">
                             <label className="flex items-center gap-3 cursor-pointer">
                                 <input
                                     type="checkbox"
                                     name="showPhoneNumber"
                                     checked={formData.showPhoneNumber}
                                     onChange={handleChange}
-                                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-white/20 bg-white/10 rounded"
                                 />
                                 <div>
-                                    <span className="font-bold text-gray-900">Display my phone number</span>
-                                    <p className="text-sm text-gray-500">Allow interested renters to see your contact number</p>
+                                    <span className="font-bold text-white">Display my phone number</span>
+                                    <p className="text-sm text-white/50">Allow interested renters to see your contact number</p>
                                 </div>
                             </label>
                         </div>
@@ -481,7 +481,7 @@ const CreateListingWizard = () => {
             case 4: // Amenities
                 return (
                     <div className="space-y-4">
-                        <p className="text-gray-500 text-sm mb-4">Select all that apply</p>
+                        <p className="text-white/70 text-sm mb-4">Select all that apply</p>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                             {amenityOptions.map(option => (
                                 <button
@@ -489,12 +489,12 @@ const CreateListingWizard = () => {
                                     type="button"
                                     onClick={() => handleAmenityToggle(option.value)}
                                     className={`p-4 rounded-2xl border-2 text-left transition-all flex items-center gap-3 ${formData.amenities.includes(option.value)
-                                        ? 'border-orange-500 bg-orange-50 shadow-sm'
-                                        : 'border-gray-200 hover:border-orange-200 bg-white'
+                                        ? 'border-orange-500 bg-orange-500/20 text-white shadow-sm'
+                                        : 'border-white/10 hover:border-orange-500/50 bg-white/5 text-white hover:text-white'
                                         }`}
                                 >
                                     <span className="text-2xl">{option.icon}</span>
-                                    <span className="font-medium text-gray-900">{option.label}</span>
+                                    <span className="font-medium">{option.label}</span>
                                     {formData.amenities.includes(option.value) && (
                                         <FiCheckCircle className="ml-auto text-orange-500" size={20} />
                                     )}
@@ -507,15 +507,15 @@ const CreateListingWizard = () => {
                 return (
                     <div className="space-y-6">
                         {stepErrors.images && (
-                            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl">
-                                <p className="text-red-600 font-medium">{stepErrors.images}</p>
+                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                                <p className="text-red-400 font-medium">{stepErrors.images}</p>
                             </div>
                         )}
-                        <p className="text-gray-500 text-sm">Add up to 5 photos. First photo will be the cover. <span className="text-red-500">*</span></p>
+                        <p className="text-white/60 text-sm">Add up to 5 photos. First photo will be the cover. <span className="text-red-400">*</span></p>
 
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {previewImages.map((src, index) => (
-                                <div key={index} className="relative aspect-square rounded-2xl overflow-hidden group shadow-sm border border-gray-200">
+                                <div key={index} className="relative aspect-square rounded-2xl overflow-hidden group shadow-sm border border-white/10">
                                     <img src={src} alt={`Preview ${index}`} className="w-full h-full object-cover" />
                                     {index === 0 && (
                                         <div className="absolute top-2 left-2 px-2 py-1 bg-orange-500 text-white text-xs font-bold rounded-lg">
@@ -536,11 +536,11 @@ const CreateListingWizard = () => {
                                 <button
                                     type="button"
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="aspect-square border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center text-gray-500 hover:border-orange-500 hover:text-orange-500 hover:bg-orange-50 transition-all bg-gray-50"
+                                    className="aspect-square border-2 border-dashed border-white/20 rounded-2xl flex flex-col items-center justify-center text-white/40 hover:border-orange-500 hover:text-orange-500 hover:bg-white/5 transition-all bg-white/5"
                                 >
                                     <FiUpload size={32} />
                                     <span className="text-sm font-bold mt-2">Add Photo</span>
-                                    <span className="text-xs text-gray-400 mt-1">{5 - previewImages.length} remaining</span>
+                                    <span className="text-xs text-white/30 mt-1">{5 - previewImages.length} remaining</span>
                                 </button>
                             )}
                         </div>
@@ -553,7 +553,7 @@ const CreateListingWizard = () => {
                             className="hidden"
                         />
                         {error && (
-                            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 font-medium">
+                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 font-medium">
                                 {error}
                             </div>
                         )}
@@ -579,25 +579,25 @@ const CreateListingWizard = () => {
 
             {/* Main Content */}
             <div className="max-w-3xl mx-auto px-4 -mt-8 pb-24 relative z-10">
-                <div className="bg-white rounded-3xl shadow-xl overflow-hidden min-h-[600px] flex flex-col">
+                <div className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[2.5rem] shadow-2xl overflow-hidden min-h-[600px] flex flex-col">
                     {/* Progress Steps */}
-                    <div className="p-6 border-b border-gray-100">
+                    <div className="p-6 border-b border-white/10">
                         <div className="flex justify-between items-center">
                             {steps.map((s, i) => (
                                 <div key={s.num} className="flex items-center">
-                                    <div className={`flex flex-col items-center ${step >= s.num ? 'text-orange-600' : 'text-gray-400'}`}>
+                                    <div className={`flex flex-col items-center ${step >= s.num ? 'text-orange-400' : 'text-white/30'}`}>
                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-1 transition-all ${step > s.num
                                             ? 'bg-orange-500 text-white'
                                             : step === s.num
-                                                ? 'bg-orange-100 text-orange-600 ring-2 ring-orange-500'
-                                                : 'bg-gray-100 text-gray-400'
+                                                ? 'bg-orange-500/20 text-orange-400 border border-orange-500/50'
+                                                : 'bg-white/5 text-white/30 border border-white/10'
                                             }`}>
                                             {step > s.num ? <FiCheck size={18} /> : <s.icon size={18} />}
                                         </div>
                                         <span className="text-xs font-bold hidden sm:block">{s.label}</span>
                                     </div>
                                     {i < steps.length - 1 && (
-                                        <div className={`w-12 md:w-20 h-0.5 mx-2 transition-colors ${step > s.num ? 'bg-orange-500' : 'bg-gray-200'}`} />
+                                        <div className={`w-12 md:w-20 h-0.5 mx-2 transition-colors ${step > s.num ? 'bg-orange-500' : 'bg-white/10'}`} />
                                     )}
                                 </div>
                             ))}
@@ -607,8 +607,8 @@ const CreateListingWizard = () => {
                     {/* Step Content */}
                     <div className="p-8 flex-1">
                         <div className="mb-8">
-                            <h2 className="text-2xl font-black text-gray-900 mb-1">{steps[step - 1].label}</h2>
-                            <p className="text-gray-500">
+                            <h2 className="text-2xl font-black text-white mb-1">{steps[step - 1].label}</h2>
+                            <p className="text-white/60">
                                 {step === 1 && "Start with the main details of your place"}
                                 {step === 2 && "Where is this place located?"}
                                 {step === 3 && "The nitty-gritty details"}
@@ -620,13 +620,13 @@ const CreateListingWizard = () => {
                     </div>
 
                     {/* Footer */}
-                    <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-between items-center mt-auto">
+                    <div className="p-6 border-t border-white/10 bg-white/5 flex justify-between items-center mt-auto">
                         <button
                             onClick={handleBack}
                             disabled={step === 1}
                             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${step === 1
-                                ? 'text-gray-300 cursor-not-allowed'
-                                : 'text-gray-600 hover:bg-gray-200'
+                                ? 'text-white/20 cursor-not-allowed'
+                                : 'text-white hover:bg-white/10'
                                 }`}
                         >
                             <FiArrowLeft /> Back
@@ -634,7 +634,7 @@ const CreateListingWizard = () => {
                         <button
                             onClick={handleNext}
                             disabled={loading}
-                            className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-bold hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-8 py-3 bg-white text-black rounded-xl font-bold hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? 'Creating...' : (step === 5 ? 'Publish Listing' : 'Continue')} <FiArrowRight />
                         </button>
@@ -645,7 +645,7 @@ const CreateListingWizard = () => {
                 <div className="text-center mt-6">
                     <button
                         onClick={() => navigate('/listings')}
-                        className="text-gray-500 hover:text-gray-700 font-medium"
+                        className="text-white/40 hover:text-white font-medium transition-colors"
                     >
                         Cancel and go back
                     </button>

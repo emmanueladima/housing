@@ -7,6 +7,7 @@ import './index.css';
 import { AuthProvider } from './contexts/AuthContext.jsx';
 import { SocketProvider } from './contexts/SocketContext.jsx';
 import { FeatureFlagProvider } from './contexts/FeatureFlagContext.jsx';
+import { Toaster } from 'react-hot-toast';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -16,6 +17,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <AuthProvider>
             <SocketProvider>
               <App />
+              <Toaster position="top-right" />
             </SocketProvider>
           </AuthProvider>
         </FeatureFlagProvider>

@@ -8,7 +8,7 @@ const reportSchema = new mongoose.Schema({
     },
     targetType: {
         type: String,
-        enum: ['User', 'Listing'],
+        enum: ['User', 'Listing', 'CommunityPost'],
         required: true,
     },
     targetUser: {
@@ -18,6 +18,10 @@ const reportSchema = new mongoose.Schema({
     targetListing: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Listing',
+    },
+    targetPost: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'CommunityPost',
     },
     reason: {
         type: String,
@@ -51,12 +55,14 @@ const reportSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-// Validation to ensure either targetUser or targetListing is present based on targetType
+// Validation to ensure either targetUser, targetListing or targetPost is present based on targetType
 reportSchema.pre('validate', function (next) {
     if (this.targetType === 'User' && !this.targetUser) {
         next(new Error('Target User is required for User reports'));
     } else if (this.targetType === 'Listing' && !this.targetListing) {
         next(new Error('Target Listing is required for Listing reports'));
+    } else if (this.targetType === 'CommunityPost' && !this.targetPost) {
+        next(new Error('Target Post is required for Community Post reports'));
     } else {
         next();
     }

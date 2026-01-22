@@ -23,6 +23,13 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     const userRole = user?.role; // 'admin' or undefined
     const userType = user?.userType; // 'landlord', 'student', or 'both'
 
+    console.log('🛡️ ProtectedRoute Check:', {
+      userRole,
+      userType,
+      allowedRoles,
+      user_id: user?._id
+    });
+
     // Admin users can access everything
     if (userRole === 'admin') {
       return children;

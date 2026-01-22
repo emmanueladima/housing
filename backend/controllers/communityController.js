@@ -2,6 +2,7 @@ import CommunityPost from '../models/CommunityPost.js';
 import CommunityComment from '../models/CommunityComment.js';
 import Notification from '../models/Notification.js';
 import contentModeration from '../services/contentModerationService.js';
+import Report from '../models/Report.js';
 
 // @desc    Create a new community post
 // @route   POST /api/community/posts
@@ -379,6 +380,18 @@ export const reportPost = async (req, res) => {
             post.moderationReason = reviewResult.reason;
             await post.save();
 
+            // Create a closed report for record keeping
+            await Report.create({
+                reporter: req.user._id,
+                targetType: 'CommunityPost',
+                targetPost: post._id,
+                reason: reason,
+                description: `Auto-removed by AI: ${reviewResult.reason}`,
+                status: 'resolved',
+                adminNotes: 'Auto-resolved by AI moderation',
+                resolvedBy: null // System resolved
+            });
+
             return res.json({
                 success: true,
                 message: 'Post has been removed for violating community guidelines.',
@@ -390,13 +403,23 @@ export const reportPost = async (req, res) => {
             post.reportReason = reason;
             await post.save();
 
+            // Create Ticket for Admin Dashboard
+            await Report.create({
+                reporter: req.user._id,
+                targetType: 'CommunityPost',
+                targetPost: post._id,
+                reason: reason,
+                description: `Flagged by AI (Confidence < 0.7): ${reason}`,
+                status: 'pending'
+            });
+
             return res.json({
                 success: true,
                 message: 'Post reported and flagged for manual review.',
                 action: 'flagged'
             });
         } else {
-            // Content appears safe - still log the report
+            // Content appears safe - still log the report for manual review if user insists
             if (!post.reports) post.reports = [];
             post.reports.push({
                 reporter: req.user._id,
@@ -406,9 +429,19 @@ export const reportPost = async (req, res) => {
             });
             await post.save();
 
+            // Create Ticket for Admin Dashboard even if AI thinks it's safe (User Report)
+            await Report.create({
+                reporter: req.user._id,
+                targetType: 'CommunityPost',
+                targetPost: post._id,
+                reason: reason,
+                description: `User Report (AI deemed safe): ${reason}`,
+                status: 'pending'
+            });
+
             return res.json({
                 success: true,
-                message: 'Report received. Our AI reviewed the content and found no violations.',
+                message: 'Report received. Our team will review the content.',
                 action: 'reviewed'
             });
         }

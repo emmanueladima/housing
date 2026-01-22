@@ -155,6 +155,7 @@ export const login = async (req, res) => {
         lastName: user.lastName,
         email: user.email,
         userType: user.userType,
+        role: user.role,
         isVerified: user.isVerified,
         favorites: user.favorites || [],
         savedProfiles: user.savedProfiles || [],

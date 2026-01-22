@@ -33,6 +33,15 @@ import CookiePolicy from './pages/CookiePolicy';
 import ResetPassword from './pages/ResetPassword';
 import JoinByCode from './pages/JoinByCode';
 
+// Admin
+import AdminLayout from './components/Admin/AdminLayout';
+import Dashboard from './pages/Admin/Dashboard';
+import UserManagement from './pages/Admin/UserManagement';
+import ListingManagement from './pages/Admin/ListingManagement';
+import ReportCenter from './pages/Admin/ReportCenter';
+import AuditLogs from './pages/Admin/AuditLogs';
+import MessagingSystem from './pages/Admin/MessagingSystem';
+
 function App() {
   const location = useLocation();
   // Pages with gradient headers that handle their own top padding
@@ -55,23 +64,27 @@ function App() {
     '/terms',
     '/privacy',
     '/cookie-policy',
+    '/admin', // Added Admin to transparent pages so sidebar works correctly
   ];
   const isTransparentPage = transparentPages.some(page =>
     location.pathname === page || location.pathname.startsWith(page + '/')
   );
 
   const isAnimatedBackgroundPage = ['/', '/safety', '/terms', '/privacy', '/cookies', '/roommate-toolkit', '/landlord/dashboard', '/saved', '/settings', '/profile', '/applications', '/messages', '/community', '/notifications'].includes(location.pathname);
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
     <div className="min-h-screen flex flex-col relative">
       {/* Fixed animated background for specific pages */}
-      {isAnimatedBackgroundPage && (
+      {isAnimatedBackgroundPage && !isAdminRoute && (
         <div className="fixed inset-0 z-0">
           <ModernBackground />
         </div>
       )}
 
+      {/* Header - Always Show */}
       <Header />
+
       <main className={`flex-grow ${!isTransparentPage ? 'pt-24' : ''} relative z-10`}>
         <Routes>
           {/* Public routes */}
@@ -220,10 +233,29 @@ function App() {
             }
           />
 
+          {/* Admin Routes */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="listings" element={<ListingManagement />} />
+            <Route path="reports" element={<ReportCenter />} />
+            <Route path="logs" element={<AuditLogs />} />
+            <Route path="messaging" element={<MessagingSystem />} />
+          </Route>
+
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+
       <div className="relative z-10">
         <Footer />
       </div>

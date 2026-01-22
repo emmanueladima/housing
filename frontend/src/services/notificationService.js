@@ -17,18 +17,21 @@ const notificationService = {
   // Mark as read
   async markAsRead(notificationId) {
     const response = await api.patch(`/notifications/${notificationId}/read`);
+    window.dispatchEvent(new Event('notification_updated'));
     return response.data.notification;
   },
 
   // Mark all as read
   async markAllAsRead() {
     const response = await api.patch('/notifications/read-all');
+    window.dispatchEvent(new Event('notification_updated'));
     return response.data;
   },
 
   // Delete notification
   async deleteNotification(notificationId) {
     const response = await api.delete(`/notifications/${notificationId}`);
+    window.dispatchEvent(new Event('notification_updated'));
     return response.data;
   },
 };

@@ -9,6 +9,7 @@ import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/d
 import { useAuth } from '../../contexts/AuthContext';
 import { useSocket } from '../../contexts/SocketContext';
 import messageService from '../../services/messageService';
+import notificationService from '../../services/notificationService';
 import Modal from '../shared/Modal';
 import Login from '../Auth/Login';
 import SignUp from '../Auth/SignUp';
@@ -26,9 +27,11 @@ const Header = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadNotesCount, setUnreadNotesCount] = useState(0);
 
   const isLandlord = user?.userType === 'landlord' || user?.userType === 'both';
   const isStudent = user?.userType === 'student' || user?.userType === 'both' || !user?.userType;
+  const isAdmin = user?.role === 'admin';
 
   // Dropdown configurations
   const listingsDropdown = [
@@ -48,29 +51,45 @@ const Header = () => {
     // Only location change logic if needed
   }, [location.pathname]);
 
-  // Fetch unread messages count
+  // Fetch unread messages and notifications count
   useEffect(() => {
     if (isAuthenticated) {
-      const fetchUnreadCount = async () => {
+      const fetchData = async () => {
         try {
-          const count = await messageService.getUnreadCount();
-          setUnreadCount(count);
+          const msgCount = await messageService.getUnreadCount();
+          setUnreadCount(msgCount);
+
+          const noteCount = await notificationService.getUnreadCount();
+          setUnreadNotesCount(noteCount);
         } catch (error) {
-          console.error('Error fetching unread count:', error);
+          console.error('Error fetching unread counts:', error);
         }
       };
 
-      fetchUnreadCount();
+      fetchData();
 
       if (socket) {
         socket.on('new_message', () => {
-          fetchUnreadCount();
+          messageService.getUnreadCount().then(setUnreadCount);
+        });
+
+        // Listen for new notifications (assuming backend emits this)
+        socket.on('new_notification', () => {
+          notificationService.getUnreadCount().then(setUnreadNotesCount);
         });
       }
 
+      // Listen for local updates (read/delete)
+      const handleLocalUpdate = () => {
+        notificationService.getUnreadCount().then(setUnreadNotesCount);
+      };
+      window.addEventListener('notification_updated', handleLocalUpdate);
+
       return () => {
+        window.removeEventListener('notification_updated', handleLocalUpdate);
         if (socket) {
           socket.off('new_message');
+          socket.off('new_notification');
         }
       };
     }
@@ -84,22 +103,13 @@ const Header = () => {
         <div className="w-full px-6 lg:px-12">
           <div className="flex justify-between items-center h-20">
             {/* Left Section: Logo */}
-            <Link to="/" className="flex items-center gap-2 group shrink-0 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-colors">
+            {/* Left Section: Logo */}
+            <Link to="/" className="block shrink-0 transition-opacity hover:opacity-80">
               <img
-                src="/favicon.png"
-                alt="Collegio Logo"
-                className="w-7 h-7 rounded-full"
+                src="/collegio_tran.svg"
+                alt="Collegio"
+                className="h-48 w-auto"
               />
-              <span
-                className="text-xl text-white"
-                style={{
-                  fontFamily: "'Archivo Black', sans-serif",
-                  fontWeight: 900,
-                  letterSpacing: '-0.02em'
-                }}
-              >
-                collegio
-              </span>
             </Link>
 
             {/* Right Section: Nav + Profile */}
@@ -174,6 +184,15 @@ const Header = () => {
                         <span>Dashboard</span>
                       </Link>
                     )}
+
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        className="flex items-center gap-1.5 px-3 py-2 text-white/90 hover:text-white font-medium transition-colors"
+                      >
+                        <span>Admin Dashboard</span>
+                      </Link>
+                    )}
                   </nav>
 
                   {/* Icons: Messages & Notifications */}
@@ -194,6 +213,11 @@ const Header = () => {
                       className="relative p-2.5 text-white/80 hover:text-white transition-colors"
                     >
                       <FiBell size={20} />
+                      {unreadNotesCount > 0 && (
+                        <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500 text-white text-xs font-bold flex items-center justify-center rounded-full">
+                          {unreadNotesCount}
+                        </span>
+                      )}
                     </Link>
                   </div>
 
@@ -235,6 +259,10 @@ const Header = () => {
                           <p className="font-semibold text-gray-500">{user?.email}</p>
                         </DropdownItem>
                         <DropdownItem key="divider-profile" className="h-px bg-gray-200 opacity-50 p-0 my-1 pointer-events-none" textValue="-"></DropdownItem>
+
+                        {isAdmin && (
+                          <DropdownItem key="/admin" startContent={<FiGrid size={18} className="text-red-500" />} className="text-gray-800 data-[hover=true]:bg-red-50 data-[hover=true]:text-red-900 rounded-xl font-medium">Admin Dashboard</DropdownItem>
+                        )}
 
                         <DropdownItem key="/profile" startContent={<FiUser size={18} className="text-gray-500" />} className="text-gray-800 data-[hover=true]:bg-gray-100 data-[hover=true]:text-gray-900 rounded-xl">Your Profile</DropdownItem>
 

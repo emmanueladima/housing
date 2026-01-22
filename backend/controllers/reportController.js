@@ -59,6 +59,7 @@ export const getReports = async (req, res) => {
             .populate('reporter', 'firstName lastName email')
             .populate('targetUser', 'firstName lastName email')
             .populate('targetListing', 'title address')
+            .populate('targetPost', 'title description')
             .sort({ createdAt: -1 });
 
         res.json({
@@ -72,5 +73,39 @@ export const getReports = async (req, res) => {
             success: false,
             error: 'Error fetching reports',
         });
+    }
+};
+
+/**
+ * @desc    Update report status (Resolve/Dismiss)
+ * @route   PUT /api/reports/:id/status
+ * @access  Private/Admin
+ */
+export const updateReportStatus = async (req, res) => {
+    try {
+        const { status, adminNotes } = req.body; // status: 'resolved', 'dismissed', 'pending'
+
+        const report = await Report.findById(req.params.id);
+
+        if (!report) {
+            return res.status(404).json({ success: false, error: 'Report not found' });
+        }
+
+        report.status = status;
+        if (adminNotes) {
+            report.adminNotes = adminNotes;
+        }
+        report.resolvedBy = req.user._id;
+        report.resolvedAt = Date.now();
+
+        await report.save();
+
+        res.json({
+            success: true,
+            report
+        });
+    } catch (error) {
+        console.error('Update report error:', error);
+        res.status(500).json({ success: false, error: 'Error updating report' });
     }
 };
