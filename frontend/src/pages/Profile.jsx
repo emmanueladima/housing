@@ -128,6 +128,9 @@ const Profile = () => {
                 <h1 className="text-xl font-black text-white">
                   {user.firstName} {user.lastName}
                 </h1>
+                {user.username && (
+                  <p className="text-white/50 text-xs font-bold mb-1">@{user.username}</p>
+                )}
                 <p className="text-white/70 text-sm">
                   {lifestyleProfile?.major || (user.role === 'landlord' ? 'Landlord' : 'Student')}
                 </p>

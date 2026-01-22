@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiX, FiUser, FiSun, FiMoon, FiVolume2, FiCheckCircle, FiSmile, FiArrowRight, FiArrowLeft, FiCheck, FiHeart, FiThermometer, FiBook, FiUsers, FiAtSign } from 'react-icons/fi';
 import lifestyleProfileService from '../../services/lifestyleProfileService';
+import resourceService from '../../services/resourceService';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import BioTextarea from '../ui/BioTextarea';
@@ -166,12 +167,23 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
         }
     };
 
-    const VIBES_OPTIONS = [
-        'Chill', 'Social', 'Studious', 'Party', 'Quiet', 'Artsy',
-        'Outdoorsy', 'Night Owl', 'Early Bird', 'Fitness', 'Gamer', 'Foodie',
-        'Music Lover', 'Movie Buff', 'Pet Lover', 'Traveler', 'Homebody',
-        'Clean Freak', 'Minimalist', 'Eco-Friendly', 'Spiritual', 'Adventurous'
-    ];
+    const [vibeOptions, setVibeOptions] = useState([]);
+
+    useEffect(() => {
+        const fetchResources = async () => {
+            try {
+                const tags = await resourceService.getVibeTags();
+                setVibeOptions(tags);
+            } catch (error) {
+                // Fallback if API fails
+                setVibeOptions([
+                    'Chill', 'Social', 'Studious', 'Party', 'Quiet', 'Artsy',
+                    'Outdoorsy', 'Night Owl', 'Early Bird', 'Fitness', 'Gamer', 'Foodie'
+                ]);
+            }
+        };
+        fetchResources();
+    }, []);
 
     const steps = [
         { num: 1, label: 'Basics', icon: FiUser, color: 'orange' },
@@ -231,7 +243,7 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                     min={18}
                                     max={99}
                                     placeholder="e.g. 21"
-                                    className="w-full h-14 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 hover:bg-white/10 focus:bg-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
+                                    className="w-full h-14 px-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl text-white placeholder-white/30 hover:bg-white/10 focus:bg-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
                                 />
                             </div>
                             <div>
@@ -239,7 +251,7 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                                 <select
                                     value={formData.gender || ''}
                                     onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
-                                    className="w-full h-14 px-4 bg-white/5 border border-white/10 rounded-xl text-white hover:bg-white/10 focus:bg-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all appearance-none"
+                                    className="w-full h-14 px-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl text-white hover:bg-white/10 focus:bg-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-all appearance-none"
                                     style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='rgba(255,255,255,0.5)' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
                                 >
                                     <option value="" className="bg-gray-900 text-gray-300">Select...</option>
@@ -267,10 +279,9 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                             value={formData.bio}
                             onChange={(value) => setFormData(prev => ({ ...prev, bio: value }))}
                             label="Bio"
-                            labelClassName="text-white/70"
+                            variant="glass"
                             placeholder="I'm a junior studying CS. I love hiking and coffee..."
                             maxLength={500}
-                            className="text-white placeholder-white/30 bg-white/5 border-white/10"
                         />
 
                         {/* Username */}
@@ -368,8 +379,8 @@ const ProfileCreationWizard = ({ onClose, onSaved, initialData }) => {
                 return (
                     <div className="space-y-6">
                         <p className="text-white/50 text-sm">Pick tags that describe you (select multiple)</p>
-                        <div className="flex flex-wrap gap-3">
-                            {VIBES_OPTIONS.map(vibe => (
+                        <div className="flex flex-wrap gap-3 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                            {vibeOptions.map(vibe => (
                                 <button
                                     key={vibe}
                                     type="button"

@@ -26,7 +26,8 @@ struct ProfileCreationModal: View {
     
     private let genderOptions = ["Male", "Female", "Non-binary", "Other", "Prefer not to say"]
     
-    private let vibeOptions = [
+    // Dynamic vibes from API (default fallback)
+    @State private var vibeOptions = [
         "Chill", "Social", "Studious", "Party", "Quiet", "Artsy",
         "Outdoorsy", "Night Owl", "Early Bird", "Fitness", "Gamer", "Foodie",
         "Music Lover", "Movie Buff", "Pet Lover", "Traveler", "Homebody",
@@ -70,6 +71,9 @@ struct ProfileCreationModal: View {
                     Button("Cancel") { dismiss() }
                 }
             }
+        .task {
+            await loadVibes()
+        }
         }
     }
     
@@ -452,6 +456,17 @@ struct ProfileCreationModal: View {
         isLoading = true
         // TODO: Implement API call to save profile
         dismiss()
+    }
+    
+    private func loadVibes() async {
+        do {
+            let vibes = try await APIService.shared.getVibeTags()
+            if !vibes.isEmpty {
+                vibeOptions = vibes
+            }
+        } catch {
+            print("⚠️ Failed to load vibes in modal: \(error)")
+        }
     }
 }
 

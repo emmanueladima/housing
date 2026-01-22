@@ -32,7 +32,8 @@ struct ProfileSetupWizard: View {
     private let genderOptions = ["Male", "Female", "Non-binary", "Prefer not to say"]
     
     // Same vibes as website
-    private let vibesOptions = [
+    // Dynamic vibes from API (default fallback)
+    @State private var vibesOptions = [
         "Chill", "Social", "Studious", "Party", "Quiet", "Artsy",
         "Outdoorsy", "Night Owl", "Early Bird", "Fitness", "Gamer", "Foodie",
         "Music Lover", "Movie Buff", "Pet Lover", "Traveler", "Homebody",
@@ -102,6 +103,7 @@ struct ProfileSetupWizard: View {
             }
         }
         .task {
+            await loadVibes()
             await loadExistingProfile()
         }
     }
@@ -158,6 +160,18 @@ struct ProfileSetupWizard: View {
             print("ℹ️ No existing profile, starting fresh: \(error)")
         }
         isLoadingProfile = false
+    }
+
+    private func loadVibes() async {
+        do {
+            let vibes = try await APIService.shared.getVibeTags()
+            if !vibes.isEmpty {
+                vibesOptions = vibes
+                print("✅ Loaded \(vibes.count) dynamic vibe tags")
+            }
+        } catch {
+            print("⚠️ Failed to load dynamic vibes: \(error). Using defaults.")
+        }
     }
     
     // MARK: - Progress Header

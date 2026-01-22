@@ -272,6 +272,16 @@ class APIService {
         
         let _: ProfileResponse = try await request("/lifestyle-profiles/me", method: "PUT", body: body)
     }
+
+    // MARK: - Resources API
+    func getVibeTags() async throws -> [String] {
+        struct VibesResponse: Decodable {
+            let success: Bool
+            let vibes: [String]
+        }
+        let response: VibesResponse = try await request("/resources/vibes")
+        return response.vibes
+    }
     
     // MARK: - Community API
     func getCommunityPosts(channel: String? = nil) async throws -> [CommunityPost] {

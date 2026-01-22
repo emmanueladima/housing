@@ -131,6 +131,7 @@ import feedbackRoutes from './routes/feedback.js';
 import adminRoutes from './routes/admin.js';
 
 import uploadRoutes from './routes/uploads.js';
+import resourceRoutes from './routes/resources.js';
 
 // API Routes
 app.get('/', (req, res) => {
@@ -190,6 +191,7 @@ app.use('/api/application-templates', applicationTemplateRoutes);
 app.use('/api/co-applicants', coApplicantRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/resources', resourceRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

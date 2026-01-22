@@ -36,6 +36,27 @@ const Roommates = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [myGroup, setMyGroup] = useState(null);
     const [hasTakenTest, setHasTakenTest] = useState(false);
+    const [usernameResults, setUsernameResults] = useState([]);
+
+    // Clear search results when switching tabs
+    useEffect(() => {
+        setSearchQuery('');
+        setUsernameResults([]);
+    }, [activeTab]);
+
+    const handleUsernameSearch = async () => {
+        if (!searchQuery.trim()) return;
+        setLoading(true);
+        try {
+            const { data } = await api.get(`/users/search?q=${searchQuery}`);
+            setUsernameResults(data.users || []);
+        } catch (error) {
+            console.error('Search error:', error);
+            setError('Failed to search users');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         fetchData();
@@ -276,9 +297,23 @@ const Roommates = () => {
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder={`Search ${activeTab === 'groups' ? 'groups' : 'roommates'}...`}
-                                    className="flex-1 py-3 sm:py-4 px-2 text-gray-900 placeholder-gray-400 focus:outline-none text-sm sm:text-base"
+                                    placeholder={activeTab === 'solo' ? "Search roommates by name or username..." : "Search groups..."}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && activeTab === 'solo') {
+                                            handleUsernameSearch();
+                                        }
+                                    }}
+                                    className="flex-1 py-3 sm:py-4 px-2 text-gray-900 placeholder-gray-400 focus:outline-none text-sm sm:text-base mr-24"
                                 />
+                                {activeTab === 'solo' && (
+                                    <button
+                                        onClick={handleUsernameSearch}
+                                        disabled={loading}
+                                        className="absolute right-2 px-4 py-1.5 bg-orange-600 text-white text-sm font-bold rounded-lg hover:bg-orange-700 disabled:opacity-50"
+                                    >
+                                        Search
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -384,7 +419,8 @@ const Roommates = () => {
                         </div>
                     ) : (
                         <>
-                            {activeTab === 'groups' ? (
+                            {/* Groups Tab */}
+                            {activeTab === 'groups' && (
                                 processedData.length === 0 ? (
                                     <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100">
                                         <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -412,58 +448,109 @@ const Roommates = () => {
                                         ))}
                                     </div>
                                 )
-                            ) : (
-                                processedData.length === 0 ? (
-                                    <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100">
-                                        <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                            <FiUser className="text-orange-500 text-3xl" />
+                            )}
+
+                            {/* Solo Tab - Roommates List (Matches or Search Results) */}
+                            {activeTab === 'solo' && (
+                                searchQuery && usernameResults.length > 0 ? (
+                                    // SEARCH RESULTS
+                                    <div className="mt-8">
+                                        <h3 className="text-white font-bold mb-4">Search Results</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {usernameResults.map((resultUser) => (
+                                                <div key={resultUser._id} className="bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl p-6 flex items-center justify-between">
+                                                    <div className="flex items-center gap-4">
+                                                        <img
+                                                            src={resultUser.profilePicture || resultUser.avatar || `https://ui-avatars.com/api/?name=${resultUser.firstName}+${resultUser.lastName}&background=orange&color=fff`}
+                                                            alt={resultUser.firstName}
+                                                            className="w-12 h-12 rounded-full object-cover bg-white"
+                                                        />
+                                                        <div>
+                                                            <h3 className="text-white font-bold">{resultUser.firstName} {resultUser.lastName}</h3>
+                                                            <p className="text-white/60 text-xs">@{resultUser.username || 'user'}</p>
+                                                            <p className="text-white/40 text-xs mt-0.5">{resultUser.school || 'Student'}</p>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleMessageRoommate(resultUser._id)}
+                                                        className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors"
+                                                    >
+                                                        <FiUser size={20} />
+                                                    </button>
+                                                </div>
+                                            ))}
                                         </div>
-                                        <h3 className="text-xl font-bold text-gray-900 mb-2">No roommates found</h3>
-                                        <p className="text-gray-500 mb-8">Check back later or create your own profile!</p>
+                                    </div>
+                                ) : searchQuery && !loading && usernameResults.length === 0 ? (
+                                    // EMPTY SEARCH
+                                    <div className="text-center py-12">
+                                        <p className="text-white/60">No users found matching "{searchQuery}"</p>
                                         <button
-                                            onClick={() => window.location.href = '/profile'}
-                                            className="px-8 py-3 bg-orange-600 text-white rounded-full font-bold hover:bg-orange-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 inline-flex items-center gap-2"
+                                            onClick={() => {
+                                                setSearchQuery('');
+                                                setUsernameResults([]);
+                                            }}
+                                            className="mt-4 text-orange-400 hover:text-orange-300 text-sm font-bold"
                                         >
-                                            <FiUser />
-                                            Create Profile
+                                            Clear Search
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {processedData.map((profile) => (
-                                            <RoommateCard
-                                                key={profile._id}
-                                                roommate={{
-                                                    firstName: profile.user?.firstName,
-                                                    lastName: profile.user?.lastName,
-                                                    photo: profile.user?.avatar,
-                                                    major: profile.user?.major || 'Student',
-                                                    year: profile.user?.graduationYear ? `Class of ${profile.user.graduationYear}` : 'Student',
-                                                    budget: { min: profile.budgetMin, max: profile.budgetMax },
-                                                    tags: profile.vibeTags,
-                                                    compatibility: profile.compatibilityScore || 0,
-                                                    bio: profile.bio,
-                                                    moveIn: profile.lookingFor?.moveInDate ? new Date(profile.lookingFor.moveInDate).toLocaleDateString() : 'Flexible',
-                                                    habits: {
-                                                        cleanliness: profile.cleanliness >= 4 ? 'Clean' : 'Average',
-                                                        sleep: profile.sleepTime > "23:00" ? 'Night Owl' : 'Early Bird',
-                                                        noise: profile.noiseLevel <= 2 ? 'Quiet' : 'Moderate'
-                                                    },
-                                                    matchReasons: ['Budget', 'Vibe']
-                                                }}
-                                                onMessage={() => handleMessageRoommate(profile.user?._id)}
-                                                onFavorite={() => handleFavoriteRoommate(profile._id)}
-                                                isSaved={user?.savedProfiles?.includes(profile._id)}
-                                                onClick={() => handleViewRoommateDetails(profile)}
-                                            />
-                                        ))}
-                                    </div>
+                                    // DEFAULT MATCHES (No search or empty search)
+                                    processedData.length === 0 ? (
+                                        <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100">
+                                            <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                                <FiUser className="text-orange-500 text-3xl" />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-gray-900 mb-2">No roommates found</h3>
+                                            <p className="text-gray-500 mb-8">Check back later or create your own profile!</p>
+                                            <button
+                                                onClick={() => window.location.href = '/profile'}
+                                                className="px-8 py-3 bg-orange-600 text-white rounded-full font-bold hover:bg-orange-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 inline-flex items-center gap-2"
+                                            >
+                                                <FiUser />
+                                                Create Profile
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {processedData.map((profile) => (
+                                                <RoommateCard
+                                                    key={profile._id}
+                                                    roommate={{
+                                                        firstName: profile.user?.firstName,
+                                                        lastName: profile.user?.lastName,
+                                                        photo: profile.user?.avatar,
+                                                        major: profile.user?.major || 'Student',
+                                                        year: profile.user?.graduationYear ? `Class of ${profile.user.graduationYear}` : 'Student',
+                                                        budget: { min: profile.budgetMin, max: profile.budgetMax },
+                                                        tags: profile.vibeTags,
+                                                        compatibility: profile.compatibilityScore || 0,
+                                                        bio: profile.bio,
+                                                        moveIn: profile.lookingFor?.moveInDate ? new Date(profile.lookingFor.moveInDate).toLocaleDateString() : 'Flexible',
+                                                        habits: {
+                                                            cleanliness: profile.cleanliness >= 4 ? 'Clean' : 'Average',
+                                                            sleep: profile.sleepTime > "23:00" ? 'Night Owl' : 'Early Bird',
+                                                            noise: profile.noiseLevel <= 2 ? 'Quiet' : 'Moderate'
+                                                        },
+                                                        matchReasons: ['Budget', 'Vibe']
+                                                    }}
+                                                    onMessage={() => handleMessageRoommate(profile.user?._id)}
+                                                    onFavorite={() => handleFavoriteRoommate(profile._id)}
+                                                    isSaved={user?.savedProfiles?.includes(profile._id)}
+                                                    onClick={() => handleViewRoommateDetails(profile)}
+                                                />
+                                            ))}
+                                        </div>
+                                    )
                                 )
                             )}
                         </>
                     )}
+
                 </div>
             </div>
+
 
             {/* Modals */}
             <GroupCreationWizard
@@ -496,7 +583,7 @@ const Roommates = () => {
                 onFavorite={() => selectedRoommate && handleFavoriteRoommate(selectedRoommate._id)}
                 isSaved={user?.savedProfiles?.includes(selectedRoommate?._id)}
             />
-        </div>
+        </div >
     );
 };
 
