@@ -166,36 +166,42 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage, onEdit, on
                     <div className="flex-1 overflow-y-auto">
                         {/* Images Carousel */}
                         {post.images && post.images.length > 0 && (
-                            <div className="relative h-64 bg-black/20">
-                                <img
-                                    src={post.images[currentImageIndex]}
-                                    alt={post.title}
-                                    className="w-full h-full object-cover"
-                                />
-                                {post.images.length > 1 && (
-                                    <>
-                                        <button
-                                            onClick={() => setCurrentImageIndex(i => (i > 0 ? i - 1 : post.images.length - 1))}
-                                            className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white rounded-full backdrop-blur-md"
-                                        >
-                                            <FiChevronLeft size={18} />
-                                        </button>
-                                        <button
-                                            onClick={() => setCurrentImageIndex(i => (i < post.images.length - 1 ? i + 1 : 0))}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white rounded-full backdrop-blur-md"
-                                        >
-                                            <FiChevronRight size={18} />
-                                        </button>
-                                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1">
-                                            {post.images.map((_, i) => (
-                                                <div
-                                                    key={i}
-                                                    className={`w-2 h-2 rounded-full transition-all ${i === currentImageIndex ? 'bg-white scale-125' : 'bg-white/50'}`}
-                                                />
-                                            ))}
-                                        </div>
-                                    </>
-                                )}
+                            <div className="relative p-4 pb-0">
+                                <div className="relative rounded-2xl overflow-hidden bg-black/30 aspect-video max-h-[35vh]">
+                                    <img
+                                        src={post.images[currentImageIndex]}
+                                        alt={post.title}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            console.log('❌ Community post image failed:', post.images[currentImageIndex]);
+                                            e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23333" width="100" height="100"/><text x="50" y="55" text-anchor="middle" fill="%23999" font-size="12">Image unavailable</text></svg>';
+                                        }}
+                                    />
+                                    {post.images.length > 1 && (
+                                        <>
+                                            <button
+                                                onClick={() => setCurrentImageIndex(i => (i > 0 ? i - 1 : post.images.length - 1))}
+                                                className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white rounded-full backdrop-blur-md hover:bg-black/70 transition-colors"
+                                            >
+                                                <FiChevronLeft size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => setCurrentImageIndex(i => (i < post.images.length - 1 ? i + 1 : 0))}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-black/50 text-white rounded-full backdrop-blur-md hover:bg-black/70 transition-colors"
+                                            >
+                                                <FiChevronRight size={18} />
+                                            </button>
+                                            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                                {post.images.map((_, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className={`w-2 h-2 rounded-full transition-all ${i === currentImageIndex ? 'bg-white scale-125' : 'bg-white/50'}`}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         )}
 
@@ -272,7 +278,7 @@ const CommunityPostDetailModal = ({ isOpen, onClose, post, onMessage, onEdit, on
                             >
                                 <div className="flex items-center gap-3">
                                     <div
-                                        className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-orange-400 to-red-500 shadow-sm ring-2 ring-white"
+                                        className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-orange-400 to-red-500 shadow-lg"
                                     >
                                         {post.author?.profilePhoto ? (
                                             <img src={post.author.profilePhoto} alt="" className="w-full h-full object-cover" />

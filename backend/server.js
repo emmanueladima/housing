@@ -65,7 +65,11 @@ connectDB().then(() => {
 });
 
 // Security Middleware
-app.use(helmet());           // Security headers
+// Configure helmet to allow cross-origin resource loading for uploads
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginEmbedderPolicy: false,
+}));
 app.use(mongoSanitize());    // Prevent NoSQL injection
 app.use(xss());              // Sanitize user input from XSS
 app.use(globalLimiter);      // Global rate limiting
@@ -75,8 +79,12 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve uploaded files statically
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve uploaded files statically with CORS headers
+app.use('/uploads', (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 // Socket.io connection handling
 io.on('connection', (socket) => {

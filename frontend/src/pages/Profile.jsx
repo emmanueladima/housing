@@ -117,7 +117,7 @@ const Profile = () => {
 
                   {/* Edit Icon */}
                   <button
-                    onClick={() => setShowWizard(true)}
+                    onClick={() => navigate('/settings')}
                     className="absolute -top-1 -right-1 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-orange-600 transition-all"
                   >
                     <FiEdit3 size={14} />
@@ -144,7 +144,7 @@ const Profile = () => {
                 {/* Action Buttons */}
                 <div className="flex gap-2 mt-4">
                   <button
-                    onClick={() => setShowWizard(true)}
+                    onClick={() => navigate('/settings')}
                     className="px-4 py-2 bg-white text-gray-900 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors"
                   >
                     Edit Profile

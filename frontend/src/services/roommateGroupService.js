@@ -158,6 +158,17 @@ const roommateGroupService = {
         const { data } = await api.delete(`/roommate-groups/${groupId}/members/${memberId}`);
         return data;
     },
+    // Accept group invite
+    acceptGroupInvite: async (groupId) => {
+        const { data } = await api.post(`/roommate-groups/${groupId}/accept-invite`);
+        return data;
+    },
+
+    // Decline group invite
+    declineGroupInvite: async (groupId) => {
+        const { data } = await api.post(`/roommate-groups/${groupId}/decline-invite`);
+        return data;
+    },
 };
 
 export default roommateGroupService;

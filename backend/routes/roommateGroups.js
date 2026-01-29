@@ -24,6 +24,8 @@ import {
   joinByInviteCode,
   revokeInviteCode,
   inviteByUsername,
+  acceptGroupInvite,
+  declineGroupInvite,
   removeMember
 } from '../controllers/roommateGroupController.js';
 
@@ -48,6 +50,8 @@ router.post('/join/:code', joinByInviteCode);  // Join by code (must be before /
 router.post('/:id/invite-code', generateInviteCode);
 router.delete('/:id/invite-code', revokeInviteCode);
 router.post('/:id/invite-username', inviteByUsername);
+router.post('/:id/accept-invite', acceptGroupInvite);
+router.post('/:id/decline-invite', declineGroupInvite);
 router.delete('/:id/members/:memberId', removeMember);
 
 // Toolkit Routes - Timeline Events

@@ -1,11 +1,36 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiArrowRight, FiHome, FiUsers } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 import ModernBackground from '../shared/ModernBackground';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../shared/Modal';
 import SignUp from '../Auth/SignUp';
 import Login from '../Auth/Login';
+
+// Animation variants - smooth, elegant timing
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 25 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.9,
+      ease: [0.25, 0.1, 0.25, 1], // smooth ease-out
+    },
+  },
+};
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -36,43 +61,64 @@ const Hero = () => {
         {/* Content */}
         <div className="relative z-10 w-full">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl">
+            <motion.div
+              className="max-w-3xl"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
 
               {/* Main Headline - Responsive text sizes */}
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white mb-4 sm:mb-6 md:mb-8 leading-[1.1] tracking-tight pt-24 sm:pt-28 md:pt-32">
+              <motion.h1
+                variants={itemVariants}
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white mb-4 sm:mb-6 md:mb-8 leading-[1.1] tracking-tight pt-24 sm:pt-28 md:pt-32"
+              >
                 Find Your
                 <br />
                 <span className="text-yellow-200">
                   Perfect Place
                 </span>
-              </h1>
+              </motion.h1>
 
-              <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 md:mb-12 max-w-2xl leading-relaxed">
+              <motion.p
+                variants={itemVariants}
+                className="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 md:mb-12 max-w-2xl leading-relaxed"
+              >
                 Verified listings, AI roommate matching, and secure messaging — all in one place.
-              </p>
+              </motion.p>
 
               {/* CTA Buttons - Stack on mobile */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
-                <button
+              <motion.div
+                variants={itemVariants}
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8"
+              >
+                <motion.button
                   onClick={handleListingsClick}
                   className="group flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-4 sm:py-5 bg-white text-gray-900 font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl hover:bg-gray-100 transition-all shadow-2xl hover:-translate-y-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <FiHome size={20} className="sm:w-[22px] sm:h-[22px]" />
                   Browse Listings
                   <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button
+                </motion.button>
+                <motion.button
                   onClick={handleRoommatesClick}
                   className="group flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-4 sm:py-5 bg-white/20 backdrop-blur-md text-white border-2 border-white/30 font-bold text-base sm:text-lg rounded-xl sm:rounded-2xl hover:bg-white/30 transition-all"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <FiUsers size={20} className="sm:w-[22px] sm:h-[22px]" />
                   Find Roommates
                   <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
 
               {/* Stats - Responsive layout */}
-              <div className="flex flex-wrap gap-4 sm:gap-6 md:gap-8 text-white/70 text-xs sm:text-sm">
+              <motion.div
+                variants={itemVariants}
+                className="flex flex-wrap gap-4 sm:gap-6 md:gap-8 text-white/70 text-xs sm:text-sm"
+              >
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                   <span>500+ Active Listings</span>
@@ -85,8 +131,8 @@ const Hero = () => {
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                   <span>.edu Only</span>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </div>

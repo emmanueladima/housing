@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { FiBell, FiCheck, FiMessageCircle, FiHome, FiUsers, FiStar, FiCalendar, FiTrash2, FiXCircle } from 'react-icons/fi';
+import { FiBell, FiCheck, FiMessageCircle, FiHome, FiUsers, FiStar, FiCalendar, FiTrash2, FiXCircle, FiUserPlus } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import notificationService from '../services/notificationService';
+import roommateGroupService from '../services/roommateGroupService';
 import { useAuth } from '../contexts/AuthContext';
 
 const notificationIcons = {
@@ -15,6 +15,7 @@ const notificationIcons = {
   review: FiStar,
   community_reply: FiMessageCircle,
   system_announcement: FiBell,
+  group_invite: FiUserPlus,
 };
 
 const notificationColors = {
@@ -26,6 +27,7 @@ const notificationColors = {
   review: 'bg-yellow-500/20 text-yellow-200',
   community_reply: 'bg-pink-500/20 text-pink-200',
   system_announcement: 'bg-red-500/20 text-red-200',
+  group_invite: 'bg-indigo-500/20 text-indigo-200',
 };
 
 const formatTimeAgo = (date) => {
@@ -100,6 +102,11 @@ const Notifications = () => {
 
   // ... (handleDelete, etc)
 
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [processingInvite, setProcessingInvite] = useState(false);
+
+  // ... (handleDelete, etc)
+
   const handleNotificationClick = (notification) => {
     if (!notification.isRead) {
       handleMarkAsRead(notification._id);
@@ -107,8 +114,45 @@ const Notifications = () => {
 
     if (notification.type === 'system_announcement') {
       setSelectedNotification(notification);
+    } else if (notification.type === 'group_invite') {
+      setSelectedNotification(notification);
+      setInviteModalOpen(true);
     } else if (notification.link) {
       navigate(notification.link);
+    }
+  };
+
+  const handleAcceptInvite = async () => {
+    if (!selectedNotification?.relatedId) return;
+    setProcessingInvite(true);
+    try {
+      await roommateGroupService.acceptGroupInvite(selectedNotification.relatedId);
+      // Delete notification after accepting
+      await notificationService.deleteNotification(selectedNotification._id);
+      setNotifications(prev => prev.filter(n => n._id !== selectedNotification._id));
+      setInviteModalOpen(false);
+      navigate('/group-dashboard'); // Go to new group
+    } catch (error) {
+      console.error('Error accepting invite:', error);
+      alert('Failed to join group: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setProcessingInvite(false);
+    }
+  };
+
+  const handleDeclineInvite = async () => {
+    if (!selectedNotification?.relatedId) return;
+    setProcessingInvite(true);
+    try {
+      await roommateGroupService.declineGroupInvite(selectedNotification.relatedId);
+      // Delete notification after declining
+      await notificationService.deleteNotification(selectedNotification._id);
+      setNotifications(prev => prev.filter(n => n._id !== selectedNotification._id));
+      setInviteModalOpen(false);
+    } catch (error) {
+      console.error('Error declining invite:', error);
+    } finally {
+      setProcessingInvite(false);
     }
   };
 
@@ -240,25 +284,25 @@ const Notifications = () => {
 
       {/* Announcement Modal */}
       {
-        selectedNotification && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        selectedNotification && !inviteModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
             onClick={() => setSelectedNotification(null)}>
-            <div className="bg-[#1a1a1a]/90 backdrop-blur-xl border border-white/20 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4"
+            <div className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl space-y-4 animate-in zoom-in-95 duration-200"
               onClick={e => e.stopPropagation()}>
               <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border border-white/10 ${notificationColors[selectedNotification.type]}`}>
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border border-white/20 ${notificationColors[selectedNotification.type] || notificationColors.system_announcement}`}>
                   <FiBell size={24} />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-white mb-1">{selectedNotification.title || 'Notification'}</h3>
-                  <p className="text-white/40 text-sm">{formatTimeAgo(selectedNotification.createdAt)}</p>
+                  <p className="text-white/50 text-sm">{formatTimeAgo(selectedNotification.createdAt)}</p>
                 </div>
-                <button onClick={() => setSelectedNotification(null)} className="text-white/40 hover:text-white transition-colors">
+                <button onClick={() => setSelectedNotification(null)} className="text-white/50 hover:text-white transition-colors">
                   <FiXCircle size={24} />
                 </button>
               </div>
 
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10 max-h-[60vh] overflow-y-auto custom-scrollbar">
+              <div className="bg-white/5 rounded-2xl p-5 border border-white/10 max-h-[60vh] overflow-y-auto custom-scrollbar">
                 <p className="text-white/90 whitespace-pre-wrap leading-relaxed">
                   {selectedNotification.content}
                 </p>
@@ -267,9 +311,51 @@ const Notifications = () => {
               <div className="flex justify-end pt-2">
                 <button
                   onClick={() => setSelectedNotification(null)}
-                  className="px-6 py-2 bg-white text-black font-bold rounded-xl hover:scale-105 transition-transform"
+                  className="px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      {/* Invite Modal */}
+      {
+        inviteModalOpen && selectedNotification && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={() => setInviteModalOpen(false)}>
+            <div className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl space-y-6 animate-in zoom-in-95 duration-200"
+              onClick={e => e.stopPropagation()}>
+
+              <div className="text-center">
+                <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-4 border border-indigo-500/30">
+                  <FiUserPlus size={40} className="text-indigo-200" />
+                </div>
+                <h3 className="text-2xl font-black text-white mb-2">Group Invitation</h3>
+                <p className="text-white/80 leading-relaxed">
+                  {selectedNotification.content}
+                </p>
+                <div className="text-white/40 text-sm mt-2">
+                  {formatTimeAgo(selectedNotification.createdAt)}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <button
+                  onClick={handleDeclineInvite}
+                  disabled={processingInvite}
+                  className="px-6 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-100 transition-all"
+                >
+                  Decline
+                </button>
+                <button
+                  onClick={handleAcceptInvite}
+                  disabled={processingInvite}
+                  className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  {processingInvite ? 'Joining...' : 'Accept'}
                 </button>
               </div>
             </div>

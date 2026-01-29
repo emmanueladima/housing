@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiHome, FiKey, FiUsers, FiShoppingBag, FiBook, FiHash, FiChevronDown, FiMessageCircle, FiPlus, FiSearch } from 'react-icons/fi';
 import communityService from '../services/communityService';
@@ -65,27 +65,71 @@ const Community = () => {
     const [reportingPost, setReportingPost] = useState(null);
 
     const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const loadMoreRef = useRef(null);
 
+    // Reset posts when filters change
     useEffect(() => {
-        fetchPosts();
+        setPosts([]);
+        setPagination({ page: 1, pages: 1, total: 0 });
+        setHasMore(true);
+        fetchPosts(1, true);
     }, [activeChannel, activeFilter, sortBy]);
 
-    const fetchPosts = async (page = 1) => {
-        setLoading(true);
+    const fetchPosts = async (page = 1, reset = false) => {
+        if (reset) {
+            setLoading(true);
+        } else {
+            setLoadingMore(true);
+        }
         try {
-            const filters = { page, limit: 20, sort: sortBy };
+            const filters = { page, limit: 15, sort: sortBy };
             if (activeChannel) filters.channel = activeChannel;
             if (activeFilter) filters.intent = activeFilter;
 
             const data = await communityService.getPosts(filters);
-            setPosts(data.posts || []);
+            const newPosts = data.posts || [];
+
+            if (reset) {
+                setPosts(newPosts);
+            } else {
+                setPosts(prev => [...prev, ...newPosts]);
+            }
+
             setPagination(data.pagination || { page: 1, pages: 1, total: 0 });
+            setHasMore(page < (data.pagination?.pages || 1));
         } catch (error) {
             console.error('Error fetching posts:', error);
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
     };
+
+    // Infinite scroll with IntersectionObserver
+    const loadMore = useCallback(() => {
+        if (!loadingMore && hasMore && !loading) {
+            fetchPosts(pagination.page + 1);
+        }
+    }, [loadingMore, hasMore, loading, pagination.page]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
+                    loadMore();
+                }
+            },
+            { threshold: 0.1, rootMargin: '100px' }
+        );
+
+        if (loadMoreRef.current) {
+            observer.observe(loadMoreRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [loadMore, hasMore, loadingMore, loading]);
 
     const handleViewDetails = (post) => {
         setSelectedPost(post);
@@ -306,21 +350,19 @@ const Community = () => {
                             </div>
                         )}
 
-                        {/* Pagination */}
-                        {pagination.pages > 1 && (
-                            <div className="flex justify-center gap-2 mt-6">
-                                {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(page => (
-                                    <button
-                                        key={page}
-                                        onClick={() => fetchPosts(page)}
-                                        className={`w-9 h-9 rounded-lg font-bold text-sm transition-all ${pagination.page === page
-                                            ? 'bg-white text-gray-900 shadow-lg scale-110'
-                                            : 'bg-white/10 text-white/70 hover:bg-white/20'
-                                            }`}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
+                        {/* Load More Trigger */}
+                        {!loading && posts.length > 0 && (
+                            <div ref={loadMoreRef} className="flex justify-center py-8">
+                                {loadingMore ? (
+                                    <div className="flex items-center gap-3 text-white/70">
+                                        <LoadingSpinner />
+                                        <span className="text-sm font-medium">Loading more posts...</span>
+                                    </div>
+                                ) : hasMore ? (
+                                    <div className="text-white/40 text-sm">Scroll for more</div>
+                                ) : (
+                                    <div className="text-white/40 text-sm">You've reached the end!</div>
+                                )}
                             </div>
                         )}
                     </div>

@@ -22,6 +22,9 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
   },
+  profilePhoto: {
+    type: String,
+  },
   username: {
     type: String,
     unique: true,
@@ -138,6 +141,10 @@ const userSchema = new mongoose.Schema({
   blockedUsers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+  }],
+  pendingGroupInvites: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'RoommateGroup',
   }],
   // Verification system
   verification: {

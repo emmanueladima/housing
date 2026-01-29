@@ -1,5 +1,6 @@
 import RoommateGroup from '../models/RoommateGroup.js';
 import User from '../models/User.js';
+import Notification from '../models/Notification.js';
 
 // @desc    Update a roommate group
 // @route   PUT /api/roommate-groups/:id
@@ -619,23 +620,94 @@ export const inviteByUsername = async (req, res) => {
             return res.status(400).json({ message: 'User is already a member of this group' });
         }
 
+        // Check if already invited (pending)
+        if (userToInvite.pendingGroupInvites && userToInvite.pendingGroupInvites.includes(group._id)) {
+            return res.status(400).json({ message: 'User already has a pending invitation to this group' });
+        }
+
         // Check capacity
         const maxMembers = group.maxMembers || 6;
         if (group.members.length >= maxMembers) {
             return res.status(400).json({ message: 'Group is at maximum capacity' });
         }
 
-        // Add directly to group (admin invite = instant join)
-        group.members.push(userToInvite._id);
-        await group.save();
+        // Add to user's pending invites
+        userToInvite.pendingGroupInvites.push(group._id);
+        await userToInvite.save();
 
-        await group.populate('members', 'firstName lastName avatar email school username');
+        // Create Notification
+        await Notification.create({
+            userId: userToInvite._id,
+            type: 'group_invite',
+            title: 'Group Invitation',
+            content: `You've been invited to join "${group.name}"`,
+            relatedId: group._id, // Group ID
+            link: '/notifications' // Or wherever they handle it
+        });
 
         res.json({
             success: true,
-            message: `@${userToInvite.username} has been added to the group!`,
-            group
+            message: `Invitation sent to @${userToInvite.username}!`,
+            group // Return group to update UI (though group structure hasn't changed much)
         });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Accept group invitation
+// @route   POST /api/roommate-groups/:id/accept-invite
+// @access  Private
+export const acceptGroupInvite = async (req, res) => {
+    try {
+        const group = await RoommateGroup.findById(req.params.id);
+        if (!group) return res.status(404).json({ message: 'Group not found' });
+
+        // Check if user has pending invite
+        const user = await User.findById(req.user._id);
+        if (!user.pendingGroupInvites.includes(group._id)) {
+            return res.status(400).json({ message: 'No pending invitation for this group' });
+        }
+
+        // Check capacity
+        if (group.members.length >= (group.maxMembers || 6)) {
+            return res.status(400).json({ message: 'Group is now full' });
+        }
+
+        // Add to members
+        group.members.push(user._id);
+        await group.save();
+
+        // Remove from pending invites
+        user.pendingGroupInvites = user.pendingGroupInvites.filter(id => id.toString() !== group._id.toString());
+        await user.save();
+
+        // Notify Group Admin
+        await Notification.create({
+            userId: group.admin,
+            type: 'system_announcement', // or 'group_update'
+            title: 'New Group Member',
+            content: `${user.firstName} accepted your invitation!`,
+            relatedId: group._id
+        });
+
+        res.json({ success: true, message: `You joined ${group.name}` });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Decline group invitation
+// @route   POST /api/roommate-groups/:id/decline-invite
+// @access  Private
+export const declineGroupInvite = async (req, res) => {
+    try {
+        // Remove from pending invites
+        const user = await User.findById(req.user._id);
+        user.pendingGroupInvites = user.pendingGroupInvites.filter(id => id.toString() !== req.params.id.toString());
+        await user.save();
+
+        res.json({ success: true, message: 'Invitation declined' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

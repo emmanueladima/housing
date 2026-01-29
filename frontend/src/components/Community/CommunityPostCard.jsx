@@ -71,72 +71,67 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage, onEdit, onDelete, o
 
     return (
         <GlassCard
-            isPressable
-            onPress={() => onViewDetails(post)}
             padding="none"
             allowOverflow={true}
-            className="group w-full transition-all duration-300 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm hover:shadow-md hover:bg-white/70"
+            className="group w-full transition-all duration-300 bg-white/60 backdrop-blur-xl border border-white/40 shadow-sm hover:shadow-md hover:bg-white/70 cursor-pointer"
         >
-            <CardBody className="p-6">
-                {/* Header: Avatar, Author, Time, Intent */}
-                <div className="flex items-center gap-3 mb-4">
-                    {/* Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0 shadow-sm ring-2 ring-white">
+            <CardBody className="p-4" onClick={() => onViewDetails(post)}>
+                {/* Header Row: Avatar, Author, Time, Channel, Intent */}
+                <div className="flex items-center gap-2.5 mb-2">
+                    {/* Avatar - smaller */}
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
                         {post.author?.profilePhoto ? (
-                            <img src={post.author.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" />
+                            <img src={post.author.profilePhoto} alt="" className="w-full h-full object-cover" />
                         ) : (
-                            <span className="text-white font-bold text-sm">
+                            <span className="text-white font-bold text-xs">
                                 {post.author?.firstName?.charAt(0) || '?'}
                             </span>
                         )}
                     </div>
 
-                    {/* Author Info */}
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                            <span className="font-semibold text-gray-900 text-sm">
-                                {post.author?.firstName} {post.author?.lastName?.charAt(0)}.
-                            </span>
-                            <span className="text-gray-400 text-xs">·</span>
-                            <span className="text-gray-400 text-xs">{formatTimeAgo(post.createdAt)}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                            <ChannelIcon size={12} style={{ color: channelColor }} />
-                            <span>{channelLabel}</span>
-                        </div>
+                    {/* Author & Channel */}
+                    <div className="flex-1 min-w-0 flex items-center gap-1.5 text-xs">
+                        <span className="font-semibold text-gray-900 truncate">
+                            {post.author?.firstName} {post.author?.lastName?.charAt(0)}.
+                        </span>
+                        <span className="text-gray-400">·</span>
+                        <ChannelIcon size={11} style={{ color: channelColor }} className="shrink-0" />
+                        <span className="text-gray-500 truncate">{channelLabel}</span>
+                        <span className="text-gray-400">·</span>
+                        <span className="text-gray-400 shrink-0">{formatTimeAgo(post.createdAt)}</span>
                     </div>
 
-                    {/* Intent Badge */}
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${intentStyle.bg} ${intentStyle.text}`}>
+                    {/* Intent Badge - smaller */}
+                    <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium shrink-0 ${intentStyle.bg} ${intentStyle.text}`}>
                         {intentStyle.label}
                     </span>
                 </div>
 
-                {/* Title */}
-                <h3 className="font-bold text-gray-900 text-lg leading-snug mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">
+                {/* Title - single line */}
+                <h3 className="font-bold text-gray-900 text-base leading-tight mb-1 group-hover:text-orange-600 transition-colors line-clamp-1">
                     {post.title}
                 </h3>
 
-                {/* Description */}
-                <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 mb-4">
+                {/* Description - single line */}
+                <p className="text-gray-600 text-sm leading-snug line-clamp-1 mb-2">
                     {post.description}
                 </p>
 
-                {/* Price & Tags Row */}
+                {/* Price & Tags Row - inline, compact */}
                 {(post.price || post.budgetMin || post.budgetMax || (post.tags && post.tags.length > 0)) && (
-                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <div className="flex flex-wrap items-center gap-1.5">
                         {/* Price */}
                         {(post.price || post.budgetMin || post.budgetMax) && (
-                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 backdrop-blur-sm border border-green-200">
+                            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-green-100 text-green-700">
                                 {post.price ? `$${post.price}` : `$${post.budgetMin || 0} – $${post.budgetMax || '∞'}`}
                             </span>
                         )}
 
-                        {/* Tags */}
-                        {post.tags && post.tags.slice(0, 2).map((tag, i) => (
+                        {/* Tags - only first tag */}
+                        {post.tags && post.tags.slice(0, 1).map((tag, i) => (
                             <span
                                 key={i}
-                                className="px-2.5 py-1 rounded-full text-xs bg-white/50 text-gray-600 backdrop-blur-sm border border-white/40 font-medium"
+                                className="px-2 py-0.5 rounded-full text-[11px] bg-white/50 text-gray-500 font-medium"
                             >
                                 #{tag}
                             </span>
@@ -145,33 +140,37 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage, onEdit, onDelete, o
                 )}
             </CardBody>
 
-            {/* Footer Actions */}
-            <CardFooter className="px-5 py-3 flex items-center justify-between rounded-b-3xl">
+            {/* Footer Actions - compact */}
+            <CardFooter className="px-4 py-2 flex items-center justify-between rounded-b-3xl relative z-10">
                 {/* Left: Comments */}
-                <button
+                <span
                     onClick={(e) => { e.stopPropagation(); onViewDetails(post); }}
-                    className="flex items-center gap-2 text-gray-500 hover:text-orange-600 transition-colors text-sm font-medium"
+                    role="button"
+                    tabIndex={0}
+                    className="flex items-center gap-1.5 text-gray-400 hover:text-orange-600 transition-colors text-xs font-medium cursor-pointer"
                 >
-                    <FiMessageCircle size={16} />
+                    <FiMessageCircle size={14} />
                     <span>{post.commentCount || 0} {post.commentCount === 1 ? 'reply' : 'replies'}</span>
-                </button>
+                </span>
 
                 {/* Right: Actions */}
                 <div className="flex items-center gap-2">
                     {/* Message Button */}
                     {canMessage && (
-                        <button
+                        <span
                             onClick={handleMessageClick}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white text-gray-700 border border-gray-200 hover:border-orange-300 hover:text-orange-600 transition-colors shadow-sm"
+                            role="button"
+                            tabIndex={0}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white text-gray-700 border border-gray-200 hover:border-orange-300 hover:text-orange-600 transition-colors shadow-sm cursor-pointer"
                         >
                             <FiSend size={12} />
                             Message
-                        </button>
+                        </span>
                     )}
 
                     {/* More Menu */}
                     <div className="relative">
-                        <button
+                        <span
                             ref={menuButtonRef}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -184,10 +183,12 @@ const CommunityPostCard = ({ post, onViewDetails, onMessage, onEdit, onDelete, o
                                 }
                                 setShowMenu(!showMenu);
                             }}
-                            className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-white/50 transition-colors"
+                            role="button"
+                            tabIndex={0}
+                            className="p-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-white/50 transition-colors cursor-pointer inline-flex"
                         >
                             <FiMoreHorizontal size={16} />
-                        </button>
+                        </span>
 
                         {showMenu && createPortal(
                             <>

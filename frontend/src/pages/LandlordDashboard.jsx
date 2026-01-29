@@ -77,7 +77,7 @@ const LandlordDashboard = () => {
     <div className="relative min-h-screen w-full font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header & Title */}
-        <div className="text-center mb-8 sm:mb-12 cursor-default">
+        <div className="text-center mb-8 sm:mb-12 pt-24 sm:pt-16 cursor-default">
           <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-4 drop-shadow-md">
             Landlord Portal
           </h1>

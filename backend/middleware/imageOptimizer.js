@@ -1,15 +1,40 @@
 import sharp from 'sharp';
 import { v2 as cloudinary } from 'cloudinary';
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
 
-// Ensure Cloudinary is configured
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Check if we're in development mode
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+// Local uploads directory for development
+const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
+
+// Ensure uploads directory exists in development
+if (isDevelopment) {
+    if (!fs.existsSync(UPLOADS_DIR)) {
+        fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+    }
+    if (!fs.existsSync(path.join(UPLOADS_DIR, 'profiles'))) {
+        fs.mkdirSync(path.join(UPLOADS_DIR, 'profiles'), { recursive: true });
+    }
+    if (!fs.existsSync(path.join(UPLOADS_DIR, 'listings'))) {
+        fs.mkdirSync(path.join(UPLOADS_DIR, 'listings'), { recursive: true });
+    }
+    console.log('📁 Local uploads directory ready:', UPLOADS_DIR);
+}
+
+// Only configure Cloudinary in production
+if (!isDevelopment) {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+}
 
 /**
- * Upload buffer to Cloudinary using streams
+ * Upload buffer to Cloudinary using streams (production only)
  * @param {Buffer} buffer - Image buffer
  * @param {Object} options - Cloudinary upload options
  * @returns {Promise<Object>} - Cloudinary upload result
@@ -28,8 +53,29 @@ const uploadToCloudinary = (buffer, options = {}) => {
 };
 
 /**
+ * Save buffer to local file (development only)
+ * @param {Buffer} buffer - Image buffer
+ * @param {string} folder - Subfolder (profiles/listings)
+ * @returns {Object} - Local file info with path
+ */
+const saveToLocal = async (buffer, folder) => {
+    const filename = `${crypto.randomBytes(16).toString('hex')}.webp`;
+    const filepath = path.join(UPLOADS_DIR, folder, filename);
+    await fs.promises.writeFile(filepath, buffer);
+
+    // Return full URL including backend host so frontend can load the image
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5001';
+    const publicUrl = `${backendUrl}/uploads/${folder}/${filename}`;
+    return {
+        secure_url: publicUrl,
+        public_id: filename,
+    };
+};
+
+/**
  * Optimize Profile Photo
  * Resizes to 500x500 square, converts to WebP
+ * Uses local storage in development, Cloudinary in production
  */
 export const optimizeProfilePhoto = async (req, res, next) => {
     if (!req.file) return next();
@@ -40,12 +86,20 @@ export const optimizeProfilePhoto = async (req, res, next) => {
             .webp({ quality: 80 })
             .toBuffer();
 
-        const result = await uploadToCloudinary(optimizedBuffer, {
-            folder: 'collegio-profiles',
-            format: 'webp',
-        });
+        let result;
+        if (isDevelopment) {
+            // Save locally in development
+            result = await saveToLocal(optimizedBuffer, 'profiles');
+            console.log('📷 Profile photo saved locally:', result.secure_url);
+        } else {
+            // Upload to Cloudinary in production
+            result = await uploadToCloudinary(optimizedBuffer, {
+                folder: 'collegio-profiles',
+                format: 'webp',
+            });
+        }
 
-        // Update req.file with Cloudinary data so controller can use it transparently
+        // Update req.file with result data so controller can use it transparently
         req.file.path = result.secure_url;
         req.file.filename = result.public_id;
 
@@ -59,6 +113,7 @@ export const optimizeProfilePhoto = async (req, res, next) => {
 /**
  * Optimize Listing Images
  * Resizes to 1200x800, converts to WebP
+ * Uses local storage in development, Cloudinary in production
  */
 export const optimizeListingImages = async (req, res, next) => {
     if (!req.files || req.files.length === 0) return next();
@@ -70,10 +125,18 @@ export const optimizeListingImages = async (req, res, next) => {
                 .webp({ quality: 80 })
                 .toBuffer();
 
-            const result = await uploadToCloudinary(optimizedBuffer, {
-                folder: 'collegio-listings',
-                format: 'webp',
-            });
+            let result;
+            if (isDevelopment) {
+                // Save locally in development
+                result = await saveToLocal(optimizedBuffer, 'listings');
+                console.log('🏠 Listing image saved locally:', result.secure_url);
+            } else {
+                // Upload to Cloudinary in production
+                result = await uploadToCloudinary(optimizedBuffer, {
+                    folder: 'collegio-listings',
+                    format: 'webp',
+                });
+            }
 
             // Update file object properties that controllers expect
             file.path = result.secure_url;

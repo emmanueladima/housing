@@ -32,6 +32,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiePolicy from './pages/CookiePolicy';
 import ResetPassword from './pages/ResetPassword';
 import JoinByCode from './pages/JoinByCode';
+import ProfileEditMockup from './components/Profile/ProfileEditMockup';
 
 // Admin
 import AdminLayout from './components/Admin/AdminLayout';
@@ -136,7 +137,7 @@ function App() {
             path="/profile"
             element={
               <ProtectedRoute>
-                <Profile />
+                <ProfileEditMockup />
               </ProtectedRoute>
             }
           />
@@ -228,7 +229,15 @@ function App() {
             path="/settings"
             element={
               <ProtectedRoute>
-                <Settings />
+                <ProfileEditMockup />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/edit"
+            element={
+              <ProtectedRoute>
+                <ProfileEditMockup />
               </ProtectedRoute>
             }
           />
