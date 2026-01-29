@@ -459,3 +459,24 @@ export const boostMyProfile = async (req, res) => {
         });
     }
 };
+/**
+ * @desc    Get available vibe tags and constants
+ * @route   GET /api/lifestyle-profiles/constants
+ * @access  Private
+ */
+export const getConstants = async (req, res) => {
+    try {
+        const { VIBE_TAGS, HABIT_OPTONS } = await import('../config/constants.js');
+        res.json({
+            success: true,
+            vibeTags: VIBE_TAGS,
+            habitOptions: HABIT_OPTONS
+        });
+    } catch (error) {
+        console.error('Get constants error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error fetching constants',
+        });
+    }
+};

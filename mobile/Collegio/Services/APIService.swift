@@ -275,12 +275,12 @@ class APIService {
 
     // MARK: - Resources API
     func getVibeTags() async throws -> [String] {
-        struct VibesResponse: Decodable {
+        struct ConstantsResponse: Decodable {
             let success: Bool
-            let vibes: [String]
+            let vibeTags: [String]
         }
-        let response: VibesResponse = try await request("/resources/vibes")
-        return response.vibes
+        let response: ConstantsResponse = try await request("/lifestyle-profiles/constants")
+        return response.vibeTags
     }
     
     // MARK: - Community API

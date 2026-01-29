@@ -12,12 +12,16 @@ import {
   getSavedProfiles,
   saveCompatibilityTest,
   boostMyProfile,
+  getConstants,
 } from '../controllers/lifestyleProfileController.js';
 
 const router = express.Router();
 
 // All routes are protected
 router.use(protect);
+
+// Global Constants (must come before dynamic :id routes)
+router.get('/constants', getConstants);
 
 // Profile management
 router.get('/me', getMyProfile);

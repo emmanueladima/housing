@@ -147,10 +147,15 @@ const lifestyleProfileService = {
     return data;
   },
 
-  // Update compatibility test answers
   updateCompatibility: async (answers) => {
     const { data } = await api.post('/lifestyle-profiles/compatibility-test', { answers });
     return data.profile;
+  },
+
+  // Get constants (vibe tags, etc)
+  getConstants: async () => {
+    const { data } = await api.get('/lifestyle-profiles/constants');
+    return data;
   },
 };
 

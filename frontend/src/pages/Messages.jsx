@@ -2,16 +2,18 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import ConversationList from '../components/Messages/ConversationList';
 import ChatWindow from '../components/Messages/ChatWindow';
+import UserSearchModal from '../components/Messages/UserSearchModal';
 import { useAuth } from '../contexts/AuthContext';
 import { ThreadProvider, useThreads } from '../contexts/ThreadContext';
 import messageService from '../services/messageService';
-import { FiMessageSquare, FiInbox, FiSend } from 'react-icons/fi';
+import { FiMessageSquare, FiInbox, FiSend, FiEdit } from 'react-icons/fi';
 
 
 const MessagesContent = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { activeThreadId, setActiveThreadId } = useThreads();
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 768);
+  const [showUserSearch, setShowUserSearch] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,6 +65,21 @@ const MessagesContent = () => {
     setActiveThreadId(null);
   };
 
+  const handleSelectUser = async (user) => {
+    try {
+      const thread = await messageService.createThread({
+        type: 'dm',
+        participantIds: [user._id]
+      });
+      if (thread && thread._id) {
+        setActiveThreadId(thread._id);
+        setSearchParams({ thread: thread._id });
+      }
+    } catch (error) {
+      console.error('Error creating thread:', error);
+    }
+  };
+
   // Mobile view
   if (isMobileView) {
     return (
@@ -76,14 +93,23 @@ const MessagesContent = () => {
             {/* Mobile Header */}
             <div className="relative pt-24 pb-8">
               <div className="relative z-10 max-w-7xl mx-auto px-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30">
-                    <FiMessageSquare className="text-white" size={28} />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30">
+                      <FiMessageSquare className="text-white" size={28} />
+                    </div>
+                    <div>
+                      <h1 className="text-3xl font-black text-white">Messages</h1>
+                      <p className="text-white/80 text-sm">Your conversations</p>
+                    </div>
                   </div>
-                  <div>
-                    <h1 className="text-3xl font-black text-white">Messages</h1>
-                    <p className="text-white/80 text-sm">Your conversations</p>
-                  </div>
+                  {/* Compose Button */}
+                  <button
+                    onClick={() => setShowUserSearch(true)}
+                    className="p-3 bg-orange-500 rounded-full shadow-lg hover:bg-orange-600 transition-colors"
+                  >
+                    <FiEdit className="text-white" size={20} />
+                  </button>
                 </div>
               </div>
             </div>
@@ -94,6 +120,11 @@ const MessagesContent = () => {
             </div>
           </div>
         )}
+        <UserSearchModal
+          isOpen={showUserSearch}
+          onClose={() => setShowUserSearch(false)}
+          onSelectUser={handleSelectUser}
+        />
       </div>
     );
   }
@@ -104,14 +135,24 @@ const MessagesContent = () => {
       {/* Hero Header */}
       <div className="relative pt-28 pb-16">
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl shadow-lg border border-white/30">
-              <FiMessageSquare className="text-white" size={32} />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl shadow-lg border border-white/30">
+                <FiMessageSquare className="text-white" size={32} />
+              </div>
+              <div>
+                <h1 className="text-4xl font-black text-white">Messages</h1>
+                <p className="text-white/80 mt-1">Connect with landlords and roommates</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-4xl font-black text-white">Messages</h1>
-              <p className="text-white/80 mt-1">Connect with landlords and roommates</p>
-            </div>
+            {/* Compose Button */}
+            <button
+              onClick={() => setShowUserSearch(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-orange-500 rounded-xl shadow-lg hover:bg-orange-600 transition-colors font-bold text-white"
+            >
+              <FiEdit size={18} />
+              Compose
+            </button>
           </div>
         </div>
       </div>
@@ -144,6 +185,11 @@ const MessagesContent = () => {
           </div>
         </div>
       </div>
+      <UserSearchModal
+        isOpen={showUserSearch}
+        onClose={() => setShowUserSearch(false)}
+        onSelectUser={handleSelectUser}
+      />
     </div>
   );
 };
