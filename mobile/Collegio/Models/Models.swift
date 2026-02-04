@@ -118,11 +118,11 @@ struct Listing: Identifiable, Codable {
 // MARK: - User Model
 struct User: Identifiable, Codable {
     let id: String
-    let email: String
-    let firstName: String
-    let lastName: String
+    let email: String?
+    let firstName: String?
+    let lastName: String?
     let profileImage: String?
-    let userType: UserType? // Optional - not always included in nested populates
+    let userType: UserType?
     var isVerified: Bool?
     var hasLifestyleProfile: Bool?
     let phone: String?
@@ -130,12 +130,12 @@ struct User: Identifiable, Codable {
     let graduationYear: Int?
     
     var fullName: String {
-        "\(firstName) \(lastName)"
+        [firstName, lastName].compactMap { $0 }.joined(separator: " ")
     }
     
     var initials: String {
-        let first = firstName.prefix(1).uppercased()
-        let last = lastName.prefix(1).uppercased()
+        let first = (firstName?.prefix(1) ?? "").uppercased()
+        let last = (lastName?.prefix(1) ?? "").uppercased()
         return "\(first)\(last)"
     }
 }
@@ -206,34 +206,94 @@ struct LifestyleProfile: Identifiable, Codable {
 // MARK: - Community Post
 struct CommunityPost: Identifiable, Codable {
     let id: String
-    let authorId: String
+    let authorId: String?
     let author: User?
     let channel: String
     let intent: String?
     let title: String
     let content: String
-    let likesCount: Int
-    let commentsCount: Int
-    let createdAt: Date
+    let likesCount: Int?
+    let commentsCount: Int?
+    let createdAt: Date?
     let isLiked: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case authorId = "author"  // Backend sends "author" - can be string ID or User object
+        case channel
+        case intent
+        case title
+        case content = "description"
+        case likesCount = "likeCount"
+        case commentsCount = "commentCount"
+        case createdAt
+        case isLiked
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        channel = try container.decode(String.self, forKey: .channel)
+        intent = try container.decodeIfPresent(String.self, forKey: .intent)
+        title = try container.decode(String.self, forKey: .title)
+        content = try container.decodeIfPresent(String.self, forKey: .content) ?? ""
+        likesCount = try container.decodeIfPresent(Int.self, forKey: .likesCount)
+        commentsCount = try container.decodeIfPresent(Int.self, forKey: .commentsCount)
+        createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt)
+        isLiked = try container.decodeIfPresent(Bool.self, forKey: .isLiked)
+        
+        // Handle author - can be either a string ID or a nested User object
+        if let authorUser = try? container.decode(User.self, forKey: .authorId) {
+            author = authorUser
+            authorId = authorUser.id
+        } else {
+            author = nil
+            authorId = try container.decodeIfPresent(String.self, forKey: .authorId)
+        }
+    }
+    
+    // Memberwise init for creating instances in code
+    init(id: String, authorId: String?, author: User?, channel: String, intent: String?, title: String, content: String, likesCount: Int?, commentsCount: Int?, createdAt: Date?, isLiked: Bool?) {
+        self.id = id
+        self.authorId = authorId
+        self.author = author
+        self.channel = channel
+        self.intent = intent
+        self.title = title
+        self.content = content
+        self.likesCount = likesCount
+        self.commentsCount = commentsCount
+        self.createdAt = createdAt
+        self.isLiked = isLiked
+    }
 }
 
 // MARK: - Message / Conversation
 struct Conversation: Identifiable, Codable {
     let id: String
     let participants: [User]
-    let lastMessage: Message?
+    let lastMessage: String?
+    let lastMessageAt: Date?
     let unreadCount: Int
-    let updatedAt: Date
+    let type: String?
 }
 
 struct Message: Identifiable, Codable {
     let id: String
-    let conversationId: String
-    let senderId: String
+    let threadId: String?
+    let sender: User?
     let content: String
     let createdAt: Date
-    let isRead: Bool
+    let attachments: [String]?
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case threadId = "thread"
+        case sender
+        case content
+        case createdAt
+        case attachments
+    }
 }
 
 // MARK: - Sample Data for Previews

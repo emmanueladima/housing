@@ -316,9 +316,13 @@ struct ListingCard: View {
                 } label: {
                     Image(systemName: isSaved ? "heart.fill" : "heart")
                         .font(.title3.weight(.semibold))
-                        .foregroundStyle(isSaved ? .red : .white)
+                        .foregroundStyle(isSaved ? .red : Color.collegioOrange)
                         .padding(10)
                         .background(.ultraThinMaterial, in: Circle())
+                        .overlay {
+                            Circle()
+                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                        }
                 }
                 .padding(12)
             }

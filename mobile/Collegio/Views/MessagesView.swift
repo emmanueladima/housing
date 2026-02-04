@@ -143,15 +143,15 @@ struct ConversationRowView: View {
                     
                     Spacer()
                     
-                    if let lastMessage = conversation.lastMessage {
-                        Text(timeAgoString(from: lastMessage.createdAt))
+                    if let lastMessageAt = conversation.lastMessageAt {
+                        Text(timeAgoString(from: lastMessageAt))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
                 
                 HStack {
-                    Text(conversation.lastMessage?.content ?? "No messages yet")
+                    Text(conversation.lastMessage ?? "No messages yet")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)

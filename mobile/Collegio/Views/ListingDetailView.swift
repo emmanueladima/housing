@@ -136,7 +136,7 @@ struct ListingDetailView: View {
                     } label: {
                         Image(systemName: isSaved ? "heart.fill" : "heart")
                             .font(.body.weight(.medium))
-                            .foregroundStyle(isSaved ? .red : .primary)
+                            .foregroundStyle(isSaved ? .red : Color.collegioOrange)
                     }
                     
                     // Report Menu

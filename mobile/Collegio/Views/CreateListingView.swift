@@ -25,6 +25,8 @@ struct CreateListingView: View {
     @State private var selectedAmenities: Set<String> = []
     @State private var selectedImages: [UIImage] = []
     @State private var showImagePicker = false
+    @State private var errorMessage: String?
+    @State private var showError = false
     
     private let totalSteps = 5
     
@@ -68,6 +70,11 @@ struct CreateListingView: View {
             }
             .sheet(isPresented: $showImagePicker) {
                 ImagePickerView(selectedImages: $selectedImages)
+            }
+            .alert("Error", isPresented: $showError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(errorMessage ?? "Something went wrong")
             }
         }
     }
@@ -122,24 +129,16 @@ struct CreateListingView: View {
                 TextField("e.g. Spacious 2BR near Campus", text: $title)
                     .textFieldStyle(.plain)
                     .padding()
-                    .background(Color.clear)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.primary.opacity(0.2), lineWidth: 1)
-                    )
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
             }
             
             // Description
             FormField(label: "Description", required: true) {
                 TextEditor(text: $listingDescription)
+                    .scrollContentBackground(.hidden)
                     .frame(height: 120)
-                    .padding(8)
-                    .padding(8)
-                    .background(Color.clear)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.primary.opacity(0.2), lineWidth: 1)
-                    )
+                    .padding(12)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
             }
             
             // Sublease Toggle
@@ -154,7 +153,7 @@ struct CreateListingView: View {
             }
             .tint(Color.collegioOrange)
             .padding()
-            .background(Color.collegioOrange.opacity(0.1), in: RoundedRectangle(cornerRadius: 16))
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
         }
     }
     
@@ -187,36 +186,40 @@ struct CreateListingView: View {
                         }
                     }
                 
-                // Suggestions List
+                // Address Suggestions Dropdown
                 if showSuggestions && !suggestions.isEmpty {
-                    ScrollView {
-                        LazyVStack(alignment: .leading, spacing: 0) {
-                            ForEach(suggestions) { suggestion in
-                                Button(action: { selectAddress(suggestion) }) {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(suggestion.text)
-                                            .font(.body.weight(.medium))
-                                            .foregroundStyle(.primary)
-                                        Text(suggestion.placeName)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    .padding()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(Color.white.opacity(0.01)) // Tappable area
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(suggestions) { suggestion in
+                            Button {
+                                selectAddress(suggestion)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    // Street name (bold)
+                                    Text(suggestion.text)
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(.primary)
+                                    // Full address (secondary)
+                                    Text(suggestion.placeName)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
                                 }
-                                .buttonStyle(.plain)
-                                Divider()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.vertical, 10)
+                                .padding(.horizontal, 14)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            
+                            if suggestion.id != suggestions.last?.id {
+                                Divider().padding(.horizontal, 14)
                             }
                         }
                     }
-                    .frame(maxHeight: 200)
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .shadow(radius: 4)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .shadow(color: .black.opacity(0.2), radius: 6, y: 3)
                 }
             }
-            .zIndex(1) // Keep suggestions on top
             
             HStack(spacing: 12) {
                 FormField(label: "City", required: true) {
@@ -328,7 +331,14 @@ struct CreateListingView: View {
     private var detailsStep: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(spacing: 12) {
-                FormField(label: "Monthly Rent", required: true) {
+                // Monthly Rent - 50% width
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 4) {
+                        Text("Monthly Rent")
+                            .font(.subheadline.weight(.semibold))
+                        Text("*")
+                            .foregroundStyle(.red)
+                    }
                     HStack {
                         Text("$")
                             .foregroundStyle(.secondary)
@@ -338,18 +348,25 @@ struct CreateListingView: View {
                     .padding()
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
                 }
+                .frame(maxWidth: .infinity)
                 
-                FormField(label: "Lease Term") {
+                // Lease Term - 50% width
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Lease Term")
+                        .font(.subheadline.weight(.semibold))
                     Picker("", selection: $leaseTerm) {
-                        Text("Academic Year").tag("academic-year")
                         Text("1 Year").tag("1-year")
-                        Text("6 Months").tag("6-months")
-                        Text("Month-to-Month").tag("month-to-month")
+                        Text("6 Mo").tag("6-months")
+                        Text("Monthly").tag("month-to-month")
                     }
                     .pickerStyle(.menu)
+                    .frame(maxWidth: .infinity)
                     .padding()
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .lineLimit(1)
+                    .truncationMode(.tail)
                 }
+                .frame(maxWidth: .infinity)
             }
             
             HStack(spacing: 12) {
@@ -542,10 +559,79 @@ struct CreateListingView: View {
     
     private func submitListing() {
         isLoading = true
-        // TODO: Submit to API
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            isLoading = false
-            dismiss()
+        
+        Task {
+            do {
+                // Build the listing data
+                let listingData: [String: Any] = [
+                    "title": title,
+                    "description": listingDescription,
+                    "isSublease": isSublease,
+                    "address": address.isEmpty ? addressQuery : address,
+                    "city": city,
+                    "state": state,
+                    "zipCode": zipCode,
+                    "university": university,
+                    "rent": Int(rent) ?? 0,
+                    "leaseTerm": leaseTerm,
+                    "bedrooms": Int(bedrooms) ?? 0,
+                    "bathrooms": Double(bathrooms) ?? 1.0,
+                    "sqft": Int(sqft) ?? 0,
+                    "availableDate": ISO8601DateFormatter().string(from: availableDate),
+                    "amenities": Array(selectedAmenities)
+                ]
+                
+                let jsonData = try JSONSerialization.data(withJSONObject: listingData)
+                
+                guard let url = URL(string: "\(APIConfig.baseURL)/listings") else {
+                    throw APIError.invalidURL
+                }
+                
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                
+                // Add auth token
+                if let token = UserDefaults.standard.string(forKey: "authToken") {
+                    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+                }
+                
+                request.httpBody = jsonData
+                
+                let (data, response) = try await URLSession.shared.data(for: request)
+                
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    throw APIError.serverError("Invalid response")
+                }
+                
+                // Parse response to get error message if failed
+                if !(200...299).contains(httpResponse.statusCode) {
+                    // Try to parse error from server
+                    if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                       let errorMsg = json["error"] as? String {
+                        throw APIError.serverError(errorMsg)
+                    }
+                    throw APIError.serverError("Server error: \(httpResponse.statusCode)")
+                }
+                
+                // Success! Log what we got
+                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    print("Listing created successfully: \(json)")
+                }
+                
+                // Dismiss on success
+                await MainActor.run {
+                    isLoading = false
+                    dismiss()
+                }
+            } catch {
+                print("Error creating listing: \(error)")
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = error.localizedDescription
+                    showError = true
+                }
+            }
         }
     }
 }
@@ -635,18 +721,15 @@ struct AmenityButton: View {
                 Text(amenity.label)
                     .font(.subheadline.weight(.medium))
                 Spacer()
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Color.collegioOrange)
-                }
             }
+            .foregroundStyle(isSelected ? .white : .primary)
             .padding()
-            .background(isSelected ? Color.collegioOrange.opacity(0.15) : Color.gray.opacity(0.1))
-            .overlay {
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(isSelected ? Color.collegioOrange : Color.clear, lineWidth: 2)
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .background(
+                isSelected
+                    ? LinearGradient(colors: [Color.collegioOrange, Color.collegioOrangeLight], startPoint: .leading, endPoint: .trailing)
+                    : LinearGradient(colors: [Color.gray.opacity(0.15), Color.gray.opacity(0.15)], startPoint: .leading, endPoint: .trailing),
+                in: RoundedRectangle(cornerRadius: 12)
+            )
         }
         .buttonStyle(.plain)
     }

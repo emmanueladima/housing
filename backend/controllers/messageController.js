@@ -209,3 +209,67 @@ export const getUnreadCount = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get all conversations for current user
+ * @route   GET /api/messages/conversations
+ * @access  Private
+ */
+export const getConversations = async (req, res) => {
+  try {
+    // Find all threads the user participates in
+    const participations = await ThreadParticipant.find({ user: req.user._id })
+      .populate({
+        path: 'thread',
+        populate: [
+          {
+            path: 'lastMessage',
+            select: 'content sender createdAt'
+          }
+        ]
+      });
+
+    // Get conversations with other participants
+    const conversations = await Promise.all(
+      participations.map(async (p) => {
+        if (!p.thread) return null;
+
+        // Get other participants in this thread
+        const otherParticipants = await ThreadParticipant.find({
+          thread: p.thread._id,
+          user: { $ne: req.user._id }
+        }).populate('user', 'firstName lastName email avatarUrl');
+
+        // Calculate unread count
+        const unreadCount = p.thread.lastMessageAt > p.lastReadAt ? 1 : 0;
+
+        return {
+          id: p.thread._id,
+          participants: otherParticipants.map(op => ({
+            id: op.user._id,
+            firstName: op.user.firstName,
+            lastName: op.user.lastName,
+            email: op.user.email,
+            avatarUrl: op.user.avatarUrl
+          })),
+          lastMessage: p.thread.lastMessage?.content || '',
+          lastMessageAt: p.thread.lastMessageAt || p.thread.createdAt,
+          unreadCount,
+          type: p.thread.type
+        };
+      })
+    );
+
+    // Filter out null and sort by most recent
+    const validConversations = conversations
+      .filter(c => c !== null)
+      .sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt));
+
+    res.json(validConversations);
+  } catch (error) {
+    console.error('Get conversations error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error fetching conversations',
+    });
+  }
+};

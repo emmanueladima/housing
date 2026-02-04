@@ -285,12 +285,18 @@ class APIService {
     
     // MARK: - Community API
     func getCommunityPosts(channel: String? = nil) async throws -> [CommunityPost] {
+        struct PostsResponse: Decodable {
+            let success: Bool
+            let posts: [CommunityPost]
+        }
         let endpoint = channel != nil ? "/community/posts?channel=\(channel!)" : "/community/posts"
-        return try await request(endpoint)
+        let response: PostsResponse = try await request(endpoint)
+        return response.posts
     }
     
     // MARK: - Messages API
     func getConversations() async throws -> [Conversation] {
+        // Backend returns array directly
         try await request("/messages/conversations")
     }
     
