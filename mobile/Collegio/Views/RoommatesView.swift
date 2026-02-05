@@ -4,6 +4,20 @@ struct RoommatesView: View {
     @StateObject private var viewModel = RoommatesViewModel()
     @State private var selectedTab = 0
     @State private var showCreateGroup = false
+    @State private var searchText = ""
+    
+    // Filtered profiles based on search
+    var filteredProfiles: [LifestyleProfile] {
+        if searchText.isEmpty {
+            return viewModel.profiles
+        }
+        return viewModel.profiles.filter { profile in
+            let name = profile.user?.fullName.lowercased() ?? ""
+            let bio = profile.bio?.lowercased() ?? ""
+            let query = searchText.lowercased()
+            return name.contains(query) || bio.contains(query)
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -11,6 +25,18 @@ struct RoommatesView: View {
                 GradientBackground()
                 
                 VStack(spacing: 0) {
+                    // Search Bar
+                    HStack(spacing: 12) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+                        TextField("Search by name or bio...", text: $searchText)
+                            .textFieldStyle(.plain)
+                    }
+                    .padding(12)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    
                     // Segmented Control
                     Picker("View", selection: $selectedTab) {
                         Text("Solo").tag(0)
@@ -63,10 +89,10 @@ struct RoommatesView: View {
                 if viewModel.isLoadingProfiles {
                     ProgressView()
                         .padding(.top, 40)
-                } else if viewModel.profiles.isEmpty {
-                    emptyState(icon: "person.2", title: "No Profiles Yet", subtitle: "Be the first to create a roommate profile!")
+                } else if filteredProfiles.isEmpty {
+                    emptyState(icon: "person.2", title: searchText.isEmpty ? "No Profiles Yet" : "No Results", subtitle: searchText.isEmpty ? "Be the first to create a roommate profile!" : "Try a different search")
                 } else {
-                    ForEach(viewModel.profiles) { profile in
+                    ForEach(filteredProfiles) { profile in
                         NavigationLink(destination: RoommateDetailsView(profile: profile)) {
                             RoommateCard(profile: profile)
                         }
@@ -124,26 +150,41 @@ struct GroupCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                // Member Avatars (overlapping)
+                // Member Avatars (overlapping) - use orange gradient
                 HStack(spacing: -12) {
                     ForEach(Array((group.members ?? []).prefix(3).enumerated()), id: \.offset) { index, member in
                         Circle()
-                            .fill(Color.collegioBlue.opacity(0.3))
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.collegioOrange, Color.collegioOrangeDark],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
                             .frame(width: 40, height: 40)
                             .overlay {
                                 Text(member.firstName?.prefix(1) ?? "?")
                                     .font(.caption.bold())
+                                    .foregroundStyle(.white)
                             }
-                            .overlay(Circle().stroke(.white, lineWidth: 2))
+                            .overlay(Circle().stroke(.white.opacity(0.3), lineWidth: 2))
                     }
                 }
                 
                 Spacer()
                 
+                // Looking for badge - orange
                 if let lookingFor = group.lookingFor {
-                    Text("Looking for \(lookingFor)")
-                        .font(.subheadline.bold())
-                        .foregroundStyle(Color.collegioOrange)
+                    HStack(spacing: 4) {
+                        Text("\(lookingFor)")
+                            .font(.subheadline.bold())
+                        Image(systemName: "graduationcap.fill")
+                            .font(.caption2)
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color.collegioOrange, in: Capsule())
                 }
             }
             
@@ -156,10 +197,24 @@ struct GroupCardView: View {
                     .foregroundStyle(.secondary)
             }
             
+            // Lifestyle/preference tags - use dark/gray styling for non-vibe tags
+            HStack(spacing: 8) {
+                // Budget range - dark style
+                if let budget = group.budget, let min = budget.min, let max = budget.max {
+                    LifestyleTag(icon: "dollarsign.circle.fill", text: "$\(min)-\(max)", color: .secondary)
+                }
+            }
+            
+            // Vibe tags - orange styling
             if let vibes = group.vibe, !vibes.isEmpty {
                 HStack(spacing: 8) {
                     ForEach(vibes.prefix(3), id: \.self) { vibe in
-                        TagView(text: vibe)
+                        Text(vibe)
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(Color.collegioOrange)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.collegioOrange.opacity(0.12), in: Capsule())
                     }
                 }
             }
@@ -169,61 +224,155 @@ struct GroupCardView: View {
     }
 }
 
-// MARK: - Roommate Card
+// MARK: - Roommate Card (Redesigned)
 struct RoommateCard: View {
     let profile: LifestyleProfile
+    @Environment(\.colorScheme) private var colorScheme
+    
+    // Use consistent orange theming
+    private var accentColor: Color {
+        return Color.collegioOrange
+    }
     
     var body: some View {
-        HStack(spacing: 16) {
-            // Avatar
-            Circle()
-                .fill(Color.collegioOrange.opacity(0.2))
-                .frame(width: 60, height: 60)
-                .overlay {
+        VStack(alignment: .leading, spacing: 0) {
+            // Top Section with Avatar and Name
+            HStack(spacing: 14) {
+                // Gradient Avatar
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [accentColor, accentColor.opacity(0.6)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 56, height: 56)
+                    
                     Text(profile.user?.initials ?? "??")
-                        .font(.title2.bold())
-                        .foregroundStyle(Color.collegioOrange)
-                }
-            
-            // Info
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(profile.user?.fullName ?? "Anonymous")
-                        .font(.headline)
-                    
-                    Spacer()
-                    
-                    // Age badge instead of matchScore
-                    if let age = profile.age {
-                        Text("\(age)yo")
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.green)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(.green.opacity(0.15), in: Capsule())
-                    }
+                        .font(.title3.bold())
+                        .foregroundStyle(.white)
                 }
                 
-                if let bio = profile.bio {
-                    Text(bio)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-                
-                // Tags - using new field names
-                HStack(spacing: 8) {
-                    if let sleep = profile.sleepTime {
-                        TagView(text: sleep, icon: "moon.fill")
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(profile.user?.fullName ?? "Anonymous")
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                        
+                        Spacer()
+                        
+                        // Age + School Badge
+                        if let age = profile.age {
+                            HStack(spacing: 4) {
+                                Text("\(age)")
+                                    .font(.subheadline.bold())
+                                Image(systemName: "graduationcap.fill")
+                                    .font(.caption2)
+                            }
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(accentColor, in: Capsule())
+                        }
                     }
-                    if let noise = profile.noiseLevel {
-                        TagView(text: "\(noise)/10", icon: "speaker.wave.2.fill")
+                    
+                    // Bio snippet
+                    if let bio = profile.bio, !bio.isEmpty {
+                        Text(bio)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
                     }
                 }
             }
+            .padding(16)
+            
+            // Divider with gradient
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        colors: [accentColor.opacity(0.3), accentColor.opacity(0.1), .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .frame(height: 2)
+            
+            // Bottom Section - Lifestyle Tags (use subtle dark/gray styling)
+            HStack(spacing: 10) {
+                // Sleep Time - dark styling
+                if let sleep = profile.sleepTime {
+                    LifestyleTag(icon: "bed.double.fill", text: sleep, color: .secondary)
+                }
+                
+                // Noise Level - dark styling
+                if let noise = profile.noiseLevel {
+                    LifestyleTag(icon: "speaker.wave.2.fill", text: "\(noise)/10", color: .secondary)
+                }
+                
+                // Cleanliness - dark styling
+                if let clean = profile.cleanliness {
+                    LifestyleTag(icon: "hands.and.sparkles.fill", text: "\(clean)/10", color: .secondary)
+                }
+                
+                Spacer()
+                
+                // Message hint
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            
+            // Interests/Vibes (if available)
+            if let vibes = profile.vibeTags, !vibes.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(vibes.prefix(4), id: \.self) { vibe in
+                            Text(vibe)
+                                .font(.caption2.weight(.medium))
+                                .foregroundStyle(accentColor)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(accentColor.opacity(0.12), in: Capsule())
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                }
+                .padding(.bottom, 12)
+            }
         }
-        .padding(16)
-        .glassCard()
+        .background {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(.ultraThinMaterial)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(accentColor.opacity(0.2), lineWidth: 1)
+                }
+        }
+    }
+}
+
+// MARK: - Lifestyle Tag Component
+struct LifestyleTag: View {
+    let icon: String
+    let text: String
+    let color: Color
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.caption2)
+            Text(text)
+                .font(.caption.weight(.medium))
+        }
+        .foregroundStyle(color)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(color.opacity(0.12), in: Capsule())
     }
 }
 

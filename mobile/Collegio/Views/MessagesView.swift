@@ -187,40 +187,91 @@ struct ConversationRowView: View {
     }
 }
 
-// MARK: - Chat View (Placeholder)
+// MARK: - Chat View
 struct ChatView: View {
     let conversation: Conversation
+    @State private var messages: [Message] = []
     @State private var messageText = ""
+    @State private var isLoading = true
     @State private var showReportSheet = false
+    @FocusState private var isInputFocused: Bool
+    
+    private var currentUserId: String? {
+        UserDefaults.standard.string(forKey: "userId")
+    }
     
     var body: some View {
         ZStack {
             GradientBackground()
             
-            VStack {
-                // Messages would go here
-                Spacer()
-                
-                Text("Chat with \(conversation.participants.first?.fullName ?? "User")")
-                    .foregroundStyle(.secondary)
-                
-                Spacer()
+            VStack(spacing: 0) {
+                if isLoading {
+                    Spacer()
+                    ProgressView()
+                        .scaleEffect(1.2)
+                    Text("Loading messages...")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 8)
+                    Spacer()
+                } else if messages.isEmpty {
+                    Spacer()
+                    VStack(spacing: 12) {
+                        Image(systemName: "bubble.left.and.bubble.right")
+                            .font(.system(size: 40))
+                            .foregroundStyle(.secondary)
+                        Text("No messages yet")
+                            .font(.headline)
+                        Text("Start the conversation!")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                } else {
+                    // Messages List
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            LazyVStack(spacing: 12) {
+                                ForEach(Array(messages.enumerated()), id: \.element.id) { index, message in
+                                    let previousMessage = index > 0 ? messages[index - 1] : nil
+                                    MessageBubble(
+                                        message: message,
+                                        isFromCurrentUser: message.sender?.id == currentUserId,
+                                        previousMessage: previousMessage
+                                    )
+                                    .id(message.id)
+                                }
+                            }
+                            .padding()
+                        }
+                        .onChange(of: messages.count) { _, _ in
+                            if let lastMessage = messages.last {
+                                withAnimation {
+                                    proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                                }
+                            }
+                        }
+                    }
+                }
                 
                 // Message Input
                 HStack(spacing: 12) {
                     TextField("Type a message...", text: $messageText)
                         .padding(12)
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+                        .focused($isInputFocused)
                     
-                    Button(action: {}) {
+                    Button(action: sendMessage) {
                         Image(systemName: "paperplane.fill")
                             .font(.title3)
                             .foregroundStyle(.white)
                             .padding(12)
-                            .background(Color.collegioOrange, in: Circle())
+                            .background(messageText.isEmpty ? Color.gray : Color.collegioOrange, in: Circle())
                     }
+                    .disabled(messageText.isEmpty)
                 }
                 .padding()
+                .background(.ultraThinMaterial)
             }
         }
         .navigationTitle(conversation.participants.first?.fullName ?? "Chat")
@@ -241,6 +292,76 @@ struct ChatView: View {
         }
         .sheet(isPresented: $showReportSheet) {
             MessageReportSheet(conversationId: conversation.id)
+        }
+        .task {
+            await loadMessages()
+        }
+    }
+    
+    private func loadMessages() async {
+        isLoading = true
+        do {
+            messages = try await APIService.shared.getMessages(threadId: conversation.id)
+        } catch {
+            print("Error loading messages: \(error)")
+        }
+        isLoading = false
+    }
+    
+    private func sendMessage() {
+        guard !messageText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        
+        // Optimistic update - add message locally
+        let newMessage = Message(
+            id: UUID().uuidString,
+            threadId: conversation.id,
+            sender: nil, // Will be populated by backend
+            content: messageText,
+            createdAt: Date(),
+            attachments: nil
+        )
+        messages.append(newMessage)
+        messageText = ""
+        isInputFocused = false
+        
+        // TODO: Send to backend
+    }
+}
+
+// MARK: - Message Bubble
+struct MessageBubble: View {
+    let message: Message
+    let isFromCurrentUser: Bool
+    var previousMessage: Message? = nil
+    
+    // Show timestamp only if gap > 5 minutes from previous message
+    private var shouldShowTimestamp: Bool {
+        guard let previous = previousMessage else {
+            return true // Always show for first message
+        }
+        let timeGap = message.createdAt.timeIntervalSince(previous.createdAt)
+        return timeGap > 300 // 5 minutes = 300 seconds
+    }
+    
+    var body: some View {
+        HStack {
+            if isFromCurrentUser { Spacer() }
+            
+            VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: 4) {
+                Text(message.content)
+                    .padding(12)
+                    .background(isFromCurrentUser ? Color.collegioOrange : Color(.systemGray5))
+                    .foregroundStyle(isFromCurrentUser ? .white : .primary)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                
+                if shouldShowTimestamp {
+                    Text(message.createdAt.formatted(date: .omitted, time: .shortened))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            if !isFromCurrentUser { Spacer() }
         }
     }
 }

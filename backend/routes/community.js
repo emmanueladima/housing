@@ -10,7 +10,8 @@ import {
     deletePost,
     addComment,
     getComments,
-    reportPost
+    reportPost,
+    likePost
 } from '../controllers/communityController.js';
 
 const router = express.Router();
@@ -26,5 +27,6 @@ router.put('/posts/:id', protect, upload.array('images', 5), optimizeListingImag
 router.delete('/posts/:id', protect, deletePost);
 router.post('/posts/:id/comments', protect, addComment);
 router.post('/posts/:id/report', protect, reportPost);
+router.post('/posts/:id/like', protect, likePost);
 
 export default router;

@@ -20,7 +20,7 @@ struct SplashView: View {
                     Image("CollegioLogo")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 140, height: 140)
+                        .frame(width: 200, height: 200)
                         .opacity(logoOpacity)
                         .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 }

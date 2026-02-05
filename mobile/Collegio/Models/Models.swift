@@ -129,6 +129,87 @@ struct User: Identifiable, Codable {
     let school: String?
     let graduationYear: Int?
     
+    enum CodingKeys: String, CodingKey {
+        case id
+        case _id
+        case email
+        case firstName
+        case lastName
+        case profileImage
+        case userType
+        case isVerified
+        case hasLifestyleProfile
+        case phone
+        case school
+        case graduationYear
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // Handle both "id" and "_id" field names
+        if let mongoId = try container.decodeIfPresent(String.self, forKey: ._id) {
+            id = mongoId
+        } else if let plainId = try container.decodeIfPresent(String.self, forKey: .id) {
+            id = plainId
+        } else {
+            throw DecodingError.keyNotFound(CodingKeys.id, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Neither 'id' nor '_id' found"))
+        }
+        
+        email = try container.decodeIfPresent(String.self, forKey: .email)
+        firstName = try container.decodeIfPresent(String.self, forKey: .firstName)
+        lastName = try container.decodeIfPresent(String.self, forKey: .lastName)
+        profileImage = try container.decodeIfPresent(String.self, forKey: .profileImage)
+        userType = try container.decodeIfPresent(UserType.self, forKey: .userType)
+        isVerified = try container.decodeIfPresent(Bool.self, forKey: .isVerified)
+        hasLifestyleProfile = try container.decodeIfPresent(Bool.self, forKey: .hasLifestyleProfile)
+        phone = try container.decodeIfPresent(String.self, forKey: .phone)
+        school = try container.decodeIfPresent(String.self, forKey: .school)
+        graduationYear = try container.decodeIfPresent(Int.self, forKey: .graduationYear)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encodeIfPresent(email, forKey: .email)
+        try container.encodeIfPresent(firstName, forKey: .firstName)
+        try container.encodeIfPresent(lastName, forKey: .lastName)
+        try container.encodeIfPresent(profileImage, forKey: .profileImage)
+        try container.encodeIfPresent(userType, forKey: .userType)
+        try container.encodeIfPresent(isVerified, forKey: .isVerified)
+        try container.encodeIfPresent(hasLifestyleProfile, forKey: .hasLifestyleProfile)
+        try container.encodeIfPresent(phone, forKey: .phone)
+        try container.encodeIfPresent(school, forKey: .school)
+        try container.encodeIfPresent(graduationYear, forKey: .graduationYear)
+    }
+    
+    // Memberwise initializer for creating instances in code
+    init(
+        id: String,
+        email: String?,
+        firstName: String?,
+        lastName: String?,
+        profileImage: String?,
+        userType: UserType?,
+        isVerified: Bool?,
+        hasLifestyleProfile: Bool?,
+        phone: String?,
+        school: String?,
+        graduationYear: Int?
+    ) {
+        self.id = id
+        self.email = email
+        self.firstName = firstName
+        self.lastName = lastName
+        self.profileImage = profileImage
+        self.userType = userType
+        self.isVerified = isVerified
+        self.hasLifestyleProfile = hasLifestyleProfile
+        self.phone = phone
+        self.school = school
+        self.graduationYear = graduationYear
+    }
+    
     var fullName: String {
         [firstName, lastName].compactMap { $0 }.joined(separator: " ")
     }
@@ -293,6 +374,16 @@ struct Message: Identifiable, Codable {
         case content
         case createdAt
         case attachments
+    }
+    
+    // Memberwise init for creating instances in code
+    init(id: String, threadId: String?, sender: User?, content: String, createdAt: Date, attachments: [String]?) {
+        self.id = id
+        self.threadId = threadId
+        self.sender = sender
+        self.content = content
+        self.createdAt = createdAt
+        self.attachments = attachments
     }
 }
 

@@ -450,3 +450,43 @@ export const reportPost = async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 };
+
+// @desc    Toggle like on a post
+// @route   POST /api/community/posts/:id/like
+// @access  Private
+export const likePost = async (req, res) => {
+    try {
+        const post = await CommunityPost.findById(req.params.id);
+
+        if (!post) {
+            return res.status(404).json({
+                success: false,
+                error: 'Post not found'
+            });
+        }
+
+        const userId = req.user._id;
+        const isLiked = post.likes.includes(userId);
+
+        if (isLiked) {
+            // Remove like
+            post.likes = post.likes.filter(id => !id.equals(userId));
+            post.likesCount = Math.max(0, post.likes.length);
+        } else {
+            // Add like
+            post.likes.push(userId);
+            post.likesCount = post.likes.length;
+        }
+
+        await post.save();
+
+        res.json({
+            success: true,
+            isLiked: !isLiked,
+            likesCount: post.likesCount
+        });
+    } catch (error) {
+        console.error('Like post error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};

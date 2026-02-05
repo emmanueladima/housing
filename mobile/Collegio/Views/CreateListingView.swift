@@ -534,7 +534,6 @@ struct CreateListingView: View {
             .disabled(isLoading || !canProceed)
         }
         .padding()
-        .background(.ultraThinMaterial)
     }
     
     // MARK: - Validation

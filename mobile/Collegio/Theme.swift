@@ -70,17 +70,18 @@ struct FilterPillStyle: ViewModifier {
             .padding(.vertical, 16)
             .background {
                 Capsule()
-                    .fill(colorScheme == .dark ? Color.white.opacity(0.06) : Color.black.opacity(0.03))
+                    .fill(colorScheme == .dark ? Color.white.opacity(0.06) : Color.white)
             }
             .overlay {
                 Capsule()
                     .strokeBorder(
                         isActive 
                             ? Color.collegioOrange
-                            : (colorScheme == .dark ? Color.white.opacity(0.2) : Color.black.opacity(0.12)),
+                            : (colorScheme == .dark ? Color.white.opacity(0.2) : Color.black.opacity(0.15)),
                         lineWidth: isActive ? 2.5 : 1.0
                     )
             }
+            .shadow(color: colorScheme == .dark ? .clear : Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
             .foregroundStyle(colorScheme == .dark ? .white : .primary)
     }
 }
@@ -91,12 +92,9 @@ struct GradientBackground: View {
     
     var body: some View {
         if colorScheme == .dark {
-            LinearGradient(
-                colors: [Color.darkGradientStart, Color.darkGradientEnd, Color.collegioNavy.opacity(0.3)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // Pure black background for dark mode
+            Color.black
+                .ignoresSafeArea()
         } else {
             // Light mode: subtle warm gradient like website
             LinearGradient(

@@ -134,11 +134,13 @@ struct CommunityView: View {
 struct CommunityPostCard: View {
     let post: CommunityPost
     @State private var isLiked: Bool
+    @State private var likesCount: Int
     @State private var showReportSheet = false
     
     init(post: CommunityPost) {
         self.post = post
         _isLiked = State(initialValue: post.isLiked ?? false)
+        _likesCount = State(initialValue: post.likesCount ?? 0)
     }
     
     var body: some View {
@@ -157,7 +159,7 @@ struct CommunityPostCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(post.author?.fullName ?? "Anonymous")
                         .font(.subheadline.bold())
-                    Text(timeAgoString(from: post.createdAt))
+                    Text(timeAgoString(from: post.createdAt ?? Date()))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -184,11 +186,11 @@ struct CommunityPostCard: View {
             
             // Actions
             HStack(spacing: 24) {
-                Button(action: { isLiked.toggle() }) {
+                Button(action: { likePost() }) {
                     HStack(spacing: 6) {
                         Image(systemName: isLiked ? "heart.fill" : "heart")
-                            .foregroundStyle(isLiked ? .red : .secondary)
-                        Text("\(post.likesCount + (isLiked && !(post.isLiked ?? false) ? 1 : 0))")
+                            .foregroundStyle(Color.collegioOrange)
+                        Text("\(likesCount)")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -197,7 +199,7 @@ struct CommunityPostCard: View {
                 Button(action: {}) {
                     HStack(spacing: 6) {
                         Image(systemName: "bubble.left")
-                        Text("\(post.commentsCount)")
+                        Text("\(post.commentsCount ?? 0)")
                             .font(.subheadline)
                     }
                     .foregroundStyle(.secondary)
@@ -233,6 +235,32 @@ struct CommunityPostCard: View {
             return "\(Int(interval / 3600))h ago"
         } else {
             return "\(Int(interval / 86400))d ago"
+        }
+    }
+    
+    private func likePost() {
+        // Optimistic update
+        let wasLiked = isLiked
+        isLiked.toggle()
+        likesCount += isLiked ? 1 : -1
+        
+        // Call API
+        Task {
+            do {
+                let result = try await APIService.shared.likePost(postId: post.id)
+                // Update with actual server values
+                await MainActor.run {
+                    isLiked = result.isLiked
+                    likesCount = result.likesCount
+                }
+            } catch {
+                // Revert on error
+                await MainActor.run {
+                    isLiked = wasLiked
+                    likesCount += wasLiked ? 1 : -1
+                }
+                print("Like post error: \(error)")
+            }
         }
     }
 }

@@ -300,6 +300,15 @@ class APIService {
         try await request("/messages/conversations")
     }
     
+    func getMessages(threadId: String) async throws -> [Message] {
+        struct MessagesResponse: Decodable {
+            let success: Bool
+            let messages: [Message]
+        }
+        let response: MessagesResponse = try await request("/messages/\(threadId)")
+        return response.messages
+    }
+    
     // MARK: - Favorites API
     func getFavorites() async throws -> [Listing] {
         struct FavoritesResponse: Decodable {
@@ -317,5 +326,16 @@ class APIService {
         }
         let response: ToggleResponse = try await request("/listings/\(listingId)/favorite", method: "POST")
         return response.isFavorited
+    }
+    
+    // MARK: - Community Posts API
+    func likePost(postId: String) async throws -> (isLiked: Bool, likesCount: Int) {
+        struct LikeResponse: Decodable {
+            let success: Bool
+            let isLiked: Bool
+            let likesCount: Int
+        }
+        let response: LikeResponse = try await request("/community/posts/\(postId)/like", method: "POST")
+        return (response.isLiked, response.likesCount)
     }
 }

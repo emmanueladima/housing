@@ -4,6 +4,7 @@ struct HomeView: View {
     @StateObject private var viewModel = ListingsViewModel()
     @State private var searchText = ""
     @State private var selectedSort: SortOption = .newlyAdded
+    @Environment(\.colorScheme) private var colorScheme
     
     enum SortOption: String, CaseIterable {
         case newlyAdded = "Newly Added"
@@ -147,13 +148,14 @@ struct HomeView: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
-                        .background(Color.white.opacity(0.1))
+                        .background(colorScheme == .dark ? Color.white.opacity(0.1) : Color.white)
                         .foregroundStyle(selectedSort == option ? Color.collegioOrange : .primary)
                         .clipShape(Capsule())
                         .overlay {
                             Capsule()
-                                .stroke(selectedSort == option ? Color.collegioOrange : Color.white.opacity(0.2), lineWidth: selectedSort == option ? 2 : 1)
+                                .stroke(selectedSort == option ? Color.collegioOrange : (colorScheme == .dark ? Color.white.opacity(0.2) : Color.black.opacity(0.15)), lineWidth: selectedSort == option ? 2 : 1)
                         }
+                        .shadow(color: colorScheme == .dark ? .clear : Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
                     }
                     .buttonStyle(.plain)
                 }
@@ -247,7 +249,7 @@ struct HomeView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: 20) {
-                        ForEach(viewModel.listings) { listing in
+                        ForEach(sortedListings) { listing in
                             ListingCard(listing: listing)
                                 .onTapGesture {
                                     selectedListing = listing
@@ -259,6 +261,35 @@ struct HomeView: View {
                 }
             }
         }
+    }
+    
+    // MARK: - Sorted Listings
+    private var sortedListings: [Listing] {
+        var listings = viewModel.listings
+        
+        // Apply search filter first
+        if !searchText.isEmpty {
+            listings = listings.filter { listing in
+                listing.title.localizedCaseInsensitiveContains(searchText) ||
+                (listing.address?.localizedCaseInsensitiveContains(searchText) ?? false) ||
+                (listing.city?.localizedCaseInsensitiveContains(searchText) ?? false)
+            }
+        }
+        
+        // Apply sort
+        switch selectedSort {
+        case .newlyAdded:
+            listings.sort { ($0.createdAt ?? Date.distantPast) > ($1.createdAt ?? Date.distantPast) }
+        case .priceHighToLow:
+            listings.sort { ($0.rent ?? 0) > ($1.rent ?? 0) }
+        case .priceLowToHigh:
+            listings.sort { ($0.rent ?? 0) < ($1.rent ?? 0) }
+        case .mostPopular:
+            // Sort by favorites count or views (use favorites as proxy)
+            listings.sort { ($0.favoritesCount ?? 0) > ($1.favoritesCount ?? 0) }
+        }
+        
+        return listings
     }
 }
 
