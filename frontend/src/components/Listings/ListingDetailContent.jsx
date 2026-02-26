@@ -404,6 +404,12 @@ const ListingDetailContent = ({ listingId, onClose, isModal = false }) => {
                                     <h2 className="text-2xl font-bold mb-4 text-white">Description</h2>
                                     {/* Badges moved below heading */}
                                     <div className="flex flex-wrap gap-2 mb-4">
+                                        {/* Listing Type Badge */}
+                                        {(listing.listingType === 'private-room' || listing.listingType === 'shared-room') && (
+                                            <Badge variant="primary" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
+                                                {listing.listingType === 'private-room' ? 'Private Room' : 'Shared Room'}
+                                            </Badge>
+                                        )}
                                         {listing.isSublease && (
                                             <Badge variant="primary" className="bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg">
                                                 Student Sublet
@@ -430,6 +436,12 @@ const ListingDetailContent = ({ listingId, onClose, isModal = false }) => {
                                     <h2 className="text-2xl font-bold mb-4 text-gray-900">Description</h2>
                                     {/* Badges moved below heading */}
                                     <div className="flex flex-wrap gap-2 mb-4">
+                                        {/* Listing Type Badge */}
+                                        {(listing.listingType === 'private-room' || listing.listingType === 'shared-room') && (
+                                            <Badge variant="primary" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">
+                                                {listing.listingType === 'private-room' ? 'Private Room' : 'Shared Room'}
+                                            </Badge>
+                                        )}
                                         {listing.isSublease && (
                                             <Badge variant="primary" className="bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg">
                                                 Student Sublet

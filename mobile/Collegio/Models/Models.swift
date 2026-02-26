@@ -54,6 +54,21 @@ struct Listing: Identifiable, Codable {
     let rules: ListingRules?
     let university: String?
     let tags: [String]?
+    let listingType: String?
+    
+    // Computed property for display
+    var listingTypeDisplay: String {
+        switch listingType {
+        case "private-room": return "Private Room"
+        case "shared-room": return "Shared Room"
+        case "entire-place": return "Entire Place"
+        default: return "Entire Place"
+        }
+    }
+    
+    var isRoom: Bool {
+        listingType == "private-room" || listingType == "shared-room"
+    }
     
     // Map backend field names to iOS property names
     enum CodingKeys: String, CodingKey {
@@ -80,6 +95,7 @@ struct Listing: Identifiable, Codable {
         case rules
         case university
         case tags
+        case listingType
     }
     
     var imageUrl: String? { images?.first }
@@ -127,7 +143,9 @@ struct User: Identifiable, Codable {
     var hasLifestyleProfile: Bool?
     let phone: String?
     let school: String?
+
     let graduationYear: Int?
+    let username: String?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -141,7 +159,9 @@ struct User: Identifiable, Codable {
         case hasLifestyleProfile
         case phone
         case school
+
         case graduationYear
+        case username
     }
     
     init(from decoder: Decoder) throws {
@@ -165,7 +185,9 @@ struct User: Identifiable, Codable {
         hasLifestyleProfile = try container.decodeIfPresent(Bool.self, forKey: .hasLifestyleProfile)
         phone = try container.decodeIfPresent(String.self, forKey: .phone)
         school = try container.decodeIfPresent(String.self, forKey: .school)
+
         graduationYear = try container.decodeIfPresent(Int.self, forKey: .graduationYear)
+        username = try container.decodeIfPresent(String.self, forKey: .username)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -180,7 +202,9 @@ struct User: Identifiable, Codable {
         try container.encodeIfPresent(hasLifestyleProfile, forKey: .hasLifestyleProfile)
         try container.encodeIfPresent(phone, forKey: .phone)
         try container.encodeIfPresent(school, forKey: .school)
+
         try container.encodeIfPresent(graduationYear, forKey: .graduationYear)
+        try container.encodeIfPresent(username, forKey: .username)
     }
     
     // Memberwise initializer for creating instances in code
@@ -195,7 +219,9 @@ struct User: Identifiable, Codable {
         hasLifestyleProfile: Bool?,
         phone: String?,
         school: String?,
-        graduationYear: Int?
+
+        graduationYear: Int?,
+        username: String?
     ) {
         self.id = id
         self.email = email
@@ -207,7 +233,9 @@ struct User: Identifiable, Codable {
         self.hasLifestyleProfile = hasLifestyleProfile
         self.phone = phone
         self.school = school
+
         self.graduationYear = graduationYear
+        self.username = username
     }
     
     var fullName: String {
@@ -412,7 +440,8 @@ extension Listing {
         availableDate: Date(),
         rules: ListingRules(petsAllowed: false, smokingAllowed: false, partiesAllowed: false),
         university: "Oregon State University",
-        tags: ["apartment"]
+        tags: ["apartment"],
+        listingType: "entire-place"
     )
     
     static let samples = [
@@ -440,7 +469,8 @@ extension Listing {
             availableDate: nil,
             rules: nil,
             university: nil,
-            tags: nil
+            tags: nil,
+            listingType: "private-room"
         ),
         Listing(
             id: "sample3",
@@ -465,7 +495,8 @@ extension Listing {
             availableDate: nil,
             rules: nil,
             university: nil,
-            tags: nil
+            tags: nil,
+            listingType: nil
         )
     ]
 }
@@ -482,7 +513,9 @@ extension User {
         hasLifestyleProfile: true,
         phone: "555-123-4567",
         school: "Oregon State University",
-        graduationYear: 2026
+
+        graduationYear: 2026,
+        username: "jdoe"
     )
 }
 

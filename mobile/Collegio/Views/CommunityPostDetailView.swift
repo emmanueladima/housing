@@ -26,8 +26,8 @@ struct CommunityPostDetailView: View {
     init(post: CommunityPost) {
         self.post = post
         _isLiked = State(initialValue: post.isLiked ?? false)
-        _likesCount = State(initialValue: post.likesCount)
-        _commentsCount = State(initialValue: post.commentsCount)
+        _likesCount = State(initialValue: post.likesCount ?? 0)
+        _commentsCount = State(initialValue: post.commentsCount ?? 0)
     }
     
     var body: some View {
@@ -75,7 +75,7 @@ struct CommunityPostDetailView: View {
                                     .font(.subheadline.bold())
                                     .foregroundStyle(textPrimary)
                                 
-                                Text(post.createdAt, style: .relative)
+                                Text(post.createdAt != nil ? post.createdAt!.formatted(.relative(presentation: .named)) : "")
                                     .font(.caption)
                                     .foregroundStyle(textSecondary)
                             }
@@ -206,11 +206,10 @@ struct CommunityPostDetailView: View {
         .background(.thinMaterial)
     }
     
-    private func loadComments() async {
-        comments = [
-            PostComment(id: "c1", author: nil, content: "Great post! Very helpful.", createdAt: Date().addingTimeInterval(-3600)),
-            PostComment(id: "c2", author: nil, content: "I'm interested, please DM me!", createdAt: Date().addingTimeInterval(-1800))
-        ]
+    private func loadComments() {
+        // Start with empty array - comments will be loaded from API
+        comments = []
+        // Keep commentsCount from the post data (already set in init)
     }
     
     private func submitComment() {

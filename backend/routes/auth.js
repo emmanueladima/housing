@@ -11,6 +11,8 @@ import {
   updateProfilePhoto,
   forgotPassword,
   resetPassword,
+  changePassword,
+  deleteAccount,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 import { uploadSingleImage } from '../middleware/multer.js';
@@ -56,5 +58,7 @@ router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
 router.put('/profile-photo', protect, uploadSingleImage, optimizeProfilePhoto, updateProfilePhoto);
 router.post('/resend-verification', protect, resendVerification);
+router.post('/change-password', protect, changePassword);
+router.delete('/account', protect, deleteAccount);
 
 export default router;

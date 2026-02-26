@@ -10,6 +10,7 @@ struct CreateListingView: View {
     // Form Data
     @State private var title = ""
     @State private var listingDescription = ""
+    @State private var listingType = "entire-place"
     @State private var isSublease = false
     @State private var address = ""
     @State private var city = ""
@@ -139,6 +140,36 @@ struct CreateListingView: View {
                     .frame(height: 120)
                     .padding(12)
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            }
+            
+            // Listing Type Selection
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 4) {
+                    Text("What are you listing?")
+                        .font(.subheadline.weight(.semibold))
+                    Text("*")
+                        .foregroundStyle(.red)
+                }
+                
+                HStack(spacing: 12) {
+                    ListingTypeButton(
+                        title: "Entire Place",
+                        subtitle: "Whole apartment or house",
+                        icon: "house.fill",
+                        isSelected: listingType == "entire-place"
+                    ) {
+                        listingType = "entire-place"
+                    }
+                    
+                    ListingTypeButton(
+                        title: "Private Room",
+                        subtitle: "Room in a shared unit",
+                        icon: "bed.double.fill",
+                        isSelected: listingType == "private-room"
+                    ) {
+                        listingType = "private-room"
+                    }
+                }
             }
             
             // Sublease Toggle
@@ -355,9 +386,14 @@ struct CreateListingView: View {
                     Text("Lease Term")
                         .font(.subheadline.weight(.semibold))
                     Picker("", selection: $leaseTerm) {
+                        Text("Academic Year").tag("academic-year")
                         Text("1 Year").tag("1-year")
-                        Text("6 Mo").tag("6-months")
-                        Text("Monthly").tag("month-to-month")
+                        Text("6 Months").tag("6-months")
+                        Text("Fall Term").tag("fall-term")
+                        Text("Spring Term").tag("spring-term")
+                        Text("Summer Term").tag("summer-term")
+                        Text("Month-to-Month").tag("month-to-month")
+                        Text("Flexible").tag("flexible")
                     }
                     .pickerStyle(.menu)
                     .frame(maxWidth: .infinity)
@@ -565,6 +601,7 @@ struct CreateListingView: View {
                 let listingData: [String: Any] = [
                     "title": title,
                     "description": listingDescription,
+                    "listingType": listingType,
                     "isSublease": isSublease,
                     "address": address.isEmpty ? addressQuery : address,
                     "city": city,
@@ -703,6 +740,44 @@ enum Amenity: String, CaseIterable {
         case .elevator: return "arrow.up.arrow.down"
         case .balcony: return "sun.horizon.fill"
         }
+    }
+}
+
+// MARK: - Listing Type Button
+struct ListingTypeButton: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.title2)
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                Text(subtitle)
+                    .font(.caption2)
+                    .foregroundStyle(isSelected ? .white.opacity(0.8) : .secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .foregroundStyle(isSelected ? .white : .primary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
+            .background(
+                isSelected
+                    ? LinearGradient(colors: [Color.collegioOrange, Color.collegioOrangeLight], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    : LinearGradient(colors: [Color.gray.opacity(0.1), Color.gray.opacity(0.15)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                in: RoundedRectangle(cornerRadius: 16)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .strokeBorder(isSelected ? Color.collegioOrange : Color.clear, lineWidth: 2)
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 

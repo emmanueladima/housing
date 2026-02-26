@@ -76,8 +76,20 @@ const listingSchema = new mongoose.Schema({
   },
   leaseTerm: {
     type: String,
-    enum: ['month-to-month', '6-months', '1-year', 'academic-year'],
+    enum: ['month-to-month', '6-months', '1-year', 'academic-year', 'fall-term', 'spring-term', 'summer-term', 'flexible'],
     required: [true, 'Lease term is required'],
+  },
+  listingType: {
+    type: String,
+    enum: ['entire-place', 'private-room', 'shared-room'],
+    default: 'entire-place',
+    required: true,
+  },
+  roomDetails: {
+    isFurnished: { type: Boolean, default: false },
+    privateBathroom: { type: Boolean, default: false },
+    currentRoommates: { type: Number, default: 0 },
+    genderPreference: { type: String, enum: ['any', 'male', 'female', 'non-binary'], default: 'any' },
   },
   utilities: {
     water: { type: Boolean, default: false },

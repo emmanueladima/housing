@@ -525,3 +525,167 @@ export const resetPassword = async (req, res) => {
     });
   }
 };
+
+/**
+ * @desc    Change password (authenticated)
+ * @route   POST /api/auth/change-password
+ * @access  Private
+ */
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide current password and new password',
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'New password must be at least 6 characters',
+      });
+    }
+
+    // Find user with password field
+    const user = await User.findById(req.user._id).select('+password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    // Verify current password
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        error: 'Current password is incorrect',
+      });
+    }
+
+    // Update password (pre-save hook will hash it)
+    user.password = newPassword;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully',
+    });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error changing password',
+    });
+  }
+};
+
+/**
+ * @desc    Delete user account and all associated data
+ * @route   DELETE /api/auth/account
+ * @access  Private
+ */
+export const deleteAccount = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide your password to confirm account deletion',
+      });
+    }
+
+    // Find user with password field
+    const user = await User.findById(req.user._id).select('+password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found',
+      });
+    }
+
+    // Verify password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        error: 'Password is incorrect',
+      });
+    }
+
+    const userId = user._id;
+
+    // Dynamic imports to avoid circular dependencies
+    const { default: LifestyleProfile } = await import('../models/LifestyleProfile.js');
+    const { default: CommunityPost } = await import('../models/CommunityPost.js');
+    const { default: CommunityComment } = await import('../models/CommunityComment.js');
+    const { default: Application } = await import('../models/Application.js');
+    const { default: Listing } = await import('../models/Listing.js');
+    const { default: Message } = await import('../models/Message.js');
+    const { default: Thread } = await import('../models/Thread.js');
+    const { default: ThreadParticipant } = await import('../models/ThreadParticipant.js');
+    const { default: Match } = await import('../models/Match.js');
+    const { default: Report } = await import('../models/Report.js');
+    const { default: Review } = await import('../models/Review.js');
+    const { default: Notification } = await import('../models/Notification.js');
+    const { default: Feedback } = await import('../models/Feedback.js');
+    const { default: SavedSearch } = await import('../models/SavedSearch.js');
+    const { default: RoommateGroup } = await import('../models/RoommateGroup.js');
+
+    // Cascade delete all user data
+    await Promise.all([
+      LifestyleProfile.deleteMany({ user: userId }),
+      CommunityPost.deleteMany({ author: userId }),
+      CommunityComment.deleteMany({ author: userId }),
+      Application.deleteMany({ userId: userId }),
+      Listing.deleteMany({ landlord: userId }),
+      Message.deleteMany({ sender: userId }),
+      ThreadParticipant.deleteMany({ user: userId }),
+      Match.deleteMany({ $or: [{ user1: userId }, { user2: userId }] }),
+      Report.deleteMany({ $or: [{ reporter: userId }, { reportedUser: userId }] }),
+      Review.deleteMany({ user: userId }),
+      Notification.deleteMany({ user: userId }),
+      Feedback.deleteMany({ user: userId }),
+      SavedSearch.deleteMany({ user: userId }),
+    ]);
+
+    // Remove user from roommate groups (don't delete the group)
+    await RoommateGroup.updateMany(
+      { members: userId },
+      { $pull: { members: userId } }
+    );
+
+    // Transfer admin of groups where user is admin, or delete if solo
+    const adminGroups = await RoommateGroup.find({ admin: userId });
+    for (const group of adminGroups) {
+      if (group.members.length > 0) {
+        // Transfer admin to first remaining member
+        group.admin = group.members[0];
+        await group.save();
+      } else {
+        await RoommateGroup.findByIdAndDelete(group._id);
+      }
+    }
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+
+    res.json({
+      success: true,
+      message: 'Account and all associated data deleted successfully',
+    });
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error deleting account',
+    });
+  }
+};

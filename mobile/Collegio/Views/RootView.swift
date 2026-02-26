@@ -35,18 +35,19 @@ struct RootView: View {
     
     private var loadingView: some View {
         ZStack {
-            Color(red: 0.894, green: 0.886, blue: 0.867)
+            Color("LaunchBackground")
                 .ignoresSafeArea()
             
-            VStack(spacing: 20) {
-                Image("CollegioLogo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 100, height: 100)
-                
-                ProgressView()
-                    .tint(Color.collegioOrange)
-            }
+            // Logo centered exactly like LaunchScreen
+            Image("CollegioLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 140, height: 140)
+            
+            // ProgressView positioned below logo without affecting logo position
+            ProgressView()
+                .tint(Color.collegioOrange)
+                .offset(y: 100)
         }
     }
 }

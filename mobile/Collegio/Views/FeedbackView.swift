@@ -41,12 +41,13 @@ struct FeedbackView: View {
             }
         }
         .sheet(isPresented: $showCreateFeedback) {
-            CreateFeedbackView { newFeedback in
-                viewModel.addFeedback(newFeedback)
+            CreateFeedbackView { _, _ in
+                // Reload after submission
+                Task { await viewModel.loadFeedback() }
             }
         }
-        .onAppear {
-            viewModel.loadSampleData()
+        .task {
+            await viewModel.loadFeedback()
         }
     }
     
@@ -98,11 +99,16 @@ struct FeedbackView: View {
                 ForEach(viewModel.feedbackItems) { item in
                     FeedbackCard(
                         item: item,
-                        onUpvote: { viewModel.toggleUpvote(for: item.id) }
+                        onUpvote: {
+                            Task { await viewModel.toggleUpvote(for: item.id) }
+                        }
                     )
                 }
             }
             .padding()
+        }
+        .refreshable {
+            await viewModel.loadFeedback()
         }
     }
 }
@@ -191,11 +197,12 @@ struct FeedbackCard: View {
 // MARK: - Create Feedback View
 struct CreateFeedbackView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var title = ""
-    @State private var description = ""
+    @State private var text = ""
     @State private var selectedCategory: FeedbackCategory = .feature
+    @State private var isSubmitting = false
+    @State private var errorMessage: String?
     
-    let onSubmit: (FeedbackItem) -> Void
+    let onSubmit: (String, String) -> Void
     
     var body: some View {
         NavigationStack {
@@ -221,26 +228,21 @@ struct CreateFeedbackView: View {
                         }
                     }
                     
-                    // Title
+                    // Feedback Text
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Title")
+                        Text("Your Feedback")
                             .font(.headline)
                         
-                        TextField("Brief summary of your feedback", text: $title)
-                            .textFieldStyle(.plain)
-                            .padding()
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-                    }
-                    
-                    // Description
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Description")
-                            .font(.headline)
-                        
-                        TextEditor(text: $description)
+                        TextEditor(text: $text)
                             .frame(height: 150)
                             .padding(8)
                             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    
+                    if let error = errorMessage {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 }
                 .padding()
@@ -254,27 +256,32 @@ struct CreateFeedbackView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Submit") {
-                        let feedback = FeedbackItem(
-                            id: UUID().uuidString,
-                            title: title,
-                            description: description,
-                            category: selectedCategory,
-                            authorId: "current-user",
-                            authorName: "You",
-                            upvotes: 0,
-                            hasUpvoted: false,
-                            status: .open,
-                            createdAt: Date()
-                        )
-                        onSubmit(feedback)
-                        dismiss()
+                        Task { await submitFeedback() }
                     }
                     .fontWeight(.semibold)
-                    .disabled(title.isEmpty || description.isEmpty)
+                    .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting)
                 }
             }
         }
         .presentationDetents([.large])
+    }
+    
+    private func submitFeedback() async {
+        isSubmitting = true
+        errorMessage = nil
+        
+        do {
+            let _ = try await APIService.shared.submitFeedback(
+                text: text.trimmingCharacters(in: .whitespacesAndNewlines),
+                category: selectedCategory.apiValue
+            )
+            onSubmit(text, selectedCategory.apiValue)
+            dismiss()
+        } catch {
+            errorMessage = "Failed to submit feedback. Please try again."
+        }
+        
+        isSubmitting = false
     }
 }
 
@@ -293,6 +300,7 @@ struct FeedbackItem: Identifiable {
     
     var timeAgo: String {
         let interval = Date().timeIntervalSince(createdAt)
+        if interval < 60 { return "Just now" }
         if interval < 3600 {
             return "\(Int(interval / 60))m ago"
         } else if interval < 86400 {
@@ -300,6 +308,40 @@ struct FeedbackItem: Identifiable {
         } else {
             return "\(Int(interval / 86400))d ago"
         }
+    }
+    
+    /// Create from API response
+    static func from(_ apiItem: FeedbackAPIItem, currentUserId: String?) -> FeedbackItem {
+        let category = FeedbackCategory.from(apiItem.category)
+        let status = FeedbackStatus.from(apiItem.status)
+        
+        // Parse date
+        var date = Date()
+        if let dateStr = apiItem.createdAt {
+            let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let parsed = formatter.date(from: dateStr) {
+                date = parsed
+            } else {
+                formatter.formatOptions = [.withInternetDateTime]
+                if let parsed = formatter.date(from: dateStr) {
+                    date = parsed
+                }
+            }
+        }
+        
+        return FeedbackItem(
+            id: apiItem.id,
+            title: apiItem.text,
+            description: "",
+            category: category,
+            authorId: apiItem.user?.id ?? "",
+            authorName: apiItem.user?.displayName ?? "Anonymous",
+            upvotes: apiItem.likeCount,
+            hasUpvoted: apiItem.likes?.contains(currentUserId ?? "") ?? false,
+            status: status,
+            createdAt: date
+        )
     }
 }
 
@@ -315,10 +357,35 @@ enum FeedbackCategory: String, CaseIterable {
         case .improvement: return .blue
         }
     }
+    
+    var apiValue: String {
+        switch self {
+        case .feature: return "feature"
+        case .bug: return "bug"
+        case .improvement: return "improvement"
+        }
+    }
+    
+    static func from(_ string: String) -> FeedbackCategory {
+        switch string.lowercased() {
+        case "bug": return .bug
+        case "improvement": return .improvement
+        default: return .feature
+        }
+    }
 }
 
 enum FeedbackStatus {
     case open, planned, inProgress, completed
+    
+    static func from(_ string: String) -> FeedbackStatus {
+        switch string.lowercased() {
+        case "planned": return .planned
+        case "in_progress", "inprogress": return .inProgress
+        case "completed": return .completed
+        default: return .open
+        }
+    }
 }
 
 // MARK: - Feedback ViewModel
@@ -327,56 +394,41 @@ class FeedbackViewModel: ObservableObject {
     @Published var feedbackItems: [FeedbackItem] = []
     @Published var isLoading = false
     
-    func loadSampleData() {
-        feedbackItems = [
-            FeedbackItem(
-                id: "1",
-                title: "Dark mode improvements",
-                description: "Would love to see better contrast in dark mode, especially on the listings cards.",
-                category: .improvement,
-                authorId: "user1",
-                authorName: "Alex M.",
-                upvotes: 23,
-                hasUpvoted: false,
-                status: .planned,
-                createdAt: Date().addingTimeInterval(-86400)
-            ),
-            FeedbackItem(
-                id: "2",
-                title: "Push notifications for messages",
-                description: "It would be great to get notified when a landlord responds to my inquiry.",
-                category: .feature,
-                authorId: "user2",
-                authorName: "Jordan K.",
-                upvotes: 45,
-                hasUpvoted: true,
-                status: .inProgress,
-                createdAt: Date().addingTimeInterval(-172800)
-            ),
-            FeedbackItem(
-                id: "3",
-                title: "Filter not working on mobile",
-                description: "The distance filter doesn't seem to apply when searching for listings near campus.",
-                category: .bug,
-                authorId: "user3",
-                authorName: "Sam W.",
-                upvotes: 8,
-                hasUpvoted: false,
-                status: .open,
-                createdAt: Date().addingTimeInterval(-3600)
-            ),
-        ]
+    private let api = APIService.shared
+    
+    private var currentUserId: String? {
+        UserDefaults.standard.string(forKey: "userId")
     }
     
-    func toggleUpvote(for id: String) {
+    func loadFeedback() async {
+        isLoading = true
+        
+        do {
+            let response = try await api.getFeedback()
+            feedbackItems = response.feedback.map { FeedbackItem.from($0, currentUserId: currentUserId) }
+        } catch {
+            print("Failed to load feedback: \(error)")
+        }
+        
+        isLoading = false
+    }
+    
+    func toggleUpvote(for id: String) async {
+        // Optimistic update
         if let index = feedbackItems.firstIndex(where: { $0.id == id }) {
             feedbackItems[index].hasUpvoted.toggle()
             feedbackItems[index].upvotes += feedbackItems[index].hasUpvoted ? 1 : -1
         }
-    }
-    
-    func addFeedback(_ item: FeedbackItem) {
-        feedbackItems.insert(item, at: 0)
+        
+        do {
+            let _ = try await api.toggleFeedbackLike(feedbackId: id)
+        } catch {
+            // Revert on failure
+            if let index = feedbackItems.firstIndex(where: { $0.id == id }) {
+                feedbackItems[index].hasUpvoted.toggle()
+                feedbackItems[index].upvotes += feedbackItems[index].hasUpvoted ? 1 : -1
+            }
+        }
     }
 }
 

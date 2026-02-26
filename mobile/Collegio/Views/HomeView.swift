@@ -26,6 +26,7 @@ struct HomeView: View {
     @State private var showCreateListing = false
     @State private var selectedListing: Listing? = nil
     @State private var mapSelectedListing: Listing? = nil
+    @State private var activeFilters = ListingFilters()
     
     let filters = ["Price", "Bedrooms", "Distance", "Available"]
     
@@ -72,7 +73,7 @@ struct HomeView: View {
             MapSheetView(listings: viewModel.listings, selectedListing: $mapSelectedListing)
         }
         .sheet(isPresented: $showFilters) {
-            FilterSheetView()
+            FilterSheetView(filters: $activeFilters)
         }
         .sheet(isPresented: $showCreateListing) {
             CreateListingView()
@@ -267,29 +268,78 @@ struct HomeView: View {
     private var sortedListings: [Listing] {
         var listings = viewModel.listings
         
+        
         // Apply search filter first
         if !searchText.isEmpty {
             listings = listings.filter { listing in
                 listing.title.localizedCaseInsensitiveContains(searchText) ||
-                (listing.address?.localizedCaseInsensitiveContains(searchText) ?? false) ||
+                listing.address.localizedCaseInsensitiveContains(searchText) ||
                 (listing.city?.localizedCaseInsensitiveContains(searchText) ?? false)
             }
         }
         
-        // Apply sort
-        switch selectedSort {
-        case .newlyAdded:
-            listings.sort { ($0.createdAt ?? Date.distantPast) > ($1.createdAt ?? Date.distantPast) }
-        case .priceHighToLow:
-            listings.sort { ($0.rent ?? 0) > ($1.rent ?? 0) }
-        case .priceLowToHigh:
-            listings.sort { ($0.rent ?? 0) < ($1.rent ?? 0) }
-        case .mostPopular:
-            // Sort by favorites count or views (use favorites as proxy)
-            listings.sort { ($0.favoritesCount ?? 0) > ($1.favoritesCount ?? 0) }
+        // Apply Advanced Filters
+        
+        // 1. Price
+        listings = listings.filter { $0.price >= Double(activeFilters.minPrice) && $0.price <= Double(activeFilters.maxPrice) }
+        
+        // 2. Bedrooms
+        if activeFilters.bedrooms > 0 {
+            listings = listings.filter { $0.bedrooms >= activeFilters.bedrooms }
         }
         
-        return listings
+        // 3. Bathrooms
+        if activeFilters.bathrooms > 0 {
+            listings = listings.filter { $0.bathrooms >= Double(activeFilters.bathrooms) }
+        }
+        
+        // 4. Place Type
+        switch activeFilters.placeType {
+        case .room:
+            listings = listings.filter { $0.listingType == "private-room" || $0.listingType == "shared-room" }
+        case .entireHome:
+            listings = listings.filter { $0.listingType == nil || $0.listingType == "entire-place" }
+        case .any:
+            break // No filtering needed
+        }
+        
+        // 5. Verified Landlord
+        if activeFilters.verifiedLandlord {
+            listings = listings.filter { $0.landlord?.isVerifiedLandlord == true }
+        }
+        
+        // 6. Amenities & Logic
+        if activeFilters.hasWifi { listings = listings.filter { $0.amenities?.contains(where: { $0.localizedCaseInsensitiveContains("wifi") }) ?? false } }
+        if activeFilters.hasLaundry { listings = listings.filter { $0.amenities?.contains(where: { $0.localizedCaseInsensitiveContains("laundry") || $0.localizedCaseInsensitiveContains("washer") }) ?? false } }
+        if activeFilters.hasParking { listings = listings.filter { $0.amenities?.contains(where: { $0.localizedCaseInsensitiveContains("parking") }) ?? false } }
+        if activeFilters.hasDishwasher { listings = listings.filter { $0.amenities?.contains(where: { $0.localizedCaseInsensitiveContains("dishwasher") }) ?? false } }
+        if activeFilters.hasAC { listings = listings.filter { $0.amenities?.contains(where: { $0.localizedCaseInsensitiveContains("ac") || $0.localizedCaseInsensitiveContains("air conditioning") }) ?? false } }
+        if activeFilters.hasFurnished { listings = listings.filter { $0.amenities?.contains(where: { $0.localizedCaseInsensitiveContains("furnished") }) ?? false } }
+        
+        if activeFilters.petFriendly { listings = listings.filter { $0.rules?.petsAllowed == true } }
+        if activeFilters.utilitiesIncluded { listings = listings.filter { $0.amenities?.contains(where: { $0.localizedCaseInsensitiveContains("utilities") }) ?? false } }
+
+        
+        // Apply sort using sorted(by:) with explicit types
+        switch selectedSort {
+        case .newlyAdded:
+            return listings.sorted { (a: Listing, b: Listing) -> Bool in
+                (a.createdAt ?? Date.distantPast) > (b.createdAt ?? Date.distantPast)
+            }
+        case .priceHighToLow:
+            return listings.sorted { (a: Listing, b: Listing) -> Bool in
+                a.price > b.price
+            }
+        case .priceLowToHigh:
+            return listings.sorted { (a: Listing, b: Listing) -> Bool in
+                a.price < b.price
+            }
+        case .mostPopular:
+            // Sort by average rating as proxy for popularity
+            return listings.sorted { (a: Listing, b: Listing) -> Bool in
+                (a.averageRating ?? 0) > (b.averageRating ?? 0)
+            }
+        }
     }
 }
 

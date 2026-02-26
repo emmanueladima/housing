@@ -370,33 +370,90 @@ struct MessageBubble: View {
 struct NewMessageView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
+    @State private var searchResults: [User] = []
+    @State private var isSearching = false
+    @State private var searchTask: Task<Void, Never>?
+    @State private var selectedUser: User?
+    @State private var navigateToChat = false
     
     var body: some View {
         NavigationStack {
             ZStack {
                 GradientBackground()
                 
-                VStack(spacing: 20) {
-                    // Search
+                VStack(spacing: 0) {
+                    // Search Field
                     HStack(spacing: 12) {
                         Image(systemName: "magnifyingglass")
                             .foregroundStyle(.secondary)
-                        TextField("Search users...", text: $searchText)
+                        TextField("Search by name or username...", text: $searchText)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                        
+                        if isSearching {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        } else if !searchText.isEmpty {
+                            Button {
+                                searchText = ""
+                                searchResults = []
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                     .padding()
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
                     .padding(.horizontal)
+                    .padding(.top, 8)
                     
-                    // Recent contacts would go here
-                    VStack {
-                        Image(systemName: "person.crop.circle.badge.plus")
-                            .font(.system(size: 50))
-                            .foregroundStyle(.secondary)
-                        Text("Search for a user to start a conversation")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                    // Results
+                    if !searchResults.isEmpty {
+                        ScrollView {
+                            LazyVStack(spacing: 12) {
+                                ForEach(searchResults, id: \.id) { user in
+                                    Button {
+                                        selectedUser = user
+                                        navigateToChat = true
+                                    } label: {
+                                        UserSearchRow(user: user)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.horizontal)
+                            .padding(.top, 16)
+                        }
+                    } else if !searchText.isEmpty && !isSearching {
+                        // No results
+                        VStack(spacing: 12) {
+                            Image(systemName: "person.slash")
+                                .font(.system(size: 50))
+                                .foregroundStyle(.secondary)
+                            Text("No users found")
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                            Text("Try a different name or username")
+                                .font(.subheadline)
+                                .foregroundStyle(.tertiary)
+                        }
+                        .frame(maxHeight: .infinity)
+                    } else {
+                        // Empty state
+                        VStack(spacing: 12) {
+                            Image(systemName: "person.crop.circle.badge.plus")
+                                .font(.system(size: 50))
+                                .foregroundStyle(.secondary)
+                            Text("Search for a user")
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                            Text("Start typing to find people")
+                                .font(.subheadline)
+                                .foregroundStyle(.tertiary)
+                        }
+                        .frame(maxHeight: .infinity)
                     }
-                    .frame(maxHeight: .infinity)
                 }
             }
             .navigationTitle("New Message")
@@ -404,10 +461,98 @@ struct NewMessageView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Cancel") { dismiss() }
+                        .foregroundStyle(Color.collegioOrange)
+                }
+            }
+            .onChange(of: searchText) { _, newValue in
+                performDebouncedSearch(query: newValue)
+            }
+            .navigationDestination(isPresented: $navigateToChat) {
+                if let user = selectedUser {
+                    // Create a temporary conversation object for the chat
+                    ChatView(conversation: Conversation(
+                        id: "new-\(user.id)",
+                        participants: [user],
+                        lastMessage: nil,
+                        lastMessageAt: nil,
+                        unreadCount: 0,
+                        type: "direct"
+                    ))
+                    .onAppear { dismiss() }
                 }
             }
         }
         .presentationDetents([.large])
+    }
+    
+    private func performDebouncedSearch(query: String) {
+        // Cancel previous search
+        searchTask?.cancel()
+        
+        guard query.count >= 2 else {
+            searchResults = []
+            return
+        }
+        
+        searchTask = Task {
+            // Debounce 500ms
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            
+            guard !Task.isCancelled else { return }
+            
+            await MainActor.run { isSearching = true }
+            
+            do {
+                let results = try await APIService.shared.searchUsers(query: query)
+                await MainActor.run {
+                    if !Task.isCancelled {
+                        searchResults = results
+                    }
+                }
+            } catch {
+                print("❌ Search error: \(error)")
+            }
+            
+            await MainActor.run { isSearching = false }
+        }
+    }
+}
+
+// MARK: - User Search Row
+struct UserSearchRow: View {
+    let user: User
+    
+    var body: some View {
+        HStack(spacing: 14) {
+            // Avatar
+            Circle()
+                .fill(Color.collegioOrange.opacity(0.2))
+                .frame(width: 50, height: 50)
+                .overlay {
+                    Text(user.initials)
+                        .font(.headline.bold())
+                        .foregroundStyle(Color.collegioOrange)
+                }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(user.fullName)
+                    .font(.headline)
+                
+                if let username = user.username {
+                    Text("@\(username)")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+        }
+        .padding(16)
+        .glassCard()
     }
 }
 

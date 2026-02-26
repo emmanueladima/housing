@@ -34,7 +34,13 @@ struct GroupDashboardView: View {
                         Button {
                             showEditSheet = true
                         } label: {
-                            Image(systemName: "gear")
+                            Text("Edit")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 6)
+                                .background(Color.collegioOrange)
+                                .clipShape(Capsule())
                         }
                     }
                 }
@@ -43,15 +49,11 @@ struct GroupDashboardView: View {
                 await viewModel.loadGroup()
             }
             .sheet(isPresented: $showEditSheet) {
-                EditGroupSheet(
-                    group: viewModel.group,
-                    onSave: { name, description, budget in
-                        Task {
-                            await viewModel.updateGroup(name: name, description: description, budget: budget)
-                        }
-                        showEditSheet = false
+                if let group = viewModel.group {
+                    EditGroupView(group: group) { updatedGroup in
+                        viewModel.group = updatedGroup
                     }
-                )
+                }
             }
         }
     }

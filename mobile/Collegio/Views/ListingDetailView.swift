@@ -10,6 +10,7 @@ struct ListingDetailView: View {
     @State private var showContactSheet = false
     @State private var showWriteReview = false
     @State private var showReportSheet = false
+    @State private var showApplySheet = false
     @State private var currentImageIndex = 0
     @StateObject private var reviewsVM = ListingReviewsViewModel()
     
@@ -79,6 +80,9 @@ struct ListingDetailView: View {
         .sheet(isPresented: $showContactSheet) {
             ContactLandlordSheet(listing: listing)
         }
+        .sheet(isPresented: $showApplySheet) {
+            ApplySheetView(listing: listing)
+        }
         .sheet(isPresented: $showWriteReview) {
             WriteReviewSheet(listingId: listing.id) {
                 Task { await reviewsVM.loadReviews(for: listing.id) }
@@ -124,7 +128,7 @@ struct ListingDetailView: View {
                 
                 HStack(spacing: 16) {
                     // Share Button
-                    ShareLink(item: URL(string: "https://collegio.us/listings/\(listing.id)")!, subject: Text(listing.title ?? "Check out this listing"), message: Text("Found this listing on Collegio!")) {
+                    ShareLink(item: URL(string: "https://collegio.us/listings/\(listing.id)")!, subject: Text(listing.title), message: Text("Found this listing on Collegio!")) {
                         Image(systemName: "square.and.arrow.up")
                             .font(.body.weight(.medium))
                             .foregroundStyle(.primary)
@@ -182,6 +186,16 @@ struct ListingDetailView: View {
     private var priceSection: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
+                // Listing Type Badge (for rooms)
+                if listing.isRoom {
+                    Text(listing.listingTypeDisplay)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Color.collegioBlue, in: Capsule())
+                }
+                
                 Text(listing.formattedPrice)
                     .font(.largeTitle.weight(.bold))
                     .foregroundStyle(Color.collegioOrange)
@@ -245,7 +259,7 @@ struct ListingDetailView: View {
             
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 // Lease Term
-                DetailRow(label: "Lease Term", value: listing.leaseTerm ?? "—")
+                DetailRow(label: "Lease Term", value: formattedLeaseTerm(listing.leaseTerm))
                 
                 // Available Date
                 if let date = listing.availableDate {
@@ -275,6 +289,22 @@ struct ListingDetailView: View {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         return formatter.string(from: date)
+    }
+    
+    private func formattedLeaseTerm(_ term: String?) -> String {
+        guard let term = term else { return "—" }
+        switch term {
+        case "academic-year": return "Academic Year"
+        case "full-year", "1-year": return "1 Year"
+        case "6-months": return "6 Months"
+        case "fall-term": return "Fall Term"
+        case "spring-term": return "Spring Term"
+        case "summer-term", "summer": return "Summer Term"
+        case "month-to-month": return "Month-to-Month"
+        case "flexible": return "Flexible"
+        case "winter": return "Winter Term"
+        default: return term.capitalized.replacingOccurrences(of: "-", with: " ")
+        }
     }
     
     // MARK: - Amenities
@@ -448,11 +478,11 @@ struct ListingDetailView: View {
             
             Spacer()
             
-            Button(action: { showContactSheet = true }) {
-                Text("Contact Landlord")
+            Button(action: { showApplySheet = true }) {
+                Text("Apply")
                     .font(.headline)
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, 20)
                     .padding(.vertical, 14)
                     .background {
                         Capsule()
@@ -463,6 +493,18 @@ struct ListingDetailView: View {
                                     endPoint: .bottomTrailing
                                 )
                             )
+                    }
+            }
+            
+            Button(action: { showContactSheet = true }) {
+                Text("Contact")
+                    .font(.headline)
+                    .foregroundStyle(Color.collegioOrange)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 14)
+                    .background {
+                        Capsule()
+                            .strokeBorder(Color.collegioOrange, lineWidth: 2)
                     }
             }
         }

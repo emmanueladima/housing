@@ -88,15 +88,26 @@ struct ToolkitView: View {
             VStack(spacing: 16) {
                 switch selectedTab {
                 case .checklist:
+                    // Checklist is personal - always accessible
                     checklistContent
-                case .chores:
-                    choresContent
-                case .expenses:
-                    expensesContent
-                case .rules:
-                    rulesContent
-                case .timeline:
-                    timelineContent
+                case .chores, .expenses, .rules, .timeline:
+                    // Group features - require group membership
+                    if viewModel.group != nil {
+                        switch selectedTab {
+                        case .chores:
+                            choresContent
+                        case .expenses:
+                            expensesContent
+                        case .rules:
+                            rulesContent
+                        case .timeline:
+                            timelineContent
+                        default:
+                            EmptyView()
+                        }
+                    } else {
+                        noGroupView
+                    }
                 }
             }
             .padding()

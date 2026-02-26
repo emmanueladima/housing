@@ -10,9 +10,8 @@ class GroupDashboardViewModel: ObservableObject {
     
     var isAdmin: Bool {
         guard let group = group else { return false }
-        // Compare admin ID with current user
-        // For now, assume we need to check this from AuthManager
-        return true // Simplified - should check against current user ID
+        guard let currentUserId = AuthManager.shared.user?.id else { return false }
+        return group.admin == currentUserId
     }
     
     var pendingRequests: [JoinRequest] {

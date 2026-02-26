@@ -130,6 +130,12 @@ struct HandleJoinRequestBody: Encodable {
     let action: String // "accept" or "reject"
 }
 
+struct JoinByCodeResponse: Decodable {
+    let success: Bool
+    let message: String
+    let group: RoommateGroup
+}
+
 struct CreateChoreRequest: Encodable {
     let title: String
     let assignedTo: String?
@@ -203,6 +209,13 @@ class GroupService {
     
     func deleteMyGroup() async throws {
         let _: EmptyResponse = try await api.authenticatedRequest("\(baseEndpoint)/my-group", method: "DELETE")
+    }
+    
+    // MARK: - Join by Invite Code
+    
+    func joinGroupByCode(code: String) async throws -> RoommateGroup {
+        let response: JoinByCodeResponse = try await api.authenticatedRequest("\(baseEndpoint)/join/\(code.uppercased())", method: "POST")
+        return response.group
     }
     
     // MARK: - Join Requests

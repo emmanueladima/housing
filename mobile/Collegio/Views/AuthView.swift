@@ -14,40 +14,41 @@ struct AuthView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showSignupSuccess = false
+    @State private var showForgotPassword = false
+    @Environment(\.colorScheme) private var colorScheme
     
     // Admin exception for .edu requirement
     private let adminEmail = "admin@collegio.us"
     
-    // Beige background to match app
-    private let beigeBackground = Color(red: 0.894, green: 0.886, blue: 0.867)
+
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Beige background
-                beigeBackground
-                    .ignoresSafeArea()
+                // White in light mode, black in dark mode
+                // Adaptive background
+                GradientBackground()
                 
                 // Content positioned at top, not centered
                 VStack(spacing: 0) {
                     // BeigeCover logo
-                    Image("BeigeCover")
+                    Image("CollegioLogo")
                         .resizable()
                         .scaledToFit()
                         .frame(height: 200) // Large logo
-                        .padding(.top, 20)
+                        .padding(.top, 40)
                     
                     // Auth Card - directly below logo, no gap
                     authCard
                         .padding(.horizontal, 24)
-                        .padding(.top, 0) // No gap
+                        .padding(.top, 20)
                     
                     Spacer()
                     
                     // Terms
                     Text("By continuing, you agree to our Terms of Service and Privacy Policy")
                         .font(.caption)
-                        .foregroundStyle(Color(white: 0.4))
+                        .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 40)
                         .padding(.bottom, 30)
@@ -58,6 +59,9 @@ struct AuthView: View {
             Button("OK") { isLoginMode = true }
         } message: {
             Text("Please check your email to verify your account before logging in.")
+        }
+        .sheet(isPresented: $showForgotPassword) {
+            ForgotPasswordSheet()
         }
     }
     
@@ -97,8 +101,7 @@ struct AuthView: View {
                 }
             }
             .padding(4)
-            .background(Color(white: 0.92))
-            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 14))
             
             // Error Message
             if let error = errorMessage {
@@ -141,7 +144,7 @@ struct AuthView: View {
             if isLoginMode {
                 HStack {
                     Spacer()
-                    Button("Forgot Password?") { }
+                    Button("Forgot Password?") { showForgotPassword = true }
                         .font(.caption.bold())
                         .foregroundStyle(Color.collegioOrange)
                 }
@@ -165,9 +168,7 @@ struct AuthView: View {
             .disabled(isLoading || !isFormValid)
         }
         .padding(24)
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 24))
-        .shadow(color: .black.opacity(0.08), radius: 20, x: 0, y: 10)
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 24))
     }
     
     private var isFormValid: Bool {
@@ -212,53 +213,53 @@ struct AuthView: View {
     }
 }
 
-// MARK: - Dark Placeholder Text Field (Higher Contrast)
+// MARK: - Liquid Glass Text Field
 struct DarkPlaceholderTextField: View {
     let placeholder: String
     @Binding var text: String
     var icon: String = ""
     var keyboardType: UIKeyboardType = .default
     var autocapitalization: TextInputAutocapitalization = .sentences
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         HStack(spacing: 12) {
             if !icon.isEmpty {
                 Image(systemName: icon)
-                    .foregroundStyle(Color(white: 0.45))
+                    .foregroundStyle(.secondary)
                     .frame(width: 20)
             }
             
-            TextField("", text: $text, prompt: Text(placeholder).foregroundStyle(Color(white: 0.5)))
+            TextField("", text: $text, prompt: Text(placeholder).foregroundStyle(.secondary))
                 .keyboardType(keyboardType)
                 .textInputAutocapitalization(autocapitalization)
-                .foregroundStyle(Color.black)
+                .foregroundStyle(.primary)
         }
         .padding()
-        .background(Color(white: 0.96))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(white: 0.82), lineWidth: 1))
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 12))
     }
 }
 
-// MARK: - Dark Placeholder Secure Field
+// MARK: - Liquid Glass Secure Field
 struct DarkPlaceholderSecureField: View {
     let placeholder: String
     @Binding var text: String
     @Binding var showPassword: Bool
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "lock")
-                .foregroundStyle(Color(white: 0.45))
+                .foregroundStyle(.secondary)
                 .frame(width: 20)
             
             if showPassword {
-                TextField("", text: $text, prompt: Text(placeholder).foregroundStyle(Color(white: 0.5)))
+                TextField("", text: $text, prompt: Text(placeholder).foregroundStyle(.secondary))
                     .textInputAutocapitalization(.never)
-                    .foregroundStyle(Color.black)
+                    .foregroundStyle(.primary)
             } else {
-                SecureField("", text: $text, prompt: Text(placeholder).foregroundStyle(Color(white: 0.5)))
-                    .foregroundStyle(Color.black)
+                SecureField("", text: $text, prompt: Text(placeholder).foregroundStyle(.secondary))
+                    .foregroundStyle(.primary)
             }
             
             Button { showPassword.toggle() } label: {
@@ -267,9 +268,7 @@ struct DarkPlaceholderSecureField: View {
             }
         }
         .padding()
-        .background(Color(white: 0.96))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(white: 0.82), lineWidth: 1))
+        .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: 12))
     }
 }
 

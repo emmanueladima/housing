@@ -6,6 +6,8 @@ struct ProfileView: View {
     @State private var showLogoutAlert = false
     @State private var showDeleteAlert = false
     @State private var showProfileSetup = false
+    @State private var showCompatibilityTest = false
+    @State private var showJoinGroup = false
     
     var body: some View {
         NavigationStack {
@@ -52,6 +54,12 @@ struct ProfileView: View {
         }
         .fullScreenCover(isPresented: $showProfileSetup) {
             ProfileSetupWizard()
+        }
+        .sheet(isPresented: $showCompatibilityTest) {
+            CompatibilityTestView()
+        }
+        .sheet(isPresented: $showJoinGroup) {
+            JoinGroupView()
         }
     }
     
@@ -181,6 +189,18 @@ struct ProfileView: View {
                 ProfileCard(title: "My\nGroup", icon: "person.3.fill", color: .collegioOrange)
             }
             .buttonStyle(.plain)
+            
+            // Compatibility Test
+            Button { showCompatibilityTest = true } label: {
+                ProfileCard(title: "Compatibility\nTest", icon: "checkmark.seal.fill", color: .collegioOrange)
+            }
+            .buttonStyle(.plain)
+            
+            // Join Group
+            Button { showJoinGroup = true } label: {
+                ProfileCard(title: "Join\nGroup", icon: "person.crop.rectangle.stack.fill", color: .collegioOrange)
+            }
+            .buttonStyle(.plain)
         }
         .padding(.horizontal)
     }
@@ -207,7 +227,10 @@ struct ProfileView: View {
             
             Divider().padding(.leading, 56)
             
-            MenuRow(icon: "bell.fill", title: "Notifications", color: .orange)
+            NavigationLink(destination: NotificationsView()) {
+                MenuRow(icon: "bell.fill", title: "Notifications", color: .orange)
+            }
+            .buttonStyle(.plain)
             Divider().padding(.leading, 56)
             
             // Privacy & Security Link

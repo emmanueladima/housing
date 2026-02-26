@@ -141,4 +141,9 @@ class AuthManager: ObservableObject {
     func resendVerification() async throws {
         try await APIService.shared.resendVerification()
     }
+    
+    // MARK: - Forgot Password
+    func forgotPassword(email: String) async throws {
+        try await APIService.shared.forgotPassword(email: email)
+    }
 }

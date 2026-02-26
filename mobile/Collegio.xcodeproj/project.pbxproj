@@ -50,6 +50,8 @@
 		5280D5BA2F07B95800338F81 /* SafetyCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5280D5B82F07B95800338F81 /* SafetyCenterView.swift */; };
 		5280D5BC2F087E9200338F81 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5280D5BB2F087E9200338F81 /* LaunchScreen.storyboard */; };
 		5280D5BE2F087EAC00338F81 /* FavoritesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5280D5BD2F087EAC00338F81 /* FavoritesManager.swift */; };
+		52983B582F3706B700E33FFF /* ForgotPasswordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52983B572F3706B700E33FFF /* ForgotPasswordSheet.swift */; };
+		52983B592F3706B700E33FFF /* EditGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52983B562F3706B700E33FFF /* EditGroupView.swift */; };
 		529D0FD62F08EFA300751142 /* CircularSleepDial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 529D0FD42F08EFA300751142 /* CircularSleepDial.swift */; };
 		529D0FD72F08EFA300751142 /* DualHandleSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 529D0FD52F08EFA300751142 /* DualHandleSlider.swift */; };
 		52A478782F070C78009DC330 /* MapboxMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 52A478772F070C78009DC330 /* MapboxMaps */; };
@@ -106,6 +108,8 @@
 		5280D5C22F07A17400338F81 /* GroupDashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupDashboardViewModel.swift; sourceTree = "<group>"; };
 		5280D5C32F07A17400338F81 /* GroupCreationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCreationViewModel.swift; sourceTree = "<group>"; };
 		5280D5C42F07A17400338F81 /* RoommatesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoommatesViewModel.swift; sourceTree = "<group>"; };
+		52983B562F3706B700E33FFF /* EditGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditGroupView.swift; sourceTree = "<group>"; };
+		52983B572F3706B700E33FFF /* ForgotPasswordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgotPasswordSheet.swift; sourceTree = "<group>"; };
 		529D0FD42F08EFA300751142 /* CircularSleepDial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularSleepDial.swift; sourceTree = "<group>"; };
 		529D0FD52F08EFA300751142 /* DualHandleSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualHandleSlider.swift; sourceTree = "<group>"; };
 		52FD7D002F08B1AF00C8EB0C /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
@@ -172,6 +176,8 @@
 		504 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				52983B562F3706B700E33FFF /* EditGroupView.swift */,
+				52983B572F3706B700E33FFF /* ForgotPasswordSheet.swift */,
 				529D0FD42F08EFA300751142 /* CircularSleepDial.swift */,
 				529D0FD52F08EFA300751142 /* DualHandleSlider.swift */,
 				52FD7D0A2F08B31D00C8EB0C /* FlowLayout.swift */,
@@ -270,7 +276,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					600 = {
 						CreatedOnToolsVersion = 15.0;
@@ -357,6 +363,8 @@
 				019 /* CreateListingView.swift in Sources */,
 				52FD7D062F08B1BB00C8EB0C /* ProfileSetupWizard.swift in Sources */,
 				52FD7D072F08B1BB00C8EB0C /* EmailVerificationView.swift in Sources */,
+				52983B582F3706B700E33FFF /* ForgotPasswordSheet.swift in Sources */,
+				52983B592F3706B700E33FFF /* EditGroupView.swift in Sources */,
 				52FD7D082F08B1BB00C8EB0C /* RootView.swift in Sources */,
 				52FD7D092F08B1BB00C8EB0C /* AuthView.swift in Sources */,
 				5280D5B52F07A17400338F81 /* GroupService.swift in Sources */,
@@ -428,6 +436,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -484,6 +493,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -505,6 +515,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -534,6 +545,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

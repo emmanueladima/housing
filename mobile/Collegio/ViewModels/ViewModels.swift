@@ -1,6 +1,31 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Filter Models
+struct ListingFilters {
+    var minPrice: Int = 0
+    var maxPrice: Int = 5000
+    var bedrooms: Int = 0
+    var bathrooms: Int = 0
+    var placeType: PlaceType = .any
+    var verifiedLandlord: Bool = false
+    var utilitiesIncluded: Bool = false
+    var sublease: Bool = false
+    var petFriendly: Bool = false
+    var hasWifi: Bool = false
+    var hasLaundry: Bool = false
+    var hasParking: Bool = false
+    var hasDishwasher: Bool = false
+    var hasAC: Bool = false
+    var hasFurnished: Bool = false
+}
+
+enum PlaceType: String, CaseIterable {
+    case any = "Any type"
+    case room = "Room"
+    case entireHome = "Entire home"
+}
+
 // MARK: - Listings ViewModel
 @MainActor
 class ListingsViewModel: ObservableObject {

@@ -4,7 +4,19 @@ struct GroupDetailView: View {
     let group: RoommateGroup
     @StateObject private var viewModel = GroupDetailViewModel()
     @State private var showJoinSheet = false
+    @State private var showEditSheet = false
+    @State private var currentGroup: RoommateGroup?
     @State private var joinMessage = ""
+    
+    // Check if current user is the admin
+    private var isAdmin: Bool {
+        guard let userId = AuthManager.shared.user?.id else { return false }
+        return userId == group.admin
+    }
+    
+    private var displayGroup: RoommateGroup {
+        currentGroup ?? group
+    }
     
     var body: some View {
         ZStack {
@@ -52,6 +64,24 @@ struct GroupDetailView: View {
             Button("OK") {}
         } message: {
             Text(viewModel.error ?? "Something went wrong")
+        }
+        .sheet(isPresented: $showEditSheet) {
+            EditGroupView(group: displayGroup) { updatedGroup in
+                currentGroup = updatedGroup
+            }
+        }
+        .toolbar {
+            if isAdmin {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showEditSheet = true
+                    } label: {
+                        Image(systemName: "pencil.circle")
+                            .font(.title3)
+                            .foregroundStyle(Color.collegioOrange)
+                    }
+                }
+            }
         }
     }
     

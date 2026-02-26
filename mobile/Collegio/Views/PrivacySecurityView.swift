@@ -1,12 +1,79 @@
 import SwiftUI
 
 struct PrivacySecurityView: View {
+    @State private var showChangePassword = false
+    @State private var showDeleteConfirm = false
+    @State private var showDeletePasswordEntry = false
+    @State private var deletePassword = ""
+    @State private var isDeleting = false
+    @State private var errorMessage: String?
+    @EnvironmentObject var authViewModel: AuthViewModel
+    
     var body: some View {
         ZStack {
             GradientBackground()
             
             ScrollView {
                 VStack(spacing: 20) {
+                    // Account Security Section
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "shield.lefthalf.filled")
+                                .foregroundStyle(Color.collegioOrange)
+                            Text("Account Security")
+                                .font(.headline)
+                        }
+                        .padding(.horizontal, 4)
+                        
+                        // Change Password
+                        Button(action: { showChangePassword = true }) {
+                            actionRow(
+                                icon: "lock.rotation",
+                                title: "Change Password",
+                                subtitle: "Update your login credentials",
+                                color: Color.collegioOrange
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        
+                        // Delete Account
+                        Button(action: { showDeleteConfirm = true }) {
+                            actionRow(
+                                icon: "trash.fill",
+                                title: "Delete Account",
+                                subtitle: "Permanently remove your account and data",
+                                color: .red
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    
+                    // Error Message
+                    if let error = errorMessage {
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                            Text(error)
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    
+                    Divider()
+                        .padding(.vertical, 8)
+                    
+                    // Legal Section Header
+                    HStack(spacing: 8) {
+                        Image(systemName: "doc.text.fill")
+                            .foregroundStyle(Color.collegioOrange)
+                        Text("Legal")
+                            .font(.headline)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 4)
+                    
                     // Terms of Service
                     NavigationLink(destination: TermsOfServiceView()) {
                         legalRow(
@@ -43,6 +110,88 @@ struct PrivacySecurityView: View {
         }
         .navigationTitle("Privacy & Security")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showChangePassword) {
+            ChangePasswordSheet()
+        }
+        .alert("Delete Account?", isPresented: $showDeleteConfirm) {
+            Button("Cancel", role: .cancel) { }
+            Button("Continue", role: .destructive) {
+                showDeletePasswordEntry = true
+            }
+        } message: {
+            Text("This will permanently delete your account, listings, applications, messages, and all associated data. This action cannot be undone.")
+        }
+        .alert("Confirm Deletion", isPresented: $showDeletePasswordEntry) {
+            SecureField("Enter your password", text: $deletePassword)
+            Button("Cancel", role: .cancel) {
+                deletePassword = ""
+            }
+            Button("Delete Forever", role: .destructive) {
+                Task { await performDeleteAccount() }
+            }
+        } message: {
+            Text("Enter your password to confirm account deletion.")
+        }
+    }
+    
+    // MARK: - Action Row
+    private func actionRow(icon: String, title: String, subtitle: String, color: Color) -> some View {
+        HStack {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(color)
+                .frame(width: 40)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .glassCard()
+    }
+    
+    // MARK: - Delete Account
+    private func performDeleteAccount() async {
+        guard !deletePassword.isEmpty else {
+            errorMessage = "Password is required"
+            return
+        }
+        
+        isDeleting = true
+        errorMessage = nil
+        
+        do {
+            try await APIService.shared.deleteAccount(password: deletePassword)
+            // Log out after successful deletion
+            await MainActor.run {
+                authViewModel.logout()
+            }
+        } catch let error as APIError {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                deletePassword = ""
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = "An unexpected error occurred."
+                deletePassword = ""
+            }
+        }
+        
+        await MainActor.run {
+            isDeleting = false
+        }
     }
     
     private func legalRow(icon: String, title: String, lastUpdated: String) -> some View {

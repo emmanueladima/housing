@@ -25,6 +25,7 @@ const CreateListingWizard = () => {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
+        listingType: 'entire-place',
         address: '',
         city: '',
         state: '',
@@ -257,6 +258,38 @@ const CreateListingWizard = () => {
                             />
                             {stepErrors.description && <p className="text-red-400 text-sm mt-1">{stepErrors.description}</p>}
                         </div>
+
+                        {/* Listing Type Selection */}
+                        <div>
+                            <label className="block text-sm font-bold text-white mb-3">
+                                What are you listing? <span className="text-red-400">*</span>
+                            </label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, listingType: 'entire-place' }))}
+                                    className={`p-6 rounded-2xl border-2 text-center transition-all ${formData.listingType === 'entire-place'
+                                        ? 'border-orange-500 bg-orange-500/20 text-white'
+                                        : 'border-white/10 bg-white/5 text-white/70 hover:border-white/30'}`}
+                                >
+                                    <FiHome size={28} className="mx-auto mb-3" />
+                                    <div className="font-bold">Entire Place</div>
+                                    <div className="text-sm text-white/50 mt-1">Whole apartment or house</div>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, listingType: 'private-room' }))}
+                                    className={`p-6 rounded-2xl border-2 text-center transition-all ${formData.listingType === 'private-room'
+                                        ? 'border-orange-500 bg-orange-500/20 text-white'
+                                        : 'border-white/10 bg-white/5 text-white/70 hover:border-white/30'}`}
+                                >
+                                    <FiSquare size={28} className="mx-auto mb-3" />
+                                    <div className="font-bold">Private Room</div>
+                                    <div className="text-sm text-white/50 mt-1">Room in a shared unit</div>
+                                </button>
+                            </div>
+                        </div>
+
                         <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-2xl">
                             <label className="flex items-center gap-3 cursor-pointer">
                                 <input
@@ -403,7 +436,11 @@ const CreateListingWizard = () => {
                                     <option value="academic-year">Academic Year</option>
                                     <option value="1-year">1 Year</option>
                                     <option value="6-months">6 Months</option>
+                                    <option value="fall-term">Fall Term</option>
+                                    <option value="spring-term">Spring Term</option>
+                                    <option value="summer-term">Summer Term</option>
                                     <option value="month-to-month">Month-to-Month</option>
+                                    <option value="flexible">Flexible</option>
                                 </select>
                             </div>
                         </div>

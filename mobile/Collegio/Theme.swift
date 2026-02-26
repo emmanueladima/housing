@@ -91,23 +91,25 @@ struct GradientBackground: View {
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-        if colorScheme == .dark {
-            // Pure black background for dark mode
-            Color.black
-                .ignoresSafeArea()
-        } else {
-            // Light mode: subtle warm gradient like website
-            LinearGradient(
-                colors: [
-                    Color.collegioBeige.opacity(0.3),
-                    Color(.systemBackground),
-                    Color(.systemBackground)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+        ZStack {
+            if colorScheme == .dark {
+                // Pure black background for dark mode
+                Color.black
+            } else {
+                // Light mode: subtle warm gradient
+                LinearGradient(
+                    colors: [
+                        Color.collegioBeige.opacity(0.3),
+                        Color.white,
+                        Color.white
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            }
         }
+        .ignoresSafeArea()
+        .animation(.easeInOut(duration: 0.2), value: colorScheme)
     }
 }
 

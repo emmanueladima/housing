@@ -184,6 +184,20 @@ class APIService {
         authToken = nil
     }
     
+    func forgotPassword(email: String) async throws {
+        struct ForgotPasswordRequest: Encodable {
+            let email: String
+        }
+        
+        struct ForgotPasswordResponse: Decodable {
+            let success: Bool
+            let message: String?
+        }
+        
+        let body = try JSONEncoder().encode(ForgotPasswordRequest(email: email))
+        let _: ForgotPasswordResponse = try await request("/auth/forgot-password", method: "POST", body: body)
+    }
+    
     // MARK: - Lifestyle Profiles API
     func getLifestyleProfiles() async throws -> [LifestyleProfile] {
         struct ProfilesResponse: Decodable {
@@ -337,5 +351,145 @@ class APIService {
         }
         let response: LikeResponse = try await request("/community/posts/\(postId)/like", method: "POST")
         return (response.isLiked, response.likesCount)
+    }
+    
+    // MARK: - User Search API
+    func searchUsers(query: String) async throws -> [User] {
+        struct SearchResponse: Decodable {
+            let success: Bool
+            let users: [User]
+        }
+        let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
+        let response: SearchResponse = try await request("/users/search?q=\(encodedQuery)")
+        return response.users
+    }
+    
+    // MARK: - Compatibility Test API
+    func updateCompatibilityAnswers(_ answers: [String: Any]) async throws {
+        // Convert [String: Any] to JSON Data manually since Encodable can't handle Any
+        let jsonData = try JSONSerialization.data(withJSONObject: ["compatibilityAnswers": answers])
+        
+        struct ProfileResponse: Decodable {
+            let success: Bool?
+        }
+        let _: ProfileResponse = try await request("/lifestyle-profiles/me", method: "PUT", body: jsonData)
+    }
+    
+    // MARK: - Feedback API
+    func getFeedback(page: Int = 1) async throws -> FeedbackListResponse {
+        try await request("/feedback?page=\(page)")
+    }
+    
+    func submitFeedback(text: String, category: String) async throws -> FeedbackAPIItem {
+        let body = try JSONEncoder().encode(["text": text, "category": category])
+        return try await request("/feedback", method: "POST", body: body)
+    }
+    
+    func toggleFeedbackLike(feedbackId: String) async throws -> FeedbackAPIItem {
+        try await request("/feedback/\(feedbackId)/like", method: "POST")
+    }
+    
+    // MARK: - Account Management API
+    
+    func changePassword(currentPassword: String, newPassword: String) async throws {
+        struct ChangePasswordRequest: Encodable {
+            let currentPassword: String
+            let newPassword: String
+        }
+        struct ChangePasswordResponse: Decodable {
+            let success: Bool
+            let message: String?
+        }
+        let body = try JSONEncoder().encode(ChangePasswordRequest(currentPassword: currentPassword, newPassword: newPassword))
+        let _: ChangePasswordResponse = try await request("/auth/change-password", method: "POST", body: body)
+    }
+    
+    func deleteAccount(password: String) async throws {
+        struct DeleteAccountRequest: Encodable {
+            let password: String
+        }
+        struct DeleteAccountResponse: Decodable {
+            let success: Bool
+            let message: String?
+        }
+        let body = try JSONEncoder().encode(DeleteAccountRequest(password: password))
+        let _: DeleteAccountResponse = try await request("/auth/account", method: "DELETE", body: body)
+    }
+    
+    // MARK: - Applications API
+    
+    func submitApplication(listingId: String, moveInDate: Date, leaseTerm: String, coverLetter: String?) async throws -> ApplicationSubmitResponse {
+        struct SubmitRequest: Encodable {
+            let listingId: String
+            let moveInDate: String
+            let leaseTerm: String
+            let coverLetter: String?
+        }
+        let formatter = ISO8601DateFormatter()
+        let body = try JSONEncoder().encode(SubmitRequest(
+            listingId: listingId,
+            moveInDate: formatter.string(from: moveInDate),
+            leaseTerm: leaseTerm,
+            coverLetter: coverLetter
+        ))
+        return try await request("/applications", method: "POST", body: body)
+    }
+    
+    func getMyApplications() async throws -> [ApplicationData] {
+        let response: ApplicationResponse = try await request("/applications")
+        return response.applications
+    }
+    
+    func withdrawApplication(id: String) async throws {
+        struct WithdrawResponse: Decodable {
+            let success: Bool
+            let message: String?
+        }
+        let _: WithdrawResponse = try await request("/applications/\(id)/withdraw", method: "PATCH")
+    }
+}
+
+// MARK: - Feedback API Models
+struct FeedbackListResponse: Decodable {
+    let feedback: [FeedbackAPIItem]
+    let pagination: FeedbackPagination?
+}
+
+struct FeedbackPagination: Decodable {
+    let page: Int
+    let limit: Int
+    let total: Int
+    let pages: Int
+}
+
+struct FeedbackAPIItem: Decodable, Identifiable {
+    let id: String
+    let user: FeedbackUser?
+    let text: String
+    let category: String
+    let likes: [String]?
+    let status: String
+    let createdAt: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case user, text, category, likes, status, createdAt
+    }
+    
+    var likeCount: Int { likes?.count ?? 0 }
+}
+
+struct FeedbackUser: Decodable {
+    let id: String?
+    let firstName: String?
+    let lastName: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case firstName, lastName
+    }
+    
+    var displayName: String {
+        [firstName, lastName].compactMap { $0 }.joined(separator: " ")
     }
 }

@@ -2,20 +2,24 @@ import SwiftUI
 
 struct MyApplicationsView: View {
     @State private var selectedTab = 0
-    @State private var applications: [RentalApplication] = []
+    @State private var applications: [ApplicationData] = []
     @State private var isLoading = true
+    @State private var errorMessage: String?
+    @State private var withdrawingId: String?
+    @State private var showWithdrawConfirm = false
+    @State private var selectedWithdrawId: String?
     @Environment(\.colorScheme) private var colorScheme
     
     // Adaptive colors
     private var textPrimary: Color { colorScheme == .dark ? .white : .primary }
     private var textSecondary: Color { colorScheme == .dark ? .white.opacity(0.7) : .secondary }
     
-    var activeApplications: [RentalApplication] {
-        applications.filter { $0.status != .rejected && $0.status != .withdrawn }
+    var activeApplications: [ApplicationData] {
+        applications.filter { $0.statusEnum.isActive }
     }
     
-    var pastApplications: [RentalApplication] {
-        applications.filter { $0.status == .rejected || $0.status == .withdrawn }
+    var pastApplications: [ApplicationData] {
+        applications.filter { !$0.statusEnum.isActive }
     }
     
     var body: some View {
@@ -40,6 +44,22 @@ struct MyApplicationsView: View {
                     ProgressView("Loading applications...")
                         .foregroundStyle(textSecondary)
                     Spacer()
+                } else if let error = errorMessage {
+                    Spacer()
+                    VStack(spacing: 12) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 40))
+                            .foregroundStyle(.secondary)
+                        Text(error)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Button("Retry") {
+                            Task { await loadApplications() }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(Color.collegioOrange)
+                    }
+                    Spacer()
                 } else {
                     TabView(selection: $selectedTab) {
                         applicationsList(activeApplications, emptyMessage: "No active applications").tag(0)
@@ -51,13 +71,26 @@ struct MyApplicationsView: View {
         }
         .navigationTitle("My Applications")
         .navigationBarTitleDisplayMode(.large)
+        .refreshable {
+            await loadApplications()
+        }
         .task {
             await loadApplications()
+        }
+        .alert("Withdraw Application?", isPresented: $showWithdrawConfirm) {
+            Button("Cancel", role: .cancel) { selectedWithdrawId = nil }
+            Button("Withdraw", role: .destructive) {
+                if let id = selectedWithdrawId {
+                    Task { await withdrawApplication(id: id) }
+                }
+            }
+        } message: {
+            Text("This action cannot be undone. The landlord will be notified.")
         }
     }
     
     @ViewBuilder
-    private func applicationsList(_ apps: [RentalApplication], emptyMessage: String) -> some View {
+    private func applicationsList(_ apps: [ApplicationData], emptyMessage: String) -> some View {
         if apps.isEmpty {
             VStack(spacing: 16) {
                 Image(systemName: "doc.text.magnifyingglass")
@@ -90,7 +123,14 @@ struct MyApplicationsView: View {
             ScrollView {
                 LazyVStack(spacing: 16) {
                     ForEach(apps) { app in
-                        ApplicationCardAdaptive(application: app)
+                        ApplicationCardView(
+                            application: app,
+                            isWithdrawing: withdrawingId == app.id,
+                            onWithdraw: {
+                                selectedWithdrawId = app.id
+                                showWithdrawConfirm = true
+                            }
+                        )
                     }
                 }
                 .padding()
@@ -100,33 +140,33 @@ struct MyApplicationsView: View {
     }
     
     private func loadApplications() async {
-        try? await Task.sleep(nanoseconds: 800_000_000)
+        isLoading = applications.isEmpty
+        errorMessage = nil
         
-        applications = [
-            RentalApplication(
-                id: "1",
-                listing: ApplicationListing(id: "l1", title: "Modern Studio Apt", address: "123 College Ave", rent: 1200, imageUrl: nil),
-                status: .underReview,
-                appliedDate: Date().addingTimeInterval(-172800),
-                moveInDate: Date().addingTimeInterval(2592000)
-            ),
-            RentalApplication(
-                id: "2",
-                listing: ApplicationListing(id: "l2", title: "2 Bedroom Shared House", address: "456 University St", rent: 850, imageUrl: nil),
-                status: .submitted,
-                appliedDate: Date().addingTimeInterval(-432000),
-                moveInDate: Date().addingTimeInterval(2592000)
-            ),
-            RentalApplication(
-                id: "3",
-                listing: ApplicationListing(id: "l3", title: "Luxury Condo", address: "789 Downtown Blvd", rent: 1500, imageUrl: nil),
-                status: .approved,
-                appliedDate: Date().addingTimeInterval(-604800),
-                moveInDate: Date().addingTimeInterval(1296000)
-            )
-        ]
+        do {
+            applications = try await APIService.shared.getMyApplications()
+        } catch {
+            if applications.isEmpty {
+                errorMessage = "Failed to load applications"
+            }
+        }
         
         isLoading = false
+    }
+    
+    private func withdrawApplication(id: String) async {
+        withdrawingId = id
+        
+        do {
+            try await APIService.shared.withdrawApplication(id: id)
+            // Refresh
+            await loadApplications()
+        } catch {
+            // Error handling — could show alert
+        }
+        
+        withdrawingId = nil
+        selectedWithdrawId = nil
     }
 }
 
@@ -158,73 +198,31 @@ struct TabPillAdaptive: View {
     }
 }
 
-// MARK: - Application Models
-struct RentalApplication: Identifiable {
-    let id: String
-    let listing: ApplicationListing
-    let status: RentalApplicationStatus
-    let appliedDate: Date
-    let moveInDate: Date
-    var landlordMessage: String?
-    var tourDate: Date?
-}
-
-struct ApplicationListing: Identifiable {
-    let id: String
-    let title: String
-    let address: String
-    let rent: Int
-    let imageUrl: String?
-}
-
-enum RentalApplicationStatus: String, CaseIterable {
-    case submitted = "Submitted"
-    case underReview = "Under Review"
-    case interviewScheduled = "Interview"
-    case approved = "Approved"
-    case rejected = "Rejected"
-    case withdrawn = "Withdrawn"
-    
-    var color: Color {
-        switch self {
-        case .submitted: return .blue
-        case .underReview: return .yellow
-        case .interviewScheduled: return .purple
-        case .approved: return .green
-        case .rejected: return .red
-        case .withdrawn: return .gray
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .submitted: return "doc.text.fill"
-        case .underReview: return "eye.fill"
-        case .interviewScheduled: return "calendar"
-        case .approved: return "checkmark.circle.fill"
-        case .rejected: return "xmark.circle.fill"
-        case .withdrawn: return "arrow.uturn.left"
-        }
-    }
-}
-
-// MARK: - Application Card (Adaptive)
-struct ApplicationCardAdaptive: View {
-    let application: RentalApplication
+// MARK: - Application Card View
+struct ApplicationCardView: View {
+    let application: ApplicationData
+    let isWithdrawing: Bool
+    let onWithdraw: () -> Void
     @Environment(\.colorScheme) private var colorScheme
     
     private var textPrimary: Color { colorScheme == .dark ? .white : .primary }
     private var textSecondary: Color { colorScheme == .dark ? .white.opacity(0.7) : .secondary }
     
-    var daysSince: Int {
-        Calendar.current.dateComponents([.day], from: application.appliedDate, to: Date()).day ?? 0
+    private var listingTitle: String { application.listingId?.title ?? "Listing" }
+    private var listingAddress: String { application.listingId?.address ?? "Address unavailable" }
+    private var listingRent: Int? { application.listingId?.rent }
+    private var listingImage: String? { application.listingId?.images?.first }
+    
+    private var daysSince: Int {
+        guard let date = application.formattedDate else { return 0 }
+        return Calendar.current.dateComponents([.day], from: date, to: Date()).day ?? 0
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Image / Placeholder Header
             ZStack(alignment: .bottomLeading) {
-                if let imageUrl = application.listing.imageUrl, let url = URL(string: imageUrl) {
+                if let imageUrl = listingImage, let url = URL(string: imageUrl) {
                     AsyncImage(url: url) { image in
                         image.resizable().aspectRatio(contentMode: .fill)
                     } placeholder: {
@@ -240,7 +238,7 @@ struct ApplicationCardAdaptive: View {
             VStack(alignment: .leading, spacing: 10) {
                 // Title & Status
                 HStack {
-                    Text(application.listing.title)
+                    Text(listingTitle)
                         .font(.headline)
                         .foregroundStyle(textPrimary)
                         .lineLimit(1)
@@ -248,31 +246,33 @@ struct ApplicationCardAdaptive: View {
                     Spacer()
                     
                     HStack(spacing: 4) {
-                        Image(systemName: application.status.icon)
+                        Image(systemName: application.statusEnum.icon)
                             .font(.caption2)
-                        Text(application.status.rawValue)
+                        Text(application.statusEnum.displayName)
                             .font(.caption.bold())
                     }
                     .foregroundStyle(.white)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
-                    .background(application.status.color, in: Capsule())
+                    .background(statusColor, in: Capsule())
                 }
                 
                 // Address
                 HStack(spacing: 4) {
                     Image(systemName: "mappin.circle.fill")
                         .font(.caption2)
-                    Text(application.listing.address)
+                    Text(listingAddress)
                         .font(.caption)
                 }
                 .foregroundStyle(textSecondary)
                 
                 // Rent & Applied Time
                 HStack {
-                    Text("$\(application.listing.rent)/mo")
-                        .font(.title3.bold())
-                        .foregroundStyle(Color.collegioOrange)
+                    if let rent = listingRent {
+                        Text("$\(rent)/mo")
+                            .font(.title3.bold())
+                            .foregroundStyle(Color.collegioOrange)
+                    }
                     
                     Spacer()
                     
@@ -285,42 +285,75 @@ struct ApplicationCardAdaptive: View {
                     .foregroundStyle(textSecondary)
                 }
                 
+                // Tour info if scheduled
+                if let tour = application.tourScheduled, tour.date != nil {
+                    HStack(spacing: 6) {
+                        Image(systemName: "calendar.badge.clock")
+                            .foregroundStyle(.purple)
+                        Text("Tour: \(tour.date ?? "") at \(tour.time ?? "")")
+                            .font(.caption.bold())
+                            .foregroundStyle(.purple)
+                        if tour.confirmed == true {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.caption)
+                                .foregroundStyle(.green)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+                
                 // Action Buttons
                 HStack(spacing: 12) {
-                    Button(action: { /* View listing */ }) {
-                        Text("View Listing")
+                    if application.statusEnum == .submitted || application.statusEnum == .underReview {
+                        Button(action: onWithdraw) {
+                            HStack(spacing: 4) {
+                                if isWithdrawing {
+                                    ProgressView()
+                                        .scaleEffect(0.7)
+                                } else {
+                                    Image(systemName: "arrow.uturn.left")
+                                        .font(.caption)
+                                }
+                                Text("Withdraw")
+                            }
                             .font(.subheadline.bold())
-                            .foregroundStyle(textPrimary)
+                            .foregroundStyle(.red)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
                             .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 10))
+                            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.red.opacity(0.5), lineWidth: 1))
+                        }
+                        .disabled(isWithdrawing)
                     }
                     
-                    if application.status == .approved {
-                        Button(action: { /* View lease */ }) {
-                            Text("View Lease")
-                                .font(.subheadline.bold())
-                                .foregroundStyle(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 10)
-                                .background(Color.green, in: RoundedRectangle(cornerRadius: 10))
+                    if let response = application.landlordResponse, let msg = response.message, !msg.isEmpty {
+                        HStack(spacing: 4) {
+                            Image(systemName: "envelope.fill")
+                                .font(.caption)
+                            Text("Has Response")
                         }
-                    } else if application.status == .submitted || application.status == .underReview {
-                        Button(action: { /* Withdraw */ }) {
-                            Text("Withdraw")
-                                .font(.subheadline.bold())
-                                .foregroundStyle(.red)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 10)
-                                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 10))
-                                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.red.opacity(0.5), lineWidth: 1))
-                        }
+                        .font(.caption.bold())
+                        .foregroundStyle(Color.collegioOrange)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.collegioOrange.opacity(0.15), in: Capsule())
                     }
                 }
             }
             .padding(14)
         }
         .glassCard()
+    }
+    
+    private var statusColor: Color {
+        switch application.statusEnum {
+        case .submitted: return .blue
+        case .underReview: return .yellow
+        case .interviewScheduled: return .purple
+        case .approved: return .green
+        case .rejected: return .red
+        case .withdrawn: return .gray
+        }
     }
     
     private var placeholderImage: some View {

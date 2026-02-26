@@ -1,36 +1,12 @@
 import SwiftUI
 
 // MARK: - Filter Sheet View (Matching Website Design)
+// MARK: - Filter Sheet View (Matching Website Design)
 struct FilterSheetView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) var colorScheme
     
-    // Filter State
-    @State private var minPrice: Int = 0
-    @State private var maxPrice: Int = 5000
-    @State private var bedrooms: Int = 0 // 0 = Any
-    @State private var bathrooms: Int = 0 // 0 = Any
-    @State private var placeType: PlaceType = .any
-    
-    // Recommended filters
-    @State private var verifiedLandlord = false
-    @State private var utilitiesIncluded = false
-    @State private var sublease = false
-    @State private var petFriendly = false
-    
-    // Amenities
-    @State private var hasWifi = false
-    @State private var hasLaundry = false
-    @State private var hasParking = false
-    @State private var hasDishwasher = false
-    @State private var hasAC = false
-    @State private var hasFurnished = false
-    
-    enum PlaceType: String, CaseIterable {
-        case any = "Any type"
-        case room = "Room"
-        case entireHome = "Entire home"
-    }
+    @Binding var filters: ListingFilters
     
     var body: some View {
         NavigationStack {
@@ -95,22 +71,22 @@ struct FilterSheetView: View {
                 RecommendedCard(
                     emoji: "🛡️",
                     title: "Verified\nLandlord",
-                    isSelected: $verifiedLandlord
+                    isSelected: $filters.verifiedLandlord
                 )
                 RecommendedCard(
                     emoji: "💡",
                     title: "Utilities\nIncluded",
-                    isSelected: $utilitiesIncluded
+                    isSelected: $filters.utilitiesIncluded
                 )
                 RecommendedCard(
                     emoji: "📅",
                     title: "Sublease",
-                    isSelected: $sublease
+                    isSelected: $filters.sublease
                 )
                 RecommendedCard(
                     emoji: "🐾",
                     title: "Pet\nFriendly",
-                    isSelected: $petFriendly
+                    isSelected: $filters.petFriendly
                 )
             }
         }
@@ -124,13 +100,13 @@ struct FilterSheetView: View {
             
             HStack(spacing: 0) {
                 ForEach(PlaceType.allCases, id: \.self) { type in
-                    Button(action: { placeType = type }) {
+                    Button(action: { filters.placeType = type }) {
                         Text(type.rawValue)
                             .font(.subheadline.weight(.medium))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
                             .background {
-                                if placeType == type {
+                                if filters.placeType == type {
                                     RoundedRectangle(cornerRadius: 10)
                                         .fill(Color.primary)
                                 } else {
@@ -138,7 +114,7 @@ struct FilterSheetView: View {
                                         .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                                 }
                             }
-                            .foregroundStyle(placeType == type ? (colorScheme == .dark ? .black : .white) : .primary)
+                            .foregroundStyle(filters.placeType == type ? (colorScheme == .dark ? .black : .white) : .primary)
                     }
                 }
             }
@@ -167,14 +143,14 @@ struct FilterSheetView: View {
                             .font(.body)
                             .foregroundStyle(.secondary)
                         
-                        Text("\(minPrice)")
+                        Text("\(filters.minPrice)")
                             .font(.title3.weight(.medium))
                             .frame(maxWidth: .infinity, alignment: .leading)
                         
                         VStack(spacing: 2) {
                             Button(action: { 
-                                if minPrice + 100 <= maxPrice {
-                                    minPrice += 100
+                                if filters.minPrice + 100 <= filters.maxPrice {
+                                    filters.minPrice += 100
                                 }
                             }) {
                                 Image(systemName: "chevron.up")
@@ -186,8 +162,8 @@ struct FilterSheetView: View {
                             Divider()
                             
                             Button(action: { 
-                                if minPrice - 100 >= 0 {
-                                    minPrice -= 100
+                                if filters.minPrice - 100 >= 0 {
+                                    filters.minPrice -= 100
                                 }
                             }) {
                                 Image(systemName: "chevron.down")
@@ -221,7 +197,7 @@ struct FilterSheetView: View {
                             .font(.body)
                             .foregroundStyle(.secondary)
                         
-                        Text("\(maxPrice)")
+                        Text("\(filters.maxPrice)")
                             .font(.title3.weight(.medium))
                             .lineLimit(1)
                             .fixedSize(horizontal: true, vertical: false)
@@ -232,8 +208,8 @@ struct FilterSheetView: View {
                         
                         VStack(spacing: 2) {
                             Button(action: { 
-                                if maxPrice + 100 <= 10000 {
-                                    maxPrice += 100
+                                if filters.maxPrice + 100 <= 10000 {
+                                    filters.maxPrice += 100
                                 }
                             }) {
                                 Image(systemName: "chevron.up")
@@ -245,8 +221,8 @@ struct FilterSheetView: View {
                             Divider()
                             
                             Button(action: { 
-                                if maxPrice - 100 >= minPrice {
-                                    maxPrice -= 100
+                                if filters.maxPrice - 100 >= filters.minPrice {
+                                    filters.maxPrice -= 100
                                 }
                             }) {
                                 Image(systemName: "chevron.down")
@@ -282,10 +258,10 @@ struct FilterSheetView: View {
                 Spacer()
                 
                 CounterControl(
-                    value: $bedrooms,
+                    value: $filters.bedrooms,
                     min: 0,
                     max: 8,
-                    displayText: bedrooms == 0 ? "Any" : "\(bedrooms)"
+                    displayText: filters.bedrooms == 0 ? "Any" : "\(filters.bedrooms)+"
                 )
             }
             
@@ -299,10 +275,10 @@ struct FilterSheetView: View {
                 Spacer()
                 
                 CounterControl(
-                    value: $bathrooms,
+                    value: $filters.bathrooms,
                     min: 0,
                     max: 8,
-                    displayText: bathrooms == 0 ? "Any" : "\(bathrooms)"
+                    displayText: filters.bathrooms == 0 ? "Any" : "\(filters.bathrooms)+"
                 )
             }
         }
@@ -315,12 +291,12 @@ struct FilterSheetView: View {
                 .font(.title3.weight(.semibold))
             
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                AmenityToggle(title: "WiFi", isOn: $hasWifi)
-                AmenityToggle(title: "Laundry", isOn: $hasLaundry)
-                AmenityToggle(title: "Parking", isOn: $hasParking)
-                AmenityToggle(title: "Dishwasher", isOn: $hasDishwasher)
-                AmenityToggle(title: "A/C", isOn: $hasAC)
-                AmenityToggle(title: "Furnished", isOn: $hasFurnished)
+                AmenityToggle(title: "WiFi", isOn: $filters.hasWifi)
+                AmenityToggle(title: "Laundry", isOn: $filters.hasLaundry)
+                AmenityToggle(title: "Parking", isOn: $filters.hasParking)
+                AmenityToggle(title: "Dishwasher", isOn: $filters.hasDishwasher)
+                AmenityToggle(title: "A/C", isOn: $filters.hasAC)
+                AmenityToggle(title: "Furnished", isOn: $filters.hasFurnished)
             }
         }
     }
@@ -330,10 +306,10 @@ struct FilterSheetView: View {
         HStack {
             Button(action: { clearAll() }) {
                 Text("Clear all")
-                    .font(.body)
-                    .underline()
-                    .foregroundStyle(.primary)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(Color.collegioOrange)
             }
+            .buttonStyle(.plain)
             
             Spacer()
             
@@ -343,7 +319,7 @@ struct FilterSheetView: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 14)
-                    .background(Color.primary, in: RoundedRectangle(cornerRadius: 10))
+                    .background(Color.collegioOrange, in: RoundedRectangle(cornerRadius: 10))
             }
         }
         .padding()
@@ -351,21 +327,7 @@ struct FilterSheetView: View {
     }
     
     private func clearAll() {
-        minPrice = 0
-        maxPrice = 5000
-        bedrooms = 0
-        bathrooms = 0
-        placeType = .any
-        verifiedLandlord = false
-        utilitiesIncluded = false
-        sublease = false
-        petFriendly = false
-        hasWifi = false
-        hasLaundry = false
-        hasParking = false
-        hasDishwasher = false
-        hasAC = false
-        hasFurnished = false
+        filters = ListingFilters()
     }
 }
 
@@ -462,10 +424,10 @@ struct AmenityToggle: View {
 }
 
 #Preview {
-    FilterSheetView()
+    FilterSheetView(filters: .constant(ListingFilters()))
 }
 
 #Preview("Dark") {
-    FilterSheetView()
+    FilterSheetView(filters: .constant(ListingFilters()))
         .preferredColorScheme(.dark)
 }

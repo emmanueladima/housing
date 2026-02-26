@@ -6,6 +6,12 @@ struct RoommatesView: View {
     @State private var showCreateGroup = false
     @State private var searchText = ""
     
+    // Grid Columns
+    private let columns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
+    
     // Filtered profiles based on search
     var filteredProfiles: [LifestyleProfile] {
         if searchText.isEmpty {
@@ -85,7 +91,7 @@ struct RoommatesView: View {
     // MARK: - Solo Profiles List
     private var soloProfilesList: some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
+            LazyVGrid(columns: columns, spacing: 12) {
                 if viewModel.isLoadingProfiles {
                     ProgressView()
                         .padding(.top, 40)
@@ -94,7 +100,7 @@ struct RoommatesView: View {
                 } else {
                     ForEach(filteredProfiles) { profile in
                         NavigationLink(destination: RoommateDetailsView(profile: profile)) {
-                            RoommateCard(profile: profile)
+                            RoommateGridCard(profile: profile)
                         }
                         .buttonStyle(.plain)
                     }
@@ -108,7 +114,7 @@ struct RoommatesView: View {
     // MARK: - Groups List
     private var groupsList: some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
+            LazyVGrid(columns: columns, spacing: 12) {
                 if viewModel.isLoadingGroups {
                     ProgressView()
                         .padding(.top, 40)
@@ -117,7 +123,7 @@ struct RoommatesView: View {
                 } else {
                     ForEach(viewModel.groups) { group in
                         NavigationLink(destination: GroupDetailView(group: group)) {
-                            GroupCardView(group: group)
+                            GroupGridCard(group: group)
                         }
                         .buttonStyle(.plain)
                     }
@@ -238,21 +244,26 @@ struct RoommateCard: View {
         VStack(alignment: .leading, spacing: 0) {
             // Top Section with Avatar and Name
             HStack(spacing: 14) {
-                // Gradient Avatar
+                // Profile Image or Initials Fallback
                 ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [accentColor, accentColor.opacity(0.6)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                    if let imageUrl = profile.user?.profileImage, !imageUrl.isEmpty {
+                        AsyncImage(url: URL(string: imageUrl)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            case .failure, .empty:
+                                initialsView
+                            @unknown default:
+                                initialsView
+                            }
+                        }
                         .frame(width: 56, height: 56)
-                    
-                    Text(profile.user?.initials ?? "??")
-                        .font(.title3.bold())
-                        .foregroundStyle(.white)
+                        .clipShape(Circle())
+                    } else {
+                        initialsView
+                    }
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
@@ -288,17 +299,6 @@ struct RoommateCard: View {
                 }
             }
             .padding(16)
-            
-            // Divider with gradient
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [accentColor.opacity(0.3), accentColor.opacity(0.1), .clear],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .frame(height: 2)
             
             // Bottom Section - Lifestyle Tags (use subtle dark/gray styling)
             HStack(spacing: 10) {
@@ -352,6 +352,25 @@ struct RoommateCard: View {
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(accentColor.opacity(0.2), lineWidth: 1)
                 }
+        }
+    }
+    
+    // Helper view for initials fallback
+    private var initialsView: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [accentColor, accentColor.opacity(0.6)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 56, height: 56)
+            
+            Text(profile.user?.initials ?? "??")
+                .font(.title3.bold())
+                .foregroundStyle(.white)
         }
     }
 }
@@ -447,11 +466,147 @@ struct TagView: View {
     }
 }
 
-#Preview {
-    RoommatesView()
+// MARK: - Roommate Grid Card
+struct RoommateGridCard: View {
+    let profile: LifestyleProfile
+    @Environment(\.colorScheme) private var colorScheme
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            // Avatar (Top Center)
+            if let imageUrl = profile.user?.profileImage, !imageUrl.isEmpty {
+                AsyncImage(url: URL(string: imageUrl)) { image in
+                    image.resizable().scaledToFill()
+                } placeholder: {
+                    Color.gray.opacity(0.3)
+                }
+                .frame(width: 80, height: 80)
+                .clipShape(Circle())
+            } else {
+                // Initials Fallback
+                ZStack {
+                    Circle()
+                        .fill(LinearGradient(colors: [Color.collegioOrange, Color.collegioOrange.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .frame(width: 80, height: 80)
+                    Text(profile.user?.initials ?? "?")
+                        .font(.title.bold())
+                        .foregroundStyle(.white)
+                }
+            }
+            
+            // Info
+            VStack(spacing: 4) {
+                // First Name Only
+                Text(profile.user?.firstName ?? "Anonymous")
+                    .font(.headline)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(1)
+                    .foregroundStyle(colorScheme == .dark ? .white : .primary)
+                
+                // Username below
+                if let username = profile.user?.username {
+                    Text("@\(username)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                
+                // Age + School Badge
+                if let age = profile.age {
+                    HStack(spacing: 4) {
+                        Text("\(age)")
+                        Image(systemName: "graduationcap.fill")
+                            .font(.caption2)
+                    }
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 2)
+                }
+            }
+            
+            // Tags (Compact)
+            HStack(spacing: 6) {
+                if let sleep = profile.sleepTime {
+                     Image(systemName: "bed.double.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                if let clean = profile.cleanliness {
+                    Image(systemName: "sparkles")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.top, 4)
+            
+            // Primary Vibe
+            if let firstVibe = profile.vibeTags?.first {
+                Text(firstVibe)
+                    .font(.caption2.bold())
+                    .foregroundStyle(Color.collegioOrange)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.collegioOrange.opacity(0.12), in: Capsule())
+                    .lineLimit(1)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity)
+        .frame(height: 230) // Adjusted height
+        .glassCard(cornerRadius: 16)
+    }
 }
 
-#Preview("Dark Mode") {
-    RoommatesView()
-        .preferredColorScheme(.dark)
+// MARK: - Group Grid Card
+struct GroupGridCard: View {
+    let group: RoommateGroup
+    @Environment(\.colorScheme) private var colorScheme
+    
+    var body: some View {
+        VStack(spacing: 10) {
+            // Group Members Avatars
+            HStack(spacing: -10) {
+                ForEach(Array((group.members ?? []).prefix(3).enumerated()), id: \.offset) { index, member in
+                    Circle()
+                        .fill(LinearGradient(colors: [Color.collegioOrange, Color.collegioOrangeDark], startPoint: .top, endPoint: .bottom))
+                        .frame(width: 44, height: 44)
+                        .overlay {
+                            Text(member.firstName?.prefix(1) ?? "?")
+                                .font(.caption.bold())
+                                .foregroundStyle(.white)
+                        }
+                        .overlay(Circle().stroke(Color.black.opacity(0.5), lineWidth: 2))
+                }
+            }
+            .frame(height: 50)
+            
+            // Group Name
+            Text(group.name)
+                .font(.headline)
+                .multilineTextAlignment(.center)
+                .lineLimit(1)
+                .foregroundStyle(colorScheme == .dark ? .white : .primary)
+            
+            // Looking For
+            if let lookingFor = group.lookingFor {
+                Text("Looking for \(lookingFor)")
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.collegioOrange)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.collegioOrange.opacity(0.1), in: Capsule())
+            }
+            
+            // Budget
+            if let max = group.budget?.max {
+                Text("Up to $\(max)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity)
+        .frame(height: 200)
+        .glassCard(cornerRadius: 16)
+    }
 }
+
